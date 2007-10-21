@@ -41,8 +41,8 @@ unsigned char n;
 __code unsigned char __at 0x1A00 dataflash[512]=0x00;
 
 
-#include <flash305.h>
-#include <fbprot305.h>
+#include <flash.h>
+#include <fbprot.h>
 
 
 
