@@ -1,4 +1,4 @@
-/* $ID$ */
+/* $Id$ */
 
 void write_byte(unsigned char addrh, unsigned char addrl, unsigned char zdata)
 {

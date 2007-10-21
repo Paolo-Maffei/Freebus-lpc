@@ -1,4 +1,4 @@
-/* $ID$ */
+/* $Id$ */
 
 
 // Versionen:	2.00	erstes Programm in C für Hardware Ver. 2

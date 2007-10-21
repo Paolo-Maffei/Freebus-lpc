@@ -1,4 +1,4 @@
-/* $ID$ */
+/* $Id$ */
 
 unsigned char get_byte(void)
 {
