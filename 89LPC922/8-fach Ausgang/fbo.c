@@ -1,5 +1,6 @@
 /* $ID$ */
 
+
 // Versionen:	2.00	erstes Programm in C für Hardware Ver. 2
 //		2.01	Schaltverzögerung hinzugefügt
 //		2.02	Restart Fehler behoben
