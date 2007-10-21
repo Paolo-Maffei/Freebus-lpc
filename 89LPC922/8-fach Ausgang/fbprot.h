@@ -1,3 +1,5 @@
+/* $ID$ */
+
 unsigned char get_byte(void)
 {
 bit rbit,parity,ph;			// dann ist das Telegramm komplett übertragen worden

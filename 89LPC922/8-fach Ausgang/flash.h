@@ -1,3 +1,5 @@
+/* $ID$ */
+
 void write_byte(unsigned char addrh, unsigned char addrl, unsigned char zdata)
 {
   FMCON=0x00;		// read command
