@@ -14,6 +14,11 @@
 //		3.09	Sperrobjekte hinzugefügt
 //		3.10	Fehler in main() behoben (kein delay!)
 
+//	todo:	- Rückmeldeobjekte müssen bei Busspannungswiederkehr senden
+//		- Objekt leses muss bei allen Objekten funktionieren
+//		- Prio beim Senden implementieren
+//		- Zwangsstellungsobjekte implementieren
+
 	
 
 #include <P89LPC922.h>

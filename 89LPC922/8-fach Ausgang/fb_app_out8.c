@@ -7,6 +7,7 @@
 unsigned char portbuffer;	// Zwischenspeicherung der Portzustände
 unsigned char objstate;		// Zustand der Objekte 0-7
 unsigned char zfstate;		// Zustand der Objekte 8-11 = Zusatzfunktionen 1-4
+unsigned char rmstate;		// Zustand der Rückmeldeobjekte
 unsigned char blocked;		// Sperrung der 8 Ausgänge (1=gesperrt)
 unsigned char logicstate;	// Zustand der Verknüpfungen pro Ausgang
 long timer;			// Timer für Schaltverzögerungen, wird alle 130us hochgezählt
@@ -16,7 +17,7 @@ unsigned char pdir;		// Port-Richtung, wenn Bit gesetzt dann ist der entsprechen
 
 void eis1(void)				// Ausgänge schalten gemäß EIS 1 Protokoll (an/aus)
 {
-  unsigned char objno,port_pattern,objflags,gapos,atp,assno,n,gaposh,zfout,zftyp;
+  unsigned char objno,objflags,gapos,atp,assno,n,gaposh,zfout,zftyp;
   unsigned char blockstart,blockend;
  
     gaposh=0;
@@ -25,8 +26,8 @@ void eis1(void)				// Ausgänge schalten gemäß EIS 1 Protokoll (an/aus)
     if (gapos!=0xFF)					// =0xFF falls nicht vorhanden
     {
       send_ack();
-      atp=read_byte(0x01,ASSOCTABPTR);		// Start Association Table
-      assno=read_byte(0x01,atp);		// Erster Eintrag = Anzahl Einträge
+      atp=read_byte(0x01,ASSOCTABPTR);			// Start Association Table
+      assno=read_byte(0x01,atp);			// Erster Eintrag = Anzahl Einträge
  
       for(n=0;n<assno;n++)				// Schleife über alle Einträge in der Ass-Table, denn es könnten mehrere Objekte (Pins) der gleichen Gruppenadresse zugeordnet sein
       {
@@ -36,25 +37,13 @@ void eis1(void)				// Ausgänge schalten gemäß EIS 1 Protokoll (an/aus)
           objno=read_byte(0x01,atp+2+(n*2));			// Objektnummer
           objflags=read_objflags(objno);			// Objekt Flags lesen
           
-          if(objno<8)	// Objektnummer 0-7 entspricht den Ausgängen 1-8
+          if (objno<8)	// Objektnummer 0-7 entspricht den Ausgängen 1-8
           {
-            if (telegramm[7]==0x80) objstate=objstate&(0xFF-(0x01<<objno));
-            if (telegramm[7]==0x81) objstate=objstate|(0x01<<objno);
-            if (telegramm[7]==0x80 || telegramm[7]==0x81) object_schalten(objno);
-                  
-            if(telegramm[7]==0x00 && (objflags&0x08)==0x08 && (objflags&0x04)==0x04)	// Wert lesen, nur wenn read enable gesetzt (Bit3) und Kommunikation zulässig
-            {
-              port_pattern=0x01<<objno;
-              telegramm[0]=0xBC;
-              telegramm[1]=pah;		// Source Adresse
-              telegramm[2]=pal;
-              telegramm[5]=0xE1;		// DRL
-              telegramm[6]=0x00;
-              if((port_pattern&portbuffer)>0) telegramm[7]=0x41;	// An
-              else telegramm[7]=0x40;					// Aus
-              send_telegramm();
-            }
+            if (telegramm[7]==0x80) objstate=objstate&(0xFF-(0x01<<objno));		// Objekt Status = AUS
+            if (telegramm[7]==0x81) objstate=objstate|(0x01<<objno);			// Objekt Status = AUS
+            if (telegramm[7]==0x80 || telegramm[7]==0x81) object_schalten(objno);	// Objekt schalten        
           }
+          
           if (objno>7 && objno<12)	// Objektnummer 8-11 entspricht den Zusatzfunktionen 1-4
           {
             if (telegramm[7]==0x80) zfstate=zfstate & (0x0F-(0x01<<(objno-8)));
@@ -62,7 +51,7 @@ void eis1(void)				// Ausgänge schalten gemäß EIS 1 Protokoll (an/aus)
             zfout=0;
             blockstart=0;
             blockend=0;
-            switch (objno-8)		// Zugeordneten Ausgang zu Zusatzfunktionsnr. in zfout speichern (1-8)
+            switch (objno-8)			// Zugeordneten Ausgang zu Zusatzfunktionsnr. in zfout speichern (1-8)
             {
               case 0x00:		
                 zfout=read_byte(0x01,FUNCASS)&0x0F;		
@@ -124,9 +113,67 @@ void eis1(void)				// Ausgänge schalten gemäß EIS 1 Protokoll (an/aus)
       
     }
 }
-    
 
-void object_schalten(unsigned char objno)
+
+
+void read_value_req(void)				// Objektwerte lesen angefordert
+{
+  unsigned char objno,port_pattern,objflags,gapos,atp,assno,n,gaposh;
+ 
+  gaposh=0;
+
+  gapos=gapos_in_gat(telegramm[3],telegramm[4]);	// Position der Gruppenadresse in der Adresstabelle
+  if (gapos!=0xFF)					// =0xFF falls nicht vorhanden
+  {
+    send_ack();
+    atp=read_byte(0x01,ASSOCTABPTR);			// Start Association Table
+    assno=read_byte(0x01,atp);				// Erster Eintrag = Anzahl Einträge
+ 
+    for(n=0;n<assno;n++)				// Schleife über alle Einträge in der Ass-Table, denn es könnten mehrere Objekte (Pins) der gleichen Gruppenadresse zugeordnet sein
+    {
+      gaposh=read_byte(0x01,atp+1+(n*2));
+      if(gapos==gaposh)					// Wenn Positionsnummer übereinstimmt
+      {
+        objno=read_byte(0x01,atp+2+(n*2));		// Objektnummer
+        objflags=read_objflags(objno);			// Objekt Flags lesen
+       
+        if((objflags&0x08)==0x08 && (objflags&0x04)==0x04)	// Objekt lesen, nur wenn read enable gesetzt (Bit3) und Kommunikation zulässig
+        {            
+          telegramm[0]=0xBC;
+          telegramm[1]=pah;		// Source Adresse
+          telegramm[2]=pal;
+          telegramm[5]=0xE1;		// DRL
+          telegramm[6]=0x00;
+          telegramm[7]=0x40;		// default-wert AUS
+               
+          if(objno<8)	// Objektnummer 0-7 entspricht den Ausgängen 1-8
+          {
+            port_pattern=0x01<<objno;
+            if((port_pattern&objstate)>0) telegramm[7]=0x41;		// An
+          }
+          if(objno>7 && objno<12)		// Zusatzfunktionen
+          {
+            port_pattern=0x01<<(objno-8);
+            if((port_pattern&zfstate)>0) telegramm[7]=0x41;		// An
+          }
+          if(objno>11)			// Rückmeldeobjekte
+          {
+            port_pattern=0x01<<(objno-12);
+            if((port_pattern&rmstate)>0) telegramm[7]=0x41;		// An
+          }	
+          send_telegramm();
+        }
+      }
+    }
+  }
+}
+
+
+
+
+
+
+void object_schalten(unsigned char objno)	// Schaltet einen Ausgang gemäß objstate und den zugörigen Parametern
 {
 
   unsigned char port_pattern,objflags,delay_base,delay_onoff,delay_status,delay_zeit,logicfunc,zfno;

@@ -13,6 +13,7 @@
 #define	DELAYTAB	0xF9	// Start der Tabelle für Verzögerungswerte (Basis)
 
 void eis1(void);		// Hauptroutine für Ausgänge schalten gemäß EIS 1 Protokoll (an/aus)
+void read_value_req(void);	// Objektwerte lesen angefordert
 void delay_timer(void);		// zählt alle 130ms die Variable Timer hoch und prüft Queue
 void respond(unsigned char objno, unsigned char rval);
 void port_schalten(unsigned char ports);	// Ausgänge schalten

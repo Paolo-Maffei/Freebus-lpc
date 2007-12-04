@@ -15,12 +15,7 @@ void timer1(void) interrupt 3	// Interrupt von Timer 1, 370us keine Busaktivität
 
   EX1=0;					// ext. Interrupt stoppen 
   ET1=0;					// Interrupt von Timer 1 sperren
-  TR1=0;					// Timer 1 anhalten
-  TF1=0;
-  TH1=0xED;					// und neu starten für korrekte Positionierung des ACK Bytes
-  TL1=0x80;				
-  TR1=1;
-  
+  set_timer1(4720);				// und neu starten für korrekte Positionierung des ACK Bytes
   
   if(cs==0xff)					// Checksum des Telegramms ist OK 
   {
@@ -67,7 +62,11 @@ void timer1(void) interrupt 3	// Interrupt von Timer 1, 370us keine Busaktivität
       }
       else						// Multicast, wenn Zieladresse Gruppenadresse ist
       {
-        if(data_laenge==1 && telegramm[6]==0x00 && ((telegramm[7]&0xFE)==0x80 || telegramm[7]==0x00)) eis1();	// Ausgänge schalten (EIS 1) oder lesen
+        if(data_laenge==1 && telegramm[6]==0x00)
+        {
+          if ((telegramm[7]&0xFE)==0x80) eis1();		// Ausgänge schalten (EIS 1)
+          if (telegramm[7]==0x00) read_value_req();		// Objektwert lesen und als read_value_res auf Bus senden
+        }
       }
     }
   }

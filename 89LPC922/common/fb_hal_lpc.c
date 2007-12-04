@@ -88,7 +88,7 @@ void ext_int0(void) interrupt 2		// Byte vom Bus empfangen, wird durch negative 
     telpos++;
   }
   
-  set_timer1(2700);			// Timer 1 starten für Timeout 370us -> signalisiert Telegrammende (1460)
+  set_timer1(1350);			// Timer 1 starten für Timeout 370us -> signalisiert Telegrammende (1350)
   
   ET1=1;				// Interrupt für Timer 1 freigeben
   IE1=0;				// Interrupt 0 request zurücksetzen
@@ -169,7 +169,7 @@ void write_byte(unsigned char addrh, unsigned char addrl, unsigned char zdata)	/
 }
 
 
-void delay(int deltime)			// Warten, deltime = Anzahl Takte
+void delay(int deltime)			// Warten, deltime = Anzahl Takte / 2 (Timer wird mit CCLK/2 betrieben)
 {
   TR1=0;				// Timer 1 anhalten
   deltime=0xFFFF-deltime;
@@ -182,7 +182,7 @@ void delay(int deltime)			// Warten, deltime = Anzahl Takte
 }
 
 
-void set_timer1(int deltime)		// Warten, deltime = Anzahl Takte
+void set_timer1(int deltime)		// Timer 1 stoppen, setzen und starten (Timer wird mit CCLK/2 betrieben)
 {
   TR1=0;				// Timer 1 anhalten
   deltime=0xFFFF-deltime;
