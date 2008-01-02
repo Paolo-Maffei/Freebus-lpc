@@ -6,6 +6,25 @@
 
 void eis1(void)
 {
+  rs_send_dec(telegramm[3]>>3);
+  SBUF='.';
+  while(!TI);
+  TI=0;
+  rs_send_dec(telegramm[3] & 0x07);
+  SBUF='.';
+  while(!TI);
+  TI=0;
+  rs_send_dec(telegramm[4]);
+  SBUF='=';
+  while(!TI);
+  TI=0;
+  rs_send_dec(telegramm[7] & 0x01);
+  SBUF=0x0D;
+  while(!TI);
+  TI=0;
+  SBUF=0x0A;
+  while(!TI);
+  TI=0;
 }
 
 void read_value_req(void)

@@ -64,8 +64,8 @@ void main(void)
           groupadr=groupadr*256;
           groupadr=groupadr+((rsin[11]-48)*100) + ((rsin[12]-48)*10) + (rsin[13]-48);
           telegramm[0]=0xBC;
-          telegramm[1]=0x11;
-          telegramm[2]=0x49;
+          telegramm[1]=pah;
+          telegramm[2]=pal;
           telegramm[3]=groupadr>>8;
           telegramm[4]=groupadr;
           telegramm[5]=0xE1;
@@ -75,6 +75,36 @@ void main(void)
           EX1=0;
           send_telegramm();
           EX1=1;
+          rs_send_ok();
+        }
+        if(rsin[2]=='r' && rsin[3]=='p' && rsin[4]=='a')	// physikalische Adresse des Adaptrs lesen (fbrpa)
+        {
+          rs_send_dec(pah>>4);
+          SBUF='.';
+          while(!TI);
+          TI=0;
+          rs_send_dec(pah&0x0F);
+          SBUF='.';
+          while(!TI);
+          TI=0;
+          rs_send_dec(pal);
+          SBUF=0x0D;
+          while(!TI);
+          TI=0;
+          SBUF=0x0A;
+          while(!TI);
+          TI=0;
+        }
+        if(rsin[2]=='s' && rsin[3]=='p' && rsin[4]=='a' && rsin[7]=='.' && rsin[10]=='.' && rsinpos==14)	// phys. Adresse des Adapters setzen (fbspaxx.xx.xxx)
+        {
+          pah=(((rsin[5]-48)*10) + (rsin[6]-48))*16;
+          pah=pah + (((rsin[8]-48)*10) + (rsin[9]-48));
+          pal=(((rsin[11]-48)*100) + ((rsin[12]-48)*10) + (rsin[13]-48));
+          start_writecycle();
+  	  write_byte(0x01,ADDRTAB+1,pah);		// in Flash schreiben
+  	  write_byte(0x01,ADDRTAB+2,pal);
+  	  stop_writecycle();
+  	  rs_send_ok();
         }
       }
       for(n=0;n<20;n++) rsin[n]=0x00;
@@ -82,6 +112,7 @@ void main(void)
       cr_received=0;
       crlf_received=0;
     }
+    
     
     TASTER=1;				// Pin als Eingang schalten um Taster abzufragen
     if(!TASTER) {			// Taster gedrückt
