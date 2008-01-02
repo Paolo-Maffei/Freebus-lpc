@@ -8,3 +8,44 @@ void rs_init(void)
   BRGR0=0x30;
   BRGCON|=0x01;	// Baudrate Generator starten
 }
+
+void rs_send_dec(unsigned char wert)
+{
+  unsigned char n;
+  
+  n=wert/100;
+  if(n>0)
+  {
+    SBUF=n+48;
+    while(!TI);
+    TI=0;
+  }
+  wert=wert-(n*100);
+  n=wert/10;
+  if(n>0)
+  {
+    SBUF=n+48;
+    while(!TI);
+    TI=0;
+  }
+  wert=wert-(n*10);
+  SBUF=wert+48;
+  while(!TI);
+  TI=0;
+}
+
+void rs_send_ok(void)
+{
+  SBUF='O';
+  while(!TI);
+  TI=0;
+  SBUF='K';
+  while(!TI);
+  TI=0;
+  SBUF=0x0D;
+  while(!TI);
+  TI=0;
+  SBUF=0x0A;
+  while(!TI);
+  TI=0;
+}
