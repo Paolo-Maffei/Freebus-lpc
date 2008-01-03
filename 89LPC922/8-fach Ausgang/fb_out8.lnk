@@ -9,6 +9,6 @@
 -l libint
 -l liblong
 -l libfloat
-fb_rs.rel
+fb_out8.rel
 
 -e
