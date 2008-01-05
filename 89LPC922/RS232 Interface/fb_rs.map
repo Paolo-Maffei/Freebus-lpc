@@ -205,9 +205,9 @@ Area                               Addr   Size   Decimal Bytes (Attributes)
      00FA    _IP1_2
      00FE    _IP1_6
      0100    l_IRAM
-     0E5B    l_CSEG
-     0ED5    s_CONST
-     0ED5    s_XINIT
+     1097    l_CSEG
+     1111    s_CONST
+     1111    s_XINIT
      1C00    _dataflash
 
 Hexadecimal
@@ -400,7 +400,7 @@ Hexadecimal
 
 Area                               Addr   Size   Decimal Bytes (Attributes)
 --------------------------------   ----   ----   ------- ----- ------------
-CSEG                               007A   0E5B =   3675. bytes (REL,CON,CODE)
+CSEG                               007A   1097 =   4247. bytes (REL,CON,CODE)
 
       Value  Global
    --------  --------------------------------
@@ -439,21 +439,21 @@ CSEG                               007A   0E5B =   3675. bytes (REL,CON,CODE)
   0C:0A80    _read_value_req
   0C:0A81    _restart_app
   0C:0A8B    _main
-  0C:0EAF    __mulint
-  0C:0EAF    __mulint_dummy
-  0C:0ED1    __sdcc_external_startup
+  0C:10EB    __mulint
+  0C:10EB    __mulint_dummy
+  0C:110D    __sdcc_external_startup
 
 Hexadecimal
 
 Area                               Addr   Size   Decimal Bytes (Attributes)
 --------------------------------   ----   ----   ------- ----- ------------
-CONST                              0ED5   0000 =      0. bytes (REL,CON,CODE)
+CONST                              1111   0000 =      0. bytes (REL,CON,CODE)
 
 Hexadecimal
 
 Area                               Addr   Size   Decimal Bytes (Attributes)
 --------------------------------   ----   ----   ------- ----- ------------
-XINIT                              0ED5   0000 =      0. bytes (REL,CON,CODE)
+XINIT                              1111   0000 =      0. bytes (REL,CON,CODE)
 ASxxxx Linker V01.70 + NoICE + SDCC Feb 1999,  page 1.
 
 Files Linked      [ module(s) ]

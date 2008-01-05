@@ -1,7 +1,7 @@
                               1 ;--------------------------------------------------------
                               2 ; File Created by SDCC : FreeWare ANSI-C Compiler
                               3 ; Version 2.6.1 #4376 (Sep 14 2006)
-                              4 ; This file generated Wed Jan 02 12:56:17 2008
+                              4 ; This file generated Fri Jan 04 15:06:37 2008
                               5 ;--------------------------------------------------------
                               6 	.module fb_rs
                               7 	.optsdcc -mmcs51 --model-small
@@ -3855,13 +3855,13 @@
                            3855 ;------------------------------------------------------------
                            3856 ;Allocation info for local variables in function 'main'
                            3857 ;------------------------------------------------------------
-                           3858 ;n                         Allocated to registers r2 
-                           3859 ;rsinpos                   Allocated to stack - offset 1
-                           3860 ;rsin                      Allocated to stack - offset 2
+                           3858 ;n                         Allocated to registers r3 
+                           3859 ;rsinpos                   Allocated to registers r2 
+                           3860 ;rsin                      Allocated to stack - offset 1
                            3861 ;cr_received               Allocated to registers b0 
                            3862 ;crlf_received             Allocated to registers b1 
                            3863 ;groupadr                  Allocated to registers r4 r5 
-                           3864 ;sloc0                     Allocated to stack - offset 22
+                           3864 ;sloc0                     Allocated to stack - offset 21
                            3865 ;------------------------------------------------------------
                            3866 ;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:18: void main(void)
                            3867 ;	-----------------------------------------
@@ -3872,7 +3872,7 @@
                            3872 ;	peephole 177.h	optimized mov sequence
    0A8D E5 81              3873 	mov	a,sp
    0A8F F5 08              3874 	mov	_bp,a
-   0A91 24 17              3875 	add	a,#0x17
+   0A91 24 16              3875 	add	a,#0x16
    0A93 F5 81              3876 	mov	sp,a
                            3877 ;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:25: restart_hw();				// Hardware zurücksetzen
                            3878 ;	genCall
@@ -3888,1161 +3888,1709 @@
    0A9E 12 09 BD           3888 	lcall	_rs_init
                            3889 ;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:30: rsinpos=0;
                            3890 ;	genAssign
-   0AA1 A8 08              3891 	mov	r0,_bp
-   0AA3 08                 3892 	inc	r0
-   0AA4 76 00              3893 	mov	@r0,#0x00
-                           3894 ;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:31: cr_received=0;
-                           3895 ;	genAssign
-   0AA6 C2 08              3896 	clr	b0
-                           3897 ;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:32: crlf_received=0;
-                           3898 ;	genAssign
-   0AA8 C2 09              3899 	clr	b1
-                           3900 ;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:35: do  {
-   0AAA                    3901 00156$:
-                           3902 ;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:36: if (RI)
-                           3903 ;	genIfx
-                           3904 ;	genIfxJump
-                           3905 ;	Peephole 108.d	removed ljmp by inverse jump logic
-   0AAA 30 98 2C           3906 	jnb	_SCON_0,00108$
-                           3907 ;	Peephole 300	removed redundant label 00218$
-                           3908 ;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:38: switch (SBUF)
-                           3909 ;	genAssign
-   0AAD AB 99              3910 	mov	r3,_SBUF
-                           3911 ;	genCmpEq
-                           3912 ;	gencjneshort
-   0AAF BB 0A 02           3913 	cjne	r3,#0x0A,00219$
-                           3914 ;	Peephole 112.b	changed ljmp to sjmp
-   0AB2 80 07              3915 	sjmp	00102$
-   0AB4                    3916 00219$:
-                           3917 ;	genCmpEq
-                           3918 ;	gencjneshort
-                           3919 ;	Peephole 112.b	changed ljmp to sjmp
-                           3920 ;	Peephole 198.b	optimized misc jump sequence
-   0AB4 BB 0D 0B           3921 	cjne	r3,#0x0D,00105$
-                           3922 ;	Peephole 200.b	removed redundant sjmp
-                           3923 ;	Peephole 300	removed redundant label 00220$
-                           3924 ;	Peephole 300	removed redundant label 00221$
-                           3925 ;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:41: cr_received=1;
-                           3926 ;	genAssign
-   0AB7 D2 08              3927 	setb	b0
-                           3928 ;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:42: break;
-                           3929 ;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:43: case 0x0A:
-                           3930 ;	Peephole 112.b	changed ljmp to sjmp
-   0AB9 80 1C              3931 	sjmp	00106$
-   0ABB                    3932 00102$:
-                           3933 ;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:44: if (cr_received) crlf_received=1;
-                           3934 ;	genIfx
-                           3935 ;	genIfxJump
-                           3936 ;	Peephole 108.d	removed ljmp by inverse jump logic
-   0ABB 30 08 19           3937 	jnb	b0,00106$
-                           3938 ;	Peephole 300	removed redundant label 00222$
-                           3939 ;	genAssign
-   0ABE D2 09              3940 	setb	b1
-                           3941 ;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:45: break;
-                           3942 ;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:46: default:
-                           3943 ;	Peephole 112.b	changed ljmp to sjmp
-   0AC0 80 15              3944 	sjmp	00106$
-   0AC2                    3945 00105$:
-                           3946 ;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:47: rsin[rsinpos]=SBUF;
-                           3947 ;	genAddrOf
-   0AC2 E5 08              3948 	mov	a,_bp
-   0AC4 24 02              3949 	add	a,#0x02
-   0AC6 FB                 3950 	mov	r3,a
-                           3951 ;	genPlus
-   0AC7 A9 08              3952 	mov	r1,_bp
-   0AC9 09                 3953 	inc	r1
-   0ACA E7                 3954 	mov	a,@r1
-                           3955 ;	Peephole 236.a	used r3 instead of ar3
-   0ACB 2B                 3956 	add	a,r3
-   0ACC F8                 3957 	mov	r0,a
-                           3958 ;	genPointerSet
-                           3959 ;	genNearPointerSet
-   0ACD A6 99              3960 	mov	@r0,_SBUF
-                           3961 ;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:48: rsinpos++;
-                           3962 ;	genPlus
-   0ACF A8 08              3963 	mov	r0,_bp
-   0AD1 08                 3964 	inc	r0
-                           3965 ;     genPlusIncr
-   0AD2 06                 3966 	inc	@r0
-                           3967 ;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:49: cr_received=0;
-                           3968 ;	genAssign
-   0AD3 C2 08              3969 	clr	b0
-                           3970 ;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:50: crlf_received=0;
+   0AA1 7A 00              3891 	mov	r2,#0x00
+                           3892 ;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:31: cr_received=0;
+                           3893 ;	genAssign
+   0AA3 C2 08              3894 	clr	b0
+                           3895 ;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:32: crlf_received=0;
+                           3896 ;	genAssign
+   0AA5 C2 09              3897 	clr	b1
+                           3898 ;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:35: do  {
+   0AA7                    3899 00164$:
+                           3900 ;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:36: if (RI)
+                           3901 ;	genIfx
+                           3902 ;	genIfxJump
+                           3903 ;	Peephole 108.d	removed ljmp by inverse jump logic
+   0AA7 30 98 24           3904 	jnb	_SCON_0,00108$
+                           3905 ;	Peephole 300	removed redundant label 00233$
+                           3906 ;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:38: switch (SBUF)
+                           3907 ;	genAssign
+   0AAA AB 99              3908 	mov	r3,_SBUF
+                           3909 ;	genCmpEq
+                           3910 ;	gencjneshort
+   0AAC BB 0A 02           3911 	cjne	r3,#0x0A,00234$
+                           3912 ;	Peephole 112.b	changed ljmp to sjmp
+   0AAF 80 07              3913 	sjmp	00102$
+   0AB1                    3914 00234$:
+                           3915 ;	genCmpEq
+                           3916 ;	gencjneshort
+                           3917 ;	Peephole 112.b	changed ljmp to sjmp
+                           3918 ;	Peephole 198.b	optimized misc jump sequence
+   0AB1 BB 0D 0B           3919 	cjne	r3,#0x0D,00105$
+                           3920 ;	Peephole 200.b	removed redundant sjmp
+                           3921 ;	Peephole 300	removed redundant label 00235$
+                           3922 ;	Peephole 300	removed redundant label 00236$
+                           3923 ;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:41: cr_received=1;
+                           3924 ;	genAssign
+   0AB4 D2 08              3925 	setb	b0
+                           3926 ;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:42: break;
+                           3927 ;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:43: case 0x0A:
+                           3928 ;	Peephole 112.b	changed ljmp to sjmp
+   0AB6 80 14              3929 	sjmp	00106$
+   0AB8                    3930 00102$:
+                           3931 ;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:44: if (cr_received) crlf_received=1;
+                           3932 ;	genIfx
+                           3933 ;	genIfxJump
+                           3934 ;	Peephole 108.d	removed ljmp by inverse jump logic
+   0AB8 30 08 11           3935 	jnb	b0,00106$
+                           3936 ;	Peephole 300	removed redundant label 00237$
+                           3937 ;	genAssign
+   0ABB D2 09              3938 	setb	b1
+                           3939 ;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:45: break;
+                           3940 ;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:46: default:
+                           3941 ;	Peephole 112.b	changed ljmp to sjmp
+   0ABD 80 0D              3942 	sjmp	00106$
+   0ABF                    3943 00105$:
+                           3944 ;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:47: rsin[rsinpos]=SBUF;
+                           3945 ;	genAddrOf
+                           3946 ;	Peephole 212	reduced add sequence to inc
+   0ABF AB 08              3947 	mov	r3,_bp
+   0AC1 0B                 3948 	inc	r3
+                           3949 ;	genPlus
+                           3950 ;	Peephole 236.g	used r2 instead of ar2
+   0AC2 EA                 3951 	mov	a,r2
+                           3952 ;	Peephole 236.a	used r3 instead of ar3
+   0AC3 2B                 3953 	add	a,r3
+   0AC4 F8                 3954 	mov	r0,a
+                           3955 ;	genPointerSet
+                           3956 ;	genNearPointerSet
+   0AC5 A6 99              3957 	mov	@r0,_SBUF
+                           3958 ;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:48: rsinpos++;
+                           3959 ;	genPlus
+                           3960 ;     genPlusIncr
+   0AC7 0A                 3961 	inc	r2
+                           3962 ;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:49: cr_received=0;
+                           3963 ;	genAssign
+   0AC8 C2 08              3964 	clr	b0
+                           3965 ;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:50: crlf_received=0;
+                           3966 ;	genAssign
+   0ACA C2 09              3967 	clr	b1
+                           3968 ;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:51: }
+   0ACC                    3969 00106$:
+                           3970 ;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:52: RI=0;
                            3971 ;	genAssign
-   0AD5 C2 09              3972 	clr	b1
-                           3973 ;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:51: }
-   0AD7                    3974 00106$:
-                           3975 ;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:52: RI=0;
-                           3976 ;	genAssign
-   0AD7 C2 98              3977 	clr	_SCON_0
-   0AD9                    3978 00108$:
-                           3979 ;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:55: if (crlf_received)			// Zeile vollständig empfangen
-                           3980 ;	genIfx
-                           3981 ;	genIfxJump
-   0AD9 20 09 03           3982 	jb	b1,00223$
-   0ADC 02 0E 8F           3983 	ljmp	00150$
-   0ADF                    3984 00223$:
-                           3985 ;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:57: if (rsin[0]=='f' && rsin[1]=='b')	// Magic-word 'fb' empfangen
-                           3986 ;	genAddrOf
-   0ADF E5 08              3987 	mov	a,_bp
-   0AE1 24 02              3988 	add	a,#0x02
-   0AE3 F8                 3989 	mov	r0,a
-                           3990 ;	genPointerGet
-                           3991 ;	genNearPointerGet
-   0AE4 86 03              3992 	mov	ar3,@r0
-                           3993 ;	genCmpEq
-                           3994 ;	gencjneshort
-   0AE6 BB 66 02           3995 	cjne	r3,#0x66,00224$
-   0AE9 80 03              3996 	sjmp	00225$
-   0AEB                    3997 00224$:
-   0AEB 02 0E 77           3998 	ljmp	00206$
-   0AEE                    3999 00225$:
-                           4000 ;	genPlus
-                           4001 ;     genPlusIncr
-   0AEE 74 01              4002 	mov	a,#0x01
-                           4003 ;	Peephole 236.a	used r0 instead of ar0
-   0AF0 28                 4004 	add	a,r0
-   0AF1 F9                 4005 	mov	r1,a
-                           4006 ;	genPointerGet
-                           4007 ;	genNearPointerGet
-   0AF2 87 03              4008 	mov	ar3,@r1
-                           4009 ;	genCmpEq
-                           4010 ;	gencjneshort
-   0AF4 BB 62 02           4011 	cjne	r3,#0x62,00226$
-   0AF7 80 03              4012 	sjmp	00227$
-   0AF9                    4013 00226$:
-   0AF9 02 0E 77           4014 	ljmp	00206$
-   0AFC                    4015 00227$:
-                           4016 ;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:59: if(rsin[2]=='s' && rsin[3]=='0' && rsin[4]=='1' && rsin[5]=='/' && rsin[8]=='/' && rsin[10]=='/' && rsin[14]=='=' && (rsin[15]=='0' || rsin[15]=='1'))	// EIS 1 senden
-                           4017 ;	genPlus
-                           4018 ;     genPlusIncr
-   0AFC 74 02              4019 	mov	a,#0x02
-                           4020 ;	Peephole 236.a	used r0 instead of ar0
-   0AFE 28                 4021 	add	a,r0
-   0AFF F9                 4022 	mov	r1,a
-                           4023 ;	genPointerGet
-                           4024 ;	genNearPointerGet
-   0B00 87 03              4025 	mov	ar3,@r1
-                           4026 ;	genCmpEq
-                           4027 ;	gencjneshort
-   0B02 BB 73 02           4028 	cjne	r3,#0x73,00228$
-   0B05 80 03              4029 	sjmp	00229$
-   0B07                    4030 00228$:
-   0B07 02 0D 16           4031 	ljmp	00114$
-   0B0A                    4032 00229$:
-                           4033 ;	genPlus
-                           4034 ;     genPlusIncr
-   0B0A 74 03              4035 	mov	a,#0x03
-                           4036 ;	Peephole 236.a	used r0 instead of ar0
-   0B0C 28                 4037 	add	a,r0
-   0B0D FB                 4038 	mov	r3,a
-                           4039 ;	genPointerGet
-                           4040 ;	genNearPointerGet
-   0B0E C0 00              4041 	push	ar0
-   0B10 A8 03              4042 	mov	r0,ar3
-   0B12 86 03              4043 	mov	ar3,@r0
-   0B14 D0 00              4044 	pop	ar0
-                           4045 ;	genCmpEq
-                           4046 ;	gencjneshort
-   0B16 BB 30 02           4047 	cjne	r3,#0x30,00230$
-   0B19 80 03              4048 	sjmp	00231$
-   0B1B                    4049 00230$:
-   0B1B 02 0D 16           4050 	ljmp	00114$
-   0B1E                    4051 00231$:
-                           4052 ;	genPlus
-                           4053 ;     genPlusIncr
-   0B1E 74 04              4054 	mov	a,#0x04
-                           4055 ;	Peephole 236.a	used r0 instead of ar0
-   0B20 28                 4056 	add	a,r0
-   0B21 FB                 4057 	mov	r3,a
-                           4058 ;	genPointerGet
-                           4059 ;	genNearPointerGet
-   0B22 C0 00              4060 	push	ar0
-   0B24 A8 03              4061 	mov	r0,ar3
-   0B26 86 03              4062 	mov	ar3,@r0
-   0B28 D0 00              4063 	pop	ar0
-                           4064 ;	genCmpEq
-                           4065 ;	gencjneshort
-   0B2A BB 31 02           4066 	cjne	r3,#0x31,00232$
-   0B2D 80 03              4067 	sjmp	00233$
-   0B2F                    4068 00232$:
-   0B2F 02 0D 16           4069 	ljmp	00114$
-   0B32                    4070 00233$:
-                           4071 ;	genPlus
-                           4072 ;     genPlusIncr
-   0B32 74 05              4073 	mov	a,#0x05
-                           4074 ;	Peephole 236.a	used r0 instead of ar0
-   0B34 28                 4075 	add	a,r0
-   0B35 FB                 4076 	mov	r3,a
-                           4077 ;	genPointerGet
-                           4078 ;	genNearPointerGet
-   0B36 C0 00              4079 	push	ar0
-   0B38 A8 03              4080 	mov	r0,ar3
-   0B3A 86 03              4081 	mov	ar3,@r0
-   0B3C D0 00              4082 	pop	ar0
-                           4083 ;	genCmpEq
-                           4084 ;	gencjneshort
-   0B3E BB 2F 02           4085 	cjne	r3,#0x2F,00234$
-   0B41 80 03              4086 	sjmp	00235$
-   0B43                    4087 00234$:
-   0B43 02 0D 16           4088 	ljmp	00114$
-   0B46                    4089 00235$:
-                           4090 ;	genPlus
-                           4091 ;     genPlusIncr
-   0B46 74 08              4092 	mov	a,#0x08
-                           4093 ;	Peephole 236.a	used r0 instead of ar0
-   0B48 28                 4094 	add	a,r0
-   0B49 FB                 4095 	mov	r3,a
-                           4096 ;	genPointerGet
-                           4097 ;	genNearPointerGet
-   0B4A C0 00              4098 	push	ar0
-   0B4C A8 03              4099 	mov	r0,ar3
-   0B4E 86 03              4100 	mov	ar3,@r0
-   0B50 D0 00              4101 	pop	ar0
-                           4102 ;	genCmpEq
-                           4103 ;	gencjneshort
-   0B52 BB 2F 02           4104 	cjne	r3,#0x2F,00236$
-   0B55 80 03              4105 	sjmp	00237$
-   0B57                    4106 00236$:
-   0B57 02 0D 16           4107 	ljmp	00114$
-   0B5A                    4108 00237$:
-                           4109 ;	genPlus
-                           4110 ;     genPlusIncr
-   0B5A 74 0A              4111 	mov	a,#0x0A
-                           4112 ;	Peephole 236.a	used r0 instead of ar0
-   0B5C 28                 4113 	add	a,r0
-   0B5D FB                 4114 	mov	r3,a
-                           4115 ;	genPointerGet
-                           4116 ;	genNearPointerGet
-   0B5E C0 00              4117 	push	ar0
-   0B60 A8 03              4118 	mov	r0,ar3
-   0B62 86 03              4119 	mov	ar3,@r0
-   0B64 D0 00              4120 	pop	ar0
-                           4121 ;	genCmpEq
-                           4122 ;	gencjneshort
-   0B66 BB 2F 02           4123 	cjne	r3,#0x2F,00238$
-   0B69 80 03              4124 	sjmp	00239$
-   0B6B                    4125 00238$:
-   0B6B 02 0D 16           4126 	ljmp	00114$
-   0B6E                    4127 00239$:
-                           4128 ;	genPlus
-                           4129 ;     genPlusIncr
-   0B6E 74 0E              4130 	mov	a,#0x0E
-                           4131 ;	Peephole 236.a	used r0 instead of ar0
-   0B70 28                 4132 	add	a,r0
-   0B71 FB                 4133 	mov	r3,a
-                           4134 ;	genPointerGet
-                           4135 ;	genNearPointerGet
-   0B72 C0 00              4136 	push	ar0
-   0B74 A8 03              4137 	mov	r0,ar3
-   0B76 86 03              4138 	mov	ar3,@r0
-   0B78 D0 00              4139 	pop	ar0
-                           4140 ;	genCmpEq
-                           4141 ;	gencjneshort
-   0B7A BB 3D 02           4142 	cjne	r3,#0x3D,00240$
-   0B7D 80 03              4143 	sjmp	00241$
-   0B7F                    4144 00240$:
-   0B7F 02 0D 16           4145 	ljmp	00114$
-   0B82                    4146 00241$:
-                           4147 ;	genPlus
-                           4148 ;     genPlusIncr
-   0B82 74 0F              4149 	mov	a,#0x0F
-                           4150 ;	Peephole 236.a	used r0 instead of ar0
-   0B84 28                 4151 	add	a,r0
-   0B85 FB                 4152 	mov	r3,a
-                           4153 ;	genPointerGet
-                           4154 ;	genNearPointerGet
-   0B86 C0 00              4155 	push	ar0
-   0B88 A8 03              4156 	mov	r0,ar3
-   0B8A 86 04              4157 	mov	ar4,@r0
-   0B8C D0 00              4158 	pop	ar0
-                           4159 ;	genCmpEq
-                           4160 ;	gencjneshort
-   0B8E BC 30 02           4161 	cjne	r4,#0x30,00242$
-                           4162 ;	Peephole 112.b	changed ljmp to sjmp
-   0B91 80 08              4163 	sjmp	00113$
-   0B93                    4164 00242$:
-                           4165 ;	genCmpEq
-                           4166 ;	gencjneshort
-   0B93 BC 31 02           4167 	cjne	r4,#0x31,00243$
-   0B96 80 03              4168 	sjmp	00244$
-   0B98                    4169 00243$:
-   0B98 02 0D 16           4170 	ljmp	00114$
-   0B9B                    4171 00244$:
-   0B9B                    4172 00113$:
-                           4173 ;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:61: groupadr=((rsin[6]-48)*10) + (rsin[7]-48);
-                           4174 ;	genIpush
-   0B9B C0 01              4175 	push	ar1
-                           4176 ;	genPlus
-                           4177 ;     genPlusIncr
-   0B9D 74 06              4178 	mov	a,#0x06
-                           4179 ;	Peephole 236.a	used r0 instead of ar0
-   0B9F 28                 4180 	add	a,r0
-   0BA0 FC                 4181 	mov	r4,a
-                           4182 ;	genPointerGet
-                           4183 ;	genNearPointerGet
-   0BA1 C0 00              4184 	push	ar0
-   0BA3 A8 04              4185 	mov	r0,ar4
-   0BA5 86 04              4186 	mov	ar4,@r0
-   0BA7 D0 00              4187 	pop	ar0
-                           4188 ;	genCast
-   0BA9 7D 00              4189 	mov	r5,#0x00
-                           4190 ;	genMinus
-   0BAB EC                 4191 	mov	a,r4
-   0BAC 24 D0              4192 	add	a,#0xd0
-   0BAE F5 82              4193 	mov	dpl,a
-   0BB0 ED                 4194 	mov	a,r5
-   0BB1 34 FF              4195 	addc	a,#0xff
-   0BB3 F5 83              4196 	mov	dph,a
-                           4197 ;	genIpush
-   0BB5 C0 03              4198 	push	ar3
-   0BB7 C0 00              4199 	push	ar0
-   0BB9 C0 01              4200 	push	ar1
-   0BBB 74 0A              4201 	mov	a,#0x0A
-   0BBD C0 E0              4202 	push	acc
-                           4203 ;	Peephole 181	changed mov to clr
-   0BBF E4                 4204 	clr	a
-   0BC0 C0 E0              4205 	push	acc
-                           4206 ;	genCall
-   0BC2 12 0E AF           4207 	lcall	__mulint
-   0BC5 AC 82              4208 	mov	r4,dpl
-   0BC7 AD 83              4209 	mov	r5,dph
-   0BC9 15 81              4210 	dec	sp
-   0BCB 15 81              4211 	dec	sp
-   0BCD D0 01              4212 	pop	ar1
-   0BCF D0 00              4213 	pop	ar0
-   0BD1 D0 03              4214 	pop	ar3
-                           4215 ;	genPlus
-                           4216 ;     genPlusIncr
-   0BD3 74 07              4217 	mov	a,#0x07
-                           4218 ;	Peephole 236.a	used r0 instead of ar0
-   0BD5 28                 4219 	add	a,r0
-   0BD6 FE                 4220 	mov	r6,a
-                           4221 ;	genPointerGet
-                           4222 ;	genNearPointerGet
-   0BD7 C0 00              4223 	push	ar0
-   0BD9 A8 06              4224 	mov	r0,ar6
-   0BDB 86 06              4225 	mov	ar6,@r0
-   0BDD D0 00              4226 	pop	ar0
-                           4227 ;	genCast
-   0BDF 7F 00              4228 	mov	r7,#0x00
-                           4229 ;	genMinus
-   0BE1 EE                 4230 	mov	a,r6
-   0BE2 24 D0              4231 	add	a,#0xd0
-   0BE4 FE                 4232 	mov	r6,a
-   0BE5 EF                 4233 	mov	a,r7
-   0BE6 34 FF              4234 	addc	a,#0xff
-   0BE8 FF                 4235 	mov	r7,a
-                           4236 ;	genPlus
-                           4237 ;	Peephole 236.g	used r6 instead of ar6
-   0BE9 EE                 4238 	mov	a,r6
-                           4239 ;	Peephole 236.a	used r4 instead of ar4
-   0BEA 2C                 4240 	add	a,r4
-   0BEB FC                 4241 	mov	r4,a
-                           4242 ;	Peephole 236.g	used r7 instead of ar7
-   0BEC EF                 4243 	mov	a,r7
-                           4244 ;	Peephole 236.b	used r5 instead of ar5
-   0BED 3D                 4245 	addc	a,r5
-                           4246 ;	genAssign
-                           4247 ;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:62: groupadr=groupadr*8;
-                           4248 ;	genLeftShift
-                           4249 ;	genLeftShiftLiteral
-                           4250 ;	genlshTwo
-   0BEE FD                 4251 	mov	r5,a
-                           4252 ;	Peephole 105	removed redundant mov
-   0BEF C4                 4253 	swap	a
-   0BF0 03                 4254 	rr	a
-   0BF1 54 F8              4255 	anl	a,#0xf8
-   0BF3 CC                 4256 	xch	a,r4
-   0BF4 C4                 4257 	swap	a
-   0BF5 03                 4258 	rr	a
-   0BF6 CC                 4259 	xch	a,r4
-   0BF7 6C                 4260 	xrl	a,r4
-   0BF8 CC                 4261 	xch	a,r4
-   0BF9 54 F8              4262 	anl	a,#0xf8
-   0BFB CC                 4263 	xch	a,r4
-   0BFC 6C                 4264 	xrl	a,r4
-   0BFD FD                 4265 	mov	r5,a
-                           4266 ;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:63: groupadr=groupadr + (rsin[9]-48);
-                           4267 ;	genPlus
-                           4268 ;     genPlusIncr
-   0BFE 74 09              4269 	mov	a,#0x09
-                           4270 ;	Peephole 236.a	used r0 instead of ar0
-   0C00 28                 4271 	add	a,r0
-   0C01 FE                 4272 	mov	r6,a
-                           4273 ;	genPointerGet
-                           4274 ;	genNearPointerGet
-   0C02 C0 00              4275 	push	ar0
-   0C04 A8 06              4276 	mov	r0,ar6
-   0C06 86 06              4277 	mov	ar6,@r0
-   0C08 D0 00              4278 	pop	ar0
-                           4279 ;	genCast
-   0C0A 7F 00              4280 	mov	r7,#0x00
-                           4281 ;	genMinus
-   0C0C EE                 4282 	mov	a,r6
-   0C0D 24 D0              4283 	add	a,#0xd0
-   0C0F FE                 4284 	mov	r6,a
-   0C10 EF                 4285 	mov	a,r7
-   0C11 34 FF              4286 	addc	a,#0xff
-   0C13 FF                 4287 	mov	r7,a
-                           4288 ;	genPlus
-                           4289 ;	Peephole 236.g	used r6 instead of ar6
-   0C14 EE                 4290 	mov	a,r6
-                           4291 ;	Peephole 236.a	used r4 instead of ar4
-   0C15 2C                 4292 	add	a,r4
-   0C16 FC                 4293 	mov	r4,a
-                           4294 ;	Peephole 236.g	used r7 instead of ar7
-   0C17 EF                 4295 	mov	a,r7
-                           4296 ;	Peephole 236.b	used r5 instead of ar5
-   0C18 3D                 4297 	addc	a,r5
-                           4298 ;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:64: groupadr=groupadr*256;
-                           4299 ;	genLeftShift
-                           4300 ;	genLeftShiftLiteral
-                           4301 ;	genlshTwo
-                           4302 ;	peephole 177.e	removed redundant move
-   0C19 8C 05              4303 	mov	ar5,r4
-   0C1B 7C 00              4304 	mov	r4,#0x00
-                           4305 ;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:65: groupadr=groupadr+((rsin[11]-48)*100) + ((rsin[12]-48)*10) + (rsin[13]-48);
-                           4306 ;	genPlus
-                           4307 ;     genPlusIncr
-   0C1D 74 0B              4308 	mov	a,#0x0B
-                           4309 ;	Peephole 236.a	used r0 instead of ar0
-   0C1F 28                 4310 	add	a,r0
-   0C20 FE                 4311 	mov	r6,a
-                           4312 ;	genPointerGet
-                           4313 ;	genNearPointerGet
-   0C21 C0 00              4314 	push	ar0
-   0C23 A8 06              4315 	mov	r0,ar6
-   0C25 86 06              4316 	mov	ar6,@r0
-   0C27 D0 00              4317 	pop	ar0
-                           4318 ;	genCast
-   0C29 7F 00              4319 	mov	r7,#0x00
-                           4320 ;	genMinus
-   0C2B EE                 4321 	mov	a,r6
-   0C2C 24 D0              4322 	add	a,#0xd0
-   0C2E F5 82              4323 	mov	dpl,a
-   0C30 EF                 4324 	mov	a,r7
-   0C31 34 FF              4325 	addc	a,#0xff
-   0C33 F5 83              4326 	mov	dph,a
-                           4327 ;	genIpush
-   0C35 C0 03              4328 	push	ar3
-   0C37 C0 04              4329 	push	ar4
-   0C39 C0 05              4330 	push	ar5
-   0C3B C0 00              4331 	push	ar0
-   0C3D C0 01              4332 	push	ar1
-   0C3F 74 64              4333 	mov	a,#0x64
-   0C41 C0 E0              4334 	push	acc
-                           4335 ;	Peephole 181	changed mov to clr
-   0C43 E4                 4336 	clr	a
-   0C44 C0 E0              4337 	push	acc
-                           4338 ;	genCall
-   0C46 12 0E AF           4339 	lcall	__mulint
-   0C49 AE 82              4340 	mov	r6,dpl
-   0C4B AF 83              4341 	mov	r7,dph
-   0C4D 15 81              4342 	dec	sp
-   0C4F 15 81              4343 	dec	sp
-   0C51 D0 01              4344 	pop	ar1
-   0C53 D0 00              4345 	pop	ar0
-   0C55 D0 05              4346 	pop	ar5
-   0C57 D0 04              4347 	pop	ar4
-   0C59 D0 03              4348 	pop	ar3
-                           4349 ;	genPlus
-   0C5B C0 00              4350 	push	ar0
-   0C5D E5 08              4351 	mov	a,_bp
-   0C5F 24 16              4352 	add	a,#0x16
-   0C61 F8                 4353 	mov	r0,a
-                           4354 ;	Peephole 236.g	used r6 instead of ar6
-   0C62 EE                 4355 	mov	a,r6
-                           4356 ;	Peephole 236.a	used r4 instead of ar4
-   0C63 2C                 4357 	add	a,r4
-   0C64 F6                 4358 	mov	@r0,a
-                           4359 ;	Peephole 236.g	used r7 instead of ar7
-   0C65 EF                 4360 	mov	a,r7
-                           4361 ;	Peephole 236.b	used r5 instead of ar5
-   0C66 3D                 4362 	addc	a,r5
-   0C67 08                 4363 	inc	r0
-   0C68 F6                 4364 	mov	@r0,a
-   0C69 D0 00              4365 	pop	ar0
-                           4366 ;	genPlus
-                           4367 ;     genPlusIncr
-   0C6B 74 0C              4368 	mov	a,#0x0C
-                           4369 ;	Peephole 236.a	used r0 instead of ar0
-   0C6D 28                 4370 	add	a,r0
-   0C6E F9                 4371 	mov	r1,a
-                           4372 ;	genPointerGet
-                           4373 ;	genNearPointerGet
-   0C6F 87 02              4374 	mov	ar2,@r1
-                           4375 ;	genCast
-   0C71 7E 00              4376 	mov	r6,#0x00
-                           4377 ;	genMinus
-   0C73 EA                 4378 	mov	a,r2
-   0C74 24 D0              4379 	add	a,#0xd0
-   0C76 F5 82              4380 	mov	dpl,a
-   0C78 EE                 4381 	mov	a,r6
-   0C79 34 FF              4382 	addc	a,#0xff
-   0C7B F5 83              4383 	mov	dph,a
-                           4384 ;	genIpush
-   0C7D C0 03              4385 	push	ar3
-   0C7F C0 00              4386 	push	ar0
-   0C81 C0 01              4387 	push	ar1
-   0C83 74 0A              4388 	mov	a,#0x0A
-   0C85 C0 E0              4389 	push	acc
-                           4390 ;	Peephole 181	changed mov to clr
-   0C87 E4                 4391 	clr	a
-   0C88 C0 E0              4392 	push	acc
-                           4393 ;	genCall
-   0C8A 12 0E AF           4394 	lcall	__mulint
-   0C8D AA 82              4395 	mov	r2,dpl
-   0C8F AE 83              4396 	mov	r6,dph
-   0C91 15 81              4397 	dec	sp
-   0C93 15 81              4398 	dec	sp
-   0C95 D0 01              4399 	pop	ar1
-   0C97 D0 00              4400 	pop	ar0
-   0C99 D0 03              4401 	pop	ar3
-                           4402 ;	genPlus
-   0C9B C0 00              4403 	push	ar0
-   0C9D E5 08              4404 	mov	a,_bp
-   0C9F 24 16              4405 	add	a,#0x16
-   0CA1 F8                 4406 	mov	r0,a
-                           4407 ;	Peephole 236.g	used r2 instead of ar2
-   0CA2 EA                 4408 	mov	a,r2
-   0CA3 26                 4409 	add	a,@r0
-   0CA4 FC                 4410 	mov	r4,a
-                           4411 ;	Peephole 236.g	used r6 instead of ar6
-   0CA5 EE                 4412 	mov	a,r6
-   0CA6 08                 4413 	inc	r0
-   0CA7 36                 4414 	addc	a,@r0
-   0CA8 FD                 4415 	mov	r5,a
-   0CA9 D0 00              4416 	pop	ar0
-                           4417 ;	genPlus
-                           4418 ;     genPlusIncr
-   0CAB 74 0D              4419 	mov	a,#0x0D
-                           4420 ;	Peephole 236.a	used r0 instead of ar0
-   0CAD 28                 4421 	add	a,r0
-   0CAE F9                 4422 	mov	r1,a
-                           4423 ;	genPointerGet
-                           4424 ;	genNearPointerGet
-   0CAF 87 07              4425 	mov	ar7,@r1
-                           4426 ;	genCast
-   0CB1 7A 00              4427 	mov	r2,#0x00
-                           4428 ;	genMinus
-   0CB3 EF                 4429 	mov	a,r7
-   0CB4 24 D0              4430 	add	a,#0xd0
-   0CB6 FF                 4431 	mov	r7,a
-   0CB7 EA                 4432 	mov	a,r2
-   0CB8 34 FF              4433 	addc	a,#0xff
-   0CBA FA                 4434 	mov	r2,a
-                           4435 ;	genPlus
-                           4436 ;	Peephole 236.g	used r7 instead of ar7
-   0CBB EF                 4437 	mov	a,r7
-                           4438 ;	Peephole 236.a	used r4 instead of ar4
-   0CBC 2C                 4439 	add	a,r4
-   0CBD FF                 4440 	mov	r7,a
-                           4441 ;	Peephole 236.g	used r2 instead of ar2
-   0CBE EA                 4442 	mov	a,r2
-                           4443 ;	Peephole 236.b	used r5 instead of ar5
-   0CBF 3D                 4444 	addc	a,r5
-   0CC0 FA                 4445 	mov	r2,a
-                           4446 ;	genAssign
-   0CC1 8F 04              4447 	mov	ar4,r7
-   0CC3 8A 05              4448 	mov	ar5,r2
-                           4449 ;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:66: telegramm[0]=0xBC;
-                           4450 ;	genPointerSet
-                           4451 ;	genNearPointerSet
-                           4452 ;	genDataPointerSet
-   0CC5 75 22 BC           4453 	mov	_telegramm,#0xBC
-                           4454 ;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:67: telegramm[1]=pah;
+   0ACC C2 98              3972 	clr	_SCON_0
+   0ACE                    3973 00108$:
+                           3974 ;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:55: if (crlf_received)			// Zeile vollständig empfangen
+                           3975 ;	genIfx
+                           3976 ;	genIfxJump
+   0ACE 20 09 03           3977 	jb	b1,00238$
+   0AD1 02 10 CB           3978 	ljmp	00158$
+   0AD4                    3979 00238$:
+                           3980 ;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:57: if (rsin[0]=='f' && rsin[1]=='b')	// Magic-word 'fb' empfangen
+                           3981 ;	genAddrOf
+                           3982 ;	Peephole 212	reduced add sequence to inc
+   0AD4 A8 08              3983 	mov	r0,_bp
+   0AD6 08                 3984 	inc	r0
+                           3985 ;	genPointerGet
+                           3986 ;	genNearPointerGet
+   0AD7 86 03              3987 	mov	ar3,@r0
+                           3988 ;	genCmpEq
+                           3989 ;	gencjneshort
+   0AD9 BB 66 02           3990 	cjne	r3,#0x66,00239$
+   0ADC 80 03              3991 	sjmp	00240$
+   0ADE                    3992 00239$:
+   0ADE 02 10 B6           3993 	ljmp	00221$
+   0AE1                    3994 00240$:
+                           3995 ;	genPlus
+                           3996 ;     genPlusIncr
+   0AE1 74 01              3997 	mov	a,#0x01
+                           3998 ;	Peephole 236.a	used r0 instead of ar0
+   0AE3 28                 3999 	add	a,r0
+   0AE4 F9                 4000 	mov	r1,a
+                           4001 ;	genPointerGet
+                           4002 ;	genNearPointerGet
+   0AE5 87 03              4003 	mov	ar3,@r1
+                           4004 ;	genCmpEq
+                           4005 ;	gencjneshort
+   0AE7 BB 62 02           4006 	cjne	r3,#0x62,00241$
+   0AEA 80 03              4007 	sjmp	00242$
+   0AEC                    4008 00241$:
+   0AEC 02 10 B6           4009 	ljmp	00221$
+   0AEF                    4010 00242$:
+                           4011 ;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:59: if(rsin[2]=='s' && rsin[3]=='0' && rsin[4]=='1' && rsin[5]=='/' && rsin[8]=='/' && rsin[10]=='/' && rsin[14]=='=' && (rsin[15]=='0' || rsin[15]=='1'))	// EIS 1 senden
+                           4012 ;	genPlus
+                           4013 ;     genPlusIncr
+   0AEF 74 02              4014 	mov	a,#0x02
+                           4015 ;	Peephole 236.a	used r0 instead of ar0
+   0AF1 28                 4016 	add	a,r0
+   0AF2 F9                 4017 	mov	r1,a
+                           4018 ;	genPointerGet
+                           4019 ;	genNearPointerGet
+   0AF3 87 03              4020 	mov	ar3,@r1
+                           4021 ;	genCmpEq
+                           4022 ;	gencjneshort
+   0AF5 BB 73 02           4023 	cjne	r3,#0x73,00243$
+   0AF8 80 03              4024 	sjmp	00244$
+   0AFA                    4025 00243$:
+   0AFA 02 0D 27           4026 	ljmp	00114$
+   0AFD                    4027 00244$:
+                           4028 ;	genPlus
+                           4029 ;     genPlusIncr
+   0AFD 74 03              4030 	mov	a,#0x03
+                           4031 ;	Peephole 236.a	used r0 instead of ar0
+   0AFF 28                 4032 	add	a,r0
+   0B00 FB                 4033 	mov	r3,a
+                           4034 ;	genPointerGet
+                           4035 ;	genNearPointerGet
+   0B01 C0 00              4036 	push	ar0
+   0B03 A8 03              4037 	mov	r0,ar3
+   0B05 86 03              4038 	mov	ar3,@r0
+   0B07 D0 00              4039 	pop	ar0
+                           4040 ;	genCmpEq
+                           4041 ;	gencjneshort
+   0B09 BB 30 02           4042 	cjne	r3,#0x30,00245$
+   0B0C 80 03              4043 	sjmp	00246$
+   0B0E                    4044 00245$:
+   0B0E 02 0D 27           4045 	ljmp	00114$
+   0B11                    4046 00246$:
+                           4047 ;	genPlus
+                           4048 ;     genPlusIncr
+   0B11 74 04              4049 	mov	a,#0x04
+                           4050 ;	Peephole 236.a	used r0 instead of ar0
+   0B13 28                 4051 	add	a,r0
+   0B14 FB                 4052 	mov	r3,a
+                           4053 ;	genPointerGet
+                           4054 ;	genNearPointerGet
+   0B15 C0 00              4055 	push	ar0
+   0B17 A8 03              4056 	mov	r0,ar3
+   0B19 86 03              4057 	mov	ar3,@r0
+   0B1B D0 00              4058 	pop	ar0
+                           4059 ;	genCmpEq
+                           4060 ;	gencjneshort
+   0B1D BB 31 02           4061 	cjne	r3,#0x31,00247$
+   0B20 80 03              4062 	sjmp	00248$
+   0B22                    4063 00247$:
+   0B22 02 0D 27           4064 	ljmp	00114$
+   0B25                    4065 00248$:
+                           4066 ;	genPlus
+                           4067 ;     genPlusIncr
+   0B25 74 05              4068 	mov	a,#0x05
+                           4069 ;	Peephole 236.a	used r0 instead of ar0
+   0B27 28                 4070 	add	a,r0
+   0B28 FB                 4071 	mov	r3,a
+                           4072 ;	genPointerGet
+                           4073 ;	genNearPointerGet
+   0B29 C0 00              4074 	push	ar0
+   0B2B A8 03              4075 	mov	r0,ar3
+   0B2D 86 03              4076 	mov	ar3,@r0
+   0B2F D0 00              4077 	pop	ar0
+                           4078 ;	genCmpEq
+                           4079 ;	gencjneshort
+   0B31 BB 2F 02           4080 	cjne	r3,#0x2F,00249$
+   0B34 80 03              4081 	sjmp	00250$
+   0B36                    4082 00249$:
+   0B36 02 0D 27           4083 	ljmp	00114$
+   0B39                    4084 00250$:
+                           4085 ;	genPlus
+                           4086 ;     genPlusIncr
+   0B39 74 08              4087 	mov	a,#0x08
+                           4088 ;	Peephole 236.a	used r0 instead of ar0
+   0B3B 28                 4089 	add	a,r0
+   0B3C FB                 4090 	mov	r3,a
+                           4091 ;	genPointerGet
+                           4092 ;	genNearPointerGet
+   0B3D C0 00              4093 	push	ar0
+   0B3F A8 03              4094 	mov	r0,ar3
+   0B41 86 03              4095 	mov	ar3,@r0
+   0B43 D0 00              4096 	pop	ar0
+                           4097 ;	genCmpEq
+                           4098 ;	gencjneshort
+   0B45 BB 2F 02           4099 	cjne	r3,#0x2F,00251$
+   0B48 80 03              4100 	sjmp	00252$
+   0B4A                    4101 00251$:
+   0B4A 02 0D 27           4102 	ljmp	00114$
+   0B4D                    4103 00252$:
+                           4104 ;	genPlus
+                           4105 ;     genPlusIncr
+   0B4D 74 0A              4106 	mov	a,#0x0A
+                           4107 ;	Peephole 236.a	used r0 instead of ar0
+   0B4F 28                 4108 	add	a,r0
+   0B50 FB                 4109 	mov	r3,a
+                           4110 ;	genPointerGet
+                           4111 ;	genNearPointerGet
+   0B51 C0 00              4112 	push	ar0
+   0B53 A8 03              4113 	mov	r0,ar3
+   0B55 86 03              4114 	mov	ar3,@r0
+   0B57 D0 00              4115 	pop	ar0
+                           4116 ;	genCmpEq
+                           4117 ;	gencjneshort
+   0B59 BB 2F 02           4118 	cjne	r3,#0x2F,00253$
+   0B5C 80 03              4119 	sjmp	00254$
+   0B5E                    4120 00253$:
+   0B5E 02 0D 27           4121 	ljmp	00114$
+   0B61                    4122 00254$:
+                           4123 ;	genPlus
+                           4124 ;     genPlusIncr
+   0B61 74 0E              4125 	mov	a,#0x0E
+                           4126 ;	Peephole 236.a	used r0 instead of ar0
+   0B63 28                 4127 	add	a,r0
+   0B64 FB                 4128 	mov	r3,a
+                           4129 ;	genPointerGet
+                           4130 ;	genNearPointerGet
+   0B65 C0 00              4131 	push	ar0
+   0B67 A8 03              4132 	mov	r0,ar3
+   0B69 86 03              4133 	mov	ar3,@r0
+   0B6B D0 00              4134 	pop	ar0
+                           4135 ;	genCmpEq
+                           4136 ;	gencjneshort
+   0B6D BB 3D 02           4137 	cjne	r3,#0x3D,00255$
+   0B70 80 03              4138 	sjmp	00256$
+   0B72                    4139 00255$:
+   0B72 02 0D 27           4140 	ljmp	00114$
+   0B75                    4141 00256$:
+                           4142 ;	genPlus
+                           4143 ;     genPlusIncr
+   0B75 74 0F              4144 	mov	a,#0x0F
+                           4145 ;	Peephole 236.a	used r0 instead of ar0
+   0B77 28                 4146 	add	a,r0
+   0B78 FB                 4147 	mov	r3,a
+                           4148 ;	genPointerGet
+                           4149 ;	genNearPointerGet
+   0B79 C0 00              4150 	push	ar0
+   0B7B A8 03              4151 	mov	r0,ar3
+   0B7D 86 04              4152 	mov	ar4,@r0
+   0B7F D0 00              4153 	pop	ar0
+                           4154 ;	genCmpEq
+                           4155 ;	gencjneshort
+   0B81 BC 30 02           4156 	cjne	r4,#0x30,00257$
+                           4157 ;	Peephole 112.b	changed ljmp to sjmp
+   0B84 80 08              4158 	sjmp	00113$
+   0B86                    4159 00257$:
+                           4160 ;	genCmpEq
+                           4161 ;	gencjneshort
+   0B86 BC 31 02           4162 	cjne	r4,#0x31,00258$
+   0B89 80 03              4163 	sjmp	00259$
+   0B8B                    4164 00258$:
+   0B8B 02 0D 27           4165 	ljmp	00114$
+   0B8E                    4166 00259$:
+   0B8E                    4167 00113$:
+                           4168 ;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:61: groupadr=((rsin[6]-48)*10) + (rsin[7]-48);
+                           4169 ;	genIpush
+   0B8E C0 02              4170 	push	ar2
+                           4171 ;	genPlus
+                           4172 ;     genPlusIncr
+   0B90 74 06              4173 	mov	a,#0x06
+                           4174 ;	Peephole 236.a	used r0 instead of ar0
+   0B92 28                 4175 	add	a,r0
+   0B93 FC                 4176 	mov	r4,a
+                           4177 ;	genPointerGet
+                           4178 ;	genNearPointerGet
+   0B94 C0 00              4179 	push	ar0
+   0B96 A8 04              4180 	mov	r0,ar4
+   0B98 86 04              4181 	mov	ar4,@r0
+   0B9A D0 00              4182 	pop	ar0
+                           4183 ;	genCast
+   0B9C 7D 00              4184 	mov	r5,#0x00
+                           4185 ;	genMinus
+   0B9E EC                 4186 	mov	a,r4
+   0B9F 24 D0              4187 	add	a,#0xd0
+   0BA1 F5 82              4188 	mov	dpl,a
+   0BA3 ED                 4189 	mov	a,r5
+   0BA4 34 FF              4190 	addc	a,#0xff
+   0BA6 F5 83              4191 	mov	dph,a
+                           4192 ;	genIpush
+   0BA8 C0 02              4193 	push	ar2
+   0BAA C0 03              4194 	push	ar3
+   0BAC C0 00              4195 	push	ar0
+   0BAE C0 01              4196 	push	ar1
+   0BB0 74 0A              4197 	mov	a,#0x0A
+   0BB2 C0 E0              4198 	push	acc
+                           4199 ;	Peephole 181	changed mov to clr
+   0BB4 E4                 4200 	clr	a
+   0BB5 C0 E0              4201 	push	acc
+                           4202 ;	genCall
+   0BB7 12 10 EB           4203 	lcall	__mulint
+   0BBA AC 82              4204 	mov	r4,dpl
+   0BBC AD 83              4205 	mov	r5,dph
+   0BBE 15 81              4206 	dec	sp
+   0BC0 15 81              4207 	dec	sp
+   0BC2 D0 01              4208 	pop	ar1
+   0BC4 D0 00              4209 	pop	ar0
+   0BC6 D0 03              4210 	pop	ar3
+   0BC8 D0 02              4211 	pop	ar2
+                           4212 ;	genPlus
+                           4213 ;     genPlusIncr
+   0BCA 74 07              4214 	mov	a,#0x07
+                           4215 ;	Peephole 236.a	used r0 instead of ar0
+   0BCC 28                 4216 	add	a,r0
+   0BCD FE                 4217 	mov	r6,a
+                           4218 ;	genPointerGet
+                           4219 ;	genNearPointerGet
+   0BCE C0 00              4220 	push	ar0
+   0BD0 A8 06              4221 	mov	r0,ar6
+   0BD2 86 06              4222 	mov	ar6,@r0
+   0BD4 D0 00              4223 	pop	ar0
+                           4224 ;	genCast
+   0BD6 7F 00              4225 	mov	r7,#0x00
+                           4226 ;	genMinus
+   0BD8 EE                 4227 	mov	a,r6
+   0BD9 24 D0              4228 	add	a,#0xd0
+   0BDB FE                 4229 	mov	r6,a
+   0BDC EF                 4230 	mov	a,r7
+   0BDD 34 FF              4231 	addc	a,#0xff
+   0BDF FF                 4232 	mov	r7,a
+                           4233 ;	genPlus
+                           4234 ;	Peephole 236.g	used r6 instead of ar6
+   0BE0 EE                 4235 	mov	a,r6
+                           4236 ;	Peephole 236.a	used r4 instead of ar4
+   0BE1 2C                 4237 	add	a,r4
+   0BE2 FC                 4238 	mov	r4,a
+                           4239 ;	Peephole 236.g	used r7 instead of ar7
+   0BE3 EF                 4240 	mov	a,r7
+                           4241 ;	Peephole 236.b	used r5 instead of ar5
+   0BE4 3D                 4242 	addc	a,r5
+                           4243 ;	genAssign
+                           4244 ;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:62: groupadr=groupadr*8;
+                           4245 ;	genLeftShift
+                           4246 ;	genLeftShiftLiteral
+                           4247 ;	genlshTwo
+   0BE5 FD                 4248 	mov	r5,a
+                           4249 ;	Peephole 105	removed redundant mov
+   0BE6 C4                 4250 	swap	a
+   0BE7 03                 4251 	rr	a
+   0BE8 54 F8              4252 	anl	a,#0xf8
+   0BEA CC                 4253 	xch	a,r4
+   0BEB C4                 4254 	swap	a
+   0BEC 03                 4255 	rr	a
+   0BED CC                 4256 	xch	a,r4
+   0BEE 6C                 4257 	xrl	a,r4
+   0BEF CC                 4258 	xch	a,r4
+   0BF0 54 F8              4259 	anl	a,#0xf8
+   0BF2 CC                 4260 	xch	a,r4
+   0BF3 6C                 4261 	xrl	a,r4
+   0BF4 FD                 4262 	mov	r5,a
+                           4263 ;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:63: groupadr=groupadr + (rsin[9]-48);
+                           4264 ;	genPlus
+                           4265 ;     genPlusIncr
+   0BF5 74 09              4266 	mov	a,#0x09
+                           4267 ;	Peephole 236.a	used r0 instead of ar0
+   0BF7 28                 4268 	add	a,r0
+   0BF8 FE                 4269 	mov	r6,a
+                           4270 ;	genPointerGet
+                           4271 ;	genNearPointerGet
+   0BF9 C0 00              4272 	push	ar0
+   0BFB A8 06              4273 	mov	r0,ar6
+   0BFD 86 06              4274 	mov	ar6,@r0
+   0BFF D0 00              4275 	pop	ar0
+                           4276 ;	genCast
+   0C01 7F 00              4277 	mov	r7,#0x00
+                           4278 ;	genMinus
+   0C03 EE                 4279 	mov	a,r6
+   0C04 24 D0              4280 	add	a,#0xd0
+   0C06 FE                 4281 	mov	r6,a
+   0C07 EF                 4282 	mov	a,r7
+   0C08 34 FF              4283 	addc	a,#0xff
+   0C0A FF                 4284 	mov	r7,a
+                           4285 ;	genPlus
+                           4286 ;	Peephole 236.g	used r6 instead of ar6
+   0C0B EE                 4287 	mov	a,r6
+                           4288 ;	Peephole 236.a	used r4 instead of ar4
+   0C0C 2C                 4289 	add	a,r4
+   0C0D FC                 4290 	mov	r4,a
+                           4291 ;	Peephole 236.g	used r7 instead of ar7
+   0C0E EF                 4292 	mov	a,r7
+                           4293 ;	Peephole 236.b	used r5 instead of ar5
+   0C0F 3D                 4294 	addc	a,r5
+                           4295 ;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:64: groupadr=groupadr*256;
+                           4296 ;	genLeftShift
+                           4297 ;	genLeftShiftLiteral
+                           4298 ;	genlshTwo
+                           4299 ;	peephole 177.e	removed redundant move
+   0C10 8C 05              4300 	mov	ar5,r4
+   0C12 7C 00              4301 	mov	r4,#0x00
+                           4302 ;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:65: groupadr=groupadr+((rsin[11]-48)*100) + ((rsin[12]-48)*10) + (rsin[13]-48);
+                           4303 ;	genPlus
+                           4304 ;     genPlusIncr
+   0C14 74 0B              4305 	mov	a,#0x0B
+                           4306 ;	Peephole 236.a	used r0 instead of ar0
+   0C16 28                 4307 	add	a,r0
+   0C17 FE                 4308 	mov	r6,a
+                           4309 ;	genPointerGet
+                           4310 ;	genNearPointerGet
+   0C18 C0 00              4311 	push	ar0
+   0C1A A8 06              4312 	mov	r0,ar6
+   0C1C 86 06              4313 	mov	ar6,@r0
+   0C1E D0 00              4314 	pop	ar0
+                           4315 ;	genCast
+   0C20 7F 00              4316 	mov	r7,#0x00
+                           4317 ;	genMinus
+   0C22 EE                 4318 	mov	a,r6
+   0C23 24 D0              4319 	add	a,#0xd0
+   0C25 F5 82              4320 	mov	dpl,a
+   0C27 EF                 4321 	mov	a,r7
+   0C28 34 FF              4322 	addc	a,#0xff
+   0C2A F5 83              4323 	mov	dph,a
+                           4324 ;	genIpush
+   0C2C C0 02              4325 	push	ar2
+   0C2E C0 03              4326 	push	ar3
+   0C30 C0 04              4327 	push	ar4
+   0C32 C0 05              4328 	push	ar5
+   0C34 C0 00              4329 	push	ar0
+   0C36 C0 01              4330 	push	ar1
+   0C38 74 64              4331 	mov	a,#0x64
+   0C3A C0 E0              4332 	push	acc
+                           4333 ;	Peephole 181	changed mov to clr
+   0C3C E4                 4334 	clr	a
+   0C3D C0 E0              4335 	push	acc
+                           4336 ;	genCall
+   0C3F 12 10 EB           4337 	lcall	__mulint
+   0C42 AE 82              4338 	mov	r6,dpl
+   0C44 AF 83              4339 	mov	r7,dph
+   0C46 15 81              4340 	dec	sp
+   0C48 15 81              4341 	dec	sp
+   0C4A D0 01              4342 	pop	ar1
+   0C4C D0 00              4343 	pop	ar0
+   0C4E D0 05              4344 	pop	ar5
+   0C50 D0 04              4345 	pop	ar4
+   0C52 D0 03              4346 	pop	ar3
+   0C54 D0 02              4347 	pop	ar2
+                           4348 ;	genPlus
+   0C56 C0 00              4349 	push	ar0
+   0C58 E5 08              4350 	mov	a,_bp
+   0C5A 24 15              4351 	add	a,#0x15
+   0C5C F8                 4352 	mov	r0,a
+                           4353 ;	Peephole 236.g	used r6 instead of ar6
+   0C5D EE                 4354 	mov	a,r6
+                           4355 ;	Peephole 236.a	used r4 instead of ar4
+   0C5E 2C                 4356 	add	a,r4
+   0C5F F6                 4357 	mov	@r0,a
+                           4358 ;	Peephole 236.g	used r7 instead of ar7
+   0C60 EF                 4359 	mov	a,r7
+                           4360 ;	Peephole 236.b	used r5 instead of ar5
+   0C61 3D                 4361 	addc	a,r5
+   0C62 08                 4362 	inc	r0
+   0C63 F6                 4363 	mov	@r0,a
+   0C64 D0 00              4364 	pop	ar0
+                           4365 ;	genPlus
+                           4366 ;     genPlusIncr
+   0C66 74 0C              4367 	mov	a,#0x0C
+                           4368 ;	Peephole 236.a	used r0 instead of ar0
+   0C68 28                 4369 	add	a,r0
+   0C69 FA                 4370 	mov	r2,a
+                           4371 ;	genPointerGet
+                           4372 ;	genNearPointerGet
+   0C6A C0 00              4373 	push	ar0
+   0C6C A8 02              4374 	mov	r0,ar2
+   0C6E 86 02              4375 	mov	ar2,@r0
+   0C70 D0 00              4376 	pop	ar0
+                           4377 ;	genCast
+   0C72 7E 00              4378 	mov	r6,#0x00
+                           4379 ;	genMinus
+   0C74 EA                 4380 	mov	a,r2
+   0C75 24 D0              4381 	add	a,#0xd0
+   0C77 F5 82              4382 	mov	dpl,a
+   0C79 EE                 4383 	mov	a,r6
+   0C7A 34 FF              4384 	addc	a,#0xff
+   0C7C F5 83              4385 	mov	dph,a
+                           4386 ;	genIpush
+   0C7E C0 03              4387 	push	ar3
+   0C80 C0 00              4388 	push	ar0
+   0C82 C0 01              4389 	push	ar1
+   0C84 74 0A              4390 	mov	a,#0x0A
+   0C86 C0 E0              4391 	push	acc
+                           4392 ;	Peephole 181	changed mov to clr
+   0C88 E4                 4393 	clr	a
+   0C89 C0 E0              4394 	push	acc
+                           4395 ;	genCall
+   0C8B 12 10 EB           4396 	lcall	__mulint
+   0C8E AA 82              4397 	mov	r2,dpl
+   0C90 AE 83              4398 	mov	r6,dph
+   0C92 15 81              4399 	dec	sp
+   0C94 15 81              4400 	dec	sp
+   0C96 D0 01              4401 	pop	ar1
+   0C98 D0 00              4402 	pop	ar0
+   0C9A D0 03              4403 	pop	ar3
+                           4404 ;	genPlus
+   0C9C C0 00              4405 	push	ar0
+   0C9E E5 08              4406 	mov	a,_bp
+   0CA0 24 15              4407 	add	a,#0x15
+   0CA2 F8                 4408 	mov	r0,a
+                           4409 ;	Peephole 236.g	used r2 instead of ar2
+   0CA3 EA                 4410 	mov	a,r2
+   0CA4 26                 4411 	add	a,@r0
+   0CA5 FC                 4412 	mov	r4,a
+                           4413 ;	Peephole 236.g	used r6 instead of ar6
+   0CA6 EE                 4414 	mov	a,r6
+   0CA7 08                 4415 	inc	r0
+   0CA8 36                 4416 	addc	a,@r0
+   0CA9 FD                 4417 	mov	r5,a
+   0CAA D0 00              4418 	pop	ar0
+                           4419 ;	genPlus
+                           4420 ;     genPlusIncr
+   0CAC 74 0D              4421 	mov	a,#0x0D
+                           4422 ;	Peephole 236.a	used r0 instead of ar0
+   0CAE 28                 4423 	add	a,r0
+   0CAF FF                 4424 	mov	r7,a
+                           4425 ;	genPointerGet
+                           4426 ;	genNearPointerGet
+   0CB0 C0 00              4427 	push	ar0
+   0CB2 A8 07              4428 	mov	r0,ar7
+   0CB4 86 07              4429 	mov	ar7,@r0
+   0CB6 D0 00              4430 	pop	ar0
+                           4431 ;	genCast
+   0CB8 7A 00              4432 	mov	r2,#0x00
+                           4433 ;	genMinus
+   0CBA EF                 4434 	mov	a,r7
+   0CBB 24 D0              4435 	add	a,#0xd0
+   0CBD FF                 4436 	mov	r7,a
+   0CBE EA                 4437 	mov	a,r2
+   0CBF 34 FF              4438 	addc	a,#0xff
+   0CC1 FA                 4439 	mov	r2,a
+                           4440 ;	genPlus
+                           4441 ;	Peephole 236.g	used r7 instead of ar7
+   0CC2 EF                 4442 	mov	a,r7
+                           4443 ;	Peephole 236.a	used r4 instead of ar4
+   0CC3 2C                 4444 	add	a,r4
+   0CC4 FF                 4445 	mov	r7,a
+                           4446 ;	Peephole 236.g	used r2 instead of ar2
+   0CC5 EA                 4447 	mov	a,r2
+                           4448 ;	Peephole 236.b	used r5 instead of ar5
+   0CC6 3D                 4449 	addc	a,r5
+   0CC7 FA                 4450 	mov	r2,a
+                           4451 ;	genAssign
+   0CC8 8F 04              4452 	mov	ar4,r7
+   0CCA 8A 05              4453 	mov	ar5,r2
+                           4454 ;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:66: telegramm[0]=0xBC;
                            4455 ;	genPointerSet
                            4456 ;	genNearPointerSet
                            4457 ;	genDataPointerSet
-   0CC8 85 3C 23           4458 	mov	(_telegramm + 0x0001),_pah
-                           4459 ;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:68: telegramm[2]=pal;
+   0CCC 75 22 BC           4458 	mov	_telegramm,#0xBC
+                           4459 ;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:67: telegramm[1]=pah;
                            4460 ;	genPointerSet
                            4461 ;	genNearPointerSet
                            4462 ;	genDataPointerSet
-   0CCB 85 3B 24           4463 	mov	(_telegramm + 0x0002),_pal
-                           4464 ;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:69: telegramm[3]=groupadr>>8;
-                           4465 ;	genGetByte
-   0CCE 8D 02              4466 	mov	ar2,r5
-                           4467 ;	genPointerSet
-                           4468 ;	genNearPointerSet
-                           4469 ;	genDataPointerSet
-   0CD0 8A 25              4470 	mov	(_telegramm + 0x0003),r2
-                           4471 ;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:70: telegramm[4]=groupadr;
-                           4472 ;	genCast
-                           4473 ;	genPointerSet
-                           4474 ;	genNearPointerSet
-                           4475 ;	genDataPointerSet
-   0CD2 8C 26              4476 	mov	(_telegramm + 0x0004),r4
-                           4477 ;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:71: telegramm[5]=0xE1;
-                           4478 ;	genPointerSet
-                           4479 ;	genNearPointerSet
-                           4480 ;	genDataPointerSet
-   0CD4 75 27 E1           4481 	mov	(_telegramm + 0x0005),#0xE1
-                           4482 ;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:72: telegramm[6]=0x00;
-                           4483 ;	genPointerSet
-                           4484 ;	genNearPointerSet
-                           4485 ;	genDataPointerSet
-   0CD7 75 28 00           4486 	mov	(_telegramm + 0x0006),#0x00
-                           4487 ;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:73: if (rsin[15]=='1') telegramm[7]=0x81;
-                           4488 ;	genPointerGet
-                           4489 ;	genNearPointerGet
-   0CDA C0 00              4490 	push	ar0
-   0CDC A8 03              4491 	mov	r0,ar3
-   0CDE 86 02              4492 	mov	ar2,@r0
-   0CE0 D0 00              4493 	pop	ar0
-                           4494 ;	genCmpEq
-                           4495 ;	gencjne
-                           4496 ;	gencjneshort
-                           4497 ;	Peephole 241.d	optimized compare
-   0CE2 E4                 4498 	clr	a
-   0CE3 BA 31 01           4499 	cjne	r2,#0x31,00245$
-   0CE6 04                 4500 	inc	a
-   0CE7                    4501 00245$:
-                           4502 ;	Peephole 300	removed redundant label 00246$
-                           4503 ;	genIpop
-   0CE7 D0 01              4504 	pop	ar1
-                           4505 ;	genIfx
-                           4506 ;	genIfxJump
-                           4507 ;	Peephole 108.c	removed ljmp by inverse jump logic
-   0CE9 60 03              4508 	jz	00110$
-                           4509 ;	Peephole 300	removed redundant label 00247$
-                           4510 ;	genPointerSet
-                           4511 ;	genNearPointerSet
-                           4512 ;	genDataPointerSet
-   0CEB 75 29 81           4513 	mov	(_telegramm + 0x0007),#0x81
-   0CEE                    4514 00110$:
-                           4515 ;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:74: if (rsin[15]=='0') telegramm[7]=0x80;
-                           4516 ;	genPointerGet
-                           4517 ;	genNearPointerGet
-   0CEE C0 00              4518 	push	ar0
-   0CF0 A8 03              4519 	mov	r0,ar3
-   0CF2 86 02              4520 	mov	ar2,@r0
-   0CF4 D0 00              4521 	pop	ar0
-                           4522 ;	genCmpEq
-                           4523 ;	gencjneshort
-                           4524 ;	Peephole 112.b	changed ljmp to sjmp
-                           4525 ;	Peephole 198.b	optimized misc jump sequence
-   0CF6 BA 30 03           4526 	cjne	r2,#0x30,00112$
-                           4527 ;	Peephole 200.b	removed redundant sjmp
-                           4528 ;	Peephole 300	removed redundant label 00248$
-                           4529 ;	Peephole 300	removed redundant label 00249$
-                           4530 ;	genPointerSet
-                           4531 ;	genNearPointerSet
-                           4532 ;	genDataPointerSet
-   0CF9 75 29 80           4533 	mov	(_telegramm + 0x0007),#0x80
-   0CFC                    4534 00112$:
-                           4535 ;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:75: EX1=0;
-                           4536 ;	genAssign
-   0CFC C2 AA              4537 	clr	_IEN0_2
-                           4538 ;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:76: send_telegramm();
-                           4539 ;	genCall
-   0CFE C0 00              4540 	push	ar0
-   0D00 C0 01              4541 	push	ar1
-   0D02 12 04 D8           4542 	lcall	_send_telegramm
-   0D05 D0 01              4543 	pop	ar1
-   0D07 D0 00              4544 	pop	ar0
-                           4545 ;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:77: EX1=1;
-                           4546 ;	genAssign
-   0D09 D2 AA              4547 	setb	_IEN0_2
-                           4548 ;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:78: rs_send_ok();
-                           4549 ;	genCall
-   0D0B C0 00              4550 	push	ar0
-   0D0D C0 01              4551 	push	ar1
-   0D0F 12 0A 13           4552 	lcall	_rs_send_ok
-   0D12 D0 01              4553 	pop	ar1
-   0D14 D0 00              4554 	pop	ar0
-   0D16                    4555 00114$:
-                           4556 ;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:80: if(rsin[2]=='r' && rsin[3]=='p' && rsin[4]=='a')	// physikalische Adresse des Adaptrs lesen (fbrpa)
-                           4557 ;	genPointerGet
-                           4558 ;	genNearPointerGet
-   0D16 87 02              4559 	mov	ar2,@r1
-                           4560 ;	genCmpEq
-                           4561 ;	gencjneshort
-                           4562 ;	Peephole 112.b	changed ljmp to sjmp
-                           4563 ;	Peephole 198.b	optimized misc jump sequence
-   0D18 BA 72 6F           4564 	cjne	r2,#0x72,00136$
-                           4565 ;	Peephole 200.b	removed redundant sjmp
-                           4566 ;	Peephole 300	removed redundant label 00250$
-                           4567 ;	Peephole 300	removed redundant label 00251$
-                           4568 ;	genPlus
-                           4569 ;     genPlusIncr
-   0D1B 74 03              4570 	mov	a,#0x03
-                           4571 ;	Peephole 236.a	used r0 instead of ar0
-   0D1D 28                 4572 	add	a,r0
-   0D1E FA                 4573 	mov	r2,a
-                           4574 ;	genPointerGet
-                           4575 ;	genNearPointerGet
-   0D1F C0 00              4576 	push	ar0
-   0D21 A8 02              4577 	mov	r0,ar2
-   0D23 86 02              4578 	mov	ar2,@r0
-   0D25 D0 00              4579 	pop	ar0
-                           4580 ;	genCmpEq
-                           4581 ;	gencjneshort
-                           4582 ;	Peephole 112.b	changed ljmp to sjmp
-                           4583 ;	Peephole 198.b	optimized misc jump sequence
-   0D27 BA 70 60           4584 	cjne	r2,#0x70,00136$
-                           4585 ;	Peephole 200.b	removed redundant sjmp
-                           4586 ;	Peephole 300	removed redundant label 00252$
-                           4587 ;	Peephole 300	removed redundant label 00253$
-                           4588 ;	genPlus
-                           4589 ;     genPlusIncr
-   0D2A 74 04              4590 	mov	a,#0x04
-                           4591 ;	Peephole 236.a	used r0 instead of ar0
-   0D2C 28                 4592 	add	a,r0
-   0D2D FA                 4593 	mov	r2,a
-                           4594 ;	genPointerGet
-                           4595 ;	genNearPointerGet
-   0D2E C0 00              4596 	push	ar0
-   0D30 A8 02              4597 	mov	r0,ar2
-   0D32 86 02              4598 	mov	ar2,@r0
-   0D34 D0 00              4599 	pop	ar0
-                           4600 ;	genCmpEq
-                           4601 ;	gencjneshort
-                           4602 ;	Peephole 112.b	changed ljmp to sjmp
-                           4603 ;	Peephole 198.b	optimized misc jump sequence
-   0D36 BA 61 51           4604 	cjne	r2,#0x61,00136$
-                           4605 ;	Peephole 200.b	removed redundant sjmp
-                           4606 ;	Peephole 300	removed redundant label 00254$
-                           4607 ;	Peephole 300	removed redundant label 00255$
-                           4608 ;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:82: rs_send_dec(pah>>4);
-                           4609 ;	genRightShift
-                           4610 ;	genRightShiftLiteral
-                           4611 ;	genrshOne
-   0D39 E5 3C              4612 	mov	a,_pah
-   0D3B C4                 4613 	swap	a
-   0D3C 54 0F              4614 	anl	a,#0x0f
-   0D3E F5 82              4615 	mov	dpl,a
-                           4616 ;	genCall
-   0D40 C0 00              4617 	push	ar0
-   0D42 C0 01              4618 	push	ar1
-   0D44 12 09 D0           4619 	lcall	_rs_send_dec
-   0D47 D0 01              4620 	pop	ar1
-   0D49 D0 00              4621 	pop	ar0
-                           4622 ;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:83: SBUF='.';
-                           4623 ;	genAssign
-   0D4B 75 99 2E           4624 	mov	_SBUF,#0x2E
-                           4625 ;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:84: while(!TI);
-   0D4E                    4626 00123$:
-                           4627 ;	genIfx
-                           4628 ;	genIfxJump
-                           4629 ;	Peephole 108.d	removed ljmp by inverse jump logic
-                           4630 ;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:85: TI=0;
-                           4631 ;	genAssign
-                           4632 ;	Peephole 250.a	using atomic test and clear
-   0D4E 10 99 02           4633 	jbc	_SCON_1,00256$
-   0D51 80 FB              4634 	sjmp	00123$
-   0D53                    4635 00256$:
-                           4636 ;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:86: rs_send_dec(pah&0x0F);
-                           4637 ;	genAnd
-   0D53 74 0F              4638 	mov	a,#0x0F
-   0D55 55 3C              4639 	anl	a,_pah
-   0D57 F5 82              4640 	mov	dpl,a
-                           4641 ;	genCall
-   0D59 C0 00              4642 	push	ar0
-   0D5B C0 01              4643 	push	ar1
-   0D5D 12 09 D0           4644 	lcall	_rs_send_dec
-   0D60 D0 01              4645 	pop	ar1
-   0D62 D0 00              4646 	pop	ar0
-                           4647 ;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:87: SBUF='.';
-                           4648 ;	genAssign
-   0D64 75 99 2E           4649 	mov	_SBUF,#0x2E
-                           4650 ;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:88: while(!TI);
-   0D67                    4651 00126$:
-                           4652 ;	genIfx
-                           4653 ;	genIfxJump
-                           4654 ;	Peephole 108.d	removed ljmp by inverse jump logic
-                           4655 ;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:89: TI=0;
-                           4656 ;	genAssign
-                           4657 ;	Peephole 250.a	using atomic test and clear
-   0D67 10 99 02           4658 	jbc	_SCON_1,00257$
-   0D6A 80 FB              4659 	sjmp	00126$
-   0D6C                    4660 00257$:
-                           4661 ;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:90: rs_send_dec(pal);
-                           4662 ;	genCall
-   0D6C 85 3B 82           4663 	mov	dpl,_pal
-   0D6F C0 00              4664 	push	ar0
-   0D71 C0 01              4665 	push	ar1
-   0D73 12 09 D0           4666 	lcall	_rs_send_dec
-   0D76 D0 01              4667 	pop	ar1
-   0D78 D0 00              4668 	pop	ar0
-                           4669 ;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:91: SBUF=0x0D;
-                           4670 ;	genAssign
-   0D7A 75 99 0D           4671 	mov	_SBUF,#0x0D
-                           4672 ;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:92: while(!TI);
-   0D7D                    4673 00129$:
-                           4674 ;	genIfx
-                           4675 ;	genIfxJump
-                           4676 ;	Peephole 108.d	removed ljmp by inverse jump logic
-                           4677 ;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:93: TI=0;
-                           4678 ;	genAssign
-                           4679 ;	Peephole 250.a	using atomic test and clear
-   0D7D 10 99 02           4680 	jbc	_SCON_1,00258$
-   0D80 80 FB              4681 	sjmp	00129$
-   0D82                    4682 00258$:
-                           4683 ;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:94: SBUF=0x0A;
-                           4684 ;	genAssign
-   0D82 75 99 0A           4685 	mov	_SBUF,#0x0A
-                           4686 ;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:95: while(!TI);
-   0D85                    4687 00132$:
-                           4688 ;	genIfx
-                           4689 ;	genIfxJump
-                           4690 ;	Peephole 108.d	removed ljmp by inverse jump logic
-                           4691 ;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:96: TI=0;
-                           4692 ;	genAssign
-                           4693 ;	Peephole 250.a	using atomic test and clear
-   0D85 10 99 02           4694 	jbc	_SCON_1,00259$
-   0D88 80 FB              4695 	sjmp	00132$
-   0D8A                    4696 00259$:
-   0D8A                    4697 00136$:
-                           4698 ;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:98: if(rsin[2]=='s' && rsin[3]=='p' && rsin[4]=='a' && rsin[7]=='.' && rsin[10]=='.' && rsinpos==14)	// phys. Adresse des Adapters setzen (fbspaxx.xx.xxx)
-                           4699 ;	genPointerGet
-                           4700 ;	genNearPointerGet
-   0D8A 87 02              4701 	mov	ar2,@r1
-                           4702 ;	genCmpEq
-                           4703 ;	gencjneshort
-   0D8C BA 73 02           4704 	cjne	r2,#0x73,00260$
-   0D8F 80 03              4705 	sjmp	00261$
-   0D91                    4706 00260$:
-   0D91 02 0E 77           4707 	ljmp	00206$
-   0D94                    4708 00261$:
-                           4709 ;	genPlus
-                           4710 ;     genPlusIncr
-   0D94 74 03              4711 	mov	a,#0x03
-                           4712 ;	Peephole 236.a	used r0 instead of ar0
-   0D96 28                 4713 	add	a,r0
-   0D97 F9                 4714 	mov	r1,a
-                           4715 ;	genPointerGet
-                           4716 ;	genNearPointerGet
-   0D98 87 02              4717 	mov	ar2,@r1
-                           4718 ;	genCmpEq
-                           4719 ;	gencjneshort
-   0D9A BA 70 02           4720 	cjne	r2,#0x70,00262$
-   0D9D 80 03              4721 	sjmp	00263$
-   0D9F                    4722 00262$:
-   0D9F 02 0E 77           4723 	ljmp	00206$
-   0DA2                    4724 00263$:
-                           4725 ;	genPlus
-                           4726 ;     genPlusIncr
-   0DA2 74 04              4727 	mov	a,#0x04
-                           4728 ;	Peephole 236.a	used r0 instead of ar0
-   0DA4 28                 4729 	add	a,r0
-   0DA5 F9                 4730 	mov	r1,a
-                           4731 ;	genPointerGet
-                           4732 ;	genNearPointerGet
-   0DA6 87 02              4733 	mov	ar2,@r1
-                           4734 ;	genCmpEq
-                           4735 ;	gencjneshort
-   0DA8 BA 61 02           4736 	cjne	r2,#0x61,00264$
-   0DAB 80 03              4737 	sjmp	00265$
-   0DAD                    4738 00264$:
-   0DAD 02 0E 77           4739 	ljmp	00206$
-   0DB0                    4740 00265$:
-                           4741 ;	genPlus
-                           4742 ;     genPlusIncr
-   0DB0 74 07              4743 	mov	a,#0x07
-                           4744 ;	Peephole 236.a	used r0 instead of ar0
-   0DB2 28                 4745 	add	a,r0
-   0DB3 F9                 4746 	mov	r1,a
-                           4747 ;	genPointerGet
-                           4748 ;	genNearPointerGet
-   0DB4 87 02              4749 	mov	ar2,@r1
-                           4750 ;	genCmpEq
-                           4751 ;	gencjneshort
-   0DB6 BA 2E 02           4752 	cjne	r2,#0x2E,00266$
-   0DB9 80 03              4753 	sjmp	00267$
-   0DBB                    4754 00266$:
-   0DBB 02 0E 77           4755 	ljmp	00206$
-   0DBE                    4756 00267$:
-                           4757 ;	genPlus
-                           4758 ;     genPlusIncr
-   0DBE 74 0A              4759 	mov	a,#0x0A
-                           4760 ;	Peephole 236.a	used r0 instead of ar0
-   0DC0 28                 4761 	add	a,r0
-   0DC1 F9                 4762 	mov	r1,a
-                           4763 ;	genPointerGet
-                           4764 ;	genNearPointerGet
-   0DC2 87 02              4765 	mov	ar2,@r1
-                           4766 ;	genCmpEq
-                           4767 ;	gencjneshort
-   0DC4 BA 2E 02           4768 	cjne	r2,#0x2E,00268$
-   0DC7 80 03              4769 	sjmp	00269$
-   0DC9                    4770 00268$:
-   0DC9 02 0E 77           4771 	ljmp	00206$
-   0DCC                    4772 00269$:
-                           4773 ;	genCmpEq
-   0DCC A9 08              4774 	mov	r1,_bp
-   0DCE 09                 4775 	inc	r1
-                           4776 ;	gencjneshort
-   0DCF B7 0E 02           4777 	cjne	@r1,#0x0E,00270$
-   0DD2 80 03              4778 	sjmp	00271$
-   0DD4                    4779 00270$:
-   0DD4 02 0E 77           4780 	ljmp	00206$
-   0DD7                    4781 00271$:
-                           4782 ;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:100: pah=(((rsin[5]-48)*10) + (rsin[6]-48))*16;
-                           4783 ;	genPlus
-                           4784 ;     genPlusIncr
-   0DD7 74 05              4785 	mov	a,#0x05
-                           4786 ;	Peephole 236.a	used r0 instead of ar0
-   0DD9 28                 4787 	add	a,r0
-   0DDA F9                 4788 	mov	r1,a
-                           4789 ;	genPointerGet
-                           4790 ;	genNearPointerGet
-   0DDB 87 02              4791 	mov	ar2,@r1
-                           4792 ;	genMinus
-   0DDD EA                 4793 	mov	a,r2
-   0DDE 24 D0              4794 	add	a,#0xd0
-                           4795 ;	genMult
-                           4796 ;	genMultOneByte
-   0DE0 75 F0 0A           4797 	mov	b,#0x0A
-   0DE3 A4                 4798 	mul	ab
-   0DE4 FA                 4799 	mov	r2,a
-                           4800 ;	genPlus
-                           4801 ;     genPlusIncr
-   0DE5 74 06              4802 	mov	a,#0x06
-                           4803 ;	Peephole 236.a	used r0 instead of ar0
-   0DE7 28                 4804 	add	a,r0
-   0DE8 F9                 4805 	mov	r1,a
-                           4806 ;	genPointerGet
-                           4807 ;	genNearPointerGet
-   0DE9 87 03              4808 	mov	ar3,@r1
-                           4809 ;	genMinus
-   0DEB EB                 4810 	mov	a,r3
-   0DEC 24 D0              4811 	add	a,#0xd0
-                           4812 ;	genPlus
-                           4813 ;	Peephole 236.a	used r2 instead of ar2
-   0DEE 2A                 4814 	add	a,r2
-                           4815 ;	genLeftShift
-                           4816 ;	genLeftShiftLiteral
-                           4817 ;	genlshOne
-   0DEF FA                 4818 	mov	r2,a
-                           4819 ;	Peephole 105	removed redundant mov
-   0DF0 C4                 4820 	swap	a
-   0DF1 54 F0              4821 	anl	a,#0xf0
-   0DF3 F5 3C              4822 	mov	_pah,a
-                           4823 ;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:101: pah=pah + (((rsin[8]-48)*10) + (rsin[9]-48));
-                           4824 ;	genPlus
-                           4825 ;     genPlusIncr
-   0DF5 74 08              4826 	mov	a,#0x08
-                           4827 ;	Peephole 236.a	used r0 instead of ar0
-   0DF7 28                 4828 	add	a,r0
-   0DF8 F9                 4829 	mov	r1,a
-                           4830 ;	genPointerGet
-                           4831 ;	genNearPointerGet
-   0DF9 87 02              4832 	mov	ar2,@r1
-                           4833 ;	genMinus
-   0DFB EA                 4834 	mov	a,r2
-   0DFC 24 D0              4835 	add	a,#0xd0
-                           4836 ;	genMult
-                           4837 ;	genMultOneByte
-   0DFE 75 F0 0A           4838 	mov	b,#0x0A
-   0E01 A4                 4839 	mul	ab
-   0E02 FA                 4840 	mov	r2,a
-                           4841 ;	genPlus
-                           4842 ;     genPlusIncr
-   0E03 74 09              4843 	mov	a,#0x09
-                           4844 ;	Peephole 236.a	used r0 instead of ar0
-   0E05 28                 4845 	add	a,r0
-   0E06 F9                 4846 	mov	r1,a
-                           4847 ;	genPointerGet
-                           4848 ;	genNearPointerGet
-   0E07 87 03              4849 	mov	ar3,@r1
-                           4850 ;	genMinus
-   0E09 EB                 4851 	mov	a,r3
-   0E0A 24 D0              4852 	add	a,#0xd0
-                           4853 ;	genPlus
-                           4854 ;	Peephole 236.a	used r2 instead of ar2
-   0E0C 2A                 4855 	add	a,r2
-                           4856 ;	genPlus
-   0E0D 25 3C              4857 	add	a,_pah
-   0E0F F5 3C              4858 	mov	_pah,a
-                           4859 ;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:102: pal=(((rsin[11]-48)*100) + ((rsin[12]-48)*10) + (rsin[13]-48));
-                           4860 ;	genPlus
-                           4861 ;     genPlusIncr
-   0E11 74 0B              4862 	mov	a,#0x0B
-                           4863 ;	Peephole 236.a	used r0 instead of ar0
-   0E13 28                 4864 	add	a,r0
-   0E14 F9                 4865 	mov	r1,a
-                           4866 ;	genPointerGet
-                           4867 ;	genNearPointerGet
-   0E15 87 02              4868 	mov	ar2,@r1
-                           4869 ;	genMinus
-   0E17 EA                 4870 	mov	a,r2
-   0E18 24 D0              4871 	add	a,#0xd0
-                           4872 ;	genMult
-                           4873 ;	genMultOneByte
-   0E1A 75 F0 64           4874 	mov	b,#0x64
-   0E1D A4                 4875 	mul	ab
-   0E1E FA                 4876 	mov	r2,a
-                           4877 ;	genPlus
-                           4878 ;     genPlusIncr
-   0E1F 74 0C              4879 	mov	a,#0x0C
-                           4880 ;	Peephole 236.a	used r0 instead of ar0
-   0E21 28                 4881 	add	a,r0
-   0E22 F9                 4882 	mov	r1,a
-                           4883 ;	genPointerGet
-                           4884 ;	genNearPointerGet
-   0E23 87 03              4885 	mov	ar3,@r1
-                           4886 ;	genMinus
-   0E25 EB                 4887 	mov	a,r3
-   0E26 24 D0              4888 	add	a,#0xd0
-                           4889 ;	genMult
-                           4890 ;	genMultOneByte
-   0E28 75 F0 0A           4891 	mov	b,#0x0A
-   0E2B A4                 4892 	mul	ab
-                           4893 ;	genPlus
-                           4894 ;	Peephole 236.a	used r2 instead of ar2
-   0E2C 2A                 4895 	add	a,r2
-   0E2D FA                 4896 	mov	r2,a
-                           4897 ;	genPlus
-                           4898 ;     genPlusIncr
-   0E2E 74 0D              4899 	mov	a,#0x0D
-                           4900 ;	Peephole 236.a	used r0 instead of ar0
-   0E30 28                 4901 	add	a,r0
-   0E31 F9                 4902 	mov	r1,a
-                           4903 ;	genPointerGet
-                           4904 ;	genNearPointerGet
-   0E32 87 03              4905 	mov	ar3,@r1
-                           4906 ;	genMinus
-   0E34 EB                 4907 	mov	a,r3
-   0E35 24 D0              4908 	add	a,#0xd0
-                           4909 ;	genPlus
-                           4910 ;	Peephole 236.a	used r2 instead of ar2
-   0E37 2A                 4911 	add	a,r2
-   0E38 F5 3B              4912 	mov	_pal,a
-                           4913 ;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:103: start_writecycle();
-                           4914 ;	genCall
-   0E3A C0 00              4915 	push	ar0
-   0E3C 12 02 70           4916 	lcall	_start_writecycle
-   0E3F D0 00              4917 	pop	ar0
-                           4918 ;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:104: write_byte(0x01,ADDRTAB+1,pah);		// in Flash schreiben
-                           4919 ;	genIpush
-   0E41 C0 00              4920 	push	ar0
-   0E43 C0 3C              4921 	push	_pah
-                           4922 ;	genIpush
-   0E45 74 17              4923 	mov	a,#0x17
-   0E47 C0 E0              4924 	push	acc
-                           4925 ;	genCall
-   0E49 75 82 01           4926 	mov	dpl,#0x01
-   0E4C 12 02 78           4927 	lcall	_write_byte
-   0E4F 15 81              4928 	dec	sp
-   0E51 15 81              4929 	dec	sp
-   0E53 D0 00              4930 	pop	ar0
-                           4931 ;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:105: write_byte(0x01,ADDRTAB+2,pal);
-                           4932 ;	genIpush
-   0E55 C0 00              4933 	push	ar0
-   0E57 C0 3B              4934 	push	_pal
-                           4935 ;	genIpush
-   0E59 74 18              4936 	mov	a,#0x18
-   0E5B C0 E0              4937 	push	acc
-                           4938 ;	genCall
-   0E5D 75 82 01           4939 	mov	dpl,#0x01
-   0E60 12 02 78           4940 	lcall	_write_byte
-   0E63 15 81              4941 	dec	sp
-   0E65 15 81              4942 	dec	sp
-   0E67 D0 00              4943 	pop	ar0
-                           4944 ;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:106: stop_writecycle();
-                           4945 ;	genCall
-   0E69 C0 00              4946 	push	ar0
-   0E6B 12 02 74           4947 	lcall	_stop_writecycle
-   0E6E D0 00              4948 	pop	ar0
-                           4949 ;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:107: rs_send_ok();
-                           4950 ;	genCall
-   0E70 C0 00              4951 	push	ar0
-   0E72 12 0A 13           4952 	lcall	_rs_send_ok
-   0E75 D0 00              4953 	pop	ar0
-                           4954 ;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:110: for(n=0;n<20;n++) rsin[n]=0x00;
-   0E77                    4955 00206$:
-                           4956 ;	genAssign
-   0E77 7A 00              4957 	mov	r2,#0x00
-   0E79                    4958 00159$:
-                           4959 ;	genCmpLt
-                           4960 ;	genCmp
-   0E79 BA 14 00           4961 	cjne	r2,#0x14,00272$
-   0E7C                    4962 00272$:
-                           4963 ;	genIfxJump
-                           4964 ;	Peephole 108.a	removed ljmp by inverse jump logic
-   0E7C 50 08              4965 	jnc	00162$
-                           4966 ;	Peephole 300	removed redundant label 00273$
-                           4967 ;	genPlus
-                           4968 ;	Peephole 236.g	used r2 instead of ar2
-   0E7E EA                 4969 	mov	a,r2
-                           4970 ;	Peephole 236.a	used r0 instead of ar0
-   0E7F 28                 4971 	add	a,r0
-   0E80 F9                 4972 	mov	r1,a
-                           4973 ;	genPointerSet
-                           4974 ;	genNearPointerSet
-   0E81 77 00              4975 	mov	@r1,#0x00
-                           4976 ;	genPlus
-                           4977 ;     genPlusIncr
-   0E83 0A                 4978 	inc	r2
-                           4979 ;	Peephole 112.b	changed ljmp to sjmp
-   0E84 80 F3              4980 	sjmp	00159$
-   0E86                    4981 00162$:
-                           4982 ;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:111: rsinpos=0;
-                           4983 ;	genAssign
-   0E86 A8 08              4984 	mov	r0,_bp
-   0E88 08                 4985 	inc	r0
-   0E89 76 00              4986 	mov	@r0,#0x00
-                           4987 ;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:112: cr_received=0;
-                           4988 ;	genAssign
-   0E8B C2 08              4989 	clr	b0
-                           4990 ;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:113: crlf_received=0;
-                           4991 ;	genAssign
-   0E8D C2 09              4992 	clr	b1
-   0E8F                    4993 00150$:
-                           4994 ;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:117: TASTER=1;				// Pin als Eingang schalten um Taster abzufragen
-                           4995 ;	genAssign
-   0E8F D2 97              4996 	setb	_P1_7
-                           4997 ;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:118: if(!TASTER) {			// Taster gedrückt
-                           4998 ;	genIfx
-                           4999 ;	genIfxJump
-                           5000 ;	Peephole 108.e	removed ljmp by inverse jump logic
-   0E91 20 97 09           5001 	jb	_P1_7,00155$
-                           5002 ;	Peephole 300	removed redundant label 00274$
-                           5003 ;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:119: for(n=0;n<100;n++) {}
-                           5004 ;	genAssign
-   0E94 7A 64              5005 	mov	r2,#0x64
-   0E96                    5006 00165$:
-                           5007 ;	genDjnz
-                           5008 ;	Peephole 112.b	changed ljmp to sjmp
-                           5009 ;	Peephole 205	optimized misc jump sequence
-   0E96 DA FE              5010 	djnz	r2,00165$
-                           5011 ;	Peephole 300	removed redundant label 00275$
-                           5012 ;	Peephole 300	removed redundant label 00276$
-                           5013 ;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:120: while(!TASTER);			// warten bis Taster losgelassen
-   0E98                    5014 00151$:
-                           5015 ;	genIfx
-                           5016 ;	genIfxJump
-                           5017 ;	Peephole 108.d	removed ljmp by inverse jump logic
-   0E98 30 97 FD           5018 	jnb	_P1_7,00151$
-                           5019 ;	Peephole 300	removed redundant label 00277$
-                           5020 ;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:121: progmode=!progmode;
-                           5021 ;	genNot
-   0E9B B2 01              5022 	cpl	_progmode
-   0E9D                    5023 00155$:
-                           5024 ;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:123: TASTER=!progmode;			// LED entsprechend schalten (low=LED an)
-                           5025 ;	genNot
-   0E9D A2 01              5026 	mov	c,_progmode
-   0E9F B3                 5027 	cpl	c
-   0EA0 92 97              5028 	mov	_P1_7,c
-                           5029 ;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:124: for(n=0;n<100;n++) {}
-                           5030 ;	genAssign
-   0EA2 7A 64              5031 	mov	r2,#0x64
-   0EA4                    5032 00168$:
-                           5033 ;	genDjnz
-                           5034 ;	Peephole 112.b	changed ljmp to sjmp
-                           5035 ;	Peephole 205	optimized misc jump sequence
-   0EA4 DA FE              5036 	djnz	r2,00168$
-                           5037 ;	Peephole 300	removed redundant label 00278$
-                           5038 ;	Peephole 300	removed redundant label 00279$
-                           5039 ;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:125: } while(1);
-   0EA6 02 0A AA           5040 	ljmp	00156$
-                           5041 ;	Peephole 300	removed redundant label 00169$
-   0EA9 85 08 81           5042 	mov	sp,_bp
-   0EAC D0 08              5043 	pop	_bp
-   0EAE 22                 5044 	ret
-                           5045 	.area CSEG    (CODE)
-                           5046 	.area CONST   (CODE)
-                    1C00   5047 _dataflash	=	0x1c00
-                           5048 	.area XINIT   (CODE)
+   0CCF 85 3C 23           4463 	mov	(_telegramm + 0x0001),_pah
+                           4464 ;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:68: telegramm[2]=pal;
+                           4465 ;	genPointerSet
+                           4466 ;	genNearPointerSet
+                           4467 ;	genDataPointerSet
+   0CD2 85 3B 24           4468 	mov	(_telegramm + 0x0002),_pal
+                           4469 ;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:69: telegramm[3]=groupadr>>8;
+                           4470 ;	genGetByte
+   0CD5 8D 02              4471 	mov	ar2,r5
+                           4472 ;	genPointerSet
+                           4473 ;	genNearPointerSet
+                           4474 ;	genDataPointerSet
+   0CD7 8A 25              4475 	mov	(_telegramm + 0x0003),r2
+                           4476 ;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:70: telegramm[4]=groupadr;
+                           4477 ;	genCast
+   0CD9 8C 02              4478 	mov	ar2,r4
+                           4479 ;	genPointerSet
+                           4480 ;	genNearPointerSet
+                           4481 ;	genDataPointerSet
+   0CDB 8A 26              4482 	mov	(_telegramm + 0x0004),r2
+                           4483 ;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:71: telegramm[5]=0xE1;
+                           4484 ;	genPointerSet
+                           4485 ;	genNearPointerSet
+                           4486 ;	genDataPointerSet
+   0CDD 75 27 E1           4487 	mov	(_telegramm + 0x0005),#0xE1
+                           4488 ;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:72: telegramm[6]=0x00;
+                           4489 ;	genPointerSet
+                           4490 ;	genNearPointerSet
+                           4491 ;	genDataPointerSet
+   0CE0 75 28 00           4492 	mov	(_telegramm + 0x0006),#0x00
+                           4493 ;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:73: if (rsin[15]=='1') telegramm[7]=0x81;
+                           4494 ;	genPointerGet
+                           4495 ;	genNearPointerGet
+   0CE3 C0 00              4496 	push	ar0
+   0CE5 A8 03              4497 	mov	r0,ar3
+   0CE7 86 02              4498 	mov	ar2,@r0
+   0CE9 D0 00              4499 	pop	ar0
+                           4500 ;	genCmpEq
+                           4501 ;	gencjne
+                           4502 ;	gencjneshort
+                           4503 ;	Peephole 241.d	optimized compare
+   0CEB E4                 4504 	clr	a
+   0CEC BA 31 01           4505 	cjne	r2,#0x31,00260$
+   0CEF 04                 4506 	inc	a
+   0CF0                    4507 00260$:
+                           4508 ;	Peephole 300	removed redundant label 00261$
+                           4509 ;	genIpop
+   0CF0 D0 02              4510 	pop	ar2
+                           4511 ;	genIfx
+                           4512 ;	genIfxJump
+                           4513 ;	Peephole 108.c	removed ljmp by inverse jump logic
+   0CF2 60 03              4514 	jz	00110$
+                           4515 ;	Peephole 300	removed redundant label 00262$
+                           4516 ;	genPointerSet
+                           4517 ;	genNearPointerSet
+                           4518 ;	genDataPointerSet
+   0CF4 75 29 81           4519 	mov	(_telegramm + 0x0007),#0x81
+   0CF7                    4520 00110$:
+                           4521 ;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:74: if (rsin[15]=='0') telegramm[7]=0x80;
+                           4522 ;	genPointerGet
+                           4523 ;	genNearPointerGet
+   0CF7 C0 00              4524 	push	ar0
+   0CF9 A8 03              4525 	mov	r0,ar3
+   0CFB 86 03              4526 	mov	ar3,@r0
+   0CFD D0 00              4527 	pop	ar0
+                           4528 ;	genCmpEq
+                           4529 ;	gencjneshort
+                           4530 ;	Peephole 112.b	changed ljmp to sjmp
+                           4531 ;	Peephole 198.b	optimized misc jump sequence
+   0CFF BB 30 03           4532 	cjne	r3,#0x30,00112$
+                           4533 ;	Peephole 200.b	removed redundant sjmp
+                           4534 ;	Peephole 300	removed redundant label 00263$
+                           4535 ;	Peephole 300	removed redundant label 00264$
+                           4536 ;	genPointerSet
+                           4537 ;	genNearPointerSet
+                           4538 ;	genDataPointerSet
+   0D02 75 29 80           4539 	mov	(_telegramm + 0x0007),#0x80
+   0D05                    4540 00112$:
+                           4541 ;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:75: EX1=0;
+                           4542 ;	genAssign
+   0D05 C2 AA              4543 	clr	_IEN0_2
+                           4544 ;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:76: send_telegramm();
+                           4545 ;	genCall
+   0D07 C0 02              4546 	push	ar2
+   0D09 C0 00              4547 	push	ar0
+   0D0B C0 01              4548 	push	ar1
+   0D0D 12 04 D8           4549 	lcall	_send_telegramm
+   0D10 D0 01              4550 	pop	ar1
+   0D12 D0 00              4551 	pop	ar0
+   0D14 D0 02              4552 	pop	ar2
+                           4553 ;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:77: EX1=1;
+                           4554 ;	genAssign
+   0D16 D2 AA              4555 	setb	_IEN0_2
+                           4556 ;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:78: rs_send_ok();
+                           4557 ;	genCall
+   0D18 C0 02              4558 	push	ar2
+   0D1A C0 00              4559 	push	ar0
+   0D1C C0 01              4560 	push	ar1
+   0D1E 12 0A 13           4561 	lcall	_rs_send_ok
+   0D21 D0 01              4562 	pop	ar1
+   0D23 D0 00              4563 	pop	ar0
+   0D25 D0 02              4564 	pop	ar2
+   0D27                    4565 00114$:
+                           4566 ;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:80: if(rsin[2]=='s' && rsin[3]=='0' && rsin[4]=='6' && rsin[5]=='/' && rsin[8]=='/' && rsin[10]=='/' && rsin[14]=='=')	// EIS 6 senden
+                           4567 ;	genPointerGet
+                           4568 ;	genNearPointerGet
+   0D27 87 03              4569 	mov	ar3,@r1
+                           4570 ;	genCmpEq
+                           4571 ;	gencjneshort
+   0D29 BB 73 02           4572 	cjne	r3,#0x73,00265$
+   0D2C 80 03              4573 	sjmp	00266$
+   0D2E                    4574 00265$:
+   0D2E 02 0F 47           4575 	ljmp	00124$
+   0D31                    4576 00266$:
+                           4577 ;	genPlus
+                           4578 ;     genPlusIncr
+   0D31 74 03              4579 	mov	a,#0x03
+                           4580 ;	Peephole 236.a	used r0 instead of ar0
+   0D33 28                 4581 	add	a,r0
+   0D34 FB                 4582 	mov	r3,a
+                           4583 ;	genPointerGet
+                           4584 ;	genNearPointerGet
+   0D35 C0 00              4585 	push	ar0
+   0D37 A8 03              4586 	mov	r0,ar3
+   0D39 86 03              4587 	mov	ar3,@r0
+   0D3B D0 00              4588 	pop	ar0
+                           4589 ;	genCmpEq
+                           4590 ;	gencjneshort
+   0D3D BB 30 02           4591 	cjne	r3,#0x30,00267$
+   0D40 80 03              4592 	sjmp	00268$
+   0D42                    4593 00267$:
+   0D42 02 0F 47           4594 	ljmp	00124$
+   0D45                    4595 00268$:
+                           4596 ;	genPlus
+                           4597 ;     genPlusIncr
+   0D45 74 04              4598 	mov	a,#0x04
+                           4599 ;	Peephole 236.a	used r0 instead of ar0
+   0D47 28                 4600 	add	a,r0
+   0D48 FB                 4601 	mov	r3,a
+                           4602 ;	genPointerGet
+                           4603 ;	genNearPointerGet
+   0D49 C0 00              4604 	push	ar0
+   0D4B A8 03              4605 	mov	r0,ar3
+   0D4D 86 03              4606 	mov	ar3,@r0
+   0D4F D0 00              4607 	pop	ar0
+                           4608 ;	genCmpEq
+                           4609 ;	gencjneshort
+   0D51 BB 36 02           4610 	cjne	r3,#0x36,00269$
+   0D54 80 03              4611 	sjmp	00270$
+   0D56                    4612 00269$:
+   0D56 02 0F 47           4613 	ljmp	00124$
+   0D59                    4614 00270$:
+                           4615 ;	genPlus
+                           4616 ;     genPlusIncr
+   0D59 74 05              4617 	mov	a,#0x05
+                           4618 ;	Peephole 236.a	used r0 instead of ar0
+   0D5B 28                 4619 	add	a,r0
+   0D5C FB                 4620 	mov	r3,a
+                           4621 ;	genPointerGet
+                           4622 ;	genNearPointerGet
+   0D5D C0 00              4623 	push	ar0
+   0D5F A8 03              4624 	mov	r0,ar3
+   0D61 86 03              4625 	mov	ar3,@r0
+   0D63 D0 00              4626 	pop	ar0
+                           4627 ;	genCmpEq
+                           4628 ;	gencjneshort
+   0D65 BB 2F 02           4629 	cjne	r3,#0x2F,00271$
+   0D68 80 03              4630 	sjmp	00272$
+   0D6A                    4631 00271$:
+   0D6A 02 0F 47           4632 	ljmp	00124$
+   0D6D                    4633 00272$:
+                           4634 ;	genPlus
+                           4635 ;     genPlusIncr
+   0D6D 74 08              4636 	mov	a,#0x08
+                           4637 ;	Peephole 236.a	used r0 instead of ar0
+   0D6F 28                 4638 	add	a,r0
+   0D70 FB                 4639 	mov	r3,a
+                           4640 ;	genPointerGet
+                           4641 ;	genNearPointerGet
+   0D71 C0 00              4642 	push	ar0
+   0D73 A8 03              4643 	mov	r0,ar3
+   0D75 86 03              4644 	mov	ar3,@r0
+   0D77 D0 00              4645 	pop	ar0
+                           4646 ;	genCmpEq
+                           4647 ;	gencjneshort
+   0D79 BB 2F 02           4648 	cjne	r3,#0x2F,00273$
+   0D7C 80 03              4649 	sjmp	00274$
+   0D7E                    4650 00273$:
+   0D7E 02 0F 47           4651 	ljmp	00124$
+   0D81                    4652 00274$:
+                           4653 ;	genPlus
+                           4654 ;     genPlusIncr
+   0D81 74 0A              4655 	mov	a,#0x0A
+                           4656 ;	Peephole 236.a	used r0 instead of ar0
+   0D83 28                 4657 	add	a,r0
+   0D84 FB                 4658 	mov	r3,a
+                           4659 ;	genPointerGet
+                           4660 ;	genNearPointerGet
+   0D85 C0 00              4661 	push	ar0
+   0D87 A8 03              4662 	mov	r0,ar3
+   0D89 86 03              4663 	mov	ar3,@r0
+   0D8B D0 00              4664 	pop	ar0
+                           4665 ;	genCmpEq
+                           4666 ;	gencjneshort
+   0D8D BB 2F 02           4667 	cjne	r3,#0x2F,00275$
+   0D90 80 03              4668 	sjmp	00276$
+   0D92                    4669 00275$:
+   0D92 02 0F 47           4670 	ljmp	00124$
+   0D95                    4671 00276$:
+                           4672 ;	genPlus
+                           4673 ;     genPlusIncr
+   0D95 74 0E              4674 	mov	a,#0x0E
+                           4675 ;	Peephole 236.a	used r0 instead of ar0
+   0D97 28                 4676 	add	a,r0
+   0D98 FB                 4677 	mov	r3,a
+                           4678 ;	genPointerGet
+                           4679 ;	genNearPointerGet
+   0D99 C0 00              4680 	push	ar0
+   0D9B A8 03              4681 	mov	r0,ar3
+   0D9D 86 03              4682 	mov	ar3,@r0
+   0D9F D0 00              4683 	pop	ar0
+                           4684 ;	genCmpEq
+                           4685 ;	gencjneshort
+   0DA1 BB 3D 02           4686 	cjne	r3,#0x3D,00277$
+   0DA4 80 03              4687 	sjmp	00278$
+   0DA6                    4688 00277$:
+   0DA6 02 0F 47           4689 	ljmp	00124$
+   0DA9                    4690 00278$:
+                           4691 ;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:82: groupadr=((rsin[6]-48)*10) + (rsin[7]-48);
+                           4692 ;	genIpush
+   0DA9 C0 02              4693 	push	ar2
+                           4694 ;	genPlus
+                           4695 ;     genPlusIncr
+   0DAB 74 06              4696 	mov	a,#0x06
+                           4697 ;	Peephole 236.a	used r0 instead of ar0
+   0DAD 28                 4698 	add	a,r0
+   0DAE FB                 4699 	mov	r3,a
+                           4700 ;	genPointerGet
+                           4701 ;	genNearPointerGet
+   0DAF C0 00              4702 	push	ar0
+   0DB1 A8 03              4703 	mov	r0,ar3
+   0DB3 86 03              4704 	mov	ar3,@r0
+   0DB5 D0 00              4705 	pop	ar0
+                           4706 ;	genCast
+   0DB7 7E 00              4707 	mov	r6,#0x00
+                           4708 ;	genMinus
+   0DB9 EB                 4709 	mov	a,r3
+   0DBA 24 D0              4710 	add	a,#0xd0
+   0DBC F5 82              4711 	mov	dpl,a
+   0DBE EE                 4712 	mov	a,r6
+   0DBF 34 FF              4713 	addc	a,#0xff
+   0DC1 F5 83              4714 	mov	dph,a
+                           4715 ;	genIpush
+   0DC3 C0 02              4716 	push	ar2
+   0DC5 C0 00              4717 	push	ar0
+   0DC7 C0 01              4718 	push	ar1
+   0DC9 74 0A              4719 	mov	a,#0x0A
+   0DCB C0 E0              4720 	push	acc
+                           4721 ;	Peephole 181	changed mov to clr
+   0DCD E4                 4722 	clr	a
+   0DCE C0 E0              4723 	push	acc
+                           4724 ;	genCall
+   0DD0 12 10 EB           4725 	lcall	__mulint
+   0DD3 AB 82              4726 	mov	r3,dpl
+   0DD5 AE 83              4727 	mov	r6,dph
+   0DD7 15 81              4728 	dec	sp
+   0DD9 15 81              4729 	dec	sp
+   0DDB D0 01              4730 	pop	ar1
+   0DDD D0 00              4731 	pop	ar0
+   0DDF D0 02              4732 	pop	ar2
+                           4733 ;	genPlus
+                           4734 ;     genPlusIncr
+   0DE1 74 07              4735 	mov	a,#0x07
+                           4736 ;	Peephole 236.a	used r0 instead of ar0
+   0DE3 28                 4737 	add	a,r0
+   0DE4 FF                 4738 	mov	r7,a
+                           4739 ;	genPointerGet
+                           4740 ;	genNearPointerGet
+   0DE5 C0 00              4741 	push	ar0
+   0DE7 A8 07              4742 	mov	r0,ar7
+   0DE9 86 07              4743 	mov	ar7,@r0
+   0DEB D0 00              4744 	pop	ar0
+                           4745 ;	genCast
+   0DED 7A 00              4746 	mov	r2,#0x00
+                           4747 ;	genMinus
+   0DEF EF                 4748 	mov	a,r7
+   0DF0 24 D0              4749 	add	a,#0xd0
+   0DF2 FF                 4750 	mov	r7,a
+   0DF3 EA                 4751 	mov	a,r2
+   0DF4 34 FF              4752 	addc	a,#0xff
+   0DF6 FA                 4753 	mov	r2,a
+                           4754 ;	genPlus
+                           4755 ;	Peephole 236.g	used r7 instead of ar7
+   0DF7 EF                 4756 	mov	a,r7
+                           4757 ;	Peephole 236.a	used r3 instead of ar3
+   0DF8 2B                 4758 	add	a,r3
+   0DF9 FB                 4759 	mov	r3,a
+                           4760 ;	Peephole 236.g	used r2 instead of ar2
+   0DFA EA                 4761 	mov	a,r2
+                           4762 ;	Peephole 236.b	used r6 instead of ar6
+   0DFB 3E                 4763 	addc	a,r6
+   0DFC FE                 4764 	mov	r6,a
+                           4765 ;	genAssign
+   0DFD 8B 04              4766 	mov	ar4,r3
+   0DFF 8E 05              4767 	mov	ar5,r6
+                           4768 ;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:83: groupadr=groupadr*8;
+                           4769 ;	genLeftShift
+                           4770 ;	genLeftShiftLiteral
+                           4771 ;	genlshTwo
+   0E01 ED                 4772 	mov	a,r5
+   0E02 C4                 4773 	swap	a
+   0E03 03                 4774 	rr	a
+   0E04 54 F8              4775 	anl	a,#0xf8
+   0E06 CC                 4776 	xch	a,r4
+   0E07 C4                 4777 	swap	a
+   0E08 03                 4778 	rr	a
+   0E09 CC                 4779 	xch	a,r4
+   0E0A 6C                 4780 	xrl	a,r4
+   0E0B CC                 4781 	xch	a,r4
+   0E0C 54 F8              4782 	anl	a,#0xf8
+   0E0E CC                 4783 	xch	a,r4
+   0E0F 6C                 4784 	xrl	a,r4
+   0E10 FD                 4785 	mov	r5,a
+                           4786 ;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:84: groupadr=groupadr + (rsin[9]-48);
+                           4787 ;	genPlus
+                           4788 ;     genPlusIncr
+   0E11 74 09              4789 	mov	a,#0x09
+                           4790 ;	Peephole 236.a	used r0 instead of ar0
+   0E13 28                 4791 	add	a,r0
+   0E14 FA                 4792 	mov	r2,a
+                           4793 ;	genPointerGet
+                           4794 ;	genNearPointerGet
+   0E15 C0 00              4795 	push	ar0
+   0E17 A8 02              4796 	mov	r0,ar2
+   0E19 86 02              4797 	mov	ar2,@r0
+   0E1B D0 00              4798 	pop	ar0
+                           4799 ;	genCast
+   0E1D 7B 00              4800 	mov	r3,#0x00
+                           4801 ;	genMinus
+   0E1F EA                 4802 	mov	a,r2
+   0E20 24 D0              4803 	add	a,#0xd0
+   0E22 FA                 4804 	mov	r2,a
+   0E23 EB                 4805 	mov	a,r3
+   0E24 34 FF              4806 	addc	a,#0xff
+   0E26 FB                 4807 	mov	r3,a
+                           4808 ;	genPlus
+                           4809 ;	Peephole 236.g	used r2 instead of ar2
+   0E27 EA                 4810 	mov	a,r2
+                           4811 ;	Peephole 236.a	used r4 instead of ar4
+   0E28 2C                 4812 	add	a,r4
+   0E29 FC                 4813 	mov	r4,a
+                           4814 ;	Peephole 236.g	used r3 instead of ar3
+   0E2A EB                 4815 	mov	a,r3
+                           4816 ;	Peephole 236.b	used r5 instead of ar5
+   0E2B 3D                 4817 	addc	a,r5
+                           4818 ;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:85: groupadr=groupadr*256;
+                           4819 ;	genLeftShift
+                           4820 ;	genLeftShiftLiteral
+                           4821 ;	genlshTwo
+                           4822 ;	peephole 177.e	removed redundant move
+   0E2C 8C 05              4823 	mov	ar5,r4
+   0E2E 7C 00              4824 	mov	r4,#0x00
+                           4825 ;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:86: groupadr=groupadr+((rsin[11]-48)*100) + ((rsin[12]-48)*10) + (rsin[13]-48);
+                           4826 ;	genPlus
+                           4827 ;     genPlusIncr
+   0E30 74 0B              4828 	mov	a,#0x0B
+                           4829 ;	Peephole 236.a	used r0 instead of ar0
+   0E32 28                 4830 	add	a,r0
+   0E33 FA                 4831 	mov	r2,a
+                           4832 ;	genPointerGet
+                           4833 ;	genNearPointerGet
+   0E34 C0 00              4834 	push	ar0
+   0E36 A8 02              4835 	mov	r0,ar2
+   0E38 86 02              4836 	mov	ar2,@r0
+   0E3A D0 00              4837 	pop	ar0
+                           4838 ;	genCast
+   0E3C 7B 00              4839 	mov	r3,#0x00
+                           4840 ;	genMinus
+   0E3E EA                 4841 	mov	a,r2
+   0E3F 24 D0              4842 	add	a,#0xd0
+   0E41 F5 82              4843 	mov	dpl,a
+   0E43 EB                 4844 	mov	a,r3
+   0E44 34 FF              4845 	addc	a,#0xff
+   0E46 F5 83              4846 	mov	dph,a
+                           4847 ;	genIpush
+   0E48 C0 04              4848 	push	ar4
+   0E4A C0 05              4849 	push	ar5
+   0E4C C0 00              4850 	push	ar0
+   0E4E C0 01              4851 	push	ar1
+   0E50 74 64              4852 	mov	a,#0x64
+   0E52 C0 E0              4853 	push	acc
+                           4854 ;	Peephole 181	changed mov to clr
+   0E54 E4                 4855 	clr	a
+   0E55 C0 E0              4856 	push	acc
+                           4857 ;	genCall
+   0E57 12 10 EB           4858 	lcall	__mulint
+   0E5A AA 82              4859 	mov	r2,dpl
+   0E5C AB 83              4860 	mov	r3,dph
+   0E5E 15 81              4861 	dec	sp
+   0E60 15 81              4862 	dec	sp
+   0E62 D0 01              4863 	pop	ar1
+   0E64 D0 00              4864 	pop	ar0
+   0E66 D0 05              4865 	pop	ar5
+   0E68 D0 04              4866 	pop	ar4
+                           4867 ;	genPlus
+                           4868 ;	Peephole 236.g	used r2 instead of ar2
+   0E6A EA                 4869 	mov	a,r2
+                           4870 ;	Peephole 236.a	used r4 instead of ar4
+   0E6B 2C                 4871 	add	a,r4
+   0E6C FA                 4872 	mov	r2,a
+                           4873 ;	Peephole 236.g	used r3 instead of ar3
+   0E6D EB                 4874 	mov	a,r3
+                           4875 ;	Peephole 236.b	used r5 instead of ar5
+   0E6E 3D                 4876 	addc	a,r5
+   0E6F FB                 4877 	mov	r3,a
+                           4878 ;	genPlus
+                           4879 ;     genPlusIncr
+   0E70 74 0C              4880 	mov	a,#0x0C
+                           4881 ;	Peephole 236.a	used r0 instead of ar0
+   0E72 28                 4882 	add	a,r0
+   0E73 FE                 4883 	mov	r6,a
+                           4884 ;	genPointerGet
+                           4885 ;	genNearPointerGet
+   0E74 C0 00              4886 	push	ar0
+   0E76 A8 06              4887 	mov	r0,ar6
+   0E78 86 06              4888 	mov	ar6,@r0
+   0E7A D0 00              4889 	pop	ar0
+                           4890 ;	genCast
+   0E7C 7F 00              4891 	mov	r7,#0x00
+                           4892 ;	genMinus
+   0E7E EE                 4893 	mov	a,r6
+   0E7F 24 D0              4894 	add	a,#0xd0
+   0E81 F5 82              4895 	mov	dpl,a
+   0E83 EF                 4896 	mov	a,r7
+   0E84 34 FF              4897 	addc	a,#0xff
+   0E86 F5 83              4898 	mov	dph,a
+                           4899 ;	genIpush
+   0E88 C0 02              4900 	push	ar2
+   0E8A C0 03              4901 	push	ar3
+   0E8C C0 00              4902 	push	ar0
+   0E8E C0 01              4903 	push	ar1
+   0E90 74 0A              4904 	mov	a,#0x0A
+   0E92 C0 E0              4905 	push	acc
+                           4906 ;	Peephole 181	changed mov to clr
+   0E94 E4                 4907 	clr	a
+   0E95 C0 E0              4908 	push	acc
+                           4909 ;	genCall
+   0E97 12 10 EB           4910 	lcall	__mulint
+   0E9A AE 82              4911 	mov	r6,dpl
+   0E9C AF 83              4912 	mov	r7,dph
+   0E9E 15 81              4913 	dec	sp
+   0EA0 15 81              4914 	dec	sp
+   0EA2 D0 01              4915 	pop	ar1
+   0EA4 D0 00              4916 	pop	ar0
+   0EA6 D0 03              4917 	pop	ar3
+   0EA8 D0 02              4918 	pop	ar2
+                           4919 ;	genPlus
+                           4920 ;	Peephole 236.g	used r6 instead of ar6
+   0EAA EE                 4921 	mov	a,r6
+                           4922 ;	Peephole 236.a	used r2 instead of ar2
+   0EAB 2A                 4923 	add	a,r2
+   0EAC FA                 4924 	mov	r2,a
+                           4925 ;	Peephole 236.g	used r7 instead of ar7
+   0EAD EF                 4926 	mov	a,r7
+                           4927 ;	Peephole 236.b	used r3 instead of ar3
+   0EAE 3B                 4928 	addc	a,r3
+   0EAF FB                 4929 	mov	r3,a
+                           4930 ;	genPlus
+                           4931 ;     genPlusIncr
+   0EB0 74 0D              4932 	mov	a,#0x0D
+                           4933 ;	Peephole 236.a	used r0 instead of ar0
+   0EB2 28                 4934 	add	a,r0
+   0EB3 FE                 4935 	mov	r6,a
+                           4936 ;	genPointerGet
+                           4937 ;	genNearPointerGet
+   0EB4 C0 00              4938 	push	ar0
+   0EB6 A8 06              4939 	mov	r0,ar6
+   0EB8 86 06              4940 	mov	ar6,@r0
+   0EBA D0 00              4941 	pop	ar0
+                           4942 ;	genCast
+   0EBC 7F 00              4943 	mov	r7,#0x00
+                           4944 ;	genMinus
+   0EBE EE                 4945 	mov	a,r6
+   0EBF 24 D0              4946 	add	a,#0xd0
+   0EC1 FE                 4947 	mov	r6,a
+   0EC2 EF                 4948 	mov	a,r7
+   0EC3 34 FF              4949 	addc	a,#0xff
+   0EC5 FF                 4950 	mov	r7,a
+                           4951 ;	genPlus
+                           4952 ;	Peephole 236.g	used r6 instead of ar6
+   0EC6 EE                 4953 	mov	a,r6
+                           4954 ;	Peephole 236.a	used r2 instead of ar2
+   0EC7 2A                 4955 	add	a,r2
+   0EC8 FA                 4956 	mov	r2,a
+                           4957 ;	Peephole 236.g	used r7 instead of ar7
+   0EC9 EF                 4958 	mov	a,r7
+                           4959 ;	Peephole 236.b	used r3 instead of ar3
+   0ECA 3B                 4960 	addc	a,r3
+   0ECB FB                 4961 	mov	r3,a
+                           4962 ;	genAssign
+   0ECC 8A 04              4963 	mov	ar4,r2
+   0ECE 8B 05              4964 	mov	ar5,r3
+                           4965 ;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:87: telegramm[0]=0xBC;
+                           4966 ;	genPointerSet
+                           4967 ;	genNearPointerSet
+                           4968 ;	genDataPointerSet
+   0ED0 75 22 BC           4969 	mov	_telegramm,#0xBC
+                           4970 ;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:88: telegramm[1]=pah;
+                           4971 ;	genPointerSet
+                           4972 ;	genNearPointerSet
+                           4973 ;	genDataPointerSet
+   0ED3 85 3C 23           4974 	mov	(_telegramm + 0x0001),_pah
+                           4975 ;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:89: telegramm[2]=pal;
+                           4976 ;	genPointerSet
+                           4977 ;	genNearPointerSet
+                           4978 ;	genDataPointerSet
+   0ED6 85 3B 24           4979 	mov	(_telegramm + 0x0002),_pal
+                           4980 ;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:90: telegramm[3]=groupadr>>8;
+                           4981 ;	genGetByte
+   0ED9 8D 02              4982 	mov	ar2,r5
+                           4983 ;	genPointerSet
+                           4984 ;	genNearPointerSet
+                           4985 ;	genDataPointerSet
+   0EDB 8A 25              4986 	mov	(_telegramm + 0x0003),r2
+                           4987 ;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:91: telegramm[4]=groupadr;
+                           4988 ;	genCast
+                           4989 ;	genPointerSet
+                           4990 ;	genNearPointerSet
+                           4991 ;	genDataPointerSet
+   0EDD 8C 26              4992 	mov	(_telegramm + 0x0004),r4
+                           4993 ;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:92: telegramm[5]=0xE2;
+                           4994 ;	genPointerSet
+                           4995 ;	genNearPointerSet
+                           4996 ;	genDataPointerSet
+   0EDF 75 27 E2           4997 	mov	(_telegramm + 0x0005),#0xE2
+                           4998 ;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:93: telegramm[6]=0x00;
+                           4999 ;	genPointerSet
+                           5000 ;	genNearPointerSet
+                           5001 ;	genDataPointerSet
+   0EE2 75 28 00           5002 	mov	(_telegramm + 0x0006),#0x00
+                           5003 ;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:94: telegramm[7]=0x80;
+                           5004 ;	genPointerSet
+                           5005 ;	genNearPointerSet
+                           5006 ;	genDataPointerSet
+   0EE5 75 29 80           5007 	mov	(_telegramm + 0x0007),#0x80
+                           5008 ;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:95: telegramm[8]=((rsin[15]-48)*100) + ((rsin[16]-48)*10) + (rsin[17]-48);
+                           5009 ;	genPlus
+                           5010 ;     genPlusIncr
+   0EE8 74 0F              5011 	mov	a,#0x0F
+                           5012 ;	Peephole 236.a	used r0 instead of ar0
+   0EEA 28                 5013 	add	a,r0
+   0EEB FA                 5014 	mov	r2,a
+                           5015 ;	genPointerGet
+                           5016 ;	genNearPointerGet
+   0EEC C0 00              5017 	push	ar0
+   0EEE A8 02              5018 	mov	r0,ar2
+   0EF0 86 02              5019 	mov	ar2,@r0
+   0EF2 D0 00              5020 	pop	ar0
+                           5021 ;	genMinus
+   0EF4 EA                 5022 	mov	a,r2
+   0EF5 24 D0              5023 	add	a,#0xd0
+                           5024 ;	genMult
+                           5025 ;	genMultOneByte
+   0EF7 75 F0 64           5026 	mov	b,#0x64
+   0EFA A4                 5027 	mul	ab
+   0EFB FA                 5028 	mov	r2,a
+                           5029 ;	genPlus
+                           5030 ;     genPlusIncr
+   0EFC 74 10              5031 	mov	a,#0x10
+                           5032 ;	Peephole 236.a	used r0 instead of ar0
+   0EFE 28                 5033 	add	a,r0
+   0EFF FB                 5034 	mov	r3,a
+                           5035 ;	genPointerGet
+                           5036 ;	genNearPointerGet
+   0F00 C0 00              5037 	push	ar0
+   0F02 A8 03              5038 	mov	r0,ar3
+   0F04 86 03              5039 	mov	ar3,@r0
+   0F06 D0 00              5040 	pop	ar0
+                           5041 ;	genMinus
+   0F08 EB                 5042 	mov	a,r3
+   0F09 24 D0              5043 	add	a,#0xd0
+                           5044 ;	genMult
+                           5045 ;	genMultOneByte
+   0F0B 75 F0 0A           5046 	mov	b,#0x0A
+   0F0E A4                 5047 	mul	ab
+                           5048 ;	genPlus
+                           5049 ;	Peephole 236.a	used r2 instead of ar2
+   0F0F 2A                 5050 	add	a,r2
+   0F10 FA                 5051 	mov	r2,a
+                           5052 ;	genPlus
+                           5053 ;     genPlusIncr
+   0F11 74 11              5054 	mov	a,#0x11
+                           5055 ;	Peephole 236.a	used r0 instead of ar0
+   0F13 28                 5056 	add	a,r0
+   0F14 FB                 5057 	mov	r3,a
+                           5058 ;	genPointerGet
+                           5059 ;	genNearPointerGet
+   0F15 C0 00              5060 	push	ar0
+   0F17 A8 03              5061 	mov	r0,ar3
+   0F19 86 03              5062 	mov	ar3,@r0
+   0F1B D0 00              5063 	pop	ar0
+                           5064 ;	genMinus
+   0F1D EB                 5065 	mov	a,r3
+   0F1E 24 D0              5066 	add	a,#0xd0
+                           5067 ;	genPlus
+                           5068 ;	Peephole 236.a	used r2 instead of ar2
+   0F20 2A                 5069 	add	a,r2
+                           5070 ;	genPointerSet
+                           5071 ;	genNearPointerSet
+                           5072 ;	genDataPointerSet
+   0F21 F5 2A              5073 	mov	(_telegramm + 0x0008),a
+                           5074 ;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:96: EX1=0;
+                           5075 ;	genAssign
+   0F23 C2 AA              5076 	clr	_IEN0_2
+                           5077 ;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:97: send_telegramm();
+                           5078 ;	genCall
+   0F25 C0 02              5079 	push	ar2
+   0F27 C0 00              5080 	push	ar0
+   0F29 C0 01              5081 	push	ar1
+   0F2B 12 04 D8           5082 	lcall	_send_telegramm
+   0F2E D0 01              5083 	pop	ar1
+   0F30 D0 00              5084 	pop	ar0
+   0F32 D0 02              5085 	pop	ar2
+                           5086 ;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:98: EX1=1;
+                           5087 ;	genAssign
+   0F34 D2 AA              5088 	setb	_IEN0_2
+                           5089 ;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:99: rs_send_ok();
+                           5090 ;	genCall
+   0F36 C0 02              5091 	push	ar2
+   0F38 C0 00              5092 	push	ar0
+   0F3A C0 01              5093 	push	ar1
+   0F3C 12 0A 13           5094 	lcall	_rs_send_ok
+   0F3F D0 01              5095 	pop	ar1
+   0F41 D0 00              5096 	pop	ar0
+   0F43 D0 02              5097 	pop	ar2
+                           5098 ;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:146: } while(1);
+                           5099 ;	genIpop
+   0F45 D0 02              5100 	pop	ar2
+                           5101 ;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:99: rs_send_ok();
+   0F47                    5102 00124$:
+                           5103 ;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:101: if(rsin[2]=='r' && rsin[3]=='p' && rsin[4]=='a')	// physikalische Adresse des Adaptrs lesen (fbrpa)
+                           5104 ;	genPointerGet
+                           5105 ;	genNearPointerGet
+   0F47 87 03              5106 	mov	ar3,@r1
+                           5107 ;	genCmpEq
+                           5108 ;	gencjneshort
+   0F49 BB 72 02           5109 	cjne	r3,#0x72,00279$
+   0F4C 80 03              5110 	sjmp	00280$
+   0F4E                    5111 00279$:
+   0F4E 02 0F CC           5112 	ljmp	00144$
+   0F51                    5113 00280$:
+                           5114 ;	genPlus
+                           5115 ;     genPlusIncr
+   0F51 74 03              5116 	mov	a,#0x03
+                           5117 ;	Peephole 236.a	used r0 instead of ar0
+   0F53 28                 5118 	add	a,r0
+   0F54 FB                 5119 	mov	r3,a
+                           5120 ;	genPointerGet
+                           5121 ;	genNearPointerGet
+   0F55 C0 00              5122 	push	ar0
+   0F57 A8 03              5123 	mov	r0,ar3
+   0F59 86 03              5124 	mov	ar3,@r0
+   0F5B D0 00              5125 	pop	ar0
+                           5126 ;	genCmpEq
+                           5127 ;	gencjneshort
+                           5128 ;	Peephole 112.b	changed ljmp to sjmp
+                           5129 ;	Peephole 198.b	optimized misc jump sequence
+   0F5D BB 70 6C           5130 	cjne	r3,#0x70,00144$
+                           5131 ;	Peephole 200.b	removed redundant sjmp
+                           5132 ;	Peephole 300	removed redundant label 00281$
+                           5133 ;	Peephole 300	removed redundant label 00282$
+                           5134 ;	genPlus
+                           5135 ;     genPlusIncr
+   0F60 74 04              5136 	mov	a,#0x04
+                           5137 ;	Peephole 236.a	used r0 instead of ar0
+   0F62 28                 5138 	add	a,r0
+   0F63 FB                 5139 	mov	r3,a
+                           5140 ;	genPointerGet
+                           5141 ;	genNearPointerGet
+   0F64 C0 00              5142 	push	ar0
+   0F66 A8 03              5143 	mov	r0,ar3
+   0F68 86 03              5144 	mov	ar3,@r0
+   0F6A D0 00              5145 	pop	ar0
+                           5146 ;	genCmpEq
+                           5147 ;	gencjneshort
+                           5148 ;	Peephole 112.b	changed ljmp to sjmp
+                           5149 ;	Peephole 198.b	optimized misc jump sequence
+   0F6C BB 61 5D           5150 	cjne	r3,#0x61,00144$
+                           5151 ;	Peephole 200.b	removed redundant sjmp
+                           5152 ;	Peephole 300	removed redundant label 00283$
+                           5153 ;	Peephole 300	removed redundant label 00284$
+                           5154 ;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:103: rs_send_dec(pah>>4);
+                           5155 ;	genRightShift
+                           5156 ;	genRightShiftLiteral
+                           5157 ;	genrshOne
+   0F6F E5 3C              5158 	mov	a,_pah
+   0F71 C4                 5159 	swap	a
+   0F72 54 0F              5160 	anl	a,#0x0f
+   0F74 F5 82              5161 	mov	dpl,a
+                           5162 ;	genCall
+   0F76 C0 02              5163 	push	ar2
+   0F78 C0 00              5164 	push	ar0
+   0F7A C0 01              5165 	push	ar1
+   0F7C 12 09 D0           5166 	lcall	_rs_send_dec
+   0F7F D0 01              5167 	pop	ar1
+   0F81 D0 00              5168 	pop	ar0
+   0F83 D0 02              5169 	pop	ar2
+                           5170 ;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:104: SBUF='.';
+                           5171 ;	genAssign
+   0F85 75 99 2E           5172 	mov	_SBUF,#0x2E
+                           5173 ;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:105: while(!TI);
+   0F88                    5174 00131$:
+                           5175 ;	genIfx
+                           5176 ;	genIfxJump
+                           5177 ;	Peephole 108.d	removed ljmp by inverse jump logic
+                           5178 ;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:106: TI=0;
+                           5179 ;	genAssign
+                           5180 ;	Peephole 250.a	using atomic test and clear
+   0F88 10 99 02           5181 	jbc	_SCON_1,00285$
+   0F8B 80 FB              5182 	sjmp	00131$
+   0F8D                    5183 00285$:
+                           5184 ;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:107: rs_send_dec(pah&0x0F);
+                           5185 ;	genAnd
+   0F8D 74 0F              5186 	mov	a,#0x0F
+   0F8F 55 3C              5187 	anl	a,_pah
+   0F91 F5 82              5188 	mov	dpl,a
+                           5189 ;	genCall
+   0F93 C0 02              5190 	push	ar2
+   0F95 C0 00              5191 	push	ar0
+   0F97 C0 01              5192 	push	ar1
+   0F99 12 09 D0           5193 	lcall	_rs_send_dec
+   0F9C D0 01              5194 	pop	ar1
+   0F9E D0 00              5195 	pop	ar0
+   0FA0 D0 02              5196 	pop	ar2
+                           5197 ;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:108: SBUF='.';
+                           5198 ;	genAssign
+   0FA2 75 99 2E           5199 	mov	_SBUF,#0x2E
+                           5200 ;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:109: while(!TI);
+   0FA5                    5201 00134$:
+                           5202 ;	genIfx
+                           5203 ;	genIfxJump
+                           5204 ;	Peephole 108.d	removed ljmp by inverse jump logic
+                           5205 ;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:110: TI=0;
+                           5206 ;	genAssign
+                           5207 ;	Peephole 250.a	using atomic test and clear
+   0FA5 10 99 02           5208 	jbc	_SCON_1,00286$
+   0FA8 80 FB              5209 	sjmp	00134$
+   0FAA                    5210 00286$:
+                           5211 ;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:111: rs_send_dec(pal);
+                           5212 ;	genCall
+   0FAA 85 3B 82           5213 	mov	dpl,_pal
+   0FAD C0 02              5214 	push	ar2
+   0FAF C0 00              5215 	push	ar0
+   0FB1 C0 01              5216 	push	ar1
+   0FB3 12 09 D0           5217 	lcall	_rs_send_dec
+   0FB6 D0 01              5218 	pop	ar1
+   0FB8 D0 00              5219 	pop	ar0
+   0FBA D0 02              5220 	pop	ar2
+                           5221 ;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:112: SBUF=0x0D;
+                           5222 ;	genAssign
+   0FBC 75 99 0D           5223 	mov	_SBUF,#0x0D
+                           5224 ;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:113: while(!TI);
+   0FBF                    5225 00137$:
+                           5226 ;	genIfx
+                           5227 ;	genIfxJump
+                           5228 ;	Peephole 108.d	removed ljmp by inverse jump logic
+                           5229 ;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:114: TI=0;
+                           5230 ;	genAssign
+                           5231 ;	Peephole 250.a	using atomic test and clear
+   0FBF 10 99 02           5232 	jbc	_SCON_1,00287$
+   0FC2 80 FB              5233 	sjmp	00137$
+   0FC4                    5234 00287$:
+                           5235 ;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:115: SBUF=0x0A;
+                           5236 ;	genAssign
+   0FC4 75 99 0A           5237 	mov	_SBUF,#0x0A
+                           5238 ;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:116: while(!TI);
+   0FC7                    5239 00140$:
+                           5240 ;	genIfx
+                           5241 ;	genIfxJump
+                           5242 ;	Peephole 108.d	removed ljmp by inverse jump logic
+                           5243 ;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:117: TI=0;
+                           5244 ;	genAssign
+                           5245 ;	Peephole 250.a	using atomic test and clear
+   0FC7 10 99 02           5246 	jbc	_SCON_1,00288$
+   0FCA 80 FB              5247 	sjmp	00140$
+   0FCC                    5248 00288$:
+   0FCC                    5249 00144$:
+                           5250 ;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:119: if(rsin[2]=='s' && rsin[3]=='p' && rsin[4]=='a' && rsin[7]=='.' && rsin[10]=='.' && rsinpos==14)	// phys. Adresse des Adapters setzen (fbspaxx.xx.xxx)
+                           5251 ;	genPointerGet
+                           5252 ;	genNearPointerGet
+   0FCC 87 03              5253 	mov	ar3,@r1
+                           5254 ;	genCmpEq
+                           5255 ;	gencjneshort
+   0FCE BB 73 02           5256 	cjne	r3,#0x73,00289$
+   0FD1 80 03              5257 	sjmp	00290$
+   0FD3                    5258 00289$:
+   0FD3 02 10 B6           5259 	ljmp	00221$
+   0FD6                    5260 00290$:
+                           5261 ;	genPlus
+                           5262 ;     genPlusIncr
+   0FD6 74 03              5263 	mov	a,#0x03
+                           5264 ;	Peephole 236.a	used r0 instead of ar0
+   0FD8 28                 5265 	add	a,r0
+   0FD9 F9                 5266 	mov	r1,a
+                           5267 ;	genPointerGet
+                           5268 ;	genNearPointerGet
+   0FDA 87 03              5269 	mov	ar3,@r1
+                           5270 ;	genCmpEq
+                           5271 ;	gencjneshort
+   0FDC BB 70 02           5272 	cjne	r3,#0x70,00291$
+   0FDF 80 03              5273 	sjmp	00292$
+   0FE1                    5274 00291$:
+   0FE1 02 10 B6           5275 	ljmp	00221$
+   0FE4                    5276 00292$:
+                           5277 ;	genPlus
+                           5278 ;     genPlusIncr
+   0FE4 74 04              5279 	mov	a,#0x04
+                           5280 ;	Peephole 236.a	used r0 instead of ar0
+   0FE6 28                 5281 	add	a,r0
+   0FE7 F9                 5282 	mov	r1,a
+                           5283 ;	genPointerGet
+                           5284 ;	genNearPointerGet
+   0FE8 87 03              5285 	mov	ar3,@r1
+                           5286 ;	genCmpEq
+                           5287 ;	gencjneshort
+   0FEA BB 61 02           5288 	cjne	r3,#0x61,00293$
+   0FED 80 03              5289 	sjmp	00294$
+   0FEF                    5290 00293$:
+   0FEF 02 10 B6           5291 	ljmp	00221$
+   0FF2                    5292 00294$:
+                           5293 ;	genPlus
+                           5294 ;     genPlusIncr
+   0FF2 74 07              5295 	mov	a,#0x07
+                           5296 ;	Peephole 236.a	used r0 instead of ar0
+   0FF4 28                 5297 	add	a,r0
+   0FF5 F9                 5298 	mov	r1,a
+                           5299 ;	genPointerGet
+                           5300 ;	genNearPointerGet
+   0FF6 87 03              5301 	mov	ar3,@r1
+                           5302 ;	genCmpEq
+                           5303 ;	gencjneshort
+   0FF8 BB 2E 02           5304 	cjne	r3,#0x2E,00295$
+   0FFB 80 03              5305 	sjmp	00296$
+   0FFD                    5306 00295$:
+   0FFD 02 10 B6           5307 	ljmp	00221$
+   1000                    5308 00296$:
+                           5309 ;	genPlus
+                           5310 ;     genPlusIncr
+   1000 74 0A              5311 	mov	a,#0x0A
+                           5312 ;	Peephole 236.a	used r0 instead of ar0
+   1002 28                 5313 	add	a,r0
+   1003 F9                 5314 	mov	r1,a
+                           5315 ;	genPointerGet
+                           5316 ;	genNearPointerGet
+   1004 87 03              5317 	mov	ar3,@r1
+                           5318 ;	genCmpEq
+                           5319 ;	gencjneshort
+   1006 BB 2E 02           5320 	cjne	r3,#0x2E,00297$
+   1009 80 03              5321 	sjmp	00298$
+   100B                    5322 00297$:
+   100B 02 10 B6           5323 	ljmp	00221$
+   100E                    5324 00298$:
+                           5325 ;	genCmpEq
+                           5326 ;	gencjneshort
+   100E BA 0E 02           5327 	cjne	r2,#0x0E,00299$
+   1011 80 03              5328 	sjmp	00300$
+   1013                    5329 00299$:
+   1013 02 10 B6           5330 	ljmp	00221$
+   1016                    5331 00300$:
+                           5332 ;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:121: pah=(((rsin[5]-48)*10) + (rsin[6]-48))*16;
+                           5333 ;	genPlus
+                           5334 ;     genPlusIncr
+   1016 74 05              5335 	mov	a,#0x05
+                           5336 ;	Peephole 236.a	used r0 instead of ar0
+   1018 28                 5337 	add	a,r0
+   1019 F9                 5338 	mov	r1,a
+                           5339 ;	genPointerGet
+                           5340 ;	genNearPointerGet
+   101A 87 03              5341 	mov	ar3,@r1
+                           5342 ;	genMinus
+   101C EB                 5343 	mov	a,r3
+   101D 24 D0              5344 	add	a,#0xd0
+                           5345 ;	genMult
+                           5346 ;	genMultOneByte
+   101F 75 F0 0A           5347 	mov	b,#0x0A
+   1022 A4                 5348 	mul	ab
+   1023 FB                 5349 	mov	r3,a
+                           5350 ;	genPlus
+                           5351 ;     genPlusIncr
+   1024 74 06              5352 	mov	a,#0x06
+                           5353 ;	Peephole 236.a	used r0 instead of ar0
+   1026 28                 5354 	add	a,r0
+   1027 F9                 5355 	mov	r1,a
+                           5356 ;	genPointerGet
+                           5357 ;	genNearPointerGet
+   1028 87 04              5358 	mov	ar4,@r1
+                           5359 ;	genMinus
+   102A EC                 5360 	mov	a,r4
+   102B 24 D0              5361 	add	a,#0xd0
+                           5362 ;	genPlus
+                           5363 ;	Peephole 236.a	used r3 instead of ar3
+   102D 2B                 5364 	add	a,r3
+                           5365 ;	genLeftShift
+                           5366 ;	genLeftShiftLiteral
+                           5367 ;	genlshOne
+   102E FB                 5368 	mov	r3,a
+                           5369 ;	Peephole 105	removed redundant mov
+   102F C4                 5370 	swap	a
+   1030 54 F0              5371 	anl	a,#0xf0
+   1032 F5 3C              5372 	mov	_pah,a
+                           5373 ;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:122: pah=pah + (((rsin[8]-48)*10) + (rsin[9]-48));
+                           5374 ;	genPlus
+                           5375 ;     genPlusIncr
+   1034 74 08              5376 	mov	a,#0x08
+                           5377 ;	Peephole 236.a	used r0 instead of ar0
+   1036 28                 5378 	add	a,r0
+   1037 F9                 5379 	mov	r1,a
+                           5380 ;	genPointerGet
+                           5381 ;	genNearPointerGet
+   1038 87 03              5382 	mov	ar3,@r1
+                           5383 ;	genMinus
+   103A EB                 5384 	mov	a,r3
+   103B 24 D0              5385 	add	a,#0xd0
+                           5386 ;	genMult
+                           5387 ;	genMultOneByte
+   103D 75 F0 0A           5388 	mov	b,#0x0A
+   1040 A4                 5389 	mul	ab
+   1041 FB                 5390 	mov	r3,a
+                           5391 ;	genPlus
+                           5392 ;     genPlusIncr
+   1042 74 09              5393 	mov	a,#0x09
+                           5394 ;	Peephole 236.a	used r0 instead of ar0
+   1044 28                 5395 	add	a,r0
+   1045 F9                 5396 	mov	r1,a
+                           5397 ;	genPointerGet
+                           5398 ;	genNearPointerGet
+   1046 87 04              5399 	mov	ar4,@r1
+                           5400 ;	genMinus
+   1048 EC                 5401 	mov	a,r4
+   1049 24 D0              5402 	add	a,#0xd0
+                           5403 ;	genPlus
+                           5404 ;	Peephole 236.a	used r3 instead of ar3
+   104B 2B                 5405 	add	a,r3
+                           5406 ;	genPlus
+   104C 25 3C              5407 	add	a,_pah
+   104E F5 3C              5408 	mov	_pah,a
+                           5409 ;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:123: pal=(((rsin[11]-48)*100) + ((rsin[12]-48)*10) + (rsin[13]-48));
+                           5410 ;	genPlus
+                           5411 ;     genPlusIncr
+   1050 74 0B              5412 	mov	a,#0x0B
+                           5413 ;	Peephole 236.a	used r0 instead of ar0
+   1052 28                 5414 	add	a,r0
+   1053 F9                 5415 	mov	r1,a
+                           5416 ;	genPointerGet
+                           5417 ;	genNearPointerGet
+   1054 87 03              5418 	mov	ar3,@r1
+                           5419 ;	genMinus
+   1056 EB                 5420 	mov	a,r3
+   1057 24 D0              5421 	add	a,#0xd0
+                           5422 ;	genMult
+                           5423 ;	genMultOneByte
+   1059 75 F0 64           5424 	mov	b,#0x64
+   105C A4                 5425 	mul	ab
+   105D FB                 5426 	mov	r3,a
+                           5427 ;	genPlus
+                           5428 ;     genPlusIncr
+   105E 74 0C              5429 	mov	a,#0x0C
+                           5430 ;	Peephole 236.a	used r0 instead of ar0
+   1060 28                 5431 	add	a,r0
+   1061 F9                 5432 	mov	r1,a
+                           5433 ;	genPointerGet
+                           5434 ;	genNearPointerGet
+   1062 87 04              5435 	mov	ar4,@r1
+                           5436 ;	genMinus
+   1064 EC                 5437 	mov	a,r4
+   1065 24 D0              5438 	add	a,#0xd0
+                           5439 ;	genMult
+                           5440 ;	genMultOneByte
+   1067 75 F0 0A           5441 	mov	b,#0x0A
+   106A A4                 5442 	mul	ab
+                           5443 ;	genPlus
+                           5444 ;	Peephole 236.a	used r3 instead of ar3
+   106B 2B                 5445 	add	a,r3
+   106C FB                 5446 	mov	r3,a
+                           5447 ;	genPlus
+                           5448 ;     genPlusIncr
+   106D 74 0D              5449 	mov	a,#0x0D
+                           5450 ;	Peephole 236.a	used r0 instead of ar0
+   106F 28                 5451 	add	a,r0
+   1070 F9                 5452 	mov	r1,a
+                           5453 ;	genPointerGet
+                           5454 ;	genNearPointerGet
+   1071 87 04              5455 	mov	ar4,@r1
+                           5456 ;	genMinus
+   1073 EC                 5457 	mov	a,r4
+   1074 24 D0              5458 	add	a,#0xd0
+                           5459 ;	genPlus
+                           5460 ;	Peephole 236.a	used r3 instead of ar3
+   1076 2B                 5461 	add	a,r3
+   1077 F5 3B              5462 	mov	_pal,a
+                           5463 ;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:124: start_writecycle();
+                           5464 ;	genCall
+   1079 C0 00              5465 	push	ar0
+   107B 12 02 70           5466 	lcall	_start_writecycle
+   107E D0 00              5467 	pop	ar0
+                           5468 ;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:125: write_byte(0x01,ADDRTAB+1,pah);		// in Flash schreiben
+                           5469 ;	genIpush
+   1080 C0 00              5470 	push	ar0
+   1082 C0 3C              5471 	push	_pah
+                           5472 ;	genIpush
+   1084 74 17              5473 	mov	a,#0x17
+   1086 C0 E0              5474 	push	acc
+                           5475 ;	genCall
+   1088 75 82 01           5476 	mov	dpl,#0x01
+   108B 12 02 78           5477 	lcall	_write_byte
+   108E 15 81              5478 	dec	sp
+   1090 15 81              5479 	dec	sp
+   1092 D0 00              5480 	pop	ar0
+                           5481 ;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:126: write_byte(0x01,ADDRTAB+2,pal);
+                           5482 ;	genIpush
+   1094 C0 00              5483 	push	ar0
+   1096 C0 3B              5484 	push	_pal
+                           5485 ;	genIpush
+   1098 74 18              5486 	mov	a,#0x18
+   109A C0 E0              5487 	push	acc
+                           5488 ;	genCall
+   109C 75 82 01           5489 	mov	dpl,#0x01
+   109F 12 02 78           5490 	lcall	_write_byte
+   10A2 15 81              5491 	dec	sp
+   10A4 15 81              5492 	dec	sp
+   10A6 D0 00              5493 	pop	ar0
+                           5494 ;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:127: stop_writecycle();
+                           5495 ;	genCall
+   10A8 C0 00              5496 	push	ar0
+   10AA 12 02 74           5497 	lcall	_stop_writecycle
+   10AD D0 00              5498 	pop	ar0
+                           5499 ;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:128: rs_send_ok();
+                           5500 ;	genCall
+   10AF C0 00              5501 	push	ar0
+   10B1 12 0A 13           5502 	lcall	_rs_send_ok
+   10B4 D0 00              5503 	pop	ar0
+                           5504 ;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:131: for(n=0;n<20;n++) rsin[n]=0x00;
+   10B6                    5505 00221$:
+                           5506 ;	genAssign
+   10B6 7B 00              5507 	mov	r3,#0x00
+   10B8                    5508 00167$:
+                           5509 ;	genCmpLt
+                           5510 ;	genCmp
+   10B8 BB 14 00           5511 	cjne	r3,#0x14,00301$
+   10BB                    5512 00301$:
+                           5513 ;	genIfxJump
+                           5514 ;	Peephole 108.a	removed ljmp by inverse jump logic
+   10BB 50 08              5515 	jnc	00170$
+                           5516 ;	Peephole 300	removed redundant label 00302$
+                           5517 ;	genPlus
+                           5518 ;	Peephole 236.g	used r3 instead of ar3
+   10BD EB                 5519 	mov	a,r3
+                           5520 ;	Peephole 236.a	used r0 instead of ar0
+   10BE 28                 5521 	add	a,r0
+   10BF F9                 5522 	mov	r1,a
+                           5523 ;	genPointerSet
+                           5524 ;	genNearPointerSet
+   10C0 77 00              5525 	mov	@r1,#0x00
+                           5526 ;	genPlus
+                           5527 ;     genPlusIncr
+   10C2 0B                 5528 	inc	r3
+                           5529 ;	Peephole 112.b	changed ljmp to sjmp
+   10C3 80 F3              5530 	sjmp	00167$
+   10C5                    5531 00170$:
+                           5532 ;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:132: rsinpos=0;
+                           5533 ;	genAssign
+   10C5 7A 00              5534 	mov	r2,#0x00
+                           5535 ;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:133: cr_received=0;
+                           5536 ;	genAssign
+   10C7 C2 08              5537 	clr	b0
+                           5538 ;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:134: crlf_received=0;
+                           5539 ;	genAssign
+   10C9 C2 09              5540 	clr	b1
+   10CB                    5541 00158$:
+                           5542 ;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:138: TASTER=1;				// Pin als Eingang schalten um Taster abzufragen
+                           5543 ;	genAssign
+   10CB D2 97              5544 	setb	_P1_7
+                           5545 ;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:139: if(!TASTER) {			// Taster gedrückt
+                           5546 ;	genIfx
+                           5547 ;	genIfxJump
+                           5548 ;	Peephole 108.e	removed ljmp by inverse jump logic
+   10CD 20 97 09           5549 	jb	_P1_7,00163$
+                           5550 ;	Peephole 300	removed redundant label 00303$
+                           5551 ;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:140: for(n=0;n<100;n++) {}
+                           5552 ;	genAssign
+   10D0 7B 64              5553 	mov	r3,#0x64
+   10D2                    5554 00173$:
+                           5555 ;	genDjnz
+                           5556 ;	Peephole 112.b	changed ljmp to sjmp
+                           5557 ;	Peephole 205	optimized misc jump sequence
+   10D2 DB FE              5558 	djnz	r3,00173$
+                           5559 ;	Peephole 300	removed redundant label 00304$
+                           5560 ;	Peephole 300	removed redundant label 00305$
+                           5561 ;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:141: while(!TASTER);			// warten bis Taster losgelassen
+   10D4                    5562 00159$:
+                           5563 ;	genIfx
+                           5564 ;	genIfxJump
+                           5565 ;	Peephole 108.d	removed ljmp by inverse jump logic
+   10D4 30 97 FD           5566 	jnb	_P1_7,00159$
+                           5567 ;	Peephole 300	removed redundant label 00306$
+                           5568 ;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:142: progmode=!progmode;
+                           5569 ;	genNot
+   10D7 B2 01              5570 	cpl	_progmode
+   10D9                    5571 00163$:
+                           5572 ;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:144: TASTER=!progmode;			// LED entsprechend schalten (low=LED an)
+                           5573 ;	genNot
+   10D9 A2 01              5574 	mov	c,_progmode
+   10DB B3                 5575 	cpl	c
+   10DC 92 97              5576 	mov	_P1_7,c
+                           5577 ;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:145: for(n=0;n<100;n++) {}
+                           5578 ;	genAssign
+   10DE 7B 64              5579 	mov	r3,#0x64
+   10E0                    5580 00176$:
+                           5581 ;	genDjnz
+                           5582 ;	Peephole 112.b	changed ljmp to sjmp
+                           5583 ;	Peephole 205	optimized misc jump sequence
+   10E0 DB FE              5584 	djnz	r3,00176$
+                           5585 ;	Peephole 300	removed redundant label 00307$
+                           5586 ;	Peephole 300	removed redundant label 00308$
+                           5587 ;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:146: } while(1);
+   10E2 02 0A A7           5588 	ljmp	00164$
+                           5589 ;	Peephole 300	removed redundant label 00177$
+   10E5 85 08 81           5590 	mov	sp,_bp
+   10E8 D0 08              5591 	pop	_bp
+   10EA 22                 5592 	ret
+                           5593 	.area CSEG    (CODE)
+                           5594 	.area CONST   (CODE)
+                    1C00   5595 _dataflash	=	0x1c00
+                           5596 	.area XINIT   (CODE)

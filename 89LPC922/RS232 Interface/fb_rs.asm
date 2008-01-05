@@ -1,7 +1,7 @@
 ;--------------------------------------------------------
 ; File Created by SDCC : FreeWare ANSI-C Compiler
 ; Version 2.6.1 #4376 (Sep 14 2006)
-; This file generated Wed Jan 02 12:56:17 2008
+; This file generated Fri Jan 04 15:06:37 2008
 ;--------------------------------------------------------
 	.module fb_rs
 	.optsdcc -mmcs51 --model-small
@@ -3855,13 +3855,13 @@ _restart_app:
 ;------------------------------------------------------------
 ;Allocation info for local variables in function 'main'
 ;------------------------------------------------------------
-;n                         Allocated to registers r2 
-;rsinpos                   Allocated to stack - offset 1
-;rsin                      Allocated to stack - offset 2
+;n                         Allocated to registers r3 
+;rsinpos                   Allocated to registers r2 
+;rsin                      Allocated to stack - offset 1
 ;cr_received               Allocated to registers b0 
 ;crlf_received             Allocated to registers b1 
 ;groupadr                  Allocated to registers r4 r5 
-;sloc0                     Allocated to stack - offset 22
+;sloc0                     Allocated to stack - offset 21
 ;------------------------------------------------------------
 ;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:18: void main(void)
 ;	-----------------------------------------
@@ -3872,7 +3872,7 @@ _main:
 ;	peephole 177.h	optimized mov sequence
 	mov	a,sp
 	mov	_bp,a
-	add	a,#0x17
+	add	a,#0x16
 	mov	sp,a
 ;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:25: restart_hw();				// Hardware zurücksetzen
 ;	genCall
@@ -3888,9 +3888,7 @@ _main:
 	lcall	_rs_init
 ;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:30: rsinpos=0;
 ;	genAssign
-	mov	r0,_bp
-	inc	r0
-	mov	@r0,#0x00
+	mov	r2,#0x00
 ;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:31: cr_received=0;
 ;	genAssign
 	clr	b0
@@ -3898,30 +3896,30 @@ _main:
 ;	genAssign
 	clr	b1
 ;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:35: do  {
-00156$:
+00164$:
 ;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:36: if (RI)
 ;	genIfx
 ;	genIfxJump
 ;	Peephole 108.d	removed ljmp by inverse jump logic
 	jnb	_SCON_0,00108$
-;	Peephole 300	removed redundant label 00218$
+;	Peephole 300	removed redundant label 00233$
 ;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:38: switch (SBUF)
 ;	genAssign
 	mov	r3,_SBUF
 ;	genCmpEq
 ;	gencjneshort
-	cjne	r3,#0x0A,00219$
+	cjne	r3,#0x0A,00234$
 ;	Peephole 112.b	changed ljmp to sjmp
 	sjmp	00102$
-00219$:
+00234$:
 ;	genCmpEq
 ;	gencjneshort
 ;	Peephole 112.b	changed ljmp to sjmp
 ;	Peephole 198.b	optimized misc jump sequence
 	cjne	r3,#0x0D,00105$
 ;	Peephole 200.b	removed redundant sjmp
-;	Peephole 300	removed redundant label 00220$
-;	Peephole 300	removed redundant label 00221$
+;	Peephole 300	removed redundant label 00235$
+;	Peephole 300	removed redundant label 00236$
 ;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:41: cr_received=1;
 ;	genAssign
 	setb	b0
@@ -3935,7 +3933,7 @@ _main:
 ;	genIfxJump
 ;	Peephole 108.d	removed ljmp by inverse jump logic
 	jnb	b0,00106$
-;	Peephole 300	removed redundant label 00222$
+;	Peephole 300	removed redundant label 00237$
 ;	genAssign
 	setb	b1
 ;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:45: break;
@@ -3945,13 +3943,12 @@ _main:
 00105$:
 ;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:47: rsin[rsinpos]=SBUF;
 ;	genAddrOf
-	mov	a,_bp
-	add	a,#0x02
-	mov	r3,a
+;	Peephole 212	reduced add sequence to inc
+	mov	r3,_bp
+	inc	r3
 ;	genPlus
-	mov	r1,_bp
-	inc	r1
-	mov	a,@r1
+;	Peephole 236.g	used r2 instead of ar2
+	mov	a,r2
 ;	Peephole 236.a	used r3 instead of ar3
 	add	a,r3
 	mov	r0,a
@@ -3960,10 +3957,8 @@ _main:
 	mov	@r0,_SBUF
 ;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:48: rsinpos++;
 ;	genPlus
-	mov	r0,_bp
-	inc	r0
 ;     genPlusIncr
-	inc	@r0
+	inc	r2
 ;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:49: cr_received=0;
 ;	genAssign
 	clr	b0
@@ -3979,24 +3974,24 @@ _main:
 ;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:55: if (crlf_received)			// Zeile vollständig empfangen
 ;	genIfx
 ;	genIfxJump
-	jb	b1,00223$
-	ljmp	00150$
-00223$:
+	jb	b1,00238$
+	ljmp	00158$
+00238$:
 ;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:57: if (rsin[0]=='f' && rsin[1]=='b')	// Magic-word 'fb' empfangen
 ;	genAddrOf
-	mov	a,_bp
-	add	a,#0x02
-	mov	r0,a
+;	Peephole 212	reduced add sequence to inc
+	mov	r0,_bp
+	inc	r0
 ;	genPointerGet
 ;	genNearPointerGet
 	mov	ar3,@r0
 ;	genCmpEq
 ;	gencjneshort
-	cjne	r3,#0x66,00224$
-	sjmp	00225$
-00224$:
-	ljmp	00206$
-00225$:
+	cjne	r3,#0x66,00239$
+	sjmp	00240$
+00239$:
+	ljmp	00221$
+00240$:
 ;	genPlus
 ;     genPlusIncr
 	mov	a,#0x01
@@ -4008,11 +4003,11 @@ _main:
 	mov	ar3,@r1
 ;	genCmpEq
 ;	gencjneshort
-	cjne	r3,#0x62,00226$
-	sjmp	00227$
-00226$:
-	ljmp	00206$
-00227$:
+	cjne	r3,#0x62,00241$
+	sjmp	00242$
+00241$:
+	ljmp	00221$
+00242$:
 ;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:59: if(rsin[2]=='s' && rsin[3]=='0' && rsin[4]=='1' && rsin[5]=='/' && rsin[8]=='/' && rsin[10]=='/' && rsin[14]=='=' && (rsin[15]=='0' || rsin[15]=='1'))	// EIS 1 senden
 ;	genPlus
 ;     genPlusIncr
@@ -4025,11 +4020,11 @@ _main:
 	mov	ar3,@r1
 ;	genCmpEq
 ;	gencjneshort
-	cjne	r3,#0x73,00228$
-	sjmp	00229$
-00228$:
+	cjne	r3,#0x73,00243$
+	sjmp	00244$
+00243$:
 	ljmp	00114$
-00229$:
+00244$:
 ;	genPlus
 ;     genPlusIncr
 	mov	a,#0x03
@@ -4044,11 +4039,11 @@ _main:
 	pop	ar0
 ;	genCmpEq
 ;	gencjneshort
-	cjne	r3,#0x30,00230$
-	sjmp	00231$
-00230$:
+	cjne	r3,#0x30,00245$
+	sjmp	00246$
+00245$:
 	ljmp	00114$
-00231$:
+00246$:
 ;	genPlus
 ;     genPlusIncr
 	mov	a,#0x04
@@ -4063,11 +4058,11 @@ _main:
 	pop	ar0
 ;	genCmpEq
 ;	gencjneshort
-	cjne	r3,#0x31,00232$
-	sjmp	00233$
-00232$:
+	cjne	r3,#0x31,00247$
+	sjmp	00248$
+00247$:
 	ljmp	00114$
-00233$:
+00248$:
 ;	genPlus
 ;     genPlusIncr
 	mov	a,#0x05
@@ -4082,11 +4077,11 @@ _main:
 	pop	ar0
 ;	genCmpEq
 ;	gencjneshort
-	cjne	r3,#0x2F,00234$
-	sjmp	00235$
-00234$:
+	cjne	r3,#0x2F,00249$
+	sjmp	00250$
+00249$:
 	ljmp	00114$
-00235$:
+00250$:
 ;	genPlus
 ;     genPlusIncr
 	mov	a,#0x08
@@ -4101,11 +4096,11 @@ _main:
 	pop	ar0
 ;	genCmpEq
 ;	gencjneshort
-	cjne	r3,#0x2F,00236$
-	sjmp	00237$
-00236$:
+	cjne	r3,#0x2F,00251$
+	sjmp	00252$
+00251$:
 	ljmp	00114$
-00237$:
+00252$:
 ;	genPlus
 ;     genPlusIncr
 	mov	a,#0x0A
@@ -4120,11 +4115,11 @@ _main:
 	pop	ar0
 ;	genCmpEq
 ;	gencjneshort
-	cjne	r3,#0x2F,00238$
-	sjmp	00239$
-00238$:
+	cjne	r3,#0x2F,00253$
+	sjmp	00254$
+00253$:
 	ljmp	00114$
-00239$:
+00254$:
 ;	genPlus
 ;     genPlusIncr
 	mov	a,#0x0E
@@ -4139,11 +4134,11 @@ _main:
 	pop	ar0
 ;	genCmpEq
 ;	gencjneshort
-	cjne	r3,#0x3D,00240$
-	sjmp	00241$
-00240$:
+	cjne	r3,#0x3D,00255$
+	sjmp	00256$
+00255$:
 	ljmp	00114$
-00241$:
+00256$:
 ;	genPlus
 ;     genPlusIncr
 	mov	a,#0x0F
@@ -4158,21 +4153,21 @@ _main:
 	pop	ar0
 ;	genCmpEq
 ;	gencjneshort
-	cjne	r4,#0x30,00242$
+	cjne	r4,#0x30,00257$
 ;	Peephole 112.b	changed ljmp to sjmp
 	sjmp	00113$
-00242$:
+00257$:
 ;	genCmpEq
 ;	gencjneshort
-	cjne	r4,#0x31,00243$
-	sjmp	00244$
-00243$:
+	cjne	r4,#0x31,00258$
+	sjmp	00259$
+00258$:
 	ljmp	00114$
-00244$:
+00259$:
 00113$:
 ;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:61: groupadr=((rsin[6]-48)*10) + (rsin[7]-48);
 ;	genIpush
-	push	ar1
+	push	ar2
 ;	genPlus
 ;     genPlusIncr
 	mov	a,#0x06
@@ -4195,6 +4190,7 @@ _main:
 	addc	a,#0xff
 	mov	dph,a
 ;	genIpush
+	push	ar2
 	push	ar3
 	push	ar0
 	push	ar1
@@ -4212,6 +4208,7 @@ _main:
 	pop	ar1
 	pop	ar0
 	pop	ar3
+	pop	ar2
 ;	genPlus
 ;     genPlusIncr
 	mov	a,#0x07
@@ -4325,6 +4322,7 @@ _main:
 	addc	a,#0xff
 	mov	dph,a
 ;	genIpush
+	push	ar2
 	push	ar3
 	push	ar4
 	push	ar5
@@ -4346,10 +4344,11 @@ _main:
 	pop	ar5
 	pop	ar4
 	pop	ar3
+	pop	ar2
 ;	genPlus
 	push	ar0
 	mov	a,_bp
-	add	a,#0x16
+	add	a,#0x15
 	mov	r0,a
 ;	Peephole 236.g	used r6 instead of ar6
 	mov	a,r6
@@ -4368,10 +4367,13 @@ _main:
 	mov	a,#0x0C
 ;	Peephole 236.a	used r0 instead of ar0
 	add	a,r0
-	mov	r1,a
+	mov	r2,a
 ;	genPointerGet
 ;	genNearPointerGet
-	mov	ar2,@r1
+	push	ar0
+	mov	r0,ar2
+	mov	ar2,@r0
+	pop	ar0
 ;	genCast
 	mov	r6,#0x00
 ;	genMinus
@@ -4402,7 +4404,7 @@ _main:
 ;	genPlus
 	push	ar0
 	mov	a,_bp
-	add	a,#0x16
+	add	a,#0x15
 	mov	r0,a
 ;	Peephole 236.g	used r2 instead of ar2
 	mov	a,r2
@@ -4419,10 +4421,13 @@ _main:
 	mov	a,#0x0D
 ;	Peephole 236.a	used r0 instead of ar0
 	add	a,r0
-	mov	r1,a
+	mov	r7,a
 ;	genPointerGet
 ;	genNearPointerGet
-	mov	ar7,@r1
+	push	ar0
+	mov	r0,ar7
+	mov	ar7,@r0
+	pop	ar0
 ;	genCast
 	mov	r2,#0x00
 ;	genMinus
@@ -4470,10 +4475,11 @@ _main:
 	mov	(_telegramm + 0x0003),r2
 ;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:70: telegramm[4]=groupadr;
 ;	genCast
+	mov	ar2,r4
 ;	genPointerSet
 ;	genNearPointerSet
 ;	genDataPointerSet
-	mov	(_telegramm + 0x0004),r4
+	mov	(_telegramm + 0x0004),r2
 ;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:71: telegramm[5]=0xE1;
 ;	genPointerSet
 ;	genNearPointerSet
@@ -4496,17 +4502,17 @@ _main:
 ;	gencjneshort
 ;	Peephole 241.d	optimized compare
 	clr	a
-	cjne	r2,#0x31,00245$
+	cjne	r2,#0x31,00260$
 	inc	a
-00245$:
-;	Peephole 300	removed redundant label 00246$
+00260$:
+;	Peephole 300	removed redundant label 00261$
 ;	genIpop
-	pop	ar1
+	pop	ar2
 ;	genIfx
 ;	genIfxJump
 ;	Peephole 108.c	removed ljmp by inverse jump logic
 	jz	00110$
-;	Peephole 300	removed redundant label 00247$
+;	Peephole 300	removed redundant label 00262$
 ;	genPointerSet
 ;	genNearPointerSet
 ;	genDataPointerSet
@@ -4517,16 +4523,16 @@ _main:
 ;	genNearPointerGet
 	push	ar0
 	mov	r0,ar3
-	mov	ar2,@r0
+	mov	ar3,@r0
 	pop	ar0
 ;	genCmpEq
 ;	gencjneshort
 ;	Peephole 112.b	changed ljmp to sjmp
 ;	Peephole 198.b	optimized misc jump sequence
-	cjne	r2,#0x30,00112$
+	cjne	r3,#0x30,00112$
 ;	Peephole 200.b	removed redundant sjmp
-;	Peephole 300	removed redundant label 00248$
-;	Peephole 300	removed redundant label 00249$
+;	Peephole 300	removed redundant label 00263$
+;	Peephole 300	removed redundant label 00264$
 ;	genPointerSet
 ;	genNearPointerSet
 ;	genDataPointerSet
@@ -4537,335 +4543,481 @@ _main:
 	clr	_IEN0_2
 ;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:76: send_telegramm();
 ;	genCall
+	push	ar2
 	push	ar0
 	push	ar1
 	lcall	_send_telegramm
 	pop	ar1
 	pop	ar0
+	pop	ar2
 ;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:77: EX1=1;
 ;	genAssign
 	setb	_IEN0_2
 ;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:78: rs_send_ok();
 ;	genCall
+	push	ar2
 	push	ar0
 	push	ar1
 	lcall	_rs_send_ok
 	pop	ar1
 	pop	ar0
+	pop	ar2
 00114$:
-;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:80: if(rsin[2]=='r' && rsin[3]=='p' && rsin[4]=='a')	// physikalische Adresse des Adaptrs lesen (fbrpa)
+;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:80: if(rsin[2]=='s' && rsin[3]=='0' && rsin[4]=='6' && rsin[5]=='/' && rsin[8]=='/' && rsin[10]=='/' && rsin[14]=='=')	// EIS 6 senden
 ;	genPointerGet
 ;	genNearPointerGet
-	mov	ar2,@r1
+	mov	ar3,@r1
 ;	genCmpEq
 ;	gencjneshort
-;	Peephole 112.b	changed ljmp to sjmp
-;	Peephole 198.b	optimized misc jump sequence
-	cjne	r2,#0x72,00136$
-;	Peephole 200.b	removed redundant sjmp
-;	Peephole 300	removed redundant label 00250$
-;	Peephole 300	removed redundant label 00251$
-;	genPlus
-;     genPlusIncr
-	mov	a,#0x03
-;	Peephole 236.a	used r0 instead of ar0
-	add	a,r0
-	mov	r2,a
-;	genPointerGet
-;	genNearPointerGet
-	push	ar0
-	mov	r0,ar2
-	mov	ar2,@r0
-	pop	ar0
-;	genCmpEq
-;	gencjneshort
-;	Peephole 112.b	changed ljmp to sjmp
-;	Peephole 198.b	optimized misc jump sequence
-	cjne	r2,#0x70,00136$
-;	Peephole 200.b	removed redundant sjmp
-;	Peephole 300	removed redundant label 00252$
-;	Peephole 300	removed redundant label 00253$
-;	genPlus
-;     genPlusIncr
-	mov	a,#0x04
-;	Peephole 236.a	used r0 instead of ar0
-	add	a,r0
-	mov	r2,a
-;	genPointerGet
-;	genNearPointerGet
-	push	ar0
-	mov	r0,ar2
-	mov	ar2,@r0
-	pop	ar0
-;	genCmpEq
-;	gencjneshort
-;	Peephole 112.b	changed ljmp to sjmp
-;	Peephole 198.b	optimized misc jump sequence
-	cjne	r2,#0x61,00136$
-;	Peephole 200.b	removed redundant sjmp
-;	Peephole 300	removed redundant label 00254$
-;	Peephole 300	removed redundant label 00255$
-;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:82: rs_send_dec(pah>>4);
-;	genRightShift
-;	genRightShiftLiteral
-;	genrshOne
-	mov	a,_pah
-	swap	a
-	anl	a,#0x0f
-	mov	dpl,a
-;	genCall
-	push	ar0
-	push	ar1
-	lcall	_rs_send_dec
-	pop	ar1
-	pop	ar0
-;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:83: SBUF='.';
-;	genAssign
-	mov	_SBUF,#0x2E
-;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:84: while(!TI);
-00123$:
-;	genIfx
-;	genIfxJump
-;	Peephole 108.d	removed ljmp by inverse jump logic
-;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:85: TI=0;
-;	genAssign
-;	Peephole 250.a	using atomic test and clear
-	jbc	_SCON_1,00256$
-	sjmp	00123$
-00256$:
-;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:86: rs_send_dec(pah&0x0F);
-;	genAnd
-	mov	a,#0x0F
-	anl	a,_pah
-	mov	dpl,a
-;	genCall
-	push	ar0
-	push	ar1
-	lcall	_rs_send_dec
-	pop	ar1
-	pop	ar0
-;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:87: SBUF='.';
-;	genAssign
-	mov	_SBUF,#0x2E
-;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:88: while(!TI);
-00126$:
-;	genIfx
-;	genIfxJump
-;	Peephole 108.d	removed ljmp by inverse jump logic
-;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:89: TI=0;
-;	genAssign
-;	Peephole 250.a	using atomic test and clear
-	jbc	_SCON_1,00257$
-	sjmp	00126$
-00257$:
-;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:90: rs_send_dec(pal);
-;	genCall
-	mov	dpl,_pal
-	push	ar0
-	push	ar1
-	lcall	_rs_send_dec
-	pop	ar1
-	pop	ar0
-;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:91: SBUF=0x0D;
-;	genAssign
-	mov	_SBUF,#0x0D
-;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:92: while(!TI);
-00129$:
-;	genIfx
-;	genIfxJump
-;	Peephole 108.d	removed ljmp by inverse jump logic
-;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:93: TI=0;
-;	genAssign
-;	Peephole 250.a	using atomic test and clear
-	jbc	_SCON_1,00258$
-	sjmp	00129$
-00258$:
-;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:94: SBUF=0x0A;
-;	genAssign
-	mov	_SBUF,#0x0A
-;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:95: while(!TI);
-00132$:
-;	genIfx
-;	genIfxJump
-;	Peephole 108.d	removed ljmp by inverse jump logic
-;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:96: TI=0;
-;	genAssign
-;	Peephole 250.a	using atomic test and clear
-	jbc	_SCON_1,00259$
-	sjmp	00132$
-00259$:
-00136$:
-;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:98: if(rsin[2]=='s' && rsin[3]=='p' && rsin[4]=='a' && rsin[7]=='.' && rsin[10]=='.' && rsinpos==14)	// phys. Adresse des Adapters setzen (fbspaxx.xx.xxx)
-;	genPointerGet
-;	genNearPointerGet
-	mov	ar2,@r1
-;	genCmpEq
-;	gencjneshort
-	cjne	r2,#0x73,00260$
-	sjmp	00261$
-00260$:
-	ljmp	00206$
-00261$:
-;	genPlus
-;     genPlusIncr
-	mov	a,#0x03
-;	Peephole 236.a	used r0 instead of ar0
-	add	a,r0
-	mov	r1,a
-;	genPointerGet
-;	genNearPointerGet
-	mov	ar2,@r1
-;	genCmpEq
-;	gencjneshort
-	cjne	r2,#0x70,00262$
-	sjmp	00263$
-00262$:
-	ljmp	00206$
-00263$:
-;	genPlus
-;     genPlusIncr
-	mov	a,#0x04
-;	Peephole 236.a	used r0 instead of ar0
-	add	a,r0
-	mov	r1,a
-;	genPointerGet
-;	genNearPointerGet
-	mov	ar2,@r1
-;	genCmpEq
-;	gencjneshort
-	cjne	r2,#0x61,00264$
-	sjmp	00265$
-00264$:
-	ljmp	00206$
+	cjne	r3,#0x73,00265$
+	sjmp	00266$
 00265$:
-;	genPlus
-;     genPlusIncr
-	mov	a,#0x07
-;	Peephole 236.a	used r0 instead of ar0
-	add	a,r0
-	mov	r1,a
-;	genPointerGet
-;	genNearPointerGet
-	mov	ar2,@r1
-;	genCmpEq
-;	gencjneshort
-	cjne	r2,#0x2E,00266$
-	sjmp	00267$
+	ljmp	00124$
 00266$:
-	ljmp	00206$
-00267$:
 ;	genPlus
 ;     genPlusIncr
-	mov	a,#0x0A
+	mov	a,#0x03
 ;	Peephole 236.a	used r0 instead of ar0
 	add	a,r0
-	mov	r1,a
+	mov	r3,a
 ;	genPointerGet
 ;	genNearPointerGet
-	mov	ar2,@r1
+	push	ar0
+	mov	r0,ar3
+	mov	ar3,@r0
+	pop	ar0
 ;	genCmpEq
 ;	gencjneshort
-	cjne	r2,#0x2E,00268$
-	sjmp	00269$
+	cjne	r3,#0x30,00267$
+	sjmp	00268$
+00267$:
+	ljmp	00124$
 00268$:
-	ljmp	00206$
-00269$:
+;	genPlus
+;     genPlusIncr
+	mov	a,#0x04
+;	Peephole 236.a	used r0 instead of ar0
+	add	a,r0
+	mov	r3,a
+;	genPointerGet
+;	genNearPointerGet
+	push	ar0
+	mov	r0,ar3
+	mov	ar3,@r0
+	pop	ar0
 ;	genCmpEq
-	mov	r1,_bp
-	inc	r1
 ;	gencjneshort
-	cjne	@r1,#0x0E,00270$
-	sjmp	00271$
+	cjne	r3,#0x36,00269$
+	sjmp	00270$
+00269$:
+	ljmp	00124$
 00270$:
-	ljmp	00206$
-00271$:
-;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:100: pah=(((rsin[5]-48)*10) + (rsin[6]-48))*16;
 ;	genPlus
 ;     genPlusIncr
 	mov	a,#0x05
 ;	Peephole 236.a	used r0 instead of ar0
 	add	a,r0
-	mov	r1,a
+	mov	r3,a
 ;	genPointerGet
 ;	genNearPointerGet
-	mov	ar2,@r1
-;	genMinus
-	mov	a,r2
-	add	a,#0xd0
-;	genMult
-;	genMultOneByte
-	mov	b,#0x0A
-	mul	ab
-	mov	r2,a
-;	genPlus
-;     genPlusIncr
-	mov	a,#0x06
-;	Peephole 236.a	used r0 instead of ar0
-	add	a,r0
-	mov	r1,a
-;	genPointerGet
-;	genNearPointerGet
-	mov	ar3,@r1
-;	genMinus
-	mov	a,r3
-	add	a,#0xd0
-;	genPlus
-;	Peephole 236.a	used r2 instead of ar2
-	add	a,r2
-;	genLeftShift
-;	genLeftShiftLiteral
-;	genlshOne
-	mov	r2,a
-;	Peephole 105	removed redundant mov
-	swap	a
-	anl	a,#0xf0
-	mov	_pah,a
-;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:101: pah=pah + (((rsin[8]-48)*10) + (rsin[9]-48));
+	push	ar0
+	mov	r0,ar3
+	mov	ar3,@r0
+	pop	ar0
+;	genCmpEq
+;	gencjneshort
+	cjne	r3,#0x2F,00271$
+	sjmp	00272$
+00271$:
+	ljmp	00124$
+00272$:
 ;	genPlus
 ;     genPlusIncr
 	mov	a,#0x08
 ;	Peephole 236.a	used r0 instead of ar0
 	add	a,r0
-	mov	r1,a
+	mov	r3,a
 ;	genPointerGet
 ;	genNearPointerGet
-	mov	ar2,@r1
+	push	ar0
+	mov	r0,ar3
+	mov	ar3,@r0
+	pop	ar0
+;	genCmpEq
+;	gencjneshort
+	cjne	r3,#0x2F,00273$
+	sjmp	00274$
+00273$:
+	ljmp	00124$
+00274$:
+;	genPlus
+;     genPlusIncr
+	mov	a,#0x0A
+;	Peephole 236.a	used r0 instead of ar0
+	add	a,r0
+	mov	r3,a
+;	genPointerGet
+;	genNearPointerGet
+	push	ar0
+	mov	r0,ar3
+	mov	ar3,@r0
+	pop	ar0
+;	genCmpEq
+;	gencjneshort
+	cjne	r3,#0x2F,00275$
+	sjmp	00276$
+00275$:
+	ljmp	00124$
+00276$:
+;	genPlus
+;     genPlusIncr
+	mov	a,#0x0E
+;	Peephole 236.a	used r0 instead of ar0
+	add	a,r0
+	mov	r3,a
+;	genPointerGet
+;	genNearPointerGet
+	push	ar0
+	mov	r0,ar3
+	mov	ar3,@r0
+	pop	ar0
+;	genCmpEq
+;	gencjneshort
+	cjne	r3,#0x3D,00277$
+	sjmp	00278$
+00277$:
+	ljmp	00124$
+00278$:
+;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:82: groupadr=((rsin[6]-48)*10) + (rsin[7]-48);
+;	genIpush
+	push	ar2
+;	genPlus
+;     genPlusIncr
+	mov	a,#0x06
+;	Peephole 236.a	used r0 instead of ar0
+	add	a,r0
+	mov	r3,a
+;	genPointerGet
+;	genNearPointerGet
+	push	ar0
+	mov	r0,ar3
+	mov	ar3,@r0
+	pop	ar0
+;	genCast
+	mov	r6,#0x00
 ;	genMinus
-	mov	a,r2
+	mov	a,r3
 	add	a,#0xd0
-;	genMult
-;	genMultOneByte
-	mov	b,#0x0A
-	mul	ab
+	mov	dpl,a
+	mov	a,r6
+	addc	a,#0xff
+	mov	dph,a
+;	genIpush
+	push	ar2
+	push	ar0
+	push	ar1
+	mov	a,#0x0A
+	push	acc
+;	Peephole 181	changed mov to clr
+	clr	a
+	push	acc
+;	genCall
+	lcall	__mulint
+	mov	r3,dpl
+	mov	r6,dph
+	dec	sp
+	dec	sp
+	pop	ar1
+	pop	ar0
+	pop	ar2
+;	genPlus
+;     genPlusIncr
+	mov	a,#0x07
+;	Peephole 236.a	used r0 instead of ar0
+	add	a,r0
+	mov	r7,a
+;	genPointerGet
+;	genNearPointerGet
+	push	ar0
+	mov	r0,ar7
+	mov	ar7,@r0
+	pop	ar0
+;	genCast
+	mov	r2,#0x00
+;	genMinus
+	mov	a,r7
+	add	a,#0xd0
+	mov	r7,a
+	mov	a,r2
+	addc	a,#0xff
 	mov	r2,a
+;	genPlus
+;	Peephole 236.g	used r7 instead of ar7
+	mov	a,r7
+;	Peephole 236.a	used r3 instead of ar3
+	add	a,r3
+	mov	r3,a
+;	Peephole 236.g	used r2 instead of ar2
+	mov	a,r2
+;	Peephole 236.b	used r6 instead of ar6
+	addc	a,r6
+	mov	r6,a
+;	genAssign
+	mov	ar4,r3
+	mov	ar5,r6
+;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:83: groupadr=groupadr*8;
+;	genLeftShift
+;	genLeftShiftLiteral
+;	genlshTwo
+	mov	a,r5
+	swap	a
+	rr	a
+	anl	a,#0xf8
+	xch	a,r4
+	swap	a
+	rr	a
+	xch	a,r4
+	xrl	a,r4
+	xch	a,r4
+	anl	a,#0xf8
+	xch	a,r4
+	xrl	a,r4
+	mov	r5,a
+;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:84: groupadr=groupadr + (rsin[9]-48);
 ;	genPlus
 ;     genPlusIncr
 	mov	a,#0x09
 ;	Peephole 236.a	used r0 instead of ar0
 	add	a,r0
-	mov	r1,a
+	mov	r2,a
 ;	genPointerGet
 ;	genNearPointerGet
-	mov	ar3,@r1
+	push	ar0
+	mov	r0,ar2
+	mov	ar2,@r0
+	pop	ar0
+;	genCast
+	mov	r3,#0x00
 ;	genMinus
-	mov	a,r3
+	mov	a,r2
 	add	a,#0xd0
+	mov	r2,a
+	mov	a,r3
+	addc	a,#0xff
+	mov	r3,a
 ;	genPlus
-;	Peephole 236.a	used r2 instead of ar2
-	add	a,r2
-;	genPlus
-	add	a,_pah
-	mov	_pah,a
-;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:102: pal=(((rsin[11]-48)*100) + ((rsin[12]-48)*10) + (rsin[13]-48));
+;	Peephole 236.g	used r2 instead of ar2
+	mov	a,r2
+;	Peephole 236.a	used r4 instead of ar4
+	add	a,r4
+	mov	r4,a
+;	Peephole 236.g	used r3 instead of ar3
+	mov	a,r3
+;	Peephole 236.b	used r5 instead of ar5
+	addc	a,r5
+;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:85: groupadr=groupadr*256;
+;	genLeftShift
+;	genLeftShiftLiteral
+;	genlshTwo
+;	peephole 177.e	removed redundant move
+	mov	ar5,r4
+	mov	r4,#0x00
+;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:86: groupadr=groupadr+((rsin[11]-48)*100) + ((rsin[12]-48)*10) + (rsin[13]-48);
 ;	genPlus
 ;     genPlusIncr
 	mov	a,#0x0B
 ;	Peephole 236.a	used r0 instead of ar0
 	add	a,r0
-	mov	r1,a
+	mov	r2,a
 ;	genPointerGet
 ;	genNearPointerGet
-	mov	ar2,@r1
+	push	ar0
+	mov	r0,ar2
+	mov	ar2,@r0
+	pop	ar0
+;	genCast
+	mov	r3,#0x00
+;	genMinus
+	mov	a,r2
+	add	a,#0xd0
+	mov	dpl,a
+	mov	a,r3
+	addc	a,#0xff
+	mov	dph,a
+;	genIpush
+	push	ar4
+	push	ar5
+	push	ar0
+	push	ar1
+	mov	a,#0x64
+	push	acc
+;	Peephole 181	changed mov to clr
+	clr	a
+	push	acc
+;	genCall
+	lcall	__mulint
+	mov	r2,dpl
+	mov	r3,dph
+	dec	sp
+	dec	sp
+	pop	ar1
+	pop	ar0
+	pop	ar5
+	pop	ar4
+;	genPlus
+;	Peephole 236.g	used r2 instead of ar2
+	mov	a,r2
+;	Peephole 236.a	used r4 instead of ar4
+	add	a,r4
+	mov	r2,a
+;	Peephole 236.g	used r3 instead of ar3
+	mov	a,r3
+;	Peephole 236.b	used r5 instead of ar5
+	addc	a,r5
+	mov	r3,a
+;	genPlus
+;     genPlusIncr
+	mov	a,#0x0C
+;	Peephole 236.a	used r0 instead of ar0
+	add	a,r0
+	mov	r6,a
+;	genPointerGet
+;	genNearPointerGet
+	push	ar0
+	mov	r0,ar6
+	mov	ar6,@r0
+	pop	ar0
+;	genCast
+	mov	r7,#0x00
+;	genMinus
+	mov	a,r6
+	add	a,#0xd0
+	mov	dpl,a
+	mov	a,r7
+	addc	a,#0xff
+	mov	dph,a
+;	genIpush
+	push	ar2
+	push	ar3
+	push	ar0
+	push	ar1
+	mov	a,#0x0A
+	push	acc
+;	Peephole 181	changed mov to clr
+	clr	a
+	push	acc
+;	genCall
+	lcall	__mulint
+	mov	r6,dpl
+	mov	r7,dph
+	dec	sp
+	dec	sp
+	pop	ar1
+	pop	ar0
+	pop	ar3
+	pop	ar2
+;	genPlus
+;	Peephole 236.g	used r6 instead of ar6
+	mov	a,r6
+;	Peephole 236.a	used r2 instead of ar2
+	add	a,r2
+	mov	r2,a
+;	Peephole 236.g	used r7 instead of ar7
+	mov	a,r7
+;	Peephole 236.b	used r3 instead of ar3
+	addc	a,r3
+	mov	r3,a
+;	genPlus
+;     genPlusIncr
+	mov	a,#0x0D
+;	Peephole 236.a	used r0 instead of ar0
+	add	a,r0
+	mov	r6,a
+;	genPointerGet
+;	genNearPointerGet
+	push	ar0
+	mov	r0,ar6
+	mov	ar6,@r0
+	pop	ar0
+;	genCast
+	mov	r7,#0x00
+;	genMinus
+	mov	a,r6
+	add	a,#0xd0
+	mov	r6,a
+	mov	a,r7
+	addc	a,#0xff
+	mov	r7,a
+;	genPlus
+;	Peephole 236.g	used r6 instead of ar6
+	mov	a,r6
+;	Peephole 236.a	used r2 instead of ar2
+	add	a,r2
+	mov	r2,a
+;	Peephole 236.g	used r7 instead of ar7
+	mov	a,r7
+;	Peephole 236.b	used r3 instead of ar3
+	addc	a,r3
+	mov	r3,a
+;	genAssign
+	mov	ar4,r2
+	mov	ar5,r3
+;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:87: telegramm[0]=0xBC;
+;	genPointerSet
+;	genNearPointerSet
+;	genDataPointerSet
+	mov	_telegramm,#0xBC
+;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:88: telegramm[1]=pah;
+;	genPointerSet
+;	genNearPointerSet
+;	genDataPointerSet
+	mov	(_telegramm + 0x0001),_pah
+;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:89: telegramm[2]=pal;
+;	genPointerSet
+;	genNearPointerSet
+;	genDataPointerSet
+	mov	(_telegramm + 0x0002),_pal
+;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:90: telegramm[3]=groupadr>>8;
+;	genGetByte
+	mov	ar2,r5
+;	genPointerSet
+;	genNearPointerSet
+;	genDataPointerSet
+	mov	(_telegramm + 0x0003),r2
+;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:91: telegramm[4]=groupadr;
+;	genCast
+;	genPointerSet
+;	genNearPointerSet
+;	genDataPointerSet
+	mov	(_telegramm + 0x0004),r4
+;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:92: telegramm[5]=0xE2;
+;	genPointerSet
+;	genNearPointerSet
+;	genDataPointerSet
+	mov	(_telegramm + 0x0005),#0xE2
+;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:93: telegramm[6]=0x00;
+;	genPointerSet
+;	genNearPointerSet
+;	genDataPointerSet
+	mov	(_telegramm + 0x0006),#0x00
+;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:94: telegramm[7]=0x80;
+;	genPointerSet
+;	genNearPointerSet
+;	genDataPointerSet
+	mov	(_telegramm + 0x0007),#0x80
+;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:95: telegramm[8]=((rsin[15]-48)*100) + ((rsin[16]-48)*10) + (rsin[17]-48);
+;	genPlus
+;     genPlusIncr
+	mov	a,#0x0F
+;	Peephole 236.a	used r0 instead of ar0
+	add	a,r0
+	mov	r2,a
+;	genPointerGet
+;	genNearPointerGet
+	push	ar0
+	mov	r0,ar2
+	mov	ar2,@r0
+	pop	ar0
 ;	genMinus
 	mov	a,r2
 	add	a,#0xd0
@@ -4876,13 +5028,16 @@ _main:
 	mov	r2,a
 ;	genPlus
 ;     genPlusIncr
-	mov	a,#0x0C
+	mov	a,#0x10
 ;	Peephole 236.a	used r0 instead of ar0
 	add	a,r0
-	mov	r1,a
+	mov	r3,a
 ;	genPointerGet
 ;	genNearPointerGet
-	mov	ar3,@r1
+	push	ar0
+	mov	r0,ar3
+	mov	ar3,@r0
+	pop	ar0
 ;	genMinus
 	mov	a,r3
 	add	a,#0xd0
@@ -4896,7 +5051,288 @@ _main:
 	mov	r2,a
 ;	genPlus
 ;     genPlusIncr
-	mov	a,#0x0D
+	mov	a,#0x11
+;	Peephole 236.a	used r0 instead of ar0
+	add	a,r0
+	mov	r3,a
+;	genPointerGet
+;	genNearPointerGet
+	push	ar0
+	mov	r0,ar3
+	mov	ar3,@r0
+	pop	ar0
+;	genMinus
+	mov	a,r3
+	add	a,#0xd0
+;	genPlus
+;	Peephole 236.a	used r2 instead of ar2
+	add	a,r2
+;	genPointerSet
+;	genNearPointerSet
+;	genDataPointerSet
+	mov	(_telegramm + 0x0008),a
+;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:96: EX1=0;
+;	genAssign
+	clr	_IEN0_2
+;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:97: send_telegramm();
+;	genCall
+	push	ar2
+	push	ar0
+	push	ar1
+	lcall	_send_telegramm
+	pop	ar1
+	pop	ar0
+	pop	ar2
+;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:98: EX1=1;
+;	genAssign
+	setb	_IEN0_2
+;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:99: rs_send_ok();
+;	genCall
+	push	ar2
+	push	ar0
+	push	ar1
+	lcall	_rs_send_ok
+	pop	ar1
+	pop	ar0
+	pop	ar2
+;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:146: } while(1);
+;	genIpop
+	pop	ar2
+;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:99: rs_send_ok();
+00124$:
+;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:101: if(rsin[2]=='r' && rsin[3]=='p' && rsin[4]=='a')	// physikalische Adresse des Adaptrs lesen (fbrpa)
+;	genPointerGet
+;	genNearPointerGet
+	mov	ar3,@r1
+;	genCmpEq
+;	gencjneshort
+	cjne	r3,#0x72,00279$
+	sjmp	00280$
+00279$:
+	ljmp	00144$
+00280$:
+;	genPlus
+;     genPlusIncr
+	mov	a,#0x03
+;	Peephole 236.a	used r0 instead of ar0
+	add	a,r0
+	mov	r3,a
+;	genPointerGet
+;	genNearPointerGet
+	push	ar0
+	mov	r0,ar3
+	mov	ar3,@r0
+	pop	ar0
+;	genCmpEq
+;	gencjneshort
+;	Peephole 112.b	changed ljmp to sjmp
+;	Peephole 198.b	optimized misc jump sequence
+	cjne	r3,#0x70,00144$
+;	Peephole 200.b	removed redundant sjmp
+;	Peephole 300	removed redundant label 00281$
+;	Peephole 300	removed redundant label 00282$
+;	genPlus
+;     genPlusIncr
+	mov	a,#0x04
+;	Peephole 236.a	used r0 instead of ar0
+	add	a,r0
+	mov	r3,a
+;	genPointerGet
+;	genNearPointerGet
+	push	ar0
+	mov	r0,ar3
+	mov	ar3,@r0
+	pop	ar0
+;	genCmpEq
+;	gencjneshort
+;	Peephole 112.b	changed ljmp to sjmp
+;	Peephole 198.b	optimized misc jump sequence
+	cjne	r3,#0x61,00144$
+;	Peephole 200.b	removed redundant sjmp
+;	Peephole 300	removed redundant label 00283$
+;	Peephole 300	removed redundant label 00284$
+;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:103: rs_send_dec(pah>>4);
+;	genRightShift
+;	genRightShiftLiteral
+;	genrshOne
+	mov	a,_pah
+	swap	a
+	anl	a,#0x0f
+	mov	dpl,a
+;	genCall
+	push	ar2
+	push	ar0
+	push	ar1
+	lcall	_rs_send_dec
+	pop	ar1
+	pop	ar0
+	pop	ar2
+;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:104: SBUF='.';
+;	genAssign
+	mov	_SBUF,#0x2E
+;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:105: while(!TI);
+00131$:
+;	genIfx
+;	genIfxJump
+;	Peephole 108.d	removed ljmp by inverse jump logic
+;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:106: TI=0;
+;	genAssign
+;	Peephole 250.a	using atomic test and clear
+	jbc	_SCON_1,00285$
+	sjmp	00131$
+00285$:
+;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:107: rs_send_dec(pah&0x0F);
+;	genAnd
+	mov	a,#0x0F
+	anl	a,_pah
+	mov	dpl,a
+;	genCall
+	push	ar2
+	push	ar0
+	push	ar1
+	lcall	_rs_send_dec
+	pop	ar1
+	pop	ar0
+	pop	ar2
+;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:108: SBUF='.';
+;	genAssign
+	mov	_SBUF,#0x2E
+;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:109: while(!TI);
+00134$:
+;	genIfx
+;	genIfxJump
+;	Peephole 108.d	removed ljmp by inverse jump logic
+;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:110: TI=0;
+;	genAssign
+;	Peephole 250.a	using atomic test and clear
+	jbc	_SCON_1,00286$
+	sjmp	00134$
+00286$:
+;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:111: rs_send_dec(pal);
+;	genCall
+	mov	dpl,_pal
+	push	ar2
+	push	ar0
+	push	ar1
+	lcall	_rs_send_dec
+	pop	ar1
+	pop	ar0
+	pop	ar2
+;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:112: SBUF=0x0D;
+;	genAssign
+	mov	_SBUF,#0x0D
+;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:113: while(!TI);
+00137$:
+;	genIfx
+;	genIfxJump
+;	Peephole 108.d	removed ljmp by inverse jump logic
+;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:114: TI=0;
+;	genAssign
+;	Peephole 250.a	using atomic test and clear
+	jbc	_SCON_1,00287$
+	sjmp	00137$
+00287$:
+;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:115: SBUF=0x0A;
+;	genAssign
+	mov	_SBUF,#0x0A
+;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:116: while(!TI);
+00140$:
+;	genIfx
+;	genIfxJump
+;	Peephole 108.d	removed ljmp by inverse jump logic
+;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:117: TI=0;
+;	genAssign
+;	Peephole 250.a	using atomic test and clear
+	jbc	_SCON_1,00288$
+	sjmp	00140$
+00288$:
+00144$:
+;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:119: if(rsin[2]=='s' && rsin[3]=='p' && rsin[4]=='a' && rsin[7]=='.' && rsin[10]=='.' && rsinpos==14)	// phys. Adresse des Adapters setzen (fbspaxx.xx.xxx)
+;	genPointerGet
+;	genNearPointerGet
+	mov	ar3,@r1
+;	genCmpEq
+;	gencjneshort
+	cjne	r3,#0x73,00289$
+	sjmp	00290$
+00289$:
+	ljmp	00221$
+00290$:
+;	genPlus
+;     genPlusIncr
+	mov	a,#0x03
+;	Peephole 236.a	used r0 instead of ar0
+	add	a,r0
+	mov	r1,a
+;	genPointerGet
+;	genNearPointerGet
+	mov	ar3,@r1
+;	genCmpEq
+;	gencjneshort
+	cjne	r3,#0x70,00291$
+	sjmp	00292$
+00291$:
+	ljmp	00221$
+00292$:
+;	genPlus
+;     genPlusIncr
+	mov	a,#0x04
+;	Peephole 236.a	used r0 instead of ar0
+	add	a,r0
+	mov	r1,a
+;	genPointerGet
+;	genNearPointerGet
+	mov	ar3,@r1
+;	genCmpEq
+;	gencjneshort
+	cjne	r3,#0x61,00293$
+	sjmp	00294$
+00293$:
+	ljmp	00221$
+00294$:
+;	genPlus
+;     genPlusIncr
+	mov	a,#0x07
+;	Peephole 236.a	used r0 instead of ar0
+	add	a,r0
+	mov	r1,a
+;	genPointerGet
+;	genNearPointerGet
+	mov	ar3,@r1
+;	genCmpEq
+;	gencjneshort
+	cjne	r3,#0x2E,00295$
+	sjmp	00296$
+00295$:
+	ljmp	00221$
+00296$:
+;	genPlus
+;     genPlusIncr
+	mov	a,#0x0A
+;	Peephole 236.a	used r0 instead of ar0
+	add	a,r0
+	mov	r1,a
+;	genPointerGet
+;	genNearPointerGet
+	mov	ar3,@r1
+;	genCmpEq
+;	gencjneshort
+	cjne	r3,#0x2E,00297$
+	sjmp	00298$
+00297$:
+	ljmp	00221$
+00298$:
+;	genCmpEq
+;	gencjneshort
+	cjne	r2,#0x0E,00299$
+	sjmp	00300$
+00299$:
+	ljmp	00221$
+00300$:
+;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:121: pah=(((rsin[5]-48)*10) + (rsin[6]-48))*16;
+;	genPlus
+;     genPlusIncr
+	mov	a,#0x05
 ;	Peephole 236.a	used r0 instead of ar0
 	add	a,r0
 	mov	r1,a
@@ -4906,16 +5342,130 @@ _main:
 ;	genMinus
 	mov	a,r3
 	add	a,#0xd0
+;	genMult
+;	genMultOneByte
+	mov	b,#0x0A
+	mul	ab
+	mov	r3,a
 ;	genPlus
-;	Peephole 236.a	used r2 instead of ar2
-	add	a,r2
+;     genPlusIncr
+	mov	a,#0x06
+;	Peephole 236.a	used r0 instead of ar0
+	add	a,r0
+	mov	r1,a
+;	genPointerGet
+;	genNearPointerGet
+	mov	ar4,@r1
+;	genMinus
+	mov	a,r4
+	add	a,#0xd0
+;	genPlus
+;	Peephole 236.a	used r3 instead of ar3
+	add	a,r3
+;	genLeftShift
+;	genLeftShiftLiteral
+;	genlshOne
+	mov	r3,a
+;	Peephole 105	removed redundant mov
+	swap	a
+	anl	a,#0xf0
+	mov	_pah,a
+;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:122: pah=pah + (((rsin[8]-48)*10) + (rsin[9]-48));
+;	genPlus
+;     genPlusIncr
+	mov	a,#0x08
+;	Peephole 236.a	used r0 instead of ar0
+	add	a,r0
+	mov	r1,a
+;	genPointerGet
+;	genNearPointerGet
+	mov	ar3,@r1
+;	genMinus
+	mov	a,r3
+	add	a,#0xd0
+;	genMult
+;	genMultOneByte
+	mov	b,#0x0A
+	mul	ab
+	mov	r3,a
+;	genPlus
+;     genPlusIncr
+	mov	a,#0x09
+;	Peephole 236.a	used r0 instead of ar0
+	add	a,r0
+	mov	r1,a
+;	genPointerGet
+;	genNearPointerGet
+	mov	ar4,@r1
+;	genMinus
+	mov	a,r4
+	add	a,#0xd0
+;	genPlus
+;	Peephole 236.a	used r3 instead of ar3
+	add	a,r3
+;	genPlus
+	add	a,_pah
+	mov	_pah,a
+;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:123: pal=(((rsin[11]-48)*100) + ((rsin[12]-48)*10) + (rsin[13]-48));
+;	genPlus
+;     genPlusIncr
+	mov	a,#0x0B
+;	Peephole 236.a	used r0 instead of ar0
+	add	a,r0
+	mov	r1,a
+;	genPointerGet
+;	genNearPointerGet
+	mov	ar3,@r1
+;	genMinus
+	mov	a,r3
+	add	a,#0xd0
+;	genMult
+;	genMultOneByte
+	mov	b,#0x64
+	mul	ab
+	mov	r3,a
+;	genPlus
+;     genPlusIncr
+	mov	a,#0x0C
+;	Peephole 236.a	used r0 instead of ar0
+	add	a,r0
+	mov	r1,a
+;	genPointerGet
+;	genNearPointerGet
+	mov	ar4,@r1
+;	genMinus
+	mov	a,r4
+	add	a,#0xd0
+;	genMult
+;	genMultOneByte
+	mov	b,#0x0A
+	mul	ab
+;	genPlus
+;	Peephole 236.a	used r3 instead of ar3
+	add	a,r3
+	mov	r3,a
+;	genPlus
+;     genPlusIncr
+	mov	a,#0x0D
+;	Peephole 236.a	used r0 instead of ar0
+	add	a,r0
+	mov	r1,a
+;	genPointerGet
+;	genNearPointerGet
+	mov	ar4,@r1
+;	genMinus
+	mov	a,r4
+	add	a,#0xd0
+;	genPlus
+;	Peephole 236.a	used r3 instead of ar3
+	add	a,r3
 	mov	_pal,a
-;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:103: start_writecycle();
+;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:124: start_writecycle();
 ;	genCall
 	push	ar0
 	lcall	_start_writecycle
 	pop	ar0
-;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:104: write_byte(0x01,ADDRTAB+1,pah);		// in Flash schreiben
+;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:125: write_byte(0x01,ADDRTAB+1,pah);		// in Flash schreiben
 ;	genIpush
 	push	ar0
 	push	_pah
@@ -4928,7 +5478,7 @@ _main:
 	dec	sp
 	dec	sp
 	pop	ar0
-;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:105: write_byte(0x01,ADDRTAB+2,pal);
+;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:126: write_byte(0x01,ADDRTAB+2,pal);
 ;	genIpush
 	push	ar0
 	push	_pal
@@ -4941,32 +5491,32 @@ _main:
 	dec	sp
 	dec	sp
 	pop	ar0
-;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:106: stop_writecycle();
+;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:127: stop_writecycle();
 ;	genCall
 	push	ar0
 	lcall	_stop_writecycle
 	pop	ar0
-;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:107: rs_send_ok();
+;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:128: rs_send_ok();
 ;	genCall
 	push	ar0
 	lcall	_rs_send_ok
 	pop	ar0
-;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:110: for(n=0;n<20;n++) rsin[n]=0x00;
-00206$:
+;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:131: for(n=0;n<20;n++) rsin[n]=0x00;
+00221$:
 ;	genAssign
-	mov	r2,#0x00
-00159$:
+	mov	r3,#0x00
+00167$:
 ;	genCmpLt
 ;	genCmp
-	cjne	r2,#0x14,00272$
-00272$:
+	cjne	r3,#0x14,00301$
+00301$:
 ;	genIfxJump
 ;	Peephole 108.a	removed ljmp by inverse jump logic
-	jnc	00162$
-;	Peephole 300	removed redundant label 00273$
+	jnc	00170$
+;	Peephole 300	removed redundant label 00302$
 ;	genPlus
-;	Peephole 236.g	used r2 instead of ar2
-	mov	a,r2
+;	Peephole 236.g	used r3 instead of ar3
+	mov	a,r3
 ;	Peephole 236.a	used r0 instead of ar0
 	add	a,r0
 	mov	r1,a
@@ -4975,70 +5525,68 @@ _main:
 	mov	@r1,#0x00
 ;	genPlus
 ;     genPlusIncr
-	inc	r2
+	inc	r3
 ;	Peephole 112.b	changed ljmp to sjmp
-	sjmp	00159$
-00162$:
-;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:111: rsinpos=0;
+	sjmp	00167$
+00170$:
+;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:132: rsinpos=0;
 ;	genAssign
-	mov	r0,_bp
-	inc	r0
-	mov	@r0,#0x00
-;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:112: cr_received=0;
+	mov	r2,#0x00
+;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:133: cr_received=0;
 ;	genAssign
 	clr	b0
-;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:113: crlf_received=0;
+;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:134: crlf_received=0;
 ;	genAssign
 	clr	b1
-00150$:
-;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:117: TASTER=1;				// Pin als Eingang schalten um Taster abzufragen
+00158$:
+;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:138: TASTER=1;				// Pin als Eingang schalten um Taster abzufragen
 ;	genAssign
 	setb	_P1_7
-;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:118: if(!TASTER) {			// Taster gedrückt
+;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:139: if(!TASTER) {			// Taster gedrückt
 ;	genIfx
 ;	genIfxJump
 ;	Peephole 108.e	removed ljmp by inverse jump logic
-	jb	_P1_7,00155$
-;	Peephole 300	removed redundant label 00274$
-;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:119: for(n=0;n<100;n++) {}
+	jb	_P1_7,00163$
+;	Peephole 300	removed redundant label 00303$
+;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:140: for(n=0;n<100;n++) {}
 ;	genAssign
-	mov	r2,#0x64
-00165$:
+	mov	r3,#0x64
+00173$:
 ;	genDjnz
 ;	Peephole 112.b	changed ljmp to sjmp
 ;	Peephole 205	optimized misc jump sequence
-	djnz	r2,00165$
-;	Peephole 300	removed redundant label 00275$
-;	Peephole 300	removed redundant label 00276$
-;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:120: while(!TASTER);			// warten bis Taster losgelassen
-00151$:
+	djnz	r3,00173$
+;	Peephole 300	removed redundant label 00304$
+;	Peephole 300	removed redundant label 00305$
+;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:141: while(!TASTER);			// warten bis Taster losgelassen
+00159$:
 ;	genIfx
 ;	genIfxJump
 ;	Peephole 108.d	removed ljmp by inverse jump logic
-	jnb	_P1_7,00151$
-;	Peephole 300	removed redundant label 00277$
-;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:121: progmode=!progmode;
+	jnb	_P1_7,00159$
+;	Peephole 300	removed redundant label 00306$
+;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:142: progmode=!progmode;
 ;	genNot
 	cpl	_progmode
-00155$:
-;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:123: TASTER=!progmode;			// LED entsprechend schalten (low=LED an)
+00163$:
+;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:144: TASTER=!progmode;			// LED entsprechend schalten (low=LED an)
 ;	genNot
 	mov	c,_progmode
 	cpl	c
 	mov	_P1_7,c
-;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:124: for(n=0;n<100;n++) {}
+;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:145: for(n=0;n<100;n++) {}
 ;	genAssign
-	mov	r2,#0x64
-00168$:
+	mov	r3,#0x64
+00176$:
 ;	genDjnz
 ;	Peephole 112.b	changed ljmp to sjmp
 ;	Peephole 205	optimized misc jump sequence
-	djnz	r2,00168$
-;	Peephole 300	removed redundant label 00278$
-;	Peephole 300	removed redundant label 00279$
-;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:125: } while(1);
-	ljmp	00156$
-;	Peephole 300	removed redundant label 00169$
+	djnz	r3,00176$
+;	Peephole 300	removed redundant label 00307$
+;	Peephole 300	removed redundant label 00308$
+;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:146: } while(1);
+	ljmp	00164$
+;	Peephole 300	removed redundant label 00177$
 	mov	sp,_bp
 	pop	_bp
 	ret

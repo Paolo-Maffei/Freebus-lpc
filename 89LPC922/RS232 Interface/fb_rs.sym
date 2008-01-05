@@ -580,6 +580,6 @@ Area Table
   12 GSINIT5                                                                            size    0   flags 20
   13 GSINIT                                                                             size    0   flags 20
   14 GSFINAL                                                                            size    3   flags 20
-  15 CSEG                                                                               size  E35   flags 20
+  15 CSEG                                                                               size 1071   flags 20
   16 CONST                                                                              size    0   flags 20
   17 XINIT                                                                              size    0   flags 20

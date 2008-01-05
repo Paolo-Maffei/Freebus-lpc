@@ -77,6 +77,27 @@ void main(void)
           EX1=1;
           rs_send_ok();
         }
+        if(rsin[2]=='s' && rsin[3]=='0' && rsin[4]=='6' && rsin[5]=='/' && rsin[8]=='/' && rsin[10]=='/' && rsin[14]=='=')	// EIS 6 senden
+        {
+          groupadr=((rsin[6]-48)*10) + (rsin[7]-48);
+          groupadr=groupadr*8;
+          groupadr=groupadr + (rsin[9]-48);
+          groupadr=groupadr*256;
+          groupadr=groupadr+((rsin[11]-48)*100) + ((rsin[12]-48)*10) + (rsin[13]-48);
+          telegramm[0]=0xBC;
+          telegramm[1]=pah;
+          telegramm[2]=pal;
+          telegramm[3]=groupadr>>8;
+          telegramm[4]=groupadr;
+          telegramm[5]=0xE2;
+          telegramm[6]=0x00;
+          telegramm[7]=0x80;
+          telegramm[8]=((rsin[15]-48)*100) + ((rsin[16]-48)*10) + (rsin[17]-48);
+          EX1=0;
+          send_telegramm();
+          EX1=1;
+          rs_send_ok();
+        }
         if(rsin[2]=='r' && rsin[3]=='p' && rsin[4]=='a')	// physikalische Adresse des Adaptrs lesen (fbrpa)
         {
           rs_send_dec(pah>>4);
