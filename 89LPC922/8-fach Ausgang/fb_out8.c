@@ -1,0 +1,56 @@
+// Versionen:	2.00	erstes Programm in C für Hardware Ver. 2
+//		2.01	Schaltverzögerung hinzugefügt
+//		2.02	Restart Fehler behoben
+//		2.03	Arrays korrigiert
+//		2.04	Bugs in bin_out behoben		
+//		3.01	auf 89LPC922 portiert und Bugs behoben		
+//		3.02	Verzögerung über RTC		behobene Bugs: Verzögerung geht nach einiger Zeit sehr langsam
+//		3.03	Timer 0 für PWM		
+//		3.04	RX & TX Timing nochmals optimiert 	behobene Bugs: get_ack funktionierte nicht
+//		3.05	Zeitschaltfunktion hinzugefügt
+//		3.06	Öffner-/Schliesserbetrieb und Verhalten nach Busspannungswiederkehr hinzugefügt
+//		3.07	Rückmeldeobjekte eingefügt
+//		3.08	gat Array entfernt und durch gapos_in_gat funktion ersetzt
+//		3.09	Sperrobjekte hinzugefügt
+//		3.10	Fehler in main() behoben (kein delay!)
+
+//	todo:	- Rückmeldeobjekte müssen bei Busspannungswiederkehr senden
+//		- Objekt leses muss bei allen Objekten funktionieren
+//		- Prio beim Senden implementieren
+//		- Zwangsstellungsobjekte implementieren
+
+	
+
+#include <P89LPC922.h>
+#include "d:/freebus/trunk/c51/89LPC922/common/fb_hal_lpc.h"
+#include "d:/freebus/trunk/c51/89LPC922/common/fb_prot.h"
+#include <fb_app_out8.h>
+
+#include "d:/freebus/trunk/c51/89LPC922/common/fb_hal_lpc.c"
+#include "d:/freebus/trunk/c51/89LPC922/common/fb_prot.c"
+#include <fb_app_out8.c>
+
+
+
+void main(void)
+{ 
+  unsigned char n;
+
+  restart_hw();				// Hardware zurücksetzen
+  restart_prot();			// Protokoll-relevante Parameter zurücksetzen
+  restart_app();			// Anwendungsspezifische Einstellungen zurücksetzen
+  
+  do  {
+    if(RTCCON>=0x80) delay_timer();	// Realtime clock Überlauf
+    TASTER=1;				// Pin als Eingang schalten um Taster abzufragen
+    if(!TASTER) {			// Taster gedrückt
+      for(n=0;n<100;n++) {}
+      while(!TASTER);			// warten bis Taster losgelassen
+      progmode=!progmode;
+    }
+    TASTER=!progmode;			// LED entsprechend schalten (low=LED an)
+    for(n=0;n<100;n++) {}
+  } while(1);
+}
+
+
