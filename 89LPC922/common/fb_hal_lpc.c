@@ -3,8 +3,8 @@
 // Hier sind ausschliesslich die Hardware-spezifischen aber Applikations-unabhängigen Routinen für den 89LPC922
 
 #include <P89LPC922.h>
-#include "d:/freebus/trunk/c51/89LPC922/common/fb_prot.h"
-#include "d:/freebus/trunk/c51/89LPC922/common/fb_hal_lpc.h"
+#include "d:/freebus/trunk/software/c51/89LPC922/common/fb_prot.h"
+#include "d:/freebus/trunk/software/c51/89LPC922/common/fb_hal_lpc.h"
 
 
 unsigned char get_byte(void)

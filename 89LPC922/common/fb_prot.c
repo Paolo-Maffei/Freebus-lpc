@@ -2,9 +2,9 @@
 // Hier sind ausschliesslich die Protokoll-Handling Routinen
 
 #include <P89LPC922.h>
-#include "d:/freebus/trunk/c51/89LPC922/common/fb_hal_lpc.h"
+#include "d:/freebus/trunk/software/c51/89LPC922/common/fb_hal_lpc.h"
 //#include <fb_app_in8.h>
-#include "d:/freebus/trunk/c51/89LPC922/common/fb_prot.h"
+#include "d:/freebus/trunk/software/c51/89LPC922/common/fb_prot.h"
 
 
 
