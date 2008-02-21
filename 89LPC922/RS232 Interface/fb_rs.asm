@@ -1,7 +1,7 @@
 ;--------------------------------------------------------
 ; File Created by SDCC : FreeWare ANSI-C Compiler
 ; Version 2.6.1 #4376 (Sep 14 2006)
-; This file generated Fri Jan 04 15:06:37 2008
+; This file generated Thu Feb 21 19:45:02 2008
 ;--------------------------------------------------------
 	.module fb_rs
 	.optsdcc -mmcs51 --model-small
@@ -490,7 +490,7 @@ __sdcc_program_startup:
 ;fbb                       Allocated to registers r2 
 ;fbbh                      Allocated to registers r3 
 ;------------------------------------------------------------
-;	d:/freebus/trunk/c51/89LPC922/common/fb_hal_lpc.c:10: unsigned char get_byte(void)
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_hal_lpc.c:10: unsigned char get_byte(void)
 ;	-----------------------------------------
 ;	 function get_byte
 ;	-----------------------------------------
@@ -503,46 +503,46 @@ _get_byte:
 	ar7 = 0x07
 	ar0 = 0x00
 	ar1 = 0x01
-;	d:/freebus/trunk/c51/89LPC922/common/fb_hal_lpc.c:15: EX1=0;				// Interrupt 1 sperren
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_hal_lpc.c:15: EX1=0;				// Interrupt 1 sperren
 ;	genAssign
 	clr	_IEN0_2
-;	d:/freebus/trunk/c51/89LPC922/common/fb_hal_lpc.c:16: ET1=0;				// Interrupt von Timer 1 sperren
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_hal_lpc.c:16: ET1=0;				// Interrupt von Timer 1 sperren
 ;	genAssign
 	clr	_IEN0_3
-;	d:/freebus/trunk/c51/89LPC922/common/fb_hal_lpc.c:18: set_timer1(380);			// Timer setzen um 1. Bit zu treffen (320-440)
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_hal_lpc.c:18: set_timer1(380);			// Timer setzen um 1. Bit zu treffen (320-440)
 ;	genCall
 ;	Peephole 182.b	used 16 bit load of dptr
 	mov	dptr,#0x017C
 	lcall	_set_timer1
-;	d:/freebus/trunk/c51/89LPC922/common/fb_hal_lpc.c:20: ph=0;					// Paritybit wird aus empfangenem Byte berechnet
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_hal_lpc.c:20: ph=0;					// Paritybit wird aus empfangenem Byte berechnet
 ;	genAssign
 	clr	b0
-;	d:/freebus/trunk/c51/89LPC922/common/fb_hal_lpc.c:21: parity_ok=0;
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_hal_lpc.c:21: parity_ok=0;
 ;	genAssign
 	clr	_parity_ok
-;	d:/freebus/trunk/c51/89LPC922/common/fb_hal_lpc.c:22: while(!TF1);				// warten auf Timer 1				
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_hal_lpc.c:22: while(!TF1);				// warten auf Timer 1				
 00101$:
 ;	genIfx
 ;	genIfxJump
 ;	Peephole 108.d	removed ljmp by inverse jump logic
 	jnb	_TCON_7,00101$
 ;	Peephole 300	removed redundant label 00152$
-;	d:/freebus/trunk/c51/89LPC922/common/fb_hal_lpc.c:23: set_timer1(360);			// Timer 1 neu setzen für 2.Bit (300-420)
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_hal_lpc.c:23: set_timer1(360);			// Timer 1 neu setzen für 2.Bit (300-420)
 ;	genCall
 ;	Peephole 182.b	used 16 bit load of dptr
 	mov	dptr,#0x0168
 	push	bits
 	lcall	_set_timer1
 	pop	bits
-;	d:/freebus/trunk/c51/89LPC922/common/fb_hal_lpc.c:24: rbit=FBINC;				// 1.Bit einlesen
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_hal_lpc.c:24: rbit=FBINC;				// 1.Bit einlesen
 ;	genAssign
 	mov	c,_P1_4
 	mov	b1,c
-;	d:/freebus/trunk/c51/89LPC922/common/fb_hal_lpc.c:25: for(m=0;m<5;m++)
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_hal_lpc.c:25: for(m=0;m<5;m++)
 ;	genAssign
 	mov	r2,#0x05
 00118$:
-;	d:/freebus/trunk/c51/89LPC922/common/fb_hal_lpc.c:27: rbit&=FBINC;			// zur Steigerung der Fehlertoleranz mehrfach lesen
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_hal_lpc.c:27: rbit&=FBINC;			// zur Steigerung der Fehlertoleranz mehrfach lesen
 ;	genAnd
 	mov	c,_P1_4
 	anl	c,b1
@@ -553,15 +553,15 @@ _get_byte:
 	djnz	r2,00118$
 ;	Peephole 300	removed redundant label 00153$
 ;	Peephole 300	removed redundant label 00154$
-;	d:/freebus/trunk/c51/89LPC922/common/fb_hal_lpc.c:25: for(m=0;m<5;m++)
-;	d:/freebus/trunk/c51/89LPC922/common/fb_hal_lpc.c:29: fbb=rbit;
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_hal_lpc.c:25: for(m=0;m<5;m++)
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_hal_lpc.c:29: fbb=rbit;
 ;	genAssign
 	clr	a
 	mov	c,b1
 	rlc	a
 	mov	r2,a
 ;	genAssign
-;	d:/freebus/trunk/c51/89LPC922/common/fb_hal_lpc.c:30: if(rbit) ph=!ph;			// Paritybit berechnen
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_hal_lpc.c:30: if(rbit) ph=!ph;			// Paritybit berechnen
 ;	genIfx
 ;	genIfxJump
 ;	Peephole 108.d	removed ljmp by inverse jump logic
@@ -569,7 +569,7 @@ _get_byte:
 ;	Peephole 300	removed redundant label 00155$
 ;	genNot
 	cpl	b0
-;	d:/freebus/trunk/c51/89LPC922/common/fb_hal_lpc.c:32: for(n=0;n<7;n++)			// 2. bis 8. Bit
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_hal_lpc.c:32: for(n=0;n<7;n++)			// 2. bis 8. Bit
 00142$:
 ;	genAssign
 	mov	r3,#0x00
@@ -582,7 +582,7 @@ _get_byte:
 ;	Peephole 108.a	removed ljmp by inverse jump logic
 	jnc	00111$
 ;	Peephole 300	removed redundant label 00157$
-;	d:/freebus/trunk/c51/89LPC922/common/fb_hal_lpc.c:34: fbb=fbb<<1;
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_hal_lpc.c:34: fbb=fbb<<1;
 ;	genLeftShift
 ;	genLeftShiftLiteral
 ;	genlshOne
@@ -590,14 +590,14 @@ _get_byte:
 ;	Peephole 254	optimized left shift
 	add	a,r2
 	mov	r2,a
-;	d:/freebus/trunk/c51/89LPC922/common/fb_hal_lpc.c:35: while(!TF1);
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_hal_lpc.c:35: while(!TF1);
 00106$:
 ;	genIfx
 ;	genIfxJump
 ;	Peephole 108.d	removed ljmp by inverse jump logic
 	jnb	_TCON_7,00106$
 ;	Peephole 300	removed redundant label 00158$
-;	d:/freebus/trunk/c51/89LPC922/common/fb_hal_lpc.c:36: set_timer1(350);			// Timer 1 setzen für Position 2.-9.Bit (342-359)
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_hal_lpc.c:36: set_timer1(350);			// Timer 1 setzen für Position 2.-9.Bit (342-359)
 ;	genCall
 ;	Peephole 182.b	used 16 bit load of dptr
 	mov	dptr,#0x015E
@@ -608,15 +608,15 @@ _get_byte:
 	pop	bits
 	pop	ar3
 	pop	ar2
-;	d:/freebus/trunk/c51/89LPC922/common/fb_hal_lpc.c:37: rbit=FBINC;
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_hal_lpc.c:37: rbit=FBINC;
 ;	genAssign
 	mov	c,_P1_4
 	mov	b1,c
-;	d:/freebus/trunk/c51/89LPC922/common/fb_hal_lpc.c:38: for(m=0;m<5;m++)
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_hal_lpc.c:38: for(m=0;m<5;m++)
 ;	genAssign
 	mov	r4,#0x05
 00121$:
-;	d:/freebus/trunk/c51/89LPC922/common/fb_hal_lpc.c:40: rbit&=FBINC;			// zur Steigerung der Fehlertoleranz mehrfach lesen
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_hal_lpc.c:40: rbit&=FBINC;			// zur Steigerung der Fehlertoleranz mehrfach lesen
 ;	genAnd
 	mov	c,_P1_4
 	anl	c,b1
@@ -627,8 +627,8 @@ _get_byte:
 	djnz	r4,00121$
 ;	Peephole 300	removed redundant label 00159$
 ;	Peephole 300	removed redundant label 00160$
-;	d:/freebus/trunk/c51/89LPC922/common/fb_hal_lpc.c:38: for(m=0;m<5;m++)
-;	d:/freebus/trunk/c51/89LPC922/common/fb_hal_lpc.c:42: fbb=fbb+rbit;
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_hal_lpc.c:38: for(m=0;m<5;m++)
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_hal_lpc.c:42: fbb=fbb+rbit;
 ;	genAssign
 	clr	a
 	mov	c,b1
@@ -639,7 +639,7 @@ _get_byte:
 ;	Peephole 236.a	used r2 instead of ar2
 	add	a,r2
 	mov	r2,a
-;	d:/freebus/trunk/c51/89LPC922/common/fb_hal_lpc.c:43: if(rbit) ph=!ph;			// Paritybit berechnen
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_hal_lpc.c:43: if(rbit) ph=!ph;			// Paritybit berechnen
 ;	genIfx
 ;	genIfxJump
 ;	Peephole 108.d	removed ljmp by inverse jump logic
@@ -648,11 +648,11 @@ _get_byte:
 ;	genNot
 	cpl	b0
 00124$:
-;	d:/freebus/trunk/c51/89LPC922/common/fb_hal_lpc.c:32: for(n=0;n<7;n++)			// 2. bis 8. Bit
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_hal_lpc.c:32: for(n=0;n<7;n++)			// 2. bis 8. Bit
 ;	genPlus
 ;     genPlusIncr
 	inc	r3
-;	d:/freebus/trunk/c51/89LPC922/common/fb_hal_lpc.c:45: while(!TF1);				
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_hal_lpc.c:45: while(!TF1);				
 ;	Peephole 112.b	changed ljmp to sjmp
 	sjmp	00122$
 00111$:
@@ -661,18 +661,18 @@ _get_byte:
 ;	Peephole 108.d	removed ljmp by inverse jump logic
 	jnb	_TCON_7,00111$
 ;	Peephole 300	removed redundant label 00162$
-;	d:/freebus/trunk/c51/89LPC922/common/fb_hal_lpc.c:46: TR1=0;
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_hal_lpc.c:46: TR1=0;
 ;	genAssign
 	clr	_TCON_6
-;	d:/freebus/trunk/c51/89LPC922/common/fb_hal_lpc.c:47: parity=FBINC;				// Paritybit lesen
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_hal_lpc.c:47: parity=FBINC;				// Paritybit lesen
 ;	genAssign
 	mov	c,_P1_4
 	mov	b1,c
-;	d:/freebus/trunk/c51/89LPC922/common/fb_hal_lpc.c:48: for(m=0;m<5;m++)
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_hal_lpc.c:48: for(m=0;m<5;m++)
 ;	genAssign
 	mov	r3,#0x05
 00128$:
-;	d:/freebus/trunk/c51/89LPC922/common/fb_hal_lpc.c:50: parity&=FBINC;
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_hal_lpc.c:50: parity&=FBINC;
 ;	genAnd
 	mov	c,_P1_4
 	anl	c,b1
@@ -683,8 +683,8 @@ _get_byte:
 	djnz	r3,00128$
 ;	Peephole 300	removed redundant label 00163$
 ;	Peephole 300	removed redundant label 00164$
-;	d:/freebus/trunk/c51/89LPC922/common/fb_hal_lpc.c:48: for(m=0;m<5;m++)
-;	d:/freebus/trunk/c51/89LPC922/common/fb_hal_lpc.c:53: fbbh=(fbb&0x80)>>7;			// Byte bitweise vertauschen, da LSB zuerst übertragen wurde
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_hal_lpc.c:48: for(m=0;m<5;m++)
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_hal_lpc.c:53: fbbh=(fbb&0x80)>>7;			// Byte bitweise vertauschen, da LSB zuerst übertragen wurde
 ;	genAnd
 	mov	a,#0x80
 	anl	a,r2
@@ -696,7 +696,7 @@ _get_byte:
 	rl	a
 	anl	a,#0x01
 	mov	r3,a
-;	d:/freebus/trunk/c51/89LPC922/common/fb_hal_lpc.c:54: fbbh=fbbh+((fbb&0x40)>>5);
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_hal_lpc.c:54: fbbh=fbbh+((fbb&0x40)>>5);
 ;	genAnd
 	mov	a,#0x40
 	anl	a,r2
@@ -714,7 +714,7 @@ _get_byte:
 ;	Peephole 236.a	used r3 instead of ar3
 	add	a,r3
 	mov	r3,a
-;	d:/freebus/trunk/c51/89LPC922/common/fb_hal_lpc.c:55: fbbh=fbbh+((fbb&0x20)>>3);
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_hal_lpc.c:55: fbbh=fbbh+((fbb&0x20)>>3);
 ;	genAnd
 	mov	a,#0x20
 	anl	a,r2
@@ -732,7 +732,7 @@ _get_byte:
 ;	Peephole 236.a	used r3 instead of ar3
 	add	a,r3
 	mov	r3,a
-;	d:/freebus/trunk/c51/89LPC922/common/fb_hal_lpc.c:56: fbbh=fbbh+((fbb&0x10)>>1);
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_hal_lpc.c:56: fbbh=fbbh+((fbb&0x10)>>1);
 ;	genAnd
 	mov	a,#0x10
 	anl	a,r2
@@ -749,7 +749,7 @@ _get_byte:
 ;	Peephole 236.a	used r3 instead of ar3
 	add	a,r3
 	mov	r3,a
-;	d:/freebus/trunk/c51/89LPC922/common/fb_hal_lpc.c:57: fbbh=fbbh+((fbb&0x08)<<1);
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_hal_lpc.c:57: fbbh=fbbh+((fbb&0x08)<<1);
 ;	genAnd
 	mov	a,#0x08
 	anl	a,r2
@@ -765,7 +765,7 @@ _get_byte:
 ;	Peephole 236.a	used r3 instead of ar3
 	add	a,r3
 	mov	r3,a
-;	d:/freebus/trunk/c51/89LPC922/common/fb_hal_lpc.c:58: fbbh=fbbh+((fbb&0x04)<<3);
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_hal_lpc.c:58: fbbh=fbbh+((fbb&0x04)<<3);
 ;	genAnd
 	mov	a,#0x04
 	anl	a,r2
@@ -783,7 +783,7 @@ _get_byte:
 ;	Peephole 236.a	used r3 instead of ar3
 	add	a,r3
 	mov	r3,a
-;	d:/freebus/trunk/c51/89LPC922/common/fb_hal_lpc.c:59: fbbh=fbbh+((fbb&0x02)<<5);
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_hal_lpc.c:59: fbbh=fbbh+((fbb&0x02)<<5);
 ;	genAnd
 	mov	a,#0x02
 	anl	a,r2
@@ -801,7 +801,7 @@ _get_byte:
 ;	Peephole 236.a	used r3 instead of ar3
 	add	a,r3
 	mov	r3,a
-;	d:/freebus/trunk/c51/89LPC922/common/fb_hal_lpc.c:60: fbbh=fbbh+((fbb&0x01)<<7);
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_hal_lpc.c:60: fbbh=fbbh+((fbb&0x01)<<7);
 ;	genAnd
 	anl	ar2,#0x01
 ;	genLeftShift
@@ -816,7 +816,7 @@ _get_byte:
 ;	Peephole 236.a	used r3 instead of ar3
 	add	a,r3
 	mov	r3,a
-;	d:/freebus/trunk/c51/89LPC922/common/fb_hal_lpc.c:62: if(parity==ph) parity_ok=1;
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_hal_lpc.c:62: if(parity==ph) parity_ok=1;
 ;	genCmpEq
 	mov	c,b1
 	jb	b0,00165$
@@ -828,7 +828,7 @@ _get_byte:
 ;	genAssign
 	setb	_parity_ok
 00115$:
-;	d:/freebus/trunk/c51/89LPC922/common/fb_hal_lpc.c:64: return fbbh;
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_hal_lpc.c:64: return fbbh;
 ;	genRet
 	mov	dpl,r3
 ;	Peephole 300	removed redundant label 00129$
@@ -838,7 +838,7 @@ _get_byte:
 ;------------------------------------------------------------
 ;fbbh                      Allocated to registers r2 
 ;------------------------------------------------------------
-;	d:/freebus/trunk/c51/89LPC922/common/fb_hal_lpc.c:70: void ext_int0(void) interrupt 2		// Byte vom Bus empfangen, wird durch negative Flanke am INT1 Eingang getriggert
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_hal_lpc.c:70: void ext_int0(void) interrupt 2		// Byte vom Bus empfangen, wird durch negative Flanke am INT1 Eingang getriggert
 ;	-----------------------------------------
 ;	 function ext_int0
 ;	-----------------------------------------
@@ -858,34 +858,34 @@ _ext_int0:
 	push	bits
 	push	psw
 	mov	psw,#0x00
-;	d:/freebus/trunk/c51/89LPC922/common/fb_hal_lpc.c:76: TR1=0;
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_hal_lpc.c:76: TR1=0;
 ;	genAssign
 	clr	_TCON_6
-;	d:/freebus/trunk/c51/89LPC922/common/fb_hal_lpc.c:77: EX1=0;				// Interrupt 1 sperren
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_hal_lpc.c:77: EX1=0;				// Interrupt 1 sperren
 ;	genAssign
 	clr	_IEN0_2
-;	d:/freebus/trunk/c51/89LPC922/common/fb_hal_lpc.c:78: ET1=0;				// Interrupt von Timer 1 sperren
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_hal_lpc.c:78: ET1=0;				// Interrupt von Timer 1 sperren
 ;	genAssign
 	clr	_IEN0_3
-;	d:/freebus/trunk/c51/89LPC922/common/fb_hal_lpc.c:80: fbbh=get_byte();			// Byte vom Bus empfangen
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_hal_lpc.c:80: fbbh=get_byte();			// Byte vom Bus empfangen
 ;	genCall
 	lcall	_get_byte
 	mov	r2,dpl
 ;	genAssign
-;	d:/freebus/trunk/c51/89LPC922/common/fb_hal_lpc.c:81: delay(200);
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_hal_lpc.c:81: delay(200);
 ;	genCall
 ;	Peephole 182.b	used 16 bit load of dptr
 	mov	dptr,#0x00C8
 	push	ar2
 	lcall	_delay
 	pop	ar2
-;	d:/freebus/trunk/c51/89LPC922/common/fb_hal_lpc.c:83: if(parity_ok)				// wenn Parity OK
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_hal_lpc.c:83: if(parity_ok)				// wenn Parity OK
 ;	genIfx
 ;	genIfxJump
 ;	Peephole 108.d	removed ljmp by inverse jump logic
 	jnb	_parity_ok,00104$
 ;	Peephole 300	removed redundant label 00109$
-;	d:/freebus/trunk/c51/89LPC922/common/fb_hal_lpc.c:85: telegramm[telpos]=fbbh; 
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_hal_lpc.c:85: telegramm[telpos]=fbbh; 
 ;	genPlus
 	mov	a,_telpos
 	add	a,#_telegramm
@@ -894,7 +894,7 @@ _ext_int0:
 ;	Peephole 239	used a instead of acc
 	mov	r0,a
 	mov	@r0,ar2
-;	d:/freebus/trunk/c51/89LPC922/common/fb_hal_lpc.c:86: if(telpos==0) cs=0;
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_hal_lpc.c:86: if(telpos==0) cs=0;
 ;	genIfx
 	mov	a,_telpos
 ;	genIfxJump
@@ -905,27 +905,27 @@ _ext_int0:
 ;	Peephole 256.c	loading _cs with zero from a
 	mov	_cs,a
 00102$:
-;	d:/freebus/trunk/c51/89LPC922/common/fb_hal_lpc.c:87: cs^=fbbh;				// Checksum durch EXOR der einzelnen Telegramm-Bytes bilden
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_hal_lpc.c:87: cs^=fbbh;				// Checksum durch EXOR der einzelnen Telegramm-Bytes bilden
 ;	genXor
 	mov	a,r2
 	xrl	_cs,a
-;	d:/freebus/trunk/c51/89LPC922/common/fb_hal_lpc.c:88: telpos++;
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_hal_lpc.c:88: telpos++;
 ;	genPlus
 ;     genPlusIncr
 	inc	_telpos
 00104$:
-;	d:/freebus/trunk/c51/89LPC922/common/fb_hal_lpc.c:91: set_timer1(1350);			// Timer 1 starten für Timeout 370us -> signalisiert Telegrammende (1350)
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_hal_lpc.c:91: set_timer1(1350);			// Timer 1 starten für Timeout 370us -> signalisiert Telegrammende (1350)
 ;	genCall
 ;	Peephole 182.b	used 16 bit load of dptr
 	mov	dptr,#0x0546
 	lcall	_set_timer1
-;	d:/freebus/trunk/c51/89LPC922/common/fb_hal_lpc.c:93: ET1=1;				// Interrupt für Timer 1 freigeben
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_hal_lpc.c:93: ET1=1;				// Interrupt für Timer 1 freigeben
 ;	genAssign
 	setb	_IEN0_3
-;	d:/freebus/trunk/c51/89LPC922/common/fb_hal_lpc.c:94: IE1=0;				// Interrupt 0 request zurücksetzen
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_hal_lpc.c:94: IE1=0;				// Interrupt 0 request zurücksetzen
 ;	genAssign
 	clr	_TCON_3
-;	d:/freebus/trunk/c51/89LPC922/common/fb_hal_lpc.c:95: EX1=1;				// Interrupt 0 wieder freigeben
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_hal_lpc.c:95: EX1=1;				// Interrupt 0 wieder freigeben
 ;	genAssign
 	setb	_IEN0_2
 ;	Peephole 300	removed redundant label 00105$
@@ -954,23 +954,23 @@ _ext_int0:
 ;parity                    Allocated to registers b0 
 ;error                     Allocated to registers b1 
 ;------------------------------------------------------------
-;	d:/freebus/trunk/c51/89LPC922/common/fb_hal_lpc.c:99: bit sendbyte(unsigned char fbsb)
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_hal_lpc.c:99: bit sendbyte(unsigned char fbsb)
 ;	-----------------------------------------
 ;	 function sendbyte
 ;	-----------------------------------------
 _sendbyte:
 ;	genReceive
 	mov	r2,dpl
-;	d:/freebus/trunk/c51/89LPC922/common/fb_hal_lpc.c:104: parity=1;
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_hal_lpc.c:104: parity=1;
 ;	genAssign
 	setb	b0
-;	d:/freebus/trunk/c51/89LPC922/common/fb_hal_lpc.c:105: error=0;
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_hal_lpc.c:105: error=0;
 ;	genAssign
 	clr	b1
-;	d:/freebus/trunk/c51/89LPC922/common/fb_hal_lpc.c:107: FBOUTC=1;	// Startbit senden
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_hal_lpc.c:107: FBOUTC=1;	// Startbit senden
 ;	genAssign
 	setb	_P1_6
-;	d:/freebus/trunk/c51/89LPC922/common/fb_hal_lpc.c:108: delay(95);	// 35us
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_hal_lpc.c:108: delay(95);	// 35us
 ;	genCall
 ;	Peephole 182.b	used 16 bit load of dptr
 	mov	dptr,#0x005F
@@ -979,10 +979,10 @@ _sendbyte:
 	lcall	_delay
 	pop	bits
 	pop	ar2
-;	d:/freebus/trunk/c51/89LPC922/common/fb_hal_lpc.c:109: FBOUTC=0;
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_hal_lpc.c:109: FBOUTC=0;
 ;	genAssign
 	clr	_P1_6
-;	d:/freebus/trunk/c51/89LPC922/common/fb_hal_lpc.c:111: for(n=0;n<8;n++)		// 8 Datenbits senden
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_hal_lpc.c:111: for(n=0;n<8;n++)		// 8 Datenbits senden
 ;	genAssign
 	mov	r3,#0x00
 00116$:
@@ -995,7 +995,7 @@ _sendbyte:
 ;	Peephole 160.b	removed sjmp by inverse jump logic
 	jnc	00119$
 ;	Peephole 300	removed redundant label 00142$
-;	d:/freebus/trunk/c51/89LPC922/common/fb_hal_lpc.c:113: set_timer1(215);		// 69us Pause
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_hal_lpc.c:113: set_timer1(215);		// 69us Pause
 ;	genCall
 ;	Peephole 182.b	used 16 bit load of dptr
 	mov	dptr,#0x00D7
@@ -1006,7 +1006,7 @@ _sendbyte:
 	pop	bits
 	pop	ar3
 	pop	ar2
-;	d:/freebus/trunk/c51/89LPC922/common/fb_hal_lpc.c:114: if(((fbsb>>n)&0x01)==1) sendbit=0;
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_hal_lpc.c:114: if(((fbsb>>n)&0x01)==1) sendbit=0;
 ;	genRightShift
 	mov	b,r3
 	inc	b
@@ -1033,21 +1033,21 @@ _sendbyte:
 ;	Peephole 112.b	changed ljmp to sjmp
 	sjmp	00104$
 00102$:
-;	d:/freebus/trunk/c51/89LPC922/common/fb_hal_lpc.c:115: else sendbit=1;
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_hal_lpc.c:115: else sendbit=1;
 ;	genAssign
 	setb	b2
-;	d:/freebus/trunk/c51/89LPC922/common/fb_hal_lpc.c:116: while(!TF1);		// Warten bis 69us Pause fretig ist
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_hal_lpc.c:116: while(!TF1);		// Warten bis 69us Pause fretig ist
 00104$:
 ;	genIfx
 ;	genIfxJump
 ;	Peephole 108.d	removed ljmp by inverse jump logic
 	jnb	_TCON_7,00104$
 ;	Peephole 300	removed redundant label 00147$
-;	d:/freebus/trunk/c51/89LPC922/common/fb_hal_lpc.c:118: FBOUTC=sendbit;		// Bit senden
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_hal_lpc.c:118: FBOUTC=sendbit;		// Bit senden
 ;	genAssign
 	mov	c,b2
 	mov	_P1_6,c
-;	d:/freebus/trunk/c51/89LPC922/common/fb_hal_lpc.c:120: set_timer1(100);		//35us Haltezeit für Bit 
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_hal_lpc.c:120: set_timer1(100);		//35us Haltezeit für Bit 
 ;	genCall
 ;	Peephole 182.b	used 16 bit load of dptr
 	mov	dptr,#0x0064
@@ -1058,20 +1058,20 @@ _sendbyte:
 	pop	bits
 	pop	ar3
 	pop	ar2
-;	d:/freebus/trunk/c51/89LPC922/common/fb_hal_lpc.c:122: if(!sendbit)		// wenn logische 1 gesendet wird, auf Kollision prüfen
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_hal_lpc.c:122: if(!sendbit)		// wenn logische 1 gesendet wird, auf Kollision prüfen
 ;	genIfx
 ;	genIfxJump
 ;	Peephole 108.e	removed ljmp by inverse jump logic
 	jb	b2,00110$
 ;	Peephole 300	removed redundant label 00148$
-;	d:/freebus/trunk/c51/89LPC922/common/fb_hal_lpc.c:124: parity=!parity;
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_hal_lpc.c:124: parity=!parity;
 ;	genNot
 	cpl	b0
-;	d:/freebus/trunk/c51/89LPC922/common/fb_hal_lpc.c:125: for(m=0;m<5;m++)
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_hal_lpc.c:125: for(m=0;m<5;m++)
 ;	genAssign
 	mov	r4,#0x05
 00124$:
-;	d:/freebus/trunk/c51/89LPC922/common/fb_hal_lpc.c:127: if(!FBINC) error=1;
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_hal_lpc.c:127: if(!FBINC) error=1;
 ;	genIfx
 ;	genIfxJump
 ;	Peephole 108.e	removed ljmp by inverse jump logic
@@ -1086,63 +1086,63 @@ _sendbyte:
 	djnz	r4,00124$
 ;	Peephole 300	removed redundant label 00150$
 ;	Peephole 300	removed redundant label 00151$
-;	d:/freebus/trunk/c51/89LPC922/common/fb_hal_lpc.c:125: for(m=0;m<5;m++)
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_hal_lpc.c:125: for(m=0;m<5;m++)
 00110$:
-;	d:/freebus/trunk/c51/89LPC922/common/fb_hal_lpc.c:130: if(error) break;  
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_hal_lpc.c:130: if(error) break;  
 ;	genIfx
 ;	genIfxJump
 ;	Peephole 108.e	removed ljmp by inverse jump logic
 	jb	b1,00119$
 ;	Peephole 300	removed redundant label 00152$
-;	d:/freebus/trunk/c51/89LPC922/common/fb_hal_lpc.c:132: while(!TF1);		// Warten bis 35us abgelaufen
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_hal_lpc.c:132: while(!TF1);		// Warten bis 35us abgelaufen
 00113$:
 ;	genIfx
 ;	genIfxJump
 ;	Peephole 108.d	removed ljmp by inverse jump logic
 	jnb	_TCON_7,00113$
 ;	Peephole 300	removed redundant label 00153$
-;	d:/freebus/trunk/c51/89LPC922/common/fb_hal_lpc.c:133: FBOUTC=0;
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_hal_lpc.c:133: FBOUTC=0;
 ;	genAssign
 	clr	_P1_6
-;	d:/freebus/trunk/c51/89LPC922/common/fb_hal_lpc.c:111: for(n=0;n<8;n++)		// 8 Datenbits senden
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_hal_lpc.c:111: for(n=0;n<8;n++)		// 8 Datenbits senden
 ;	genPlus
 ;     genPlusIncr
 	inc	r3
 ;	Peephole 112.b	changed ljmp to sjmp
 	sjmp	00116$
 00119$:
-;	d:/freebus/trunk/c51/89LPC922/common/fb_hal_lpc.c:135: if(!error)
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_hal_lpc.c:135: if(!error)
 ;	genIfx
 ;	genIfxJump
 ;	Peephole 108.e	removed ljmp by inverse jump logic
 	jb	b1,00121$
 ;	Peephole 300	removed redundant label 00154$
-;	d:/freebus/trunk/c51/89LPC922/common/fb_hal_lpc.c:137: delay(212);			// 69 us Pause vor Parity-Bit
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_hal_lpc.c:137: delay(212);			// 69 us Pause vor Parity-Bit
 ;	genCall
 ;	Peephole 182.b	used 16 bit load of dptr
 	mov	dptr,#0x00D4
 	push	bits
 	lcall	_delay
 	pop	bits
-;	d:/freebus/trunk/c51/89LPC922/common/fb_hal_lpc.c:138: FBOUTC=parity;
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_hal_lpc.c:138: FBOUTC=parity;
 ;	genAssign
 	mov	c,b0
 	mov	_P1_6,c
-;	d:/freebus/trunk/c51/89LPC922/common/fb_hal_lpc.c:139: delay(95);			// 35us für Parity-Bit
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_hal_lpc.c:139: delay(95);			// 35us für Parity-Bit
 ;	genCall
 ;	Peephole 182.b	used 16 bit load of dptr
 	mov	dptr,#0x005F
 	push	bits
 	lcall	_delay
 	pop	bits
-;	d:/freebus/trunk/c51/89LPC922/common/fb_hal_lpc.c:140: FBOUTC=0;
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_hal_lpc.c:140: FBOUTC=0;
 ;	genAssign
 	clr	_P1_6
 00121$:
-;	d:/freebus/trunk/c51/89LPC922/common/fb_hal_lpc.c:142: TR1=0;
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_hal_lpc.c:142: TR1=0;
 ;	genAssign
 	clr	_TCON_6
-;	d:/freebus/trunk/c51/89LPC922/common/fb_hal_lpc.c:144: return error;
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_hal_lpc.c:144: return error;
 ;	genRet
 	clr	a
 	mov	c,b1
@@ -1154,12 +1154,12 @@ _sendbyte:
 ;Allocation info for local variables in function 'start_writecycle'
 ;------------------------------------------------------------
 ;------------------------------------------------------------
-;	d:/freebus/trunk/c51/89LPC922/common/fb_hal_lpc.c:148: void start_writecycle(void)
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_hal_lpc.c:148: void start_writecycle(void)
 ;	-----------------------------------------
 ;	 function start_writecycle
 ;	-----------------------------------------
 _start_writecycle:
-;	d:/freebus/trunk/c51/89LPC922/common/fb_hal_lpc.c:150: FMCON=0x00;			// load command, leert das pageregister
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_hal_lpc.c:150: FMCON=0x00;			// load command, leert das pageregister
 ;	genAssign
 	mov	_FMCON,#0x00
 ;	Peephole 300	removed redundant label 00101$
@@ -1168,12 +1168,12 @@ _start_writecycle:
 ;Allocation info for local variables in function 'stop_writecycle'
 ;------------------------------------------------------------
 ;------------------------------------------------------------
-;	d:/freebus/trunk/c51/89LPC922/common/fb_hal_lpc.c:154: void stop_writecycle(void)
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_hal_lpc.c:154: void stop_writecycle(void)
 ;	-----------------------------------------
 ;	 function stop_writecycle
 ;	-----------------------------------------
 _stop_writecycle:
-;	d:/freebus/trunk/c51/89LPC922/common/fb_hal_lpc.c:156: FMCON=0x68;			// write command, schreibt pageregister ins flash und versetzt CPU in idle für 4ms
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_hal_lpc.c:156: FMCON=0x68;			// write command, schreibt pageregister ins flash und versetzt CPU in idle für 4ms
 ;	genAssign
 	mov	_FMCON,#0x68
 ;	Peephole 300	removed redundant label 00101$
@@ -1185,7 +1185,7 @@ _stop_writecycle:
 ;zdata                     Allocated to stack - offset -4
 ;addrh                     Allocated to registers r2 
 ;------------------------------------------------------------
-;	d:/freebus/trunk/c51/89LPC922/common/fb_hal_lpc.c:160: void write_byte(unsigned char addrh, unsigned char addrl, unsigned char zdata)	// schreibt byte ins pageregister zum flashen
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_hal_lpc.c:160: void write_byte(unsigned char addrh, unsigned char addrl, unsigned char zdata)	// schreibt byte ins pageregister zum flashen
 ;	-----------------------------------------
 ;	 function write_byte
 ;	-----------------------------------------
@@ -1193,7 +1193,7 @@ _write_byte:
 	push	_bp
 	mov	_bp,sp
 ;	genReceive
-;	d:/freebus/trunk/c51/89LPC922/common/fb_hal_lpc.c:163: if (addrh<=0x01)		// sicherstellen, dass nicht versehentlich bootloader überschrieben wird
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_hal_lpc.c:163: if (addrh<=0x01)		// sicherstellen, dass nicht versehentlich bootloader überschrieben wird
 ;	genCmpGt
 ;	genCmp
 ;	genIfxJump
@@ -1206,21 +1206,21 @@ _write_byte:
 ;	Peephole 160.a	removed sjmp by inverse jump logic
 	jc	00103$
 ;	Peephole 300	removed redundant label 00106$
-;	d:/freebus/trunk/c51/89LPC922/common/fb_hal_lpc.c:165: FMADRH=addrh+0x1C;
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_hal_lpc.c:165: FMADRH=addrh+0x1C;
 ;	genPlus
 ;     genPlusIncr
 	mov	a,#0x1C
 ;	Peephole 236.a	used r2 instead of ar2
 	add	a,r2
 	mov	_FMADRH,a
-;	d:/freebus/trunk/c51/89LPC922/common/fb_hal_lpc.c:166: FMADRL=addrl;
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_hal_lpc.c:166: FMADRL=addrl;
 ;	genAssign
 	mov	r0,_bp
 	dec	r0
 	dec	r0
 	dec	r0
 	mov	_FMADRL,@r0
-;	d:/freebus/trunk/c51/89LPC922/common/fb_hal_lpc.c:167: FMDATA=zdata;
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_hal_lpc.c:167: FMDATA=zdata;
 ;	genAssign
 	mov	a,_bp
 	add	a,#0xfffffffc
@@ -1234,7 +1234,7 @@ _write_byte:
 ;------------------------------------------------------------
 ;deltime                   Allocated to registers r2 r3 
 ;------------------------------------------------------------
-;	d:/freebus/trunk/c51/89LPC922/common/fb_hal_lpc.c:172: void delay(int deltime)			// Warten, deltime = Anzahl Takte / 2 (Timer wird mit CCLK/2 betrieben)
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_hal_lpc.c:172: void delay(int deltime)			// Warten, deltime = Anzahl Takte / 2 (Timer wird mit CCLK/2 betrieben)
 ;	-----------------------------------------
 ;	 function delay
 ;	-----------------------------------------
@@ -1242,10 +1242,10 @@ _delay:
 ;	genReceive
 	mov	r2,dpl
 	mov	r3,dph
-;	d:/freebus/trunk/c51/89LPC922/common/fb_hal_lpc.c:174: TR1=0;				// Timer 1 anhalten
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_hal_lpc.c:174: TR1=0;				// Timer 1 anhalten
 ;	genAssign
 	clr	_TCON_6
-;	d:/freebus/trunk/c51/89LPC922/common/fb_hal_lpc.c:175: deltime=0xFFFF-deltime;
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_hal_lpc.c:175: deltime=0xFFFF-deltime;
 ;	genMinus
 	mov	a,#0xFF
 	clr	c
@@ -1256,26 +1256,26 @@ _delay:
 ;	Peephole 236.l	used r3 instead of ar3
 	subb	a,r3
 	mov	r3,a
-;	d:/freebus/trunk/c51/89LPC922/common/fb_hal_lpc.c:176: TH1=deltime>>8;			// Timer 1 setzen 
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_hal_lpc.c:176: TH1=deltime>>8;			// Timer 1 setzen 
 ;	genGetByte
 	mov	_TH1,r3
-;	d:/freebus/trunk/c51/89LPC922/common/fb_hal_lpc.c:177: TL1=deltime;	
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_hal_lpc.c:177: TL1=deltime;	
 ;	genCast
 	mov	_TL1,r2
-;	d:/freebus/trunk/c51/89LPC922/common/fb_hal_lpc.c:178: TF1=0;
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_hal_lpc.c:178: TF1=0;
 ;	genAssign
 	clr	_TCON_7
-;	d:/freebus/trunk/c51/89LPC922/common/fb_hal_lpc.c:179: TR1=1;
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_hal_lpc.c:179: TR1=1;
 ;	genAssign
 	setb	_TCON_6
-;	d:/freebus/trunk/c51/89LPC922/common/fb_hal_lpc.c:180: while(!TF1);				// warten auf Timer 1
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_hal_lpc.c:180: while(!TF1);				// warten auf Timer 1
 00101$:
 ;	genIfx
 ;	genIfxJump
 ;	Peephole 108.d	removed ljmp by inverse jump logic
 	jnb	_TCON_7,00101$
 ;	Peephole 300	removed redundant label 00108$
-;	d:/freebus/trunk/c51/89LPC922/common/fb_hal_lpc.c:181: TR1=0;		
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_hal_lpc.c:181: TR1=0;		
 ;	genAssign
 	clr	_TCON_6
 ;	Peephole 300	removed redundant label 00104$
@@ -1285,7 +1285,7 @@ _delay:
 ;------------------------------------------------------------
 ;deltime                   Allocated to registers r2 r3 
 ;------------------------------------------------------------
-;	d:/freebus/trunk/c51/89LPC922/common/fb_hal_lpc.c:185: void set_timer1(int deltime)		// Timer 1 stoppen, setzen und starten (Timer wird mit CCLK/2 betrieben)
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_hal_lpc.c:185: void set_timer1(int deltime)		// Timer 1 stoppen, setzen und starten (Timer wird mit CCLK/2 betrieben)
 ;	-----------------------------------------
 ;	 function set_timer1
 ;	-----------------------------------------
@@ -1293,10 +1293,10 @@ _set_timer1:
 ;	genReceive
 	mov	r2,dpl
 	mov	r3,dph
-;	d:/freebus/trunk/c51/89LPC922/common/fb_hal_lpc.c:187: TR1=0;				// Timer 1 anhalten
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_hal_lpc.c:187: TR1=0;				// Timer 1 anhalten
 ;	genAssign
 	clr	_TCON_6
-;	d:/freebus/trunk/c51/89LPC922/common/fb_hal_lpc.c:188: deltime=0xFFFF-deltime;
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_hal_lpc.c:188: deltime=0xFFFF-deltime;
 ;	genMinus
 	mov	a,#0xFF
 	clr	c
@@ -1307,16 +1307,16 @@ _set_timer1:
 ;	Peephole 236.l	used r3 instead of ar3
 	subb	a,r3
 	mov	r3,a
-;	d:/freebus/trunk/c51/89LPC922/common/fb_hal_lpc.c:189: TH1=deltime>>8;			// Timer 1 setzen 
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_hal_lpc.c:189: TH1=deltime>>8;			// Timer 1 setzen 
 ;	genGetByte
 	mov	_TH1,r3
-;	d:/freebus/trunk/c51/89LPC922/common/fb_hal_lpc.c:190: TL1=deltime;	
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_hal_lpc.c:190: TL1=deltime;	
 ;	genCast
 	mov	_TL1,r2
-;	d:/freebus/trunk/c51/89LPC922/common/fb_hal_lpc.c:191: TF1=0;				// Überlauf-Flag zurücksetzen
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_hal_lpc.c:191: TF1=0;				// Überlauf-Flag zurücksetzen
 ;	genAssign
 	clr	_TCON_7
-;	d:/freebus/trunk/c51/89LPC922/common/fb_hal_lpc.c:192: TR1=1;				// Timer 1 starten
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_hal_lpc.c:192: TR1=1;				// Timer 1 starten
 ;	genAssign
 	setb	_TCON_6
 ;	Peephole 300	removed redundant label 00101$
@@ -1328,7 +1328,7 @@ _set_timer1:
 ;addrh                     Allocated to registers r2 
 ;zdata                     Allocated to registers 
 ;------------------------------------------------------------
-;	d:/freebus/trunk/c51/89LPC922/common/fb_hal_lpc.c:196: unsigned char read_byte(unsigned char addrh, unsigned char addrl)		// liest byte aus flash
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_hal_lpc.c:196: unsigned char read_byte(unsigned char addrh, unsigned char addrl)		// liest byte aus flash
 ;	-----------------------------------------
 ;	 function read_byte
 ;	-----------------------------------------
@@ -1337,7 +1337,7 @@ _read_byte:
 	mov	_bp,sp
 ;	genReceive
 	mov	r2,dpl
-;	d:/freebus/trunk/c51/89LPC922/common/fb_hal_lpc.c:200: zdata=dataflash[(addrh<<8)+addrl];
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_hal_lpc.c:200: zdata=dataflash[(addrh<<8)+addrl];
 ;	genCast
 ;	genLeftShift
 ;	genLeftShiftLiteral
@@ -1377,7 +1377,7 @@ _read_byte:
 	mov	r2,a
 ;	Peephole 244.c	loading dpl from a instead of r2
 	mov	dpl,a
-;	d:/freebus/trunk/c51/89LPC922/common/fb_hal_lpc.c:201: return (zdata);
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_hal_lpc.c:201: return (zdata);
 ;	genRet
 ;	Peephole 300	removed redundant label 00101$
 	pop	_bp
@@ -1386,99 +1386,99 @@ _read_byte:
 ;Allocation info for local variables in function 'restart_hw'
 ;------------------------------------------------------------
 ;------------------------------------------------------------
-;	d:/freebus/trunk/c51/89LPC922/common/fb_hal_lpc.c:205: void restart_hw(void)	// Alle Hardware Einstellungen zurücksetzen
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_hal_lpc.c:205: void restart_hw(void)	// Alle Hardware Einstellungen zurücksetzen
 ;	-----------------------------------------
 ;	 function restart_hw
 ;	-----------------------------------------
 _restart_hw:
-;	d:/freebus/trunk/c51/89LPC922/common/fb_hal_lpc.c:209: DIVM=0;		// Taktferquenz nicht teilen -> volles Tempo
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_hal_lpc.c:209: DIVM=0;		// Taktferquenz nicht teilen -> volles Tempo
 ;	genAssign
 	mov	_DIVM,#0x00
-;	d:/freebus/trunk/c51/89LPC922/common/fb_hal_lpc.c:211: P1M1=0x14;		// Port 1 auf quasi-bidirektional, außer P1.2(T0 als PWM Ausgang)=open-drain, P1.4(INT1)=Input only, P1.6(FBOUTC) push-pull
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_hal_lpc.c:211: P1M1=0x14;		// Port 1 auf quasi-bidirektional, außer P1.2(T0 als PWM Ausgang)=open-drain, P1.4(INT1)=Input only, P1.6(FBOUTC) push-pull
 ;	genAssign
 	mov	_P1M1,#0x14
-;	d:/freebus/trunk/c51/89LPC922/common/fb_hal_lpc.c:212: P1M2=0x44;
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_hal_lpc.c:212: P1M2=0x44;
 ;	genAssign
 	mov	_P1M2,#0x44
-;	d:/freebus/trunk/c51/89LPC922/common/fb_hal_lpc.c:214: FBOUTC=0;		// Bus-Ausgang auf low
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_hal_lpc.c:214: FBOUTC=0;		// Bus-Ausgang auf low
 ;	genAssign
 	clr	_P1_6
-;	d:/freebus/trunk/c51/89LPC922/common/fb_hal_lpc.c:216: TMOD=0x12;		// Timer 0 als PWM, Timer 1 als 16-Bit Timer
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_hal_lpc.c:216: TMOD=0x12;		// Timer 0 als PWM, Timer 1 als 16-Bit Timer
 ;	genAssign
 	mov	_TMOD,#0x12
-;	d:/freebus/trunk/c51/89LPC922/common/fb_hal_lpc.c:217: TAMOD=0x01;
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_hal_lpc.c:217: TAMOD=0x01;
 ;	genAssign
 	mov	_TAMOD,#0x01
-;	d:/freebus/trunk/c51/89LPC922/common/fb_hal_lpc.c:218: TH0=DUTY;		// Pulsverhältnis PWM
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_hal_lpc.c:218: TH0=DUTY;		// Pulsverhältnis PWM
 ;	genAssign
 	mov	_TH0,#0xC0
-;	d:/freebus/trunk/c51/89LPC922/common/fb_hal_lpc.c:219: AUXR1|=0x10;		// PWM von Timer 0 auf Pin ausgeben, gleichzeitig low-powermode ein (da <8MHz)
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_hal_lpc.c:219: AUXR1|=0x10;		// PWM von Timer 0 auf Pin ausgeben, gleichzeitig low-powermode ein (da <8MHz)
 ;	genOr
 	orl	_AUXR1,#0x10
-;	d:/freebus/trunk/c51/89LPC922/common/fb_hal_lpc.c:221: ET0=0;		// Interrupt für Timer 0 sperren 
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_hal_lpc.c:221: ET0=0;		// Interrupt für Timer 0 sperren 
 ;	genAssign
 	clr	_IEN0_1
-;	d:/freebus/trunk/c51/89LPC922/common/fb_hal_lpc.c:222: TR0=1;		// Timer 0 starten (PWM)
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_hal_lpc.c:222: TR0=1;		// Timer 0 starten (PWM)
 ;	genAssign
 	setb	_TCON_4
-;	d:/freebus/trunk/c51/89LPC922/common/fb_hal_lpc.c:223: TR1=0;		// Timer 1 (Empfangs-Timeout) zunächst stoppen
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_hal_lpc.c:223: TR1=0;		// Timer 1 (Empfangs-Timeout) zunächst stoppen
 ;	genAssign
 	clr	_TCON_6
-;	d:/freebus/trunk/c51/89LPC922/common/fb_hal_lpc.c:225: RTCH=0x1D;		// Real Time Clock
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_hal_lpc.c:225: RTCH=0x1D;		// Real Time Clock
 ;	genAssign
 	mov	_RTCH,#0x1D
-;	d:/freebus/trunk/c51/89LPC922/common/fb_hal_lpc.c:226: RTCL=0x40;
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_hal_lpc.c:226: RTCL=0x40;
 ;	genAssign
 	mov	_RTCL,#0x40
-;	d:/freebus/trunk/c51/89LPC922/common/fb_hal_lpc.c:227: RTCCON=0x61;
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_hal_lpc.c:227: RTCCON=0x61;
 ;	genAssign
 	mov	_RTCCON,#0x61
-;	d:/freebus/trunk/c51/89LPC922/common/fb_hal_lpc.c:229: IEN0=0x00;
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_hal_lpc.c:229: IEN0=0x00;
 ;	genAssign
 	mov	_IEN0,#0x00
-;	d:/freebus/trunk/c51/89LPC922/common/fb_hal_lpc.c:230: IEN1=0x00;
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_hal_lpc.c:230: IEN1=0x00;
 ;	genAssign
 	mov	_IEN1,#0x00
-;	d:/freebus/trunk/c51/89LPC922/common/fb_hal_lpc.c:231: EA=1;			// Interrupts prinzipiell freigeben
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_hal_lpc.c:231: EA=1;			// Interrupts prinzipiell freigeben
 ;	genAssign
 	setb	_IEN0_7
-;	d:/freebus/trunk/c51/89LPC922/common/fb_hal_lpc.c:232: EX0=0;		// Externen Interrupt 0 sperren
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_hal_lpc.c:232: EX0=0;		// Externen Interrupt 0 sperren
 ;	genAssign
 	clr	_IEN0_0
-;	d:/freebus/trunk/c51/89LPC922/common/fb_hal_lpc.c:233: EX1=1;		// Externen Interrupt 1 freigeben	
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_hal_lpc.c:233: EX1=1;		// Externen Interrupt 1 freigeben	
 ;	genAssign
 	setb	_IEN0_2
-;	d:/freebus/trunk/c51/89LPC922/common/fb_hal_lpc.c:235: IP0=0x0C;		// höchste Priorität für ext. Int. 1 und Timer 1 (Bit 0 und 3)
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_hal_lpc.c:235: IP0=0x0C;		// höchste Priorität für ext. Int. 1 und Timer 1 (Bit 0 und 3)
 ;	genAssign
 	mov	_IP0,#0x0C
-;	d:/freebus/trunk/c51/89LPC922/common/fb_hal_lpc.c:236: IP0H=0x0C;
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_hal_lpc.c:236: IP0H=0x0C;
 ;	genAssign
 	mov	_IP0H,#0x0C
-;	d:/freebus/trunk/c51/89LPC922/common/fb_hal_lpc.c:237: IP1=0x00;
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_hal_lpc.c:237: IP1=0x00;
 ;	genAssign
 	mov	_IP1,#0x00
-;	d:/freebus/trunk/c51/89LPC922/common/fb_hal_lpc.c:238: IP1H=0x00;
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_hal_lpc.c:238: IP1H=0x00;
 ;	genAssign
 	mov	_IP1H,#0x00
-;	d:/freebus/trunk/c51/89LPC922/common/fb_hal_lpc.c:239: IT1=1;		// Int1 flankengetriggert=1 pegelgetriggert=0
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_hal_lpc.c:239: IT1=1;		// Int1 flankengetriggert=1 pegelgetriggert=0
 ;	genAssign
 	setb	_TCON_2
-;	d:/freebus/trunk/c51/89LPC922/common/fb_hal_lpc.c:241: SCON=0x50;		// Serielle auf Mode 1, receive enable
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_hal_lpc.c:241: SCON=0x50;		// Serielle auf Mode 1, receive enable
 ;	genAssign
 	mov	_SCON,#0x50
-;	d:/freebus/trunk/c51/89LPC922/common/fb_hal_lpc.c:242: SSTAT|=0x40;		// TI wird am Ende des Stopbits gesetzt
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_hal_lpc.c:242: SSTAT|=0x40;		// TI wird am Ende des Stopbits gesetzt
 ;	genOr
 	orl	_SSTAT,#0x40
-;	d:/freebus/trunk/c51/89LPC922/common/fb_hal_lpc.c:243: BRGCON|=0x02;		// Baudrate Generator verwenden aber noch gestoppt
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_hal_lpc.c:243: BRGCON|=0x02;		// Baudrate Generator verwenden aber noch gestoppt
 ;	genOr
 	orl	_BRGCON,#0x02
-;	d:/freebus/trunk/c51/89LPC922/common/fb_hal_lpc.c:244: BRGR1=0x00;		// Baudrate = cclk/((BRGR1,BRGR0)+16)
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_hal_lpc.c:244: BRGR1=0x00;		// Baudrate = cclk/((BRGR1,BRGR0)+16)
 ;	genAssign
 	mov	_BRGR1,#0x00
-;	d:/freebus/trunk/c51/89LPC922/common/fb_hal_lpc.c:245: BRGR0=0x30;
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_hal_lpc.c:245: BRGR0=0x30;
 ;	genAssign
 	mov	_BRGR0,#0x30
-;	d:/freebus/trunk/c51/89LPC922/common/fb_hal_lpc.c:246: BRGCON|=0x01;		// Baudrate Generator starten
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_hal_lpc.c:246: BRGCON|=0x01;		// Baudrate Generator starten
 ;	genOr
 	orl	_BRGCON,#0x01
 ;	Peephole 300	removed redundant label 00101$
@@ -1489,7 +1489,7 @@ _restart_hw:
 ;data_laenge               Allocated to registers r2 
 ;daf                       Allocated to registers r3 
 ;------------------------------------------------------------
-;	d:/freebus/trunk/c51/89LPC922/common/fb_prot.c:12: void timer1(void) interrupt 3	// Interrupt von Timer 1, 370us keine Busaktivität seit letztem Byte, d.h. Telegramm wurde komplett übertragen
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_prot.c:12: void timer1(void) interrupt 3	// Interrupt von Timer 1, 370us keine Busaktivität seit letztem Byte, d.h. Telegramm wurde komplett übertragen
 ;	-----------------------------------------
 ;	 function timer1
 ;	-----------------------------------------
@@ -1509,18 +1509,18 @@ _timer1:
 	push	bits
 	push	psw
 	mov	psw,#0x00
-;	d:/freebus/trunk/c51/89LPC922/common/fb_prot.c:16: EX1=0;					// ext. Interrupt stoppen 
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_prot.c:16: EX1=0;					// ext. Interrupt stoppen 
 ;	genAssign
 	clr	_IEN0_2
-;	d:/freebus/trunk/c51/89LPC922/common/fb_prot.c:17: ET1=0;					// Interrupt von Timer 1 sperren
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_prot.c:17: ET1=0;					// Interrupt von Timer 1 sperren
 ;	genAssign
 	clr	_IEN0_3
-;	d:/freebus/trunk/c51/89LPC922/common/fb_prot.c:18: set_timer1(4720);				// und neu starten für korrekte Positionierung des ACK Bytes
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_prot.c:18: set_timer1(4720);				// und neu starten für korrekte Positionierung des ACK Bytes
 ;	genCall
 ;	Peephole 182.b	used 16 bit load of dptr
 	mov	dptr,#0x1270
 	lcall	_set_timer1
-;	d:/freebus/trunk/c51/89LPC922/common/fb_prot.c:20: if(cs==0xff)					// Checksum des Telegramms ist OK 
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_prot.c:20: if(cs==0xff)					// Checksum des Telegramms ist OK 
 ;	genCmpEq
 ;	gencjneshort
 	mov	a,_cs
@@ -1529,18 +1529,18 @@ _timer1:
 00185$:
 	ljmp	00152$
 00186$:
-;	d:/freebus/trunk/c51/89LPC922/common/fb_prot.c:22: data_laenge=(telegramm[5]&0x0F);		// Telegramm-Länge = Bit 0 bis 3 
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_prot.c:22: data_laenge=(telegramm[5]&0x0F);		// Telegramm-Länge = Bit 0 bis 3 
 ;	genAssign
 ;	genAnd
 	mov	a,#0x0F
 	anl	a,0x0005 + _telegramm
 	mov	r2,a
-;	d:/freebus/trunk/c51/89LPC922/common/fb_prot.c:23: daf=(telegramm[5]&0x80);			// Destination Adress Flag = Bit 7, 0=phys. Adr., 1=Gruppenadr.
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_prot.c:23: daf=(telegramm[5]&0x80);			// Destination Adress Flag = Bit 7, 0=phys. Adr., 1=Gruppenadr.
 ;	genAnd
 	mov	a,#0x80
 	anl	a,0x0005 + _telegramm
 	mov	r3,a
-;	d:/freebus/trunk/c51/89LPC922/common/fb_prot.c:25: if(telegramm[3]==0 && telegramm[4]==0)		// Broadcast, wenn Zieladresse = 0
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_prot.c:25: if(telegramm[3]==0 && telegramm[4]==0)		// Broadcast, wenn Zieladresse = 0
 ;	genPointerGet
 ;	genNearPointerGet
 ;	genDataPointerGet
@@ -1561,13 +1561,13 @@ _timer1:
 ;	Peephole 108.b	removed ljmp by inverse jump logic
 	jnz	00148$
 ;	Peephole 300	removed redundant label 00188$
-;	d:/freebus/trunk/c51/89LPC922/common/fb_prot.c:27: if(progmode)
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_prot.c:27: if(progmode)
 ;	genIfx
 ;	genIfxJump
 	jb	_progmode,00189$
 	ljmp	00152$
 00189$:
-;	d:/freebus/trunk/c51/89LPC922/common/fb_prot.c:29: if(data_laenge==3 && telegramm[6]==0x00 && telegramm[7]==0xC0) set_pa();	// set_pa_req
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_prot.c:29: if(data_laenge==3 && telegramm[6]==0x00 && telegramm[7]==0xC0) set_pa();	// set_pa_req
 ;	genCmpEq
 ;	gencjneshort
 ;	Peephole 112.b	changed ljmp to sjmp
@@ -1598,7 +1598,7 @@ _timer1:
 ;	genCall
 	lcall	_set_pa
 00102$:
-;	d:/freebus/trunk/c51/89LPC922/common/fb_prot.c:30: if(telegramm[6]==0x01 && telegramm[7]==0x00) read_pa();				// read_pa_req
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_prot.c:30: if(telegramm[6]==0x01 && telegramm[7]==0x00) read_pa();				// read_pa_req
 ;	genAssign
 ;	genCmpEq
 ;	gencjneshort
@@ -1621,14 +1621,14 @@ _timer1:
 	lcall	_read_pa
 	ljmp	00152$
 00148$:
-;	d:/freebus/trunk/c51/89LPC922/common/fb_prot.c:35: if(daf==0x00)					// Unicast, wenn Zieladresse physikalische Adresse ist
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_prot.c:35: if(daf==0x00)					// Unicast, wenn Zieladresse physikalische Adresse ist
 ;	genIfx
 	mov	a,r3
 ;	genIfxJump
 	jz	00198$
 	ljmp	00145$
 00198$:
-;	d:/freebus/trunk/c51/89LPC922/common/fb_prot.c:37: if(telegramm[3]==pah && telegramm[4]==pal)	// nur wenn es die eigene phys. Adr. ist
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_prot.c:37: if(telegramm[3]==pah && telegramm[4]==pal)	// nur wenn es die eigene phys. Adr. ist
 ;	genCmpEq
 ;	gencjneshort
 	mov	a,r4
@@ -1646,7 +1646,7 @@ _timer1:
 00201$:
 	ljmp	00152$
 00202$:
-;	d:/freebus/trunk/c51/89LPC922/common/fb_prot.c:39: if((telegramm[6]&0xC3)==0x42 && (telegramm[7]&0xC0)==0x80) write_memory();	// write_memory_request beantworten
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_prot.c:39: if((telegramm[6]&0xC3)==0x42 && (telegramm[7]&0xC0)==0x80) write_memory();	// write_memory_request beantworten
 ;	genAssign
 ;	genAnd
 	mov	a,#0xC3
@@ -1678,14 +1678,14 @@ _timer1:
 	lcall	_write_memory
 	pop	ar2
 00111$:
-;	d:/freebus/trunk/c51/89LPC922/common/fb_prot.c:40: if(data_laenge==0)
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_prot.c:40: if(data_laenge==0)
 ;	genIfx
 	mov	a,r2
 ;	genIfxJump
 ;	Peephole 108.b	removed ljmp by inverse jump logic
 	jnz	00120$
 ;	Peephole 300	removed redundant label 00207$
-;	d:/freebus/trunk/c51/89LPC922/common/fb_prot.c:42: if((telegramm[6]&0xC0)==0xC0) send_ack();				// auf NCD_Quittierung mit ACK antworten
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_prot.c:42: if((telegramm[6]&0xC0)==0xC0) send_ack();				// auf NCD_Quittierung mit ACK antworten
 ;	genAssign
 ;	genAnd
 	mov	a,#0xC0
@@ -1704,7 +1704,7 @@ _timer1:
 	lcall	_send_ack
 	pop	ar2
 00114$:
-;	d:/freebus/trunk/c51/89LPC922/common/fb_prot.c:43: if(telegramm[6]==0x80) ucd_opr();					// UCD Verbindungsaufbau
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_prot.c:43: if(telegramm[6]==0x80) ucd_opr();					// UCD Verbindungsaufbau
 ;	genAssign
 ;	genCmpEq
 ;	gencjneshort
@@ -1720,7 +1720,7 @@ _timer1:
 	lcall	_ucd_opr
 	pop	ar2
 00116$:
-;	d:/freebus/trunk/c51/89LPC922/common/fb_prot.c:44: if(telegramm[6]==0x81) ucd_clr();					// UCD Verbindungsabbau
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_prot.c:44: if(telegramm[6]==0x81) ucd_clr();					// UCD Verbindungsabbau
 ;	genAssign
 ;	genCmpEq
 ;	gencjneshort
@@ -1736,7 +1736,7 @@ _timer1:
 	lcall	_ucd_clr
 	pop	ar2
 00120$:
-;	d:/freebus/trunk/c51/89LPC922/common/fb_prot.c:46: if(data_laenge==1)
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_prot.c:46: if(data_laenge==1)
 ;	genCmpEq
 ;	gencjneshort
 ;	Peephole 112.b	changed ljmp to sjmp
@@ -1745,7 +1745,7 @@ _timer1:
 ;	Peephole 200.b	removed redundant sjmp
 ;	Peephole 300	removed redundant label 00214$
 ;	Peephole 300	removed redundant label 00215$
-;	d:/freebus/trunk/c51/89LPC922/common/fb_prot.c:48: if((telegramm[6]&0x03)==0x03 && telegramm[7]==0x80)		// restart request
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_prot.c:48: if((telegramm[6]&0x03)==0x03 && telegramm[7]==0x80)		// restart request
 ;	genAssign
 ;	genAnd
 	mov	a,#0x03
@@ -1769,23 +1769,23 @@ _timer1:
 ;	Peephole 200.b	removed redundant sjmp
 ;	Peephole 300	removed redundant label 00218$
 ;	Peephole 300	removed redundant label 00219$
-;	d:/freebus/trunk/c51/89LPC922/common/fb_prot.c:50: restart_hw();	// Hardware zurücksetzen
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_prot.c:50: restart_hw();	// Hardware zurücksetzen
 ;	genCall
 	push	ar2
 	lcall	_restart_hw
 	pop	ar2
-;	d:/freebus/trunk/c51/89LPC922/common/fb_prot.c:51: restart_prot();	// Protokoll-relevante Parameter zurücksetzen
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_prot.c:51: restart_prot();	// Protokoll-relevante Parameter zurücksetzen
 ;	genCall
 	push	ar2
 	lcall	_restart_prot
 	pop	ar2
-;	d:/freebus/trunk/c51/89LPC922/common/fb_prot.c:52: restart_app();	// Anwendungsspezifische Einstellungen zurücksetzen
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_prot.c:52: restart_app();	// Anwendungsspezifische Einstellungen zurücksetzen
 ;	genCall
 	push	ar2
 	lcall	_restart_app
 	pop	ar2
 00122$:
-;	d:/freebus/trunk/c51/89LPC922/common/fb_prot.c:54: if(telegramm[6]==0x43 && telegramm[7]==0x00) read_masq();		// Maskenversion angefordert
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_prot.c:54: if(telegramm[6]==0x43 && telegramm[7]==0x00) read_masq();		// Maskenversion angefordert
 ;	genAssign
 ;	genCmpEq
 ;	gencjneshort
@@ -1810,7 +1810,7 @@ _timer1:
 	lcall	_read_masq
 	pop	ar2
 00128$:
-;	d:/freebus/trunk/c51/89LPC922/common/fb_prot.c:56: if(data_laenge==3)
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_prot.c:56: if(data_laenge==3)
 ;	genCmpEq
 ;	gencjneshort
 ;	Peephole 112.b	changed ljmp to sjmp
@@ -1819,7 +1819,7 @@ _timer1:
 ;	Peephole 200.b	removed redundant sjmp
 ;	Peephole 300	removed redundant label 00223$
 ;	Peephole 300	removed redundant label 00224$
-;	d:/freebus/trunk/c51/89LPC922/common/fb_prot.c:58: if((telegramm[6]&0xC3)==0x42 && (telegramm[7]&0xC0)==0x00) read_memory();	// read_memory_request beantworten
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_prot.c:58: if((telegramm[6]&0xC3)==0x42 && (telegramm[7]&0xC0)==0x00) read_memory();	// read_memory_request beantworten
 ;	genAssign
 ;	genAnd
 	mov	a,#0xC3
@@ -1848,7 +1848,7 @@ _timer1:
 ;	Peephole 112.b	changed ljmp to sjmp
 	sjmp	00152$
 00145$:
-;	d:/freebus/trunk/c51/89LPC922/common/fb_prot.c:65: if(data_laenge==1 && telegramm[6]==0x00)
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_prot.c:65: if(data_laenge==1 && telegramm[6]==0x00)
 ;	genCmpEq
 ;	gencjneshort
 ;	Peephole 112.b	changed ljmp to sjmp
@@ -1866,7 +1866,7 @@ _timer1:
 ;	Peephole 108.b	removed ljmp by inverse jump logic
 	jnz	00152$
 ;	Peephole 300	removed redundant label 00231$
-;	d:/freebus/trunk/c51/89LPC922/common/fb_prot.c:67: if ((telegramm[7]&0xFE)==0x80) eis1();		// Ausgänge schalten (EIS 1)
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_prot.c:67: if ((telegramm[7]&0xFE)==0x80) eis1();		// Ausgänge schalten (EIS 1)
 ;	genAssign
 ;	genAnd
 	mov	a,#0xFE
@@ -1883,7 +1883,7 @@ _timer1:
 ;	genCall
 	lcall	_eis1
 00138$:
-;	d:/freebus/trunk/c51/89LPC922/common/fb_prot.c:68: if (telegramm[7]==0x00) read_value_req();		// Objektwert lesen und als read_value_res auf Bus senden
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_prot.c:68: if (telegramm[7]==0x00) read_value_req();		// Objektwert lesen und als read_value_res auf Bus senden
 ;	genPointerGet
 ;	genNearPointerGet
 ;	genDataPointerGet
@@ -1896,13 +1896,13 @@ _timer1:
 ;	genCall
 	lcall	_read_value_req
 00152$:
-;	d:/freebus/trunk/c51/89LPC922/common/fb_prot.c:73: telpos=0;  
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_prot.c:73: telpos=0;  
 ;	genAssign
 	mov	_telpos,#0x00
-;	d:/freebus/trunk/c51/89LPC922/common/fb_prot.c:74: IE1=0;		// IRQ zurücksetzen
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_prot.c:74: IE1=0;		// IRQ zurücksetzen
 ;	genAssign
 	clr	_TCON_3
-;	d:/freebus/trunk/c51/89LPC922/common/fb_prot.c:75: EX1=1;		// externen Interrupt 0 wieder freigeben
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_prot.c:75: EX1=1;		// externen Interrupt 0 wieder freigeben
 ;	genAssign
 	setb	_IEN0_2
 ;	Peephole 300	removed redundant label 00153$
@@ -1927,15 +1927,15 @@ _timer1:
 ;ret                       Allocated to registers r2 
 ;n                         Allocated to registers r3 r4 
 ;------------------------------------------------------------
-;	d:/freebus/trunk/c51/89LPC922/common/fb_prot.c:82: unsigned char get_ack(void)		// Byte empfangen und prüfen ob es ein ACK war
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_prot.c:82: unsigned char get_ack(void)		// Byte empfangen und prüfen ob es ein ACK war
 ;	-----------------------------------------
 ;	 function get_ack
 ;	-----------------------------------------
 _get_ack:
-;	d:/freebus/trunk/c51/89LPC922/common/fb_prot.c:88: ret=0;
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_prot.c:88: ret=0;
 ;	genAssign
 	mov	r2,#0x00
-;	d:/freebus/trunk/c51/89LPC922/common/fb_prot.c:89: do 
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_prot.c:89: do 
 ;	genAssign
 	mov	r3,#0x00
 	mov	r4,#0x00
@@ -1945,7 +1945,7 @@ _get_ack:
 ;	Peephole 108.d	removed ljmp by inverse jump logic
 	jnb	_P1_4,00105$
 ;	Peephole 300	removed redundant label 00118$
-;	d:/freebus/trunk/c51/89LPC922/common/fb_prot.c:91: if(FBINC==1) n++;
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_prot.c:91: if(FBINC==1) n++;
 ;	genPlus
 ;     genPlusIncr
 	inc	r3
@@ -1956,7 +1956,7 @@ _get_ack:
 ;	Peephole 300	removed redundant label 00119$
 	sjmp	00108$
 00105$:
-;	d:/freebus/trunk/c51/89LPC922/common/fb_prot.c:94: if (get_byte()==0xCC && parity_ok) ret=1;
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_prot.c:94: if (get_byte()==0xCC && parity_ok) ret=1;
 ;	genCall
 	push	ar2
 	push	ar3
@@ -1982,7 +1982,7 @@ _get_ack:
 ;	genAssign
 	mov	r2,#0x01
 00108$:
-;	d:/freebus/trunk/c51/89LPC922/common/fb_prot.c:96: } while (n<3000);
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_prot.c:96: } while (n<3000);
 ;	genCmpLt
 ;	genCmp
 	clr	c
@@ -1996,7 +1996,7 @@ _get_ack:
 ;	Peephole 160.a	removed sjmp by inverse jump logic
 	jc	00107$
 ;	Peephole 300	removed redundant label 00123$
-;	d:/freebus/trunk/c51/89LPC922/common/fb_prot.c:97: return(ret);
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_prot.c:97: return(ret);
 ;	genRet
 	mov	dpl,r2
 ;	Peephole 300	removed redundant label 00110$
@@ -2009,7 +2009,7 @@ _get_ack:
 ;checksum                  Allocated to registers r3 
 ;r                         Allocated to registers r2 
 ;------------------------------------------------------------
-;	d:/freebus/trunk/c51/89LPC922/common/fb_prot.c:102: void send_telegramm(void)		// sendet das Telegramm, das in telegramm[] vorher abgelegt wurde und berechnet die checksum
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_prot.c:102: void send_telegramm(void)		// sendet das Telegramm, das in telegramm[] vorher abgelegt wurde und berechnet die checksum
 ;	-----------------------------------------
 ;	 function send_telegramm
 ;	-----------------------------------------
@@ -2017,15 +2017,15 @@ _send_telegramm:
 	push	_bp
 	mov	_bp,sp
 	inc	sp
-;	d:/freebus/trunk/c51/89LPC922/common/fb_prot.c:106: r=0;
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_prot.c:106: r=0;
 ;	genAssign
 	mov	r2,#0x00
-;	d:/freebus/trunk/c51/89LPC922/common/fb_prot.c:107: do
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_prot.c:107: do
 00108$:
-;	d:/freebus/trunk/c51/89LPC922/common/fb_prot.c:109: checksum=0;
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_prot.c:109: checksum=0;
 ;	genAssign
 	mov	r3,#0x00
-;	d:/freebus/trunk/c51/89LPC922/common/fb_prot.c:110: data_laenge=telegramm[5]&0x0F;	// Telegramm-Länge = Bit 0 bis 3
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_prot.c:110: data_laenge=telegramm[5]&0x0F;	// Telegramm-Länge = Bit 0 bis 3
 ;	genAssign
 ;	genAnd
 	mov	r0,_bp
@@ -2033,7 +2033,7 @@ _send_telegramm:
 	mov	a,#0x0F
 	anl	a,0x0005 + _telegramm
 	mov	@r0,a
-;	d:/freebus/trunk/c51/89LPC922/common/fb_prot.c:112: set_timer1(18780);			// Warten bis Bus frei ist
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_prot.c:112: set_timer1(18780);			// Warten bis Bus frei ist
 ;	genCall
 ;	Peephole 182.b	used 16 bit load of dptr
 	mov	dptr,#0x495C
@@ -2042,14 +2042,14 @@ _send_telegramm:
 	lcall	_set_timer1
 	pop	ar3
 	pop	ar2
-;	d:/freebus/trunk/c51/89LPC922/common/fb_prot.c:113: while(!TF1)
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_prot.c:113: while(!TF1)
 00103$:
 ;	genIfx
 ;	genIfxJump
 ;	Peephole 108.e	removed ljmp by inverse jump logic
 	jb	_TCON_7,00105$
 ;	Peephole 300	removed redundant label 00125$
-;	d:/freebus/trunk/c51/89LPC922/common/fb_prot.c:115: if(!FBINC) set_timer1(18780);
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_prot.c:115: if(!FBINC) set_timer1(18780);
 ;	genIfx
 ;	genIfxJump
 ;	Peephole 108.e	removed ljmp by inverse jump logic
@@ -2066,10 +2066,10 @@ _send_telegramm:
 ;	Peephole 112.b	changed ljmp to sjmp
 	sjmp	00103$
 00105$:
-;	d:/freebus/trunk/c51/89LPC922/common/fb_prot.c:117: TR1=0;
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_prot.c:117: TR1=0;
 ;	genAssign
 	clr	_TCON_6
-;	d:/freebus/trunk/c51/89LPC922/common/fb_prot.c:119: for(l=0;l<=data_laenge+6;l++)
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_prot.c:119: for(l=0;l<=data_laenge+6;l++)
 ;	genAssign
 	mov	r5,#0x00
 00111$:
@@ -2112,7 +2112,7 @@ _send_telegramm:
 	pop	ar2
 	jc	00114$
 ;	Peephole 300	removed redundant label 00127$
-;	d:/freebus/trunk/c51/89LPC922/common/fb_prot.c:121: sendbyte(telegramm[l]);
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_prot.c:121: sendbyte(telegramm[l]);
 ;	genPlus
 ;	Peephole 236.g	used r5 instead of ar5
 	mov	a,r5
@@ -2131,7 +2131,7 @@ _send_telegramm:
 	pop	ar2
 	clr	a
 	rlc	a
-;	d:/freebus/trunk/c51/89LPC922/common/fb_prot.c:122: checksum^=telegramm[l];
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_prot.c:122: checksum^=telegramm[l];
 ;	genPlus
 ;	Peephole 236.g	used r5 instead of ar5
 	mov	a,r5
@@ -2143,7 +2143,7 @@ _send_telegramm:
 ;	genXor
 	mov	a,r4
 	xrl	ar3,a
-;	d:/freebus/trunk/c51/89LPC922/common/fb_prot.c:123: delay(1230);			// Interbyte-Abstand
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_prot.c:123: delay(1230);			// Interbyte-Abstand
 ;	genCall
 ;	Peephole 182.b	used 16 bit load of dptr
 	mov	dptr,#0x04CE
@@ -2154,18 +2154,18 @@ _send_telegramm:
 	pop	ar5
 	pop	ar3
 	pop	ar2
-;	d:/freebus/trunk/c51/89LPC922/common/fb_prot.c:119: for(l=0;l<=data_laenge+6;l++)
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_prot.c:119: for(l=0;l<=data_laenge+6;l++)
 ;	genPlus
 ;     genPlusIncr
 	inc	r5
 ;	Peephole 112.b	changed ljmp to sjmp
 	sjmp	00111$
 00114$:
-;	d:/freebus/trunk/c51/89LPC922/common/fb_prot.c:125: checksum=~checksum;
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_prot.c:125: checksum=~checksum;
 ;	genCpl
 	mov	a,r3
 	cpl	a
-;	d:/freebus/trunk/c51/89LPC922/common/fb_prot.c:126: sendbyte(checksum);
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_prot.c:126: sendbyte(checksum);
 ;	genCall
 	mov	r3,a
 ;	Peephole 244.c	loading dpl from a instead of r3
@@ -2175,7 +2175,7 @@ _send_telegramm:
 	pop	ar2
 	clr	a
 	rlc	a
-;	d:/freebus/trunk/c51/89LPC922/common/fb_prot.c:127: if(get_ack()==1) r=3;		// wenn ACK empfangen, dann nicht nochmal senden
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_prot.c:127: if(get_ack()==1) r=3;		// wenn ACK empfangen, dann nicht nochmal senden
 ;	genCall
 	push	ar2
 	lcall	_get_ack
@@ -2192,11 +2192,11 @@ _send_telegramm:
 ;	genAssign
 	mov	r2,#0x03
 00107$:
-;	d:/freebus/trunk/c51/89LPC922/common/fb_prot.c:128: r++;
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_prot.c:128: r++;
 ;	genPlus
 ;     genPlusIncr
 	inc	r2
-;	d:/freebus/trunk/c51/89LPC922/common/fb_prot.c:129: telegramm[0]&=0xDF;			// Bit 5 löschen = Wiederholung
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_prot.c:129: telegramm[0]&=0xDF;			// Bit 5 löschen = Wiederholung
 ;	genAssign
 ;	genAnd
 	mov	a,#0xDF
@@ -2205,7 +2205,7 @@ _send_telegramm:
 ;	genNearPointerSet
 ;	genDataPointerSet
 	mov	_telegramm,a
-;	d:/freebus/trunk/c51/89LPC922/common/fb_prot.c:131: while(r<=3); 				// falls kein ACK max. 3 Mal wiederholen
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_prot.c:131: while(r<=3); 				// falls kein ACK max. 3 Mal wiederholen
 ;	genCmpGt
 ;	genCmp
 ;	genIfxJump
@@ -2223,19 +2223,19 @@ _send_telegramm:
 ;Allocation info for local variables in function 'send_ack'
 ;------------------------------------------------------------
 ;------------------------------------------------------------
-;	d:/freebus/trunk/c51/89LPC922/common/fb_prot.c:135: void send_ack(void)			// wartet auf Timer 1 wegen korrekter Positionierung und sendet ACK (0xCC)
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_prot.c:135: void send_ack(void)			// wartet auf Timer 1 wegen korrekter Positionierung und sendet ACK (0xCC)
 ;	-----------------------------------------
 ;	 function send_ack
 ;	-----------------------------------------
 _send_ack:
-;	d:/freebus/trunk/c51/89LPC922/common/fb_prot.c:137: while(!TF1) {}
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_prot.c:137: while(!TF1) {}
 00101$:
 ;	genIfx
 ;	genIfxJump
 ;	Peephole 108.d	removed ljmp by inverse jump logic
 	jnb	_TCON_7,00101$
 ;	Peephole 300	removed redundant label 00108$
-;	d:/freebus/trunk/c51/89LPC922/common/fb_prot.c:138: sendbyte(0xCC);
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_prot.c:138: sendbyte(0xCC);
 ;	genCall
 	mov	dpl,#0xCC
 	lcall	_sendbyte
@@ -2247,34 +2247,34 @@ _send_ack:
 ;Allocation info for local variables in function 'ucd_opr'
 ;------------------------------------------------------------
 ;------------------------------------------------------------
-;	d:/freebus/trunk/c51/89LPC922/common/fb_prot.c:145: void ucd_opr(void)		// UCD Verbindungsaufbau
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_prot.c:145: void ucd_opr(void)		// UCD Verbindungsaufbau
 ;	-----------------------------------------
 ;	 function ucd_opr
 ;	-----------------------------------------
 _ucd_opr:
-;	d:/freebus/trunk/c51/89LPC922/common/fb_prot.c:147: if(!connected)		// wenn bereits verbunden: ignorieren
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_prot.c:147: if(!connected)		// wenn bereits verbunden: ignorieren
 ;	genIfx
 ;	genIfxJump
 ;	Peephole 108.e	removed ljmp by inverse jump logic
 	jb	_connected,00103$
 ;	Peephole 300	removed redundant label 00106$
-;	d:/freebus/trunk/c51/89LPC922/common/fb_prot.c:149: connected=1;
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_prot.c:149: connected=1;
 ;	genAssign
 	setb	_connected
-;	d:/freebus/trunk/c51/89LPC922/common/fb_prot.c:150: conh=telegramm[1];		// phys. Adresse des Verbindungspartners
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_prot.c:150: conh=telegramm[1];		// phys. Adresse des Verbindungspartners
 ;	genPointerGet
 ;	genNearPointerGet
 ;	genDataPointerGet
 	mov	_conh,(_telegramm + 0x0001)
-;	d:/freebus/trunk/c51/89LPC922/common/fb_prot.c:151: conl=telegramm[2];
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_prot.c:151: conl=telegramm[2];
 ;	genPointerGet
 ;	genNearPointerGet
 ;	genDataPointerGet
 	mov	_conl,(_telegramm + 0x0002)
-;	d:/freebus/trunk/c51/89LPC922/common/fb_prot.c:152: send_ack();			// quittieren
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_prot.c:152: send_ack();			// quittieren
 ;	genCall
 	lcall	_send_ack
-;	d:/freebus/trunk/c51/89LPC922/common/fb_prot.c:153: pcount=1;			// Paketzähler zurücksetzen
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_prot.c:153: pcount=1;			// Paketzähler zurücksetzen
 ;	genAssign
 	mov	_pcount,#0x01
 00103$:
@@ -2283,12 +2283,12 @@ _ucd_opr:
 ;Allocation info for local variables in function 'ucd_clr'
 ;------------------------------------------------------------
 ;------------------------------------------------------------
-;	d:/freebus/trunk/c51/89LPC922/common/fb_prot.c:158: void ucd_clr(void)		// UCD Verbindungsabbau
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_prot.c:158: void ucd_clr(void)		// UCD Verbindungsabbau
 ;	-----------------------------------------
 ;	 function ucd_clr
 ;	-----------------------------------------
 _ucd_clr:
-;	d:/freebus/trunk/c51/89LPC922/common/fb_prot.c:160: if(conh==telegramm[1] && conl==telegramm[2] && connected)	// nur abbauen, wenn verbunden und Anforderung vom Verbindungspartner, kein ACK senden
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_prot.c:160: if(conh==telegramm[1] && conl==telegramm[2] && connected)	// nur abbauen, wenn verbunden und Anforderung vom Verbindungspartner, kein ACK senden
 ;	genAssign
 ;	genCmpEq
 ;	gencjneshort
@@ -2314,14 +2314,14 @@ _ucd_clr:
 ;	genIfx
 ;	genIfxJump
 ;	Peephole 108.d	removed ljmp by inverse jump logic
-;	d:/freebus/trunk/c51/89LPC922/common/fb_prot.c:162: connected=0;
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_prot.c:162: connected=0;
 ;	genAssign
 ;	Peephole 250.a	using atomic test and clear
 	jbc	_connected,00114$
 ;	Peephole 251.b	replaced sjmp to ret with ret
 	ret
 00114$:
-;	d:/freebus/trunk/c51/89LPC922/common/fb_prot.c:163: pcount=1;			// Paketzähler zurücksetzen
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_prot.c:163: pcount=1;			// Paketzähler zurücksetzen
 ;	genAssign
 	mov	_pcount,#0x01
 ;	Peephole 300	removed redundant label 00105$
@@ -2330,17 +2330,17 @@ _ucd_clr:
 ;Allocation info for local variables in function 'ncd_quit'
 ;------------------------------------------------------------
 ;------------------------------------------------------------
-;	d:/freebus/trunk/c51/89LPC922/common/fb_prot.c:168: void ncd_quit(void)			// NCD Quittierung zurück senden. Setzt telegramm Bytes 0 bis 6 !!!
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_prot.c:168: void ncd_quit(void)			// NCD Quittierung zurück senden. Setzt telegramm Bytes 0 bis 6 !!!
 ;	-----------------------------------------
 ;	 function ncd_quit
 ;	-----------------------------------------
 _ncd_quit:
-;	d:/freebus/trunk/c51/89LPC922/common/fb_prot.c:170: telegramm[0]=0xB0;			// Control Byte			
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_prot.c:170: telegramm[0]=0xB0;			// Control Byte			
 ;	genPointerSet
 ;	genNearPointerSet
 ;	genDataPointerSet
 	mov	_telegramm,#0xB0
-;	d:/freebus/trunk/c51/89LPC922/common/fb_prot.c:171: telegramm[3]=telegramm[1];		// Zieladresse wird Quelladresse
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_prot.c:171: telegramm[3]=telegramm[1];		// Zieladresse wird Quelladresse
 ;	genPointerGet
 ;	genNearPointerGet
 ;	genDataPointerGet
@@ -2349,7 +2349,7 @@ _ncd_quit:
 ;	genNearPointerSet
 ;	genDataPointerSet
 	mov	(_telegramm + 0x0003),r2
-;	d:/freebus/trunk/c51/89LPC922/common/fb_prot.c:172: telegramm[4]=telegramm[2];
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_prot.c:172: telegramm[4]=telegramm[2];
 ;	genPointerGet
 ;	genNearPointerGet
 ;	genDataPointerGet
@@ -2358,22 +2358,22 @@ _ncd_quit:
 ;	genNearPointerSet
 ;	genDataPointerSet
 	mov	(_telegramm + 0x0004),r2
-;	d:/freebus/trunk/c51/89LPC922/common/fb_prot.c:173: telegramm[1]=pah;			// Quelladresse ist phys. Adresse
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_prot.c:173: telegramm[1]=pah;			// Quelladresse ist phys. Adresse
 ;	genPointerSet
 ;	genNearPointerSet
 ;	genDataPointerSet
 	mov	(_telegramm + 0x0001),_pah
-;	d:/freebus/trunk/c51/89LPC922/common/fb_prot.c:174: telegramm[2]=pal;
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_prot.c:174: telegramm[2]=pal;
 ;	genPointerSet
 ;	genNearPointerSet
 ;	genDataPointerSet
 	mov	(_telegramm + 0x0002),_pal
-;	d:/freebus/trunk/c51/89LPC922/common/fb_prot.c:175: telegramm[5]=0x60;			// DRL
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_prot.c:175: telegramm[5]=0x60;			// DRL
 ;	genPointerSet
 ;	genNearPointerSet
 ;	genDataPointerSet
 	mov	(_telegramm + 0x0005),#0x60
-;	d:/freebus/trunk/c51/89LPC922/common/fb_prot.c:176: telegramm[6]|=0xC0;			// Bit 6 und 7 setzen (TCPI = 11 NCD Quittierung)
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_prot.c:176: telegramm[6]|=0xC0;			// Bit 6 und 7 setzen (TCPI = 11 NCD Quittierung)
 ;	genAssign
 ;	genOr
 	mov	a,#0xC0
@@ -2383,7 +2383,7 @@ _ncd_quit:
 ;	genNearPointerSet
 ;	genDataPointerSet
 	mov	(_telegramm + 0x0006),r2
-;	d:/freebus/trunk/c51/89LPC922/common/fb_prot.c:177: telegramm[6]&=0xFE;			// Bit 0 löschen 
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_prot.c:177: telegramm[6]&=0xFE;			// Bit 0 löschen 
 ;	genAnd
 	mov	a,#0xFE
 	anl	a,r2
@@ -2391,7 +2391,7 @@ _ncd_quit:
 ;	genNearPointerSet
 ;	genDataPointerSet
 	mov	(_telegramm + 0x0006),a
-;	d:/freebus/trunk/c51/89LPC922/common/fb_prot.c:178: send_telegramm();
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_prot.c:178: send_telegramm();
 ;	genCall
 ;	Peephole 253.b	replaced lcall/ret with ljmp
 	ljmp	_send_telegramm
@@ -2400,48 +2400,48 @@ _ncd_quit:
 ;Allocation info for local variables in function 'read_masq'
 ;------------------------------------------------------------
 ;------------------------------------------------------------
-;	d:/freebus/trunk/c51/89LPC922/common/fb_prot.c:182: void read_masq(void)			// Maskenversion senden
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_prot.c:182: void read_masq(void)			// Maskenversion senden
 ;	-----------------------------------------
 ;	 function read_masq
 ;	-----------------------------------------
 _read_masq:
-;	d:/freebus/trunk/c51/89LPC922/common/fb_prot.c:186: send_ack();
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_prot.c:186: send_ack();
 ;	genCall
 	lcall	_send_ack
-;	d:/freebus/trunk/c51/89LPC922/common/fb_prot.c:187: ncd_quit();				// NCD Quittierung senden
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_prot.c:187: ncd_quit();				// NCD Quittierung senden
 ;	genCall
 	lcall	_ncd_quit
-;	d:/freebus/trunk/c51/89LPC922/common/fb_prot.c:189: telegramm[0]=0xB0;			// Control Byte
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_prot.c:189: telegramm[0]=0xB0;			// Control Byte
 ;	genPointerSet
 ;	genNearPointerSet
 ;	genDataPointerSet
 	mov	_telegramm,#0xB0
-;	d:/freebus/trunk/c51/89LPC922/common/fb_prot.c:191: telegramm[5]=0x63;			// DRL
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_prot.c:191: telegramm[5]=0x63;			// DRL
 ;	genPointerSet
 ;	genNearPointerSet
 ;	genDataPointerSet
 	mov	(_telegramm + 0x0005),#0x63
-;	d:/freebus/trunk/c51/89LPC922/common/fb_prot.c:192: telegramm[6]=0x43;
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_prot.c:192: telegramm[6]=0x43;
 ;	genPointerSet
 ;	genNearPointerSet
 ;	genDataPointerSet
 	mov	(_telegramm + 0x0006),#0x43
-;	d:/freebus/trunk/c51/89LPC922/common/fb_prot.c:193: telegramm[7]=0x40;
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_prot.c:193: telegramm[7]=0x40;
 ;	genPointerSet
 ;	genNearPointerSet
 ;	genDataPointerSet
 	mov	(_telegramm + 0x0007),#0x40
-;	d:/freebus/trunk/c51/89LPC922/common/fb_prot.c:194: telegramm[8]=0x00;
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_prot.c:194: telegramm[8]=0x00;
 ;	genPointerSet
 ;	genNearPointerSet
 ;	genDataPointerSet
 	mov	(_telegramm + 0x0008),#0x00
-;	d:/freebus/trunk/c51/89LPC922/common/fb_prot.c:195: telegramm[9]=0x12;			// Maskenversion 1 = BCU1
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_prot.c:195: telegramm[9]=0x12;			// Maskenversion 1 = BCU1
 ;	genPointerSet
 ;	genNearPointerSet
 ;	genDataPointerSet
 	mov	(_telegramm + 0x0009),#0x12
-;	d:/freebus/trunk/c51/89LPC922/common/fb_prot.c:196: send_telegramm();
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_prot.c:196: send_telegramm();
 ;	genCall
 ;	Peephole 253.b	replaced lcall/ret with ljmp
 	ljmp	_send_telegramm
@@ -2452,24 +2452,24 @@ _read_masq:
 ;ab                        Allocated to registers r2 
 ;n                         Allocated to registers r3 
 ;------------------------------------------------------------
-;	d:/freebus/trunk/c51/89LPC922/common/fb_prot.c:201: void read_memory(void)			// read_memory_request - Speicher auslesen und senden
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_prot.c:201: void read_memory(void)			// read_memory_request - Speicher auslesen und senden
 ;	-----------------------------------------
 ;	 function read_memory
 ;	-----------------------------------------
 _read_memory:
-;	d:/freebus/trunk/c51/89LPC922/common/fb_prot.c:205: send_ack();				// erstmal quittieren
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_prot.c:205: send_ack();				// erstmal quittieren
 ;	genCall
 	lcall	_send_ack
-;	d:/freebus/trunk/c51/89LPC922/common/fb_prot.c:206: ab=telegramm[7];			// Anzahl Bytes
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_prot.c:206: ab=telegramm[7];			// Anzahl Bytes
 ;	genAssign
 ;	genAssign
 	mov	r2,0x0007 + _telegramm
-;	d:/freebus/trunk/c51/89LPC922/common/fb_prot.c:207: ncd_quit();
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_prot.c:207: ncd_quit();
 ;	genCall
 	push	ar2
 	lcall	_ncd_quit
 	pop	ar2
-;	d:/freebus/trunk/c51/89LPC922/common/fb_prot.c:209: for(n=0;n<ab;n++)
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_prot.c:209: for(n=0;n<ab;n++)
 ;	genAssign
 	mov	r3,#0x00
 00101$:
@@ -2482,7 +2482,7 @@ _read_memory:
 ;	Peephole 108.a	removed ljmp by inverse jump logic
 	jnc	00104$
 ;	Peephole 300	removed redundant label 00110$
-;	d:/freebus/trunk/c51/89LPC922/common/fb_prot.c:211: telegramm[n+10]=read_byte(telegramm[8],(telegramm[9]+n));    
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_prot.c:211: telegramm[n+10]=read_byte(telegramm[8],(telegramm[9]+n));    
 ;	genPlus
 ;     genPlusIncr
 	mov	a,#0x0A
@@ -2514,19 +2514,19 @@ _read_memory:
 ;	genPointerSet
 ;	genNearPointerSet
 	mov	@r0,ar4
-;	d:/freebus/trunk/c51/89LPC922/common/fb_prot.c:209: for(n=0;n<ab;n++)
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_prot.c:209: for(n=0;n<ab;n++)
 ;	genPlus
 ;     genPlusIncr
 	inc	r3
 ;	Peephole 112.b	changed ljmp to sjmp
 	sjmp	00101$
 00104$:
-;	d:/freebus/trunk/c51/89LPC922/common/fb_prot.c:214: telegramm[0]=0xB0;			// read_memory_res senden
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_prot.c:214: telegramm[0]=0xB0;			// read_memory_res senden
 ;	genPointerSet
 ;	genNearPointerSet
 ;	genDataPointerSet
 	mov	_telegramm,#0xB0
-;	d:/freebus/trunk/c51/89LPC922/common/fb_prot.c:216: telegramm[5]=ab+0x63;		// DRL (Anzahl Bytes + 3)
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_prot.c:216: telegramm[5]=ab+0x63;		// DRL (Anzahl Bytes + 3)
 ;	genPlus
 ;     genPlusIncr
 	mov	a,#0x63
@@ -2536,7 +2536,7 @@ _read_memory:
 ;	genNearPointerSet
 ;	genDataPointerSet
 	mov	(_telegramm + 0x0005),a
-;	d:/freebus/trunk/c51/89LPC922/common/fb_prot.c:217: telegramm[6]=(pcount<<2)|0x42;	// Paketzähler, TCPI und ersten beiden Befehlsbits
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_prot.c:217: telegramm[6]=(pcount<<2)|0x42;	// Paketzähler, TCPI und ersten beiden Befehlsbits
 ;	genLeftShift
 ;	genLeftShiftLiteral
 ;	genlshOne
@@ -2552,7 +2552,7 @@ _read_memory:
 ;	genNearPointerSet
 ;	genDataPointerSet
 	mov	(_telegramm + 0x0006),a
-;	d:/freebus/trunk/c51/89LPC922/common/fb_prot.c:218: telegramm[7]=ab|0x40;		// letzten 2 Befehlsbits
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_prot.c:218: telegramm[7]=ab|0x40;		// letzten 2 Befehlsbits
 ;	genOr
 	mov	a,#0x40
 	orl	a,r2
@@ -2560,14 +2560,14 @@ _read_memory:
 ;	genNearPointerSet
 ;	genDataPointerSet
 	mov	(_telegramm + 0x0007),a
-;	d:/freebus/trunk/c51/89LPC922/common/fb_prot.c:219: send_telegramm();
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_prot.c:219: send_telegramm();
 ;	genCall
 	lcall	_send_telegramm
-;	d:/freebus/trunk/c51/89LPC922/common/fb_prot.c:221: pcount++;				// Paketzähler erhöhen
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_prot.c:221: pcount++;				// Paketzähler erhöhen
 ;	genPlus
 ;     genPlusIncr
 	inc	_pcount
-;	d:/freebus/trunk/c51/89LPC922/common/fb_prot.c:222: pcount&=0x0F;				// max. 15
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_prot.c:222: pcount&=0x0F;				// max. 15
 ;	genAnd
 	anl	_pcount,#0x0F
 ;	Peephole 300	removed redundant label 00105$
@@ -2578,31 +2578,31 @@ _read_memory:
 ;ab                        Allocated to registers r2 
 ;n                         Allocated to registers r3 
 ;------------------------------------------------------------
-;	d:/freebus/trunk/c51/89LPC922/common/fb_prot.c:226: void write_memory(void)			// write_memory_request - empfangene Daten in Speicher schreiben
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_prot.c:226: void write_memory(void)			// write_memory_request - empfangene Daten in Speicher schreiben
 ;	-----------------------------------------
 ;	 function write_memory
 ;	-----------------------------------------
 _write_memory:
-;	d:/freebus/trunk/c51/89LPC922/common/fb_prot.c:230: send_ack();
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_prot.c:230: send_ack();
 ;	genCall
 	lcall	_send_ack
-;	d:/freebus/trunk/c51/89LPC922/common/fb_prot.c:231: ab=telegramm[7]&0x0F;			// Anzahl Bytes
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_prot.c:231: ab=telegramm[7]&0x0F;			// Anzahl Bytes
 ;	genAssign
 ;	genAnd
 	mov	a,#0x0F
 	anl	a,0x0007 + _telegramm
 	mov	r2,a
-;	d:/freebus/trunk/c51/89LPC922/common/fb_prot.c:232: ncd_quit();
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_prot.c:232: ncd_quit();
 ;	genCall
 	push	ar2
 	lcall	_ncd_quit
 	pop	ar2
-;	d:/freebus/trunk/c51/89LPC922/common/fb_prot.c:234: start_writecycle();
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_prot.c:234: start_writecycle();
 ;	genCall
 	push	ar2
 	lcall	_start_writecycle
 	pop	ar2
-;	d:/freebus/trunk/c51/89LPC922/common/fb_prot.c:235: for(n=0;n<ab;n++) 
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_prot.c:235: for(n=0;n<ab;n++) 
 ;	genAssign
 	mov	r3,#0x00
 00104$:
@@ -2615,7 +2615,7 @@ _write_memory:
 ;	Peephole 108.a	removed ljmp by inverse jump logic
 	jnc	00107$
 ;	Peephole 300	removed redundant label 00115$
-;	d:/freebus/trunk/c51/89LPC922/common/fb_prot.c:237: write_byte(telegramm[8],telegramm[9]+n,telegramm[n+10]);
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_prot.c:237: write_byte(telegramm[8],telegramm[9]+n,telegramm[n+10]);
 ;	genPlus
 ;     genPlusIncr
 	mov	a,#0x0A
@@ -2647,7 +2647,7 @@ _write_memory:
 	dec	sp
 	pop	ar3
 	pop	ar2
-;	d:/freebus/trunk/c51/89LPC922/common/fb_prot.c:238: if ((((telegramm[9]+n)&0x3F)==0x3F) && n!=(ab-1))		// Ende des 64-Byte Pageregisters, also zwischendurch flashen
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_prot.c:238: if ((((telegramm[9]+n)&0x3F)==0x3F) && n!=(ab-1))		// Ende des 64-Byte Pageregisters, also zwischendurch flashen
 ;	genAssign
 ;	genCast
 	mov	r4,0x0009 + _telegramm
@@ -2696,14 +2696,14 @@ _write_memory:
 ;	Peephole 112.b	changed ljmp to sjmp
 	sjmp	00106$
 00119$:
-;	d:/freebus/trunk/c51/89LPC922/common/fb_prot.c:240: stop_writecycle();
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_prot.c:240: stop_writecycle();
 ;	genCall
 	push	ar2
 	push	ar3
 	lcall	_stop_writecycle
 	pop	ar3
 	pop	ar2
-;	d:/freebus/trunk/c51/89LPC922/common/fb_prot.c:241: start_writecycle();
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_prot.c:241: start_writecycle();
 ;	genCall
 	push	ar2
 	push	ar3
@@ -2711,14 +2711,14 @@ _write_memory:
 	pop	ar3
 	pop	ar2
 00106$:
-;	d:/freebus/trunk/c51/89LPC922/common/fb_prot.c:235: for(n=0;n<ab;n++) 
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_prot.c:235: for(n=0;n<ab;n++) 
 ;	genPlus
 ;     genPlusIncr
 	inc	r3
 ;	Peephole 112.b	changed ljmp to sjmp
 	sjmp	00104$
 00107$:
-;	d:/freebus/trunk/c51/89LPC922/common/fb_prot.c:244: stop_writecycle(); 
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_prot.c:244: stop_writecycle(); 
 ;	genCall
 ;	Peephole 253.b	replaced lcall/ret with ljmp
 	ljmp	_stop_writecycle
@@ -2727,25 +2727,25 @@ _write_memory:
 ;Allocation info for local variables in function 'set_pa'
 ;------------------------------------------------------------
 ;------------------------------------------------------------
-;	d:/freebus/trunk/c51/89LPC922/common/fb_prot.c:248: void set_pa(void)			// neue phys. Adresse programmieren
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_prot.c:248: void set_pa(void)			// neue phys. Adresse programmieren
 ;	-----------------------------------------
 ;	 function set_pa
 ;	-----------------------------------------
 _set_pa:
-;	d:/freebus/trunk/c51/89LPC922/common/fb_prot.c:250: pah=telegramm[8];
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_prot.c:250: pah=telegramm[8];
 ;	genPointerGet
 ;	genNearPointerGet
 ;	genDataPointerGet
 	mov	_pah,(_telegramm + 0x0008)
-;	d:/freebus/trunk/c51/89LPC922/common/fb_prot.c:251: pal=telegramm[9];
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_prot.c:251: pal=telegramm[9];
 ;	genPointerGet
 ;	genNearPointerGet
 ;	genDataPointerGet
 	mov	_pal,(_telegramm + 0x0009)
-;	d:/freebus/trunk/c51/89LPC922/common/fb_prot.c:252: start_writecycle();
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_prot.c:252: start_writecycle();
 ;	genCall
 	lcall	_start_writecycle
-;	d:/freebus/trunk/c51/89LPC922/common/fb_prot.c:253: write_byte(0x01,ADDRTAB+1,pah);		// in Flash schreiben
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_prot.c:253: write_byte(0x01,ADDRTAB+1,pah);		// in Flash schreiben
 ;	genIpush
 	push	_pah
 ;	genIpush
@@ -2756,7 +2756,7 @@ _set_pa:
 	lcall	_write_byte
 	dec	sp
 	dec	sp
-;	d:/freebus/trunk/c51/89LPC922/common/fb_prot.c:254: write_byte(0x01,ADDRTAB+2,pal);
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_prot.c:254: write_byte(0x01,ADDRTAB+2,pal);
 ;	genIpush
 	push	_pal
 ;	genIpush
@@ -2767,7 +2767,7 @@ _set_pa:
 	lcall	_write_byte
 	dec	sp
 	dec	sp
-;	d:/freebus/trunk/c51/89LPC922/common/fb_prot.c:255: stop_writecycle();
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_prot.c:255: stop_writecycle();
 ;	genCall
 ;	Peephole 253.b	replaced lcall/ret with ljmp
 	ljmp	_stop_writecycle
@@ -2776,55 +2776,55 @@ _set_pa:
 ;Allocation info for local variables in function 'read_pa'
 ;------------------------------------------------------------
 ;------------------------------------------------------------
-;	d:/freebus/trunk/c51/89LPC922/common/fb_prot.c:259: void read_pa(void)			// phys. Adresse senden
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_prot.c:259: void read_pa(void)			// phys. Adresse senden
 ;	-----------------------------------------
 ;	 function read_pa
 ;	-----------------------------------------
 _read_pa:
-;	d:/freebus/trunk/c51/89LPC922/common/fb_prot.c:263: send_ack();
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_prot.c:263: send_ack();
 ;	genCall
 	lcall	_send_ack
-;	d:/freebus/trunk/c51/89LPC922/common/fb_prot.c:265: telegramm[0]=0xB0;			// read_memory_res senden
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_prot.c:265: telegramm[0]=0xB0;			// read_memory_res senden
 ;	genPointerSet
 ;	genNearPointerSet
 ;	genDataPointerSet
 	mov	_telegramm,#0xB0
-;	d:/freebus/trunk/c51/89LPC922/common/fb_prot.c:267: telegramm[1]=pah;
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_prot.c:267: telegramm[1]=pah;
 ;	genPointerSet
 ;	genNearPointerSet
 ;	genDataPointerSet
 	mov	(_telegramm + 0x0001),_pah
-;	d:/freebus/trunk/c51/89LPC922/common/fb_prot.c:268: telegramm[2]=pal;
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_prot.c:268: telegramm[2]=pal;
 ;	genPointerSet
 ;	genNearPointerSet
 ;	genDataPointerSet
 	mov	(_telegramm + 0x0002),_pal
-;	d:/freebus/trunk/c51/89LPC922/common/fb_prot.c:269: telegramm[3]=0x00;
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_prot.c:269: telegramm[3]=0x00;
 ;	genPointerSet
 ;	genNearPointerSet
 ;	genDataPointerSet
 	mov	(_telegramm + 0x0003),#0x00
-;	d:/freebus/trunk/c51/89LPC922/common/fb_prot.c:270: telegramm[4]=0x00;			
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_prot.c:270: telegramm[4]=0x00;			
 ;	genPointerSet
 ;	genNearPointerSet
 ;	genDataPointerSet
 	mov	(_telegramm + 0x0004),#0x00
-;	d:/freebus/trunk/c51/89LPC922/common/fb_prot.c:271: telegramm[5]=0xE1;			// DRL
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_prot.c:271: telegramm[5]=0xE1;			// DRL
 ;	genPointerSet
 ;	genNearPointerSet
 ;	genDataPointerSet
 	mov	(_telegramm + 0x0005),#0xE1
-;	d:/freebus/trunk/c51/89LPC922/common/fb_prot.c:272: telegramm[6]=0x01;		
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_prot.c:272: telegramm[6]=0x01;		
 ;	genPointerSet
 ;	genNearPointerSet
 ;	genDataPointerSet
 	mov	(_telegramm + 0x0006),#0x01
-;	d:/freebus/trunk/c51/89LPC922/common/fb_prot.c:273: telegramm[7]=0x40;
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_prot.c:273: telegramm[7]=0x40;
 ;	genPointerSet
 ;	genNearPointerSet
 ;	genDataPointerSet
 	mov	(_telegramm + 0x0007),#0x40
-;	d:/freebus/trunk/c51/89LPC922/common/fb_prot.c:274: send_telegramm();
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_prot.c:274: send_telegramm();
 ;	genCall
 ;	Peephole 253.b	replaced lcall/ret with ljmp
 	ljmp	_send_telegramm
@@ -2837,14 +2837,14 @@ _read_pa:
 ;addr                      Allocated to registers 
 ;flags                     Allocated to registers 
 ;------------------------------------------------------------
-;	d:/freebus/trunk/c51/89LPC922/common/fb_prot.c:279: unsigned char read_objflags(unsigned char objno)	// Objektflags lesen
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_prot.c:279: unsigned char read_objflags(unsigned char objno)	// Objektflags lesen
 ;	-----------------------------------------
 ;	 function read_objflags
 ;	-----------------------------------------
 _read_objflags:
 ;	genReceive
 	mov	r2,dpl
-;	d:/freebus/trunk/c51/89LPC922/common/fb_prot.c:283: ctp=read_byte(0x01,COMMSTABPTR);		// COMMSTAB Pointer
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_prot.c:283: ctp=read_byte(0x01,COMMSTABPTR);		// COMMSTAB Pointer
 ;	genIpush
 	push	ar2
 	mov	a,#0x12
@@ -2855,7 +2855,7 @@ _read_objflags:
 	mov	r3,dpl
 	dec	sp
 	pop	ar2
-;	d:/freebus/trunk/c51/89LPC922/common/fb_prot.c:284: addr=ctp+3+3*objno;
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_prot.c:284: addr=ctp+3+3*objno;
 ;	genPlus
 ;     genPlusIncr
 	inc	r3
@@ -2872,7 +2872,7 @@ _read_objflags:
 ;	Peephole 236.a	used r3 instead of ar3
 	add	a,r3
 	mov	r3,a
-;	d:/freebus/trunk/c51/89LPC922/common/fb_prot.c:285: flags=read_byte(0x01,addr);	// Objektflags
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_prot.c:285: flags=read_byte(0x01,addr);	// Objektflags
 ;	genIpush
 	push	ar3
 ;	genCall
@@ -2882,7 +2882,7 @@ _read_objflags:
 	dec	sp
 ;	genAssign
 	mov	dpl,r2
-;	d:/freebus/trunk/c51/89LPC922/common/fb_prot.c:286: return(flags);
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_prot.c:286: return(flags);
 ;	genRet
 ;	Peephole 300	removed redundant label 00101$
 	ret
@@ -2899,7 +2899,7 @@ _read_objflags:
 ;ga                        Allocated to registers r3 r2 
 ;sloc0                     Allocated to stack - offset 1
 ;------------------------------------------------------------
-;	d:/freebus/trunk/c51/89LPC922/common/fb_prot.c:290: int find_ga(unsigned char objno)		// Gruppenadresse über Assoziationstabelle finden (letzter Eintrag, falls mehrere)
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_prot.c:290: int find_ga(unsigned char objno)		// Gruppenadresse über Assoziationstabelle finden (letzter Eintrag, falls mehrere)
 ;	-----------------------------------------
 ;	 function find_ga
 ;	-----------------------------------------
@@ -2909,10 +2909,10 @@ _find_ga:
 	inc	sp
 ;	genReceive
 	mov	r2,dpl
-;	d:/freebus/trunk/c51/89LPC922/common/fb_prot.c:295: gapos=0;
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_prot.c:295: gapos=0;
 ;	genAssign
 	mov	r3,#0x00
-;	d:/freebus/trunk/c51/89LPC922/common/fb_prot.c:296: asstab=read_byte(0x01,ASSOCTABPTR);
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_prot.c:296: asstab=read_byte(0x01,ASSOCTABPTR);
 ;	genIpush
 	push	ar2
 	push	ar3
@@ -2926,7 +2926,7 @@ _find_ga:
 	pop	ar3
 	pop	ar2
 ;	genAssign
-;	d:/freebus/trunk/c51/89LPC922/common/fb_prot.c:297: assno=read_byte(0x01,asstab);
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_prot.c:297: assno=read_byte(0x01,asstab);
 ;	genIpush
 	push	ar2
 	push	ar3
@@ -2941,7 +2941,7 @@ _find_ga:
 	pop	ar3
 	pop	ar2
 ;	genAssign
-;	d:/freebus/trunk/c51/89LPC922/common/fb_prot.c:298: for(n=0;n<assno;n++)
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_prot.c:298: for(n=0;n<assno;n++)
 ;	genPlus
 ;     genPlusIncr
 	mov	a,#0x01
@@ -2964,7 +2964,7 @@ _find_ga:
 ;	Peephole 108.a	removed ljmp by inverse jump logic
 	jnc	00109$
 ;	Peephole 300	removed redundant label 00117$
-;	d:/freebus/trunk/c51/89LPC922/common/fb_prot.c:300: if(read_byte(0x01,asstab+2+2*n)==objno)
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_prot.c:300: if(read_byte(0x01,asstab+2+2*n)==objno)
 ;	genIpush
 	push	ar3
 ;	genLeftShift
@@ -3017,7 +3017,7 @@ _find_ga:
 ;	Peephole 108.c	removed ljmp by inverse jump logic
 	jz	00108$
 ;	Peephole 300	removed redundant label 00120$
-;	d:/freebus/trunk/c51/89LPC922/common/fb_prot.c:302: gapos=read_byte(0x01,asstab+1+2*n);
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_prot.c:302: gapos=read_byte(0x01,asstab+1+2*n);
 ;	genIpush
 	push	ar4
 ;	genPlus
@@ -3044,26 +3044,26 @@ _find_ga:
 	pop	ar2
 ;	genAssign
 	mov	ar3,r4
-;	d:/freebus/trunk/c51/89LPC922/common/fb_prot.c:315: return(ga);
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_prot.c:315: return(ga);
 ;	genIpop
 	pop	ar4
-;	d:/freebus/trunk/c51/89LPC922/common/fb_prot.c:302: gapos=read_byte(0x01,asstab+1+2*n);
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_prot.c:302: gapos=read_byte(0x01,asstab+1+2*n);
 00108$:
-;	d:/freebus/trunk/c51/89LPC922/common/fb_prot.c:298: for(n=0;n<assno;n++)
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_prot.c:298: for(n=0;n<assno;n++)
 ;	genPlus
 ;     genPlusIncr
 	inc	r7
 ;	Peephole 112.b	changed ljmp to sjmp
 	sjmp	00106$
 00109$:
-;	d:/freebus/trunk/c51/89LPC922/common/fb_prot.c:305: if(gapos!=0)
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_prot.c:305: if(gapos!=0)
 ;	genCmpEq
 ;	gencjneshort
 	cjne	r3,#0x00,00121$
 ;	Peephole 112.b	changed ljmp to sjmp
 	sjmp	00104$
 00121$:
-;	d:/freebus/trunk/c51/89LPC922/common/fb_prot.c:307: gah=read_byte(0x01,ADDRTAB+1+gapos*2);
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_prot.c:307: gah=read_byte(0x01,ADDRTAB+1+gapos*2);
 ;	genLeftShift
 ;	genLeftShiftLiteral
 ;	genlshOne
@@ -3087,7 +3087,7 @@ _find_ga:
 	dec	sp
 	pop	ar3
 ;	genAssign
-;	d:/freebus/trunk/c51/89LPC922/common/fb_prot.c:308: gal=read_byte(0x01,ADDRTAB+2+gapos*2);
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_prot.c:308: gal=read_byte(0x01,ADDRTAB+2+gapos*2);
 ;	genPlus
 ;     genPlusIncr
 	mov	a,#0x18
@@ -3104,7 +3104,7 @@ _find_ga:
 	dec	sp
 	pop	ar2
 ;	genAssign
-;	d:/freebus/trunk/c51/89LPC922/common/fb_prot.c:309: ga=gal+256*gah;
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_prot.c:309: ga=gal+256*gah;
 ;	genCast
 	mov	r4,#0x00
 ;	genCast
@@ -3130,12 +3130,12 @@ _find_ga:
 ;	Peephole 112.b	changed ljmp to sjmp
 	sjmp	00105$
 00104$:
-;	d:/freebus/trunk/c51/89LPC922/common/fb_prot.c:313: ga=0;
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_prot.c:313: ga=0;
 ;	genAssign
 	mov	r3,#0x00
 	mov	r2,#0x00
 00105$:
-;	d:/freebus/trunk/c51/89LPC922/common/fb_prot.c:315: return(ga);
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_prot.c:315: return(ga);
 ;	genRet
 	mov	dpl,r3
 	mov	dph,r2
@@ -3152,7 +3152,7 @@ _find_ga:
 ;ga_count                  Allocated to registers r3 
 ;n                         Allocated to registers 
 ;------------------------------------------------------------
-;	d:/freebus/trunk/c51/89LPC922/common/fb_prot.c:319: unsigned char gapos_in_gat(unsigned char gah, unsigned char gal)
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_prot.c:319: unsigned char gapos_in_gat(unsigned char gah, unsigned char gal)
 ;	-----------------------------------------
 ;	 function gapos_in_gat
 ;	-----------------------------------------
@@ -3161,7 +3161,7 @@ _gapos_in_gat:
 	mov	_bp,sp
 ;	genReceive
 	mov	r2,dpl
-;	d:/freebus/trunk/c51/89LPC922/common/fb_prot.c:323: ga_count=read_byte(0x01,ADDRTAB);
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_prot.c:323: ga_count=read_byte(0x01,ADDRTAB);
 ;	genIpush
 	push	ar2
 	mov	a,#0x16
@@ -3173,17 +3173,17 @@ _gapos_in_gat:
 	dec	sp
 	pop	ar2
 ;	genAssign
-;	d:/freebus/trunk/c51/89LPC922/common/fb_prot.c:324: ga_position=0xFF; 
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_prot.c:324: ga_position=0xFF; 
 ;	genAssign
 	mov	r4,#0xFF
-;	d:/freebus/trunk/c51/89LPC922/common/fb_prot.c:325: if (ga_count>0)
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_prot.c:325: if (ga_count>0)
 ;	genIfx
 	mov	a,r3
 ;	genIfxJump
 ;	Peephole 108.c	removed ljmp by inverse jump logic
 	jz	00105$
 ;	Peephole 300	removed redundant label 00118$
-;	d:/freebus/trunk/c51/89LPC922/common/fb_prot.c:327: for (n=1;n<=ga_count;n++)
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_prot.c:327: for (n=1;n<=ga_count;n++)
 ;	genAssign
 	mov	r5,#0x01
 00106$:
@@ -3197,7 +3197,7 @@ _gapos_in_gat:
 ;	Peephole 160.a	removed sjmp by inverse jump logic
 	jc	00105$
 ;	Peephole 300	removed redundant label 00119$
-;	d:/freebus/trunk/c51/89LPC922/common/fb_prot.c:329: if (gah==read_byte(0x01,ADDRTAB+n*2+1) && gal==read_byte(0x01,ADDRTAB+n*2+2)) ga_position=n;
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_prot.c:329: if (gah==read_byte(0x01,ADDRTAB+n*2+1) && gal==read_byte(0x01,ADDRTAB+n*2+2)) ga_position=n;
 ;	genLeftShift
 ;	genLeftShiftLiteral
 ;	genlshOne
@@ -3274,14 +3274,14 @@ _gapos_in_gat:
 ;	genAssign
 	mov	ar4,r5
 00108$:
-;	d:/freebus/trunk/c51/89LPC922/common/fb_prot.c:327: for (n=1;n<=ga_count;n++)
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_prot.c:327: for (n=1;n<=ga_count;n++)
 ;	genPlus
 ;     genPlusIncr
 	inc	r5
 ;	Peephole 112.b	changed ljmp to sjmp
 	sjmp	00106$
 00105$:
-;	d:/freebus/trunk/c51/89LPC922/common/fb_prot.c:332: return (ga_position);
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_prot.c:332: return (ga_position);
 ;	genRet
 	mov	dpl,r4
 ;	Peephole 300	removed redundant label 00110$
@@ -3294,7 +3294,7 @@ _gapos_in_gat:
 ;delay_target              Allocated to stack - offset -7
 ;objno                     Allocated to registers r2 
 ;------------------------------------------------------------
-;	d:/freebus/trunk/c51/89LPC922/common/fb_prot.c:336: void write_delay_record(unsigned char objno, unsigned char delay_status, long delay_target)		// Schreibt die Schalt-Verzögerungswerte ins Flash
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_prot.c:336: void write_delay_record(unsigned char objno, unsigned char delay_status, long delay_target)		// Schreibt die Schalt-Verzögerungswerte ins Flash
 ;	-----------------------------------------
 ;	 function write_delay_record
 ;	-----------------------------------------
@@ -3303,12 +3303,12 @@ _write_delay_record:
 	mov	_bp,sp
 ;	genReceive
 	mov	r2,dpl
-;	d:/freebus/trunk/c51/89LPC922/common/fb_prot.c:338: start_writecycle();
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_prot.c:338: start_writecycle();
 ;	genCall
 	push	ar2
 	lcall	_start_writecycle
 	pop	ar2
-;	d:/freebus/trunk/c51/89LPC922/common/fb_prot.c:339: write_byte(0x00,objno*5,objno+delay_status);
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_prot.c:339: write_byte(0x00,objno*5,objno+delay_status);
 ;	genPlus
 	mov	r0,_bp
 	dec	r0
@@ -3335,7 +3335,7 @@ _write_delay_record:
 	dec	sp
 	dec	sp
 	pop	ar2
-;	d:/freebus/trunk/c51/89LPC922/common/fb_prot.c:340: write_byte(0x00,1+objno*5,delay_target>>24);
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_prot.c:340: write_byte(0x00,1+objno*5,delay_target>>24);
 ;	genGetByte
 	mov	a,_bp
 	add	a,#0xfffffff9
@@ -3364,7 +3364,7 @@ _write_delay_record:
 	dec	sp
 	dec	sp
 	pop	ar2
-;	d:/freebus/trunk/c51/89LPC922/common/fb_prot.c:341: write_byte(0x00,2+objno*5,delay_target>>16);
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_prot.c:341: write_byte(0x00,2+objno*5,delay_target>>16);
 ;	genGetByte
 	mov	a,_bp
 	add	a,#0xfffffff9
@@ -3391,7 +3391,7 @@ _write_delay_record:
 	dec	sp
 	dec	sp
 	pop	ar2
-;	d:/freebus/trunk/c51/89LPC922/common/fb_prot.c:342: write_byte(0x00,3+objno*5,delay_target>>8);
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_prot.c:342: write_byte(0x00,3+objno*5,delay_target>>8);
 ;	genGetByte
 	mov	a,_bp
 	add	a,#0xfffffff9
@@ -3416,7 +3416,7 @@ _write_delay_record:
 	dec	sp
 	dec	sp
 	pop	ar2
-;	d:/freebus/trunk/c51/89LPC922/common/fb_prot.c:343: write_byte(0x00,4+objno*5,delay_target);
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_prot.c:343: write_byte(0x00,4+objno*5,delay_target);
 ;	genCast
 	mov	a,_bp
 	add	a,#0xfffffff9
@@ -3436,7 +3436,7 @@ _write_delay_record:
 	lcall	_write_byte
 	dec	sp
 	dec	sp
-;	d:/freebus/trunk/c51/89LPC922/common/fb_prot.c:344: stop_writecycle();
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_prot.c:344: stop_writecycle();
 ;	genCall
 	lcall	_stop_writecycle
 ;	Peephole 300	removed redundant label 00101$
@@ -3446,12 +3446,12 @@ _write_delay_record:
 ;Allocation info for local variables in function 'restart_prot'
 ;------------------------------------------------------------
 ;------------------------------------------------------------
-;	d:/freebus/trunk/c51/89LPC922/common/fb_prot.c:348: void restart_prot(void)		// Protokoll-relevante Parameter zurücksetzen
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_prot.c:348: void restart_prot(void)		// Protokoll-relevante Parameter zurücksetzen
 ;	-----------------------------------------
 ;	 function restart_prot
 ;	-----------------------------------------
 _restart_prot:
-;	d:/freebus/trunk/c51/89LPC922/common/fb_prot.c:350: pah=read_byte(0x01,ADDRTAB+1);	// phys. Adresse einlesen
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_prot.c:350: pah=read_byte(0x01,ADDRTAB+1);	// phys. Adresse einlesen
 ;	genIpush
 	mov	a,#0x17
 	push	acc
@@ -3460,7 +3460,7 @@ _restart_prot:
 	lcall	_read_byte
 	mov	_pah,dpl
 	dec	sp
-;	d:/freebus/trunk/c51/89LPC922/common/fb_prot.c:351: pal=read_byte(0x01,ADDRTAB+2);
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_prot.c:351: pal=read_byte(0x01,ADDRTAB+2);
 ;	genIpush
 	mov	a,#0x18
 	push	acc
@@ -3469,16 +3469,16 @@ _restart_prot:
 	lcall	_read_byte
 	mov	_pal,dpl
 	dec	sp
-;	d:/freebus/trunk/c51/89LPC922/common/fb_prot.c:353: progmode=0;			// kein Programmiermodus
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_prot.c:353: progmode=0;			// kein Programmiermodus
 ;	genAssign
 	clr	_progmode
-;	d:/freebus/trunk/c51/89LPC922/common/fb_prot.c:354: pcount=1;			// Paketzähler initialisieren
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_prot.c:354: pcount=1;			// Paketzähler initialisieren
 ;	genAssign
 	mov	_pcount,#0x01
-;	d:/freebus/trunk/c51/89LPC922/common/fb_prot.c:355: connected=0;			// keine Verbindung
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_prot.c:355: connected=0;			// keine Verbindung
 ;	genAssign
 	clr	_connected
-;	d:/freebus/trunk/c51/89LPC922/common/fb_prot.c:357: telpos=0;			// empfangene Bytes an dieser Position im Array telegramm[] ablegen
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_prot.c:357: telpos=0;			// empfangene Bytes an dieser Position im Array telegramm[] ablegen
 ;	genAssign
 	mov	_telpos,#0x00
 ;	Peephole 300	removed redundant label 00101$
@@ -3487,27 +3487,27 @@ _restart_prot:
 ;Allocation info for local variables in function 'rs_init'
 ;------------------------------------------------------------
 ;------------------------------------------------------------
-;	d:/freebus/trunk/c51/89LPC922/common/fb_rs232.c:2: void rs_init(void)
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_rs232.c:2: void rs_init(void)
 ;	-----------------------------------------
 ;	 function rs_init
 ;	-----------------------------------------
 _rs_init:
-;	d:/freebus/trunk/c51/89LPC922/common/fb_rs232.c:4: SCON=0x50;	//Mode 1, receive enable
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_rs232.c:4: SCON=0x50;	//Mode 1, receive enable
 ;	genAssign
 	mov	_SCON,#0x50
-;	d:/freebus/trunk/c51/89LPC922/common/fb_rs232.c:5: SSTAT|=0x40;	// TI wird am Ende des Stopbits gesetzt
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_rs232.c:5: SSTAT|=0x40;	// TI wird am Ende des Stopbits gesetzt
 ;	genOr
 	orl	_SSTAT,#0x40
-;	d:/freebus/trunk/c51/89LPC922/common/fb_rs232.c:6: BRGCON|=0x02;	// Baudrate Generator verwenden aber noch gestoppt
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_rs232.c:6: BRGCON|=0x02;	// Baudrate Generator verwenden aber noch gestoppt
 ;	genOr
 	orl	_BRGCON,#0x02
-;	d:/freebus/trunk/c51/89LPC922/common/fb_rs232.c:7: BRGR1=0x00;	// Baudrate = cclk/((BRGR1,BRGR0)+16)
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_rs232.c:7: BRGR1=0x00;	// Baudrate = cclk/((BRGR1,BRGR0)+16)
 ;	genAssign
 	mov	_BRGR1,#0x00
-;	d:/freebus/trunk/c51/89LPC922/common/fb_rs232.c:8: BRGR0=0x30;
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_rs232.c:8: BRGR0=0x30;
 ;	genAssign
 	mov	_BRGR0,#0x30
-;	d:/freebus/trunk/c51/89LPC922/common/fb_rs232.c:9: BRGCON|=0x01;	// Baudrate Generator starten
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_rs232.c:9: BRGCON|=0x01;	// Baudrate Generator starten
 ;	genOr
 	orl	_BRGCON,#0x01
 ;	Peephole 300	removed redundant label 00101$
@@ -3518,20 +3518,20 @@ _rs_init:
 ;wert                      Allocated to registers r2 
 ;n                         Allocated to registers r3 
 ;------------------------------------------------------------
-;	d:/freebus/trunk/c51/89LPC922/common/fb_rs232.c:12: void rs_send_dec(unsigned char wert)
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_rs232.c:12: void rs_send_dec(unsigned char wert)
 ;	-----------------------------------------
 ;	 function rs_send_dec
 ;	-----------------------------------------
 _rs_send_dec:
 ;	genReceive
 	mov	r2,dpl
-;	d:/freebus/trunk/c51/89LPC922/common/fb_rs232.c:16: n=wert/100;
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_rs232.c:16: n=wert/100;
 ;	genDiv
 ;     genDivOneByte
 	mov	b,#0x64
 	mov	a,r2
 	div	ab
-;	d:/freebus/trunk/c51/89LPC922/common/fb_rs232.c:17: if(n>0)
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_rs232.c:17: if(n>0)
 ;	genIfx
 	mov	r3,a
 ;	Peephole 105	removed redundant mov
@@ -3539,26 +3539,26 @@ _rs_send_dec:
 ;	Peephole 108.c	removed ljmp by inverse jump logic
 	jz	00105$
 ;	Peephole 300	removed redundant label 00124$
-;	d:/freebus/trunk/c51/89LPC922/common/fb_rs232.c:19: SBUF=n+48;
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_rs232.c:19: SBUF=n+48;
 ;	genPlus
 ;     genPlusIncr
 	mov	a,#0x30
 ;	Peephole 236.a	used r3 instead of ar3
 	add	a,r3
 	mov	_SBUF,a
-;	d:/freebus/trunk/c51/89LPC922/common/fb_rs232.c:20: while(!TI);
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_rs232.c:20: while(!TI);
 00101$:
 ;	genIfx
 ;	genIfxJump
 ;	Peephole 108.d	removed ljmp by inverse jump logic
-;	d:/freebus/trunk/c51/89LPC922/common/fb_rs232.c:21: TI=0;
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_rs232.c:21: TI=0;
 ;	genAssign
 ;	Peephole 250.a	using atomic test and clear
 	jbc	_SCON_1,00125$
 	sjmp	00101$
 00125$:
 00105$:
-;	d:/freebus/trunk/c51/89LPC922/common/fb_rs232.c:23: wert=wert-(n*100);
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_rs232.c:23: wert=wert-(n*100);
 ;	genMult
 ;	genMultOneByte
 	mov	a,r3
@@ -3570,14 +3570,14 @@ _rs_send_dec:
 	clr	c
 ;	Peephole 236.l	used r4 instead of ar4
 	subb	a,r4
-;	d:/freebus/trunk/c51/89LPC922/common/fb_rs232.c:24: n=wert/10;
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_rs232.c:24: n=wert/10;
 ;	genDiv
 ;     genDivOneByte
 	mov	r2,a
 	mov	b,#0x0A
 ;	Peephole 177.d	removed redundant move
 	div	ab
-;	d:/freebus/trunk/c51/89LPC922/common/fb_rs232.c:25: if(n>0)
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_rs232.c:25: if(n>0)
 ;	genIfx
 	mov	r3,a
 ;	Peephole 105	removed redundant mov
@@ -3585,26 +3585,26 @@ _rs_send_dec:
 ;	Peephole 108.c	removed ljmp by inverse jump logic
 	jz	00110$
 ;	Peephole 300	removed redundant label 00126$
-;	d:/freebus/trunk/c51/89LPC922/common/fb_rs232.c:27: SBUF=n+48;
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_rs232.c:27: SBUF=n+48;
 ;	genPlus
 ;     genPlusIncr
 	mov	a,#0x30
 ;	Peephole 236.a	used r3 instead of ar3
 	add	a,r3
 	mov	_SBUF,a
-;	d:/freebus/trunk/c51/89LPC922/common/fb_rs232.c:28: while(!TI);
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_rs232.c:28: while(!TI);
 00106$:
 ;	genIfx
 ;	genIfxJump
 ;	Peephole 108.d	removed ljmp by inverse jump logic
-;	d:/freebus/trunk/c51/89LPC922/common/fb_rs232.c:29: TI=0;
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_rs232.c:29: TI=0;
 ;	genAssign
 ;	Peephole 250.a	using atomic test and clear
 	jbc	_SCON_1,00127$
 	sjmp	00106$
 00127$:
 00110$:
-;	d:/freebus/trunk/c51/89LPC922/common/fb_rs232.c:31: wert=wert-(n*10);
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_rs232.c:31: wert=wert-(n*10);
 ;	genMult
 ;	genMultOneByte
 	mov	a,r3
@@ -3616,7 +3616,7 @@ _rs_send_dec:
 	clr	c
 ;	Peephole 236.l	used r3 instead of ar3
 	subb	a,r3
-;	d:/freebus/trunk/c51/89LPC922/common/fb_rs232.c:32: SBUF=wert+48;
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_rs232.c:32: SBUF=wert+48;
 ;	genPlus
 ;     genPlusIncr
 ;	Peephole 236.a	used r2 instead of ar2
@@ -3624,12 +3624,12 @@ _rs_send_dec:
 ;	Peephole 214	reduced some extra moves
 	add	a,#0x30
 	mov	_SBUF,a
-;	d:/freebus/trunk/c51/89LPC922/common/fb_rs232.c:33: while(!TI);
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_rs232.c:33: while(!TI);
 00111$:
 ;	genIfx
 ;	genIfxJump
 ;	Peephole 108.d	removed ljmp by inverse jump logic
-;	d:/freebus/trunk/c51/89LPC922/common/fb_rs232.c:34: TI=0;
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_rs232.c:34: TI=0;
 ;	genAssign
 ;	Peephole 250.a	using atomic test and clear
 	jbc	_SCON_1,00128$
@@ -3641,62 +3641,62 @@ _rs_send_dec:
 ;Allocation info for local variables in function 'rs_send_ok'
 ;------------------------------------------------------------
 ;------------------------------------------------------------
-;	d:/freebus/trunk/c51/89LPC922/common/fb_rs232.c:37: void rs_send_ok(void)
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_rs232.c:37: void rs_send_ok(void)
 ;	-----------------------------------------
 ;	 function rs_send_ok
 ;	-----------------------------------------
 _rs_send_ok:
-;	d:/freebus/trunk/c51/89LPC922/common/fb_rs232.c:39: SBUF='O';
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_rs232.c:39: SBUF='O';
 ;	genAssign
 	mov	_SBUF,#0x4F
-;	d:/freebus/trunk/c51/89LPC922/common/fb_rs232.c:40: while(!TI);
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_rs232.c:40: while(!TI);
 00101$:
 ;	genIfx
 ;	genIfxJump
 ;	Peephole 108.d	removed ljmp by inverse jump logic
-;	d:/freebus/trunk/c51/89LPC922/common/fb_rs232.c:41: TI=0;
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_rs232.c:41: TI=0;
 ;	genAssign
 ;	Peephole 250.a	using atomic test and clear
 	jbc	_SCON_1,00123$
 	sjmp	00101$
 00123$:
-;	d:/freebus/trunk/c51/89LPC922/common/fb_rs232.c:42: SBUF='K';
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_rs232.c:42: SBUF='K';
 ;	genAssign
 	mov	_SBUF,#0x4B
-;	d:/freebus/trunk/c51/89LPC922/common/fb_rs232.c:43: while(!TI);
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_rs232.c:43: while(!TI);
 00104$:
 ;	genIfx
 ;	genIfxJump
 ;	Peephole 108.d	removed ljmp by inverse jump logic
-;	d:/freebus/trunk/c51/89LPC922/common/fb_rs232.c:44: TI=0;
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_rs232.c:44: TI=0;
 ;	genAssign
 ;	Peephole 250.a	using atomic test and clear
 	jbc	_SCON_1,00124$
 	sjmp	00104$
 00124$:
-;	d:/freebus/trunk/c51/89LPC922/common/fb_rs232.c:45: SBUF=0x0D;
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_rs232.c:45: SBUF=0x0D;
 ;	genAssign
 	mov	_SBUF,#0x0D
-;	d:/freebus/trunk/c51/89LPC922/common/fb_rs232.c:46: while(!TI);
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_rs232.c:46: while(!TI);
 00107$:
 ;	genIfx
 ;	genIfxJump
 ;	Peephole 108.d	removed ljmp by inverse jump logic
-;	d:/freebus/trunk/c51/89LPC922/common/fb_rs232.c:47: TI=0;
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_rs232.c:47: TI=0;
 ;	genAssign
 ;	Peephole 250.a	using atomic test and clear
 	jbc	_SCON_1,00125$
 	sjmp	00107$
 00125$:
-;	d:/freebus/trunk/c51/89LPC922/common/fb_rs232.c:48: SBUF=0x0A;
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_rs232.c:48: SBUF=0x0A;
 ;	genAssign
 	mov	_SBUF,#0x0A
-;	d:/freebus/trunk/c51/89LPC922/common/fb_rs232.c:49: while(!TI);
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_rs232.c:49: while(!TI);
 00110$:
 ;	genIfx
 ;	genIfxJump
 ;	Peephole 108.d	removed ljmp by inverse jump logic
-;	d:/freebus/trunk/c51/89LPC922/common/fb_rs232.c:50: TI=0;
+;	d:/freebus/trunk/software/c51/89LPC922/common/fb_rs232.c:50: TI=0;
 ;	genAssign
 ;	Peephole 250.a	using atomic test and clear
 	jbc	_SCON_1,00126$
@@ -3708,12 +3708,12 @@ _rs_send_ok:
 ;Allocation info for local variables in function 'eis1'
 ;------------------------------------------------------------
 ;------------------------------------------------------------
-;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_app_rs.c:7: void eis1(void)
+;	D:/freebus/trunk/software/c51/89LPC922/RS232I~1/fb_app_rs.c:7: void eis1(void)
 ;	-----------------------------------------
 ;	 function eis1
 ;	-----------------------------------------
 _eis1:
-;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_app_rs.c:9: rs_send_dec(telegramm[3]>>3);
+;	D:/freebus/trunk/software/c51/89LPC922/RS232I~1/fb_app_rs.c:9: rs_send_dec(telegramm[3]>>3);
 ;	genAssign
 ;	genRightShift
 ;	genRightShiftLiteral
@@ -3725,21 +3725,21 @@ _eis1:
 	mov	dpl,a
 ;	genCall
 	lcall	_rs_send_dec
-;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_app_rs.c:10: SBUF='.';
+;	D:/freebus/trunk/software/c51/89LPC922/RS232I~1/fb_app_rs.c:10: SBUF='.';
 ;	genAssign
 	mov	_SBUF,#0x2E
-;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_app_rs.c:11: while(!TI);
+;	D:/freebus/trunk/software/c51/89LPC922/RS232I~1/fb_app_rs.c:11: while(!TI);
 00101$:
 ;	genIfx
 ;	genIfxJump
 ;	Peephole 108.d	removed ljmp by inverse jump logic
-;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_app_rs.c:12: TI=0;
+;	D:/freebus/trunk/software/c51/89LPC922/RS232I~1/fb_app_rs.c:12: TI=0;
 ;	genAssign
 ;	Peephole 250.a	using atomic test and clear
 	jbc	_SCON_1,00128$
 	sjmp	00101$
 00128$:
-;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_app_rs.c:13: rs_send_dec(telegramm[3] & 0x07);
+;	D:/freebus/trunk/software/c51/89LPC922/RS232I~1/fb_app_rs.c:13: rs_send_dec(telegramm[3] & 0x07);
 ;	genAssign
 ;	genAnd
 	mov	a,#0x07
@@ -3747,42 +3747,42 @@ _eis1:
 	mov	dpl,a
 ;	genCall
 	lcall	_rs_send_dec
-;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_app_rs.c:14: SBUF='.';
+;	D:/freebus/trunk/software/c51/89LPC922/RS232I~1/fb_app_rs.c:14: SBUF='.';
 ;	genAssign
 	mov	_SBUF,#0x2E
-;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_app_rs.c:15: while(!TI);
+;	D:/freebus/trunk/software/c51/89LPC922/RS232I~1/fb_app_rs.c:15: while(!TI);
 00104$:
 ;	genIfx
 ;	genIfxJump
 ;	Peephole 108.d	removed ljmp by inverse jump logic
-;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_app_rs.c:16: TI=0;
+;	D:/freebus/trunk/software/c51/89LPC922/RS232I~1/fb_app_rs.c:16: TI=0;
 ;	genAssign
 ;	Peephole 250.a	using atomic test and clear
 	jbc	_SCON_1,00129$
 	sjmp	00104$
 00129$:
-;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_app_rs.c:17: rs_send_dec(telegramm[4]);
+;	D:/freebus/trunk/software/c51/89LPC922/RS232I~1/fb_app_rs.c:17: rs_send_dec(telegramm[4]);
 ;	genPointerGet
 ;	genNearPointerGet
 ;	genDataPointerGet
 	mov	dpl,(_telegramm + 0x0004)
 ;	genCall
 	lcall	_rs_send_dec
-;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_app_rs.c:18: SBUF='=';
+;	D:/freebus/trunk/software/c51/89LPC922/RS232I~1/fb_app_rs.c:18: SBUF='=';
 ;	genAssign
 	mov	_SBUF,#0x3D
-;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_app_rs.c:19: while(!TI);
+;	D:/freebus/trunk/software/c51/89LPC922/RS232I~1/fb_app_rs.c:19: while(!TI);
 00107$:
 ;	genIfx
 ;	genIfxJump
 ;	Peephole 108.d	removed ljmp by inverse jump logic
-;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_app_rs.c:20: TI=0;
+;	D:/freebus/trunk/software/c51/89LPC922/RS232I~1/fb_app_rs.c:20: TI=0;
 ;	genAssign
 ;	Peephole 250.a	using atomic test and clear
 	jbc	_SCON_1,00130$
 	sjmp	00107$
 00130$:
-;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_app_rs.c:21: rs_send_dec(telegramm[7] & 0x01);
+;	D:/freebus/trunk/software/c51/89LPC922/RS232I~1/fb_app_rs.c:21: rs_send_dec(telegramm[7] & 0x01);
 ;	genAssign
 ;	genAnd
 	mov	a,#0x01
@@ -3790,29 +3790,29 @@ _eis1:
 	mov	dpl,a
 ;	genCall
 	lcall	_rs_send_dec
-;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_app_rs.c:22: SBUF=0x0D;
+;	D:/freebus/trunk/software/c51/89LPC922/RS232I~1/fb_app_rs.c:22: SBUF=0x0D;
 ;	genAssign
 	mov	_SBUF,#0x0D
-;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_app_rs.c:23: while(!TI);
+;	D:/freebus/trunk/software/c51/89LPC922/RS232I~1/fb_app_rs.c:23: while(!TI);
 00110$:
 ;	genIfx
 ;	genIfxJump
 ;	Peephole 108.d	removed ljmp by inverse jump logic
-;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_app_rs.c:24: TI=0;
+;	D:/freebus/trunk/software/c51/89LPC922/RS232I~1/fb_app_rs.c:24: TI=0;
 ;	genAssign
 ;	Peephole 250.a	using atomic test and clear
 	jbc	_SCON_1,00131$
 	sjmp	00110$
 00131$:
-;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_app_rs.c:25: SBUF=0x0A;
+;	D:/freebus/trunk/software/c51/89LPC922/RS232I~1/fb_app_rs.c:25: SBUF=0x0A;
 ;	genAssign
 	mov	_SBUF,#0x0A
-;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_app_rs.c:26: while(!TI);
+;	D:/freebus/trunk/software/c51/89LPC922/RS232I~1/fb_app_rs.c:26: while(!TI);
 00113$:
 ;	genIfx
 ;	genIfxJump
 ;	Peephole 108.d	removed ljmp by inverse jump logic
-;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_app_rs.c:27: TI=0;
+;	D:/freebus/trunk/software/c51/89LPC922/RS232I~1/fb_app_rs.c:27: TI=0;
 ;	genAssign
 ;	Peephole 250.a	using atomic test and clear
 	jbc	_SCON_1,00132$
@@ -3824,30 +3824,30 @@ _eis1:
 ;Allocation info for local variables in function 'read_value_req'
 ;------------------------------------------------------------
 ;------------------------------------------------------------
-;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_app_rs.c:30: void read_value_req(void)
+;	D:/freebus/trunk/software/c51/89LPC922/RS232I~1/fb_app_rs.c:30: void read_value_req(void)
 ;	-----------------------------------------
 ;	 function read_value_req
 ;	-----------------------------------------
 _read_value_req:
-;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_app_rs.c:32: }
+;	D:/freebus/trunk/software/c51/89LPC922/RS232I~1/fb_app_rs.c:32: }
 ;	Peephole 300	removed redundant label 00101$
 	ret
 ;------------------------------------------------------------
 ;Allocation info for local variables in function 'restart_app'
 ;------------------------------------------------------------
 ;------------------------------------------------------------
-;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_app_rs.c:37: void restart_app(void)		// Alle Applikations-Parameter zurücksetzen
+;	D:/freebus/trunk/software/c51/89LPC922/RS232I~1/fb_app_rs.c:37: void restart_app(void)		// Alle Applikations-Parameter zurücksetzen
 ;	-----------------------------------------
 ;	 function restart_app
 ;	-----------------------------------------
 _restart_app:
-;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_app_rs.c:42: P0M1=0x00;				// Port 0 Modus push-pull für Ausgang
+;	D:/freebus/trunk/software/c51/89LPC922/RS232I~1/fb_app_rs.c:42: P0M1=0x00;				// Port 0 Modus push-pull für Ausgang
 ;	genAssign
 	mov	_P0M1,#0x00
-;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_app_rs.c:43: P0M2=0xFF;
+;	D:/freebus/trunk/software/c51/89LPC922/RS232I~1/fb_app_rs.c:43: P0M2=0xFF;
 ;	genAssign
 	mov	_P0M2,#0xFF
-;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_app_rs.c:44: P0=0;
+;	D:/freebus/trunk/software/c51/89LPC922/RS232I~1/fb_app_rs.c:44: P0=0;
 ;	genAssign
 	mov	_P0,#0x00
 ;	Peephole 300	removed redundant label 00101$
@@ -3863,7 +3863,7 @@ _restart_app:
 ;groupadr                  Allocated to registers r4 r5 
 ;sloc0                     Allocated to stack - offset 21
 ;------------------------------------------------------------
-;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:18: void main(void)
+;	D:/freebus/trunk/software/c51/89LPC922/RS232I~1/fb_rs.c:18: void main(void)
 ;	-----------------------------------------
 ;	 function main
 ;	-----------------------------------------
@@ -3874,36 +3874,36 @@ _main:
 	mov	_bp,a
 	add	a,#0x16
 	mov	sp,a
-;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:25: restart_hw();				// Hardware zurücksetzen
+;	D:/freebus/trunk/software/c51/89LPC922/RS232I~1/fb_rs.c:25: restart_hw();				// Hardware zurücksetzen
 ;	genCall
 	lcall	_restart_hw
-;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:26: restart_prot();			// Protokoll-relevante Parameter zurücksetzen
+;	D:/freebus/trunk/software/c51/89LPC922/RS232I~1/fb_rs.c:26: restart_prot();			// Protokoll-relevante Parameter zurücksetzen
 ;	genCall
 	lcall	_restart_prot
-;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:27: restart_app();			// Anwendungsspezifische Einstellungen zurücksetzen
+;	D:/freebus/trunk/software/c51/89LPC922/RS232I~1/fb_rs.c:27: restart_app();			// Anwendungsspezifische Einstellungen zurücksetzen
 ;	genCall
 	lcall	_restart_app
-;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:29: rs_init();				// serielle Schnittstelle initialisieren
+;	D:/freebus/trunk/software/c51/89LPC922/RS232I~1/fb_rs.c:29: rs_init();				// serielle Schnittstelle initialisieren
 ;	genCall
 	lcall	_rs_init
-;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:30: rsinpos=0;
+;	D:/freebus/trunk/software/c51/89LPC922/RS232I~1/fb_rs.c:30: rsinpos=0;
 ;	genAssign
 	mov	r2,#0x00
-;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:31: cr_received=0;
+;	D:/freebus/trunk/software/c51/89LPC922/RS232I~1/fb_rs.c:31: cr_received=0;
 ;	genAssign
 	clr	b0
-;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:32: crlf_received=0;
+;	D:/freebus/trunk/software/c51/89LPC922/RS232I~1/fb_rs.c:32: crlf_received=0;
 ;	genAssign
 	clr	b1
-;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:35: do  {
+;	D:/freebus/trunk/software/c51/89LPC922/RS232I~1/fb_rs.c:35: do  {
 00164$:
-;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:36: if (RI)
+;	D:/freebus/trunk/software/c51/89LPC922/RS232I~1/fb_rs.c:36: if (RI)
 ;	genIfx
 ;	genIfxJump
 ;	Peephole 108.d	removed ljmp by inverse jump logic
 	jnb	_SCON_0,00108$
 ;	Peephole 300	removed redundant label 00233$
-;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:38: switch (SBUF)
+;	D:/freebus/trunk/software/c51/89LPC922/RS232I~1/fb_rs.c:38: switch (SBUF)
 ;	genAssign
 	mov	r3,_SBUF
 ;	genCmpEq
@@ -3920,15 +3920,15 @@ _main:
 ;	Peephole 200.b	removed redundant sjmp
 ;	Peephole 300	removed redundant label 00235$
 ;	Peephole 300	removed redundant label 00236$
-;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:41: cr_received=1;
+;	D:/freebus/trunk/software/c51/89LPC922/RS232I~1/fb_rs.c:41: cr_received=1;
 ;	genAssign
 	setb	b0
-;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:42: break;
-;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:43: case 0x0A:
+;	D:/freebus/trunk/software/c51/89LPC922/RS232I~1/fb_rs.c:42: break;
+;	D:/freebus/trunk/software/c51/89LPC922/RS232I~1/fb_rs.c:43: case 0x0A:
 ;	Peephole 112.b	changed ljmp to sjmp
 	sjmp	00106$
 00102$:
-;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:44: if (cr_received) crlf_received=1;
+;	D:/freebus/trunk/software/c51/89LPC922/RS232I~1/fb_rs.c:44: if (cr_received) crlf_received=1;
 ;	genIfx
 ;	genIfxJump
 ;	Peephole 108.d	removed ljmp by inverse jump logic
@@ -3936,12 +3936,12 @@ _main:
 ;	Peephole 300	removed redundant label 00237$
 ;	genAssign
 	setb	b1
-;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:45: break;
-;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:46: default:
+;	D:/freebus/trunk/software/c51/89LPC922/RS232I~1/fb_rs.c:45: break;
+;	D:/freebus/trunk/software/c51/89LPC922/RS232I~1/fb_rs.c:46: default:
 ;	Peephole 112.b	changed ljmp to sjmp
 	sjmp	00106$
 00105$:
-;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:47: rsin[rsinpos]=SBUF;
+;	D:/freebus/trunk/software/c51/89LPC922/RS232I~1/fb_rs.c:47: rsin[rsinpos]=SBUF;
 ;	genAddrOf
 ;	Peephole 212	reduced add sequence to inc
 	mov	r3,_bp
@@ -3955,29 +3955,29 @@ _main:
 ;	genPointerSet
 ;	genNearPointerSet
 	mov	@r0,_SBUF
-;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:48: rsinpos++;
+;	D:/freebus/trunk/software/c51/89LPC922/RS232I~1/fb_rs.c:48: rsinpos++;
 ;	genPlus
 ;     genPlusIncr
 	inc	r2
-;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:49: cr_received=0;
+;	D:/freebus/trunk/software/c51/89LPC922/RS232I~1/fb_rs.c:49: cr_received=0;
 ;	genAssign
 	clr	b0
-;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:50: crlf_received=0;
+;	D:/freebus/trunk/software/c51/89LPC922/RS232I~1/fb_rs.c:50: crlf_received=0;
 ;	genAssign
 	clr	b1
-;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:51: }
+;	D:/freebus/trunk/software/c51/89LPC922/RS232I~1/fb_rs.c:51: }
 00106$:
-;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:52: RI=0;
+;	D:/freebus/trunk/software/c51/89LPC922/RS232I~1/fb_rs.c:52: RI=0;
 ;	genAssign
 	clr	_SCON_0
 00108$:
-;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:55: if (crlf_received)			// Zeile vollständig empfangen
+;	D:/freebus/trunk/software/c51/89LPC922/RS232I~1/fb_rs.c:55: if (crlf_received)			// Zeile vollständig empfangen
 ;	genIfx
 ;	genIfxJump
 	jb	b1,00238$
 	ljmp	00158$
 00238$:
-;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:57: if (rsin[0]=='f' && rsin[1]=='b')	// Magic-word 'fb' empfangen
+;	D:/freebus/trunk/software/c51/89LPC922/RS232I~1/fb_rs.c:57: if (rsin[0]=='f' && rsin[1]=='b')	// Magic-word 'fb' empfangen
 ;	genAddrOf
 ;	Peephole 212	reduced add sequence to inc
 	mov	r0,_bp
@@ -4008,7 +4008,7 @@ _main:
 00241$:
 	ljmp	00221$
 00242$:
-;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:59: if(rsin[2]=='s' && rsin[3]=='0' && rsin[4]=='1' && rsin[5]=='/' && rsin[8]=='/' && rsin[10]=='/' && rsin[14]=='=' && (rsin[15]=='0' || rsin[15]=='1'))	// EIS 1 senden
+;	D:/freebus/trunk/software/c51/89LPC922/RS232I~1/fb_rs.c:59: if(rsin[2]=='s' && rsin[3]=='0' && rsin[4]=='1' && rsin[5]=='/' && rsin[8]=='/' && rsin[10]=='/' && rsin[14]=='=' && (rsin[15]=='0' || rsin[15]=='1'))	// EIS 1 senden
 ;	genPlus
 ;     genPlusIncr
 	mov	a,#0x02
@@ -4165,7 +4165,7 @@ _main:
 	ljmp	00114$
 00259$:
 00113$:
-;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:61: groupadr=((rsin[6]-48)*10) + (rsin[7]-48);
+;	D:/freebus/trunk/software/c51/89LPC922/RS232I~1/fb_rs.c:61: groupadr=((rsin[6]-48)*10) + (rsin[7]-48);
 ;	genIpush
 	push	ar2
 ;	genPlus
@@ -4241,7 +4241,7 @@ _main:
 ;	Peephole 236.b	used r5 instead of ar5
 	addc	a,r5
 ;	genAssign
-;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:62: groupadr=groupadr*8;
+;	D:/freebus/trunk/software/c51/89LPC922/RS232I~1/fb_rs.c:62: groupadr=groupadr*8;
 ;	genLeftShift
 ;	genLeftShiftLiteral
 ;	genlshTwo
@@ -4260,7 +4260,7 @@ _main:
 	xch	a,r4
 	xrl	a,r4
 	mov	r5,a
-;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:63: groupadr=groupadr + (rsin[9]-48);
+;	D:/freebus/trunk/software/c51/89LPC922/RS232I~1/fb_rs.c:63: groupadr=groupadr + (rsin[9]-48);
 ;	genPlus
 ;     genPlusIncr
 	mov	a,#0x09
@@ -4292,14 +4292,14 @@ _main:
 	mov	a,r7
 ;	Peephole 236.b	used r5 instead of ar5
 	addc	a,r5
-;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:64: groupadr=groupadr*256;
+;	D:/freebus/trunk/software/c51/89LPC922/RS232I~1/fb_rs.c:64: groupadr=groupadr*256;
 ;	genLeftShift
 ;	genLeftShiftLiteral
 ;	genlshTwo
 ;	peephole 177.e	removed redundant move
 	mov	ar5,r4
 	mov	r4,#0x00
-;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:65: groupadr=groupadr+((rsin[11]-48)*100) + ((rsin[12]-48)*10) + (rsin[13]-48);
+;	D:/freebus/trunk/software/c51/89LPC922/RS232I~1/fb_rs.c:65: groupadr=groupadr+((rsin[11]-48)*100) + ((rsin[12]-48)*10) + (rsin[13]-48);
 ;	genPlus
 ;     genPlusIncr
 	mov	a,#0x0B
@@ -4451,46 +4451,46 @@ _main:
 ;	genAssign
 	mov	ar4,r7
 	mov	ar5,r2
-;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:66: telegramm[0]=0xBC;
+;	D:/freebus/trunk/software/c51/89LPC922/RS232I~1/fb_rs.c:66: telegramm[0]=0xBC;
 ;	genPointerSet
 ;	genNearPointerSet
 ;	genDataPointerSet
 	mov	_telegramm,#0xBC
-;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:67: telegramm[1]=pah;
+;	D:/freebus/trunk/software/c51/89LPC922/RS232I~1/fb_rs.c:67: telegramm[1]=pah;
 ;	genPointerSet
 ;	genNearPointerSet
 ;	genDataPointerSet
 	mov	(_telegramm + 0x0001),_pah
-;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:68: telegramm[2]=pal;
+;	D:/freebus/trunk/software/c51/89LPC922/RS232I~1/fb_rs.c:68: telegramm[2]=pal;
 ;	genPointerSet
 ;	genNearPointerSet
 ;	genDataPointerSet
 	mov	(_telegramm + 0x0002),_pal
-;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:69: telegramm[3]=groupadr>>8;
+;	D:/freebus/trunk/software/c51/89LPC922/RS232I~1/fb_rs.c:69: telegramm[3]=groupadr>>8;
 ;	genGetByte
 	mov	ar2,r5
 ;	genPointerSet
 ;	genNearPointerSet
 ;	genDataPointerSet
 	mov	(_telegramm + 0x0003),r2
-;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:70: telegramm[4]=groupadr;
+;	D:/freebus/trunk/software/c51/89LPC922/RS232I~1/fb_rs.c:70: telegramm[4]=groupadr;
 ;	genCast
 	mov	ar2,r4
 ;	genPointerSet
 ;	genNearPointerSet
 ;	genDataPointerSet
 	mov	(_telegramm + 0x0004),r2
-;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:71: telegramm[5]=0xE1;
+;	D:/freebus/trunk/software/c51/89LPC922/RS232I~1/fb_rs.c:71: telegramm[5]=0xE1;
 ;	genPointerSet
 ;	genNearPointerSet
 ;	genDataPointerSet
 	mov	(_telegramm + 0x0005),#0xE1
-;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:72: telegramm[6]=0x00;
+;	D:/freebus/trunk/software/c51/89LPC922/RS232I~1/fb_rs.c:72: telegramm[6]=0x00;
 ;	genPointerSet
 ;	genNearPointerSet
 ;	genDataPointerSet
 	mov	(_telegramm + 0x0006),#0x00
-;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:73: if (rsin[15]=='1') telegramm[7]=0x81;
+;	D:/freebus/trunk/software/c51/89LPC922/RS232I~1/fb_rs.c:73: if (rsin[15]=='1') telegramm[7]=0x81;
 ;	genPointerGet
 ;	genNearPointerGet
 	push	ar0
@@ -4518,7 +4518,7 @@ _main:
 ;	genDataPointerSet
 	mov	(_telegramm + 0x0007),#0x81
 00110$:
-;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:74: if (rsin[15]=='0') telegramm[7]=0x80;
+;	D:/freebus/trunk/software/c51/89LPC922/RS232I~1/fb_rs.c:74: if (rsin[15]=='0') telegramm[7]=0x80;
 ;	genPointerGet
 ;	genNearPointerGet
 	push	ar0
@@ -4538,10 +4538,10 @@ _main:
 ;	genDataPointerSet
 	mov	(_telegramm + 0x0007),#0x80
 00112$:
-;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:75: EX1=0;
+;	D:/freebus/trunk/software/c51/89LPC922/RS232I~1/fb_rs.c:75: EX1=0;
 ;	genAssign
 	clr	_IEN0_2
-;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:76: send_telegramm();
+;	D:/freebus/trunk/software/c51/89LPC922/RS232I~1/fb_rs.c:76: send_telegramm();
 ;	genCall
 	push	ar2
 	push	ar0
@@ -4550,10 +4550,10 @@ _main:
 	pop	ar1
 	pop	ar0
 	pop	ar2
-;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:77: EX1=1;
+;	D:/freebus/trunk/software/c51/89LPC922/RS232I~1/fb_rs.c:77: EX1=1;
 ;	genAssign
 	setb	_IEN0_2
-;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:78: rs_send_ok();
+;	D:/freebus/trunk/software/c51/89LPC922/RS232I~1/fb_rs.c:78: rs_send_ok();
 ;	genCall
 	push	ar2
 	push	ar0
@@ -4563,7 +4563,7 @@ _main:
 	pop	ar0
 	pop	ar2
 00114$:
-;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:80: if(rsin[2]=='s' && rsin[3]=='0' && rsin[4]=='6' && rsin[5]=='/' && rsin[8]=='/' && rsin[10]=='/' && rsin[14]=='=')	// EIS 6 senden
+;	D:/freebus/trunk/software/c51/89LPC922/RS232I~1/fb_rs.c:80: if(rsin[2]=='s' && rsin[3]=='0' && rsin[4]=='6' && rsin[5]=='/' && rsin[8]=='/' && rsin[10]=='/' && rsin[14]=='=')	// EIS 6 senden
 ;	genPointerGet
 ;	genNearPointerGet
 	mov	ar3,@r1
@@ -4688,7 +4688,7 @@ _main:
 00277$:
 	ljmp	00124$
 00278$:
-;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:82: groupadr=((rsin[6]-48)*10) + (rsin[7]-48);
+;	D:/freebus/trunk/software/c51/89LPC922/RS232I~1/fb_rs.c:82: groupadr=((rsin[6]-48)*10) + (rsin[7]-48);
 ;	genIpush
 	push	ar2
 ;	genPlus
@@ -4765,7 +4765,7 @@ _main:
 ;	genAssign
 	mov	ar4,r3
 	mov	ar5,r6
-;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:83: groupadr=groupadr*8;
+;	D:/freebus/trunk/software/c51/89LPC922/RS232I~1/fb_rs.c:83: groupadr=groupadr*8;
 ;	genLeftShift
 ;	genLeftShiftLiteral
 ;	genlshTwo
@@ -4783,7 +4783,7 @@ _main:
 	xch	a,r4
 	xrl	a,r4
 	mov	r5,a
-;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:84: groupadr=groupadr + (rsin[9]-48);
+;	D:/freebus/trunk/software/c51/89LPC922/RS232I~1/fb_rs.c:84: groupadr=groupadr + (rsin[9]-48);
 ;	genPlus
 ;     genPlusIncr
 	mov	a,#0x09
@@ -4815,14 +4815,14 @@ _main:
 	mov	a,r3
 ;	Peephole 236.b	used r5 instead of ar5
 	addc	a,r5
-;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:85: groupadr=groupadr*256;
+;	D:/freebus/trunk/software/c51/89LPC922/RS232I~1/fb_rs.c:85: groupadr=groupadr*256;
 ;	genLeftShift
 ;	genLeftShiftLiteral
 ;	genlshTwo
 ;	peephole 177.e	removed redundant move
 	mov	ar5,r4
 	mov	r4,#0x00
-;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:86: groupadr=groupadr+((rsin[11]-48)*100) + ((rsin[12]-48)*10) + (rsin[13]-48);
+;	D:/freebus/trunk/software/c51/89LPC922/RS232I~1/fb_rs.c:86: groupadr=groupadr+((rsin[11]-48)*100) + ((rsin[12]-48)*10) + (rsin[13]-48);
 ;	genPlus
 ;     genPlusIncr
 	mov	a,#0x0B
@@ -4962,50 +4962,50 @@ _main:
 ;	genAssign
 	mov	ar4,r2
 	mov	ar5,r3
-;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:87: telegramm[0]=0xBC;
+;	D:/freebus/trunk/software/c51/89LPC922/RS232I~1/fb_rs.c:87: telegramm[0]=0xBC;
 ;	genPointerSet
 ;	genNearPointerSet
 ;	genDataPointerSet
 	mov	_telegramm,#0xBC
-;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:88: telegramm[1]=pah;
+;	D:/freebus/trunk/software/c51/89LPC922/RS232I~1/fb_rs.c:88: telegramm[1]=pah;
 ;	genPointerSet
 ;	genNearPointerSet
 ;	genDataPointerSet
 	mov	(_telegramm + 0x0001),_pah
-;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:89: telegramm[2]=pal;
+;	D:/freebus/trunk/software/c51/89LPC922/RS232I~1/fb_rs.c:89: telegramm[2]=pal;
 ;	genPointerSet
 ;	genNearPointerSet
 ;	genDataPointerSet
 	mov	(_telegramm + 0x0002),_pal
-;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:90: telegramm[3]=groupadr>>8;
+;	D:/freebus/trunk/software/c51/89LPC922/RS232I~1/fb_rs.c:90: telegramm[3]=groupadr>>8;
 ;	genGetByte
 	mov	ar2,r5
 ;	genPointerSet
 ;	genNearPointerSet
 ;	genDataPointerSet
 	mov	(_telegramm + 0x0003),r2
-;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:91: telegramm[4]=groupadr;
+;	D:/freebus/trunk/software/c51/89LPC922/RS232I~1/fb_rs.c:91: telegramm[4]=groupadr;
 ;	genCast
 ;	genPointerSet
 ;	genNearPointerSet
 ;	genDataPointerSet
 	mov	(_telegramm + 0x0004),r4
-;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:92: telegramm[5]=0xE2;
+;	D:/freebus/trunk/software/c51/89LPC922/RS232I~1/fb_rs.c:92: telegramm[5]=0xE2;
 ;	genPointerSet
 ;	genNearPointerSet
 ;	genDataPointerSet
 	mov	(_telegramm + 0x0005),#0xE2
-;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:93: telegramm[6]=0x00;
+;	D:/freebus/trunk/software/c51/89LPC922/RS232I~1/fb_rs.c:93: telegramm[6]=0x00;
 ;	genPointerSet
 ;	genNearPointerSet
 ;	genDataPointerSet
 	mov	(_telegramm + 0x0006),#0x00
-;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:94: telegramm[7]=0x80;
+;	D:/freebus/trunk/software/c51/89LPC922/RS232I~1/fb_rs.c:94: telegramm[7]=0x80;
 ;	genPointerSet
 ;	genNearPointerSet
 ;	genDataPointerSet
 	mov	(_telegramm + 0x0007),#0x80
-;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:95: telegramm[8]=((rsin[15]-48)*100) + ((rsin[16]-48)*10) + (rsin[17]-48);
+;	D:/freebus/trunk/software/c51/89LPC922/RS232I~1/fb_rs.c:95: telegramm[8]=((rsin[15]-48)*100) + ((rsin[16]-48)*10) + (rsin[17]-48);
 ;	genPlus
 ;     genPlusIncr
 	mov	a,#0x0F
@@ -5071,10 +5071,10 @@ _main:
 ;	genNearPointerSet
 ;	genDataPointerSet
 	mov	(_telegramm + 0x0008),a
-;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:96: EX1=0;
+;	D:/freebus/trunk/software/c51/89LPC922/RS232I~1/fb_rs.c:96: EX1=0;
 ;	genAssign
 	clr	_IEN0_2
-;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:97: send_telegramm();
+;	D:/freebus/trunk/software/c51/89LPC922/RS232I~1/fb_rs.c:97: send_telegramm();
 ;	genCall
 	push	ar2
 	push	ar0
@@ -5083,10 +5083,10 @@ _main:
 	pop	ar1
 	pop	ar0
 	pop	ar2
-;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:98: EX1=1;
+;	D:/freebus/trunk/software/c51/89LPC922/RS232I~1/fb_rs.c:98: EX1=1;
 ;	genAssign
 	setb	_IEN0_2
-;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:99: rs_send_ok();
+;	D:/freebus/trunk/software/c51/89LPC922/RS232I~1/fb_rs.c:99: rs_send_ok();
 ;	genCall
 	push	ar2
 	push	ar0
@@ -5095,12 +5095,12 @@ _main:
 	pop	ar1
 	pop	ar0
 	pop	ar2
-;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:146: } while(1);
+;	D:/freebus/trunk/software/c51/89LPC922/RS232I~1/fb_rs.c:146: } while(1);
 ;	genIpop
 	pop	ar2
-;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:99: rs_send_ok();
+;	D:/freebus/trunk/software/c51/89LPC922/RS232I~1/fb_rs.c:99: rs_send_ok();
 00124$:
-;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:101: if(rsin[2]=='r' && rsin[3]=='p' && rsin[4]=='a')	// physikalische Adresse des Adaptrs lesen (fbrpa)
+;	D:/freebus/trunk/software/c51/89LPC922/RS232I~1/fb_rs.c:101: if(rsin[2]=='r' && rsin[3]=='p' && rsin[4]=='a')	// physikalische Adresse des Adaptrs lesen (fbrpa)
 ;	genPointerGet
 ;	genNearPointerGet
 	mov	ar3,@r1
@@ -5151,7 +5151,7 @@ _main:
 ;	Peephole 200.b	removed redundant sjmp
 ;	Peephole 300	removed redundant label 00283$
 ;	Peephole 300	removed redundant label 00284$
-;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:103: rs_send_dec(pah>>4);
+;	D:/freebus/trunk/software/c51/89LPC922/RS232I~1/fb_rs.c:103: rs_send_dec(pah>>4);
 ;	genRightShift
 ;	genRightShiftLiteral
 ;	genrshOne
@@ -5167,21 +5167,21 @@ _main:
 	pop	ar1
 	pop	ar0
 	pop	ar2
-;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:104: SBUF='.';
+;	D:/freebus/trunk/software/c51/89LPC922/RS232I~1/fb_rs.c:104: SBUF='.';
 ;	genAssign
 	mov	_SBUF,#0x2E
-;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:105: while(!TI);
+;	D:/freebus/trunk/software/c51/89LPC922/RS232I~1/fb_rs.c:105: while(!TI);
 00131$:
 ;	genIfx
 ;	genIfxJump
 ;	Peephole 108.d	removed ljmp by inverse jump logic
-;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:106: TI=0;
+;	D:/freebus/trunk/software/c51/89LPC922/RS232I~1/fb_rs.c:106: TI=0;
 ;	genAssign
 ;	Peephole 250.a	using atomic test and clear
 	jbc	_SCON_1,00285$
 	sjmp	00131$
 00285$:
-;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:107: rs_send_dec(pah&0x0F);
+;	D:/freebus/trunk/software/c51/89LPC922/RS232I~1/fb_rs.c:107: rs_send_dec(pah&0x0F);
 ;	genAnd
 	mov	a,#0x0F
 	anl	a,_pah
@@ -5194,21 +5194,21 @@ _main:
 	pop	ar1
 	pop	ar0
 	pop	ar2
-;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:108: SBUF='.';
+;	D:/freebus/trunk/software/c51/89LPC922/RS232I~1/fb_rs.c:108: SBUF='.';
 ;	genAssign
 	mov	_SBUF,#0x2E
-;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:109: while(!TI);
+;	D:/freebus/trunk/software/c51/89LPC922/RS232I~1/fb_rs.c:109: while(!TI);
 00134$:
 ;	genIfx
 ;	genIfxJump
 ;	Peephole 108.d	removed ljmp by inverse jump logic
-;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:110: TI=0;
+;	D:/freebus/trunk/software/c51/89LPC922/RS232I~1/fb_rs.c:110: TI=0;
 ;	genAssign
 ;	Peephole 250.a	using atomic test and clear
 	jbc	_SCON_1,00286$
 	sjmp	00134$
 00286$:
-;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:111: rs_send_dec(pal);
+;	D:/freebus/trunk/software/c51/89LPC922/RS232I~1/fb_rs.c:111: rs_send_dec(pal);
 ;	genCall
 	mov	dpl,_pal
 	push	ar2
@@ -5218,36 +5218,36 @@ _main:
 	pop	ar1
 	pop	ar0
 	pop	ar2
-;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:112: SBUF=0x0D;
+;	D:/freebus/trunk/software/c51/89LPC922/RS232I~1/fb_rs.c:112: SBUF=0x0D;
 ;	genAssign
 	mov	_SBUF,#0x0D
-;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:113: while(!TI);
+;	D:/freebus/trunk/software/c51/89LPC922/RS232I~1/fb_rs.c:113: while(!TI);
 00137$:
 ;	genIfx
 ;	genIfxJump
 ;	Peephole 108.d	removed ljmp by inverse jump logic
-;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:114: TI=0;
+;	D:/freebus/trunk/software/c51/89LPC922/RS232I~1/fb_rs.c:114: TI=0;
 ;	genAssign
 ;	Peephole 250.a	using atomic test and clear
 	jbc	_SCON_1,00287$
 	sjmp	00137$
 00287$:
-;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:115: SBUF=0x0A;
+;	D:/freebus/trunk/software/c51/89LPC922/RS232I~1/fb_rs.c:115: SBUF=0x0A;
 ;	genAssign
 	mov	_SBUF,#0x0A
-;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:116: while(!TI);
+;	D:/freebus/trunk/software/c51/89LPC922/RS232I~1/fb_rs.c:116: while(!TI);
 00140$:
 ;	genIfx
 ;	genIfxJump
 ;	Peephole 108.d	removed ljmp by inverse jump logic
-;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:117: TI=0;
+;	D:/freebus/trunk/software/c51/89LPC922/RS232I~1/fb_rs.c:117: TI=0;
 ;	genAssign
 ;	Peephole 250.a	using atomic test and clear
 	jbc	_SCON_1,00288$
 	sjmp	00140$
 00288$:
 00144$:
-;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:119: if(rsin[2]=='s' && rsin[3]=='p' && rsin[4]=='a' && rsin[7]=='.' && rsin[10]=='.' && rsinpos==14)	// phys. Adresse des Adapters setzen (fbspaxx.xx.xxx)
+;	D:/freebus/trunk/software/c51/89LPC922/RS232I~1/fb_rs.c:119: if(rsin[2]=='s' && rsin[3]=='p' && rsin[4]=='a' && rsin[7]=='.' && rsin[10]=='.' && rsinpos==14)	// phys. Adresse des Adapters setzen (fbspaxx.xx.xxx)
 ;	genPointerGet
 ;	genNearPointerGet
 	mov	ar3,@r1
@@ -5329,7 +5329,7 @@ _main:
 00299$:
 	ljmp	00221$
 00300$:
-;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:121: pah=(((rsin[5]-48)*10) + (rsin[6]-48))*16;
+;	D:/freebus/trunk/software/c51/89LPC922/RS232I~1/fb_rs.c:121: pah=(((rsin[5]-48)*10) + (rsin[6]-48))*16;
 ;	genPlus
 ;     genPlusIncr
 	mov	a,#0x05
@@ -5370,7 +5370,7 @@ _main:
 	swap	a
 	anl	a,#0xf0
 	mov	_pah,a
-;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:122: pah=pah + (((rsin[8]-48)*10) + (rsin[9]-48));
+;	D:/freebus/trunk/software/c51/89LPC922/RS232I~1/fb_rs.c:122: pah=pah + (((rsin[8]-48)*10) + (rsin[9]-48));
 ;	genPlus
 ;     genPlusIncr
 	mov	a,#0x08
@@ -5406,7 +5406,7 @@ _main:
 ;	genPlus
 	add	a,_pah
 	mov	_pah,a
-;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:123: pal=(((rsin[11]-48)*100) + ((rsin[12]-48)*10) + (rsin[13]-48));
+;	D:/freebus/trunk/software/c51/89LPC922/RS232I~1/fb_rs.c:123: pal=(((rsin[11]-48)*100) + ((rsin[12]-48)*10) + (rsin[13]-48));
 ;	genPlus
 ;     genPlusIncr
 	mov	a,#0x0B
@@ -5460,12 +5460,12 @@ _main:
 ;	Peephole 236.a	used r3 instead of ar3
 	add	a,r3
 	mov	_pal,a
-;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:124: start_writecycle();
+;	D:/freebus/trunk/software/c51/89LPC922/RS232I~1/fb_rs.c:124: start_writecycle();
 ;	genCall
 	push	ar0
 	lcall	_start_writecycle
 	pop	ar0
-;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:125: write_byte(0x01,ADDRTAB+1,pah);		// in Flash schreiben
+;	D:/freebus/trunk/software/c51/89LPC922/RS232I~1/fb_rs.c:125: write_byte(0x01,ADDRTAB+1,pah);		// in Flash schreiben
 ;	genIpush
 	push	ar0
 	push	_pah
@@ -5478,7 +5478,7 @@ _main:
 	dec	sp
 	dec	sp
 	pop	ar0
-;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:126: write_byte(0x01,ADDRTAB+2,pal);
+;	D:/freebus/trunk/software/c51/89LPC922/RS232I~1/fb_rs.c:126: write_byte(0x01,ADDRTAB+2,pal);
 ;	genIpush
 	push	ar0
 	push	_pal
@@ -5491,17 +5491,17 @@ _main:
 	dec	sp
 	dec	sp
 	pop	ar0
-;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:127: stop_writecycle();
+;	D:/freebus/trunk/software/c51/89LPC922/RS232I~1/fb_rs.c:127: stop_writecycle();
 ;	genCall
 	push	ar0
 	lcall	_stop_writecycle
 	pop	ar0
-;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:128: rs_send_ok();
+;	D:/freebus/trunk/software/c51/89LPC922/RS232I~1/fb_rs.c:128: rs_send_ok();
 ;	genCall
 	push	ar0
 	lcall	_rs_send_ok
 	pop	ar0
-;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:131: for(n=0;n<20;n++) rsin[n]=0x00;
+;	D:/freebus/trunk/software/c51/89LPC922/RS232I~1/fb_rs.c:131: for(n=0;n<20;n++) rsin[n]=0x00;
 00221$:
 ;	genAssign
 	mov	r3,#0x00
@@ -5529,26 +5529,26 @@ _main:
 ;	Peephole 112.b	changed ljmp to sjmp
 	sjmp	00167$
 00170$:
-;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:132: rsinpos=0;
+;	D:/freebus/trunk/software/c51/89LPC922/RS232I~1/fb_rs.c:132: rsinpos=0;
 ;	genAssign
 	mov	r2,#0x00
-;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:133: cr_received=0;
+;	D:/freebus/trunk/software/c51/89LPC922/RS232I~1/fb_rs.c:133: cr_received=0;
 ;	genAssign
 	clr	b0
-;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:134: crlf_received=0;
+;	D:/freebus/trunk/software/c51/89LPC922/RS232I~1/fb_rs.c:134: crlf_received=0;
 ;	genAssign
 	clr	b1
 00158$:
-;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:138: TASTER=1;				// Pin als Eingang schalten um Taster abzufragen
+;	D:/freebus/trunk/software/c51/89LPC922/RS232I~1/fb_rs.c:138: TASTER=1;				// Pin als Eingang schalten um Taster abzufragen
 ;	genAssign
 	setb	_P1_7
-;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:139: if(!TASTER) {			// Taster gedrückt
+;	D:/freebus/trunk/software/c51/89LPC922/RS232I~1/fb_rs.c:139: if(!TASTER) {			// Taster gedrückt
 ;	genIfx
 ;	genIfxJump
 ;	Peephole 108.e	removed ljmp by inverse jump logic
 	jb	_P1_7,00163$
 ;	Peephole 300	removed redundant label 00303$
-;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:140: for(n=0;n<100;n++) {}
+;	D:/freebus/trunk/software/c51/89LPC922/RS232I~1/fb_rs.c:140: for(n=0;n<100;n++) {}
 ;	genAssign
 	mov	r3,#0x64
 00173$:
@@ -5558,23 +5558,23 @@ _main:
 	djnz	r3,00173$
 ;	Peephole 300	removed redundant label 00304$
 ;	Peephole 300	removed redundant label 00305$
-;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:141: while(!TASTER);			// warten bis Taster losgelassen
+;	D:/freebus/trunk/software/c51/89LPC922/RS232I~1/fb_rs.c:141: while(!TASTER);			// warten bis Taster losgelassen
 00159$:
 ;	genIfx
 ;	genIfxJump
 ;	Peephole 108.d	removed ljmp by inverse jump logic
 	jnb	_P1_7,00159$
 ;	Peephole 300	removed redundant label 00306$
-;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:142: progmode=!progmode;
+;	D:/freebus/trunk/software/c51/89LPC922/RS232I~1/fb_rs.c:142: progmode=!progmode;
 ;	genNot
 	cpl	_progmode
 00163$:
-;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:144: TASTER=!progmode;			// LED entsprechend schalten (low=LED an)
+;	D:/freebus/trunk/software/c51/89LPC922/RS232I~1/fb_rs.c:144: TASTER=!progmode;			// LED entsprechend schalten (low=LED an)
 ;	genNot
 	mov	c,_progmode
 	cpl	c
 	mov	_P1_7,c
-;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:145: for(n=0;n<100;n++) {}
+;	D:/freebus/trunk/software/c51/89LPC922/RS232I~1/fb_rs.c:145: for(n=0;n<100;n++) {}
 ;	genAssign
 	mov	r3,#0x64
 00176$:
@@ -5584,7 +5584,7 @@ _main:
 	djnz	r3,00176$
 ;	Peephole 300	removed redundant label 00307$
 ;	Peephole 300	removed redundant label 00308$
-;	D:/freebus/trunk/c51/89LPC922/RS232I~1/fb_rs.c:146: } while(1);
+;	D:/freebus/trunk/software/c51/89LPC922/RS232I~1/fb_rs.c:146: } while(1);
 	ljmp	00164$
 ;	Peephole 300	removed redundant label 00177$
 	mov	sp,_bp
