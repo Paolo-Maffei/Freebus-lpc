@@ -1,7 +1,7 @@
 
 #include <P89LPC922.h>
-#include "d:/freebus/trunk/c51/89LPC922/common/fb_hal_lpc.h"
-#include "d:/freebus/trunk/c51/89LPC922/common/fb_prot.h"
+#include "d:/freebus/trunk/software/c51/89LPC922/common/fb_hal_lpc.h"
+#include "d:/freebus/trunk/software/c51/89LPC922/common/fb_prot.h"
 #include <fb_app_out8.h>
 
 unsigned char portbuffer;	// Zwischenspeicherung der Portzustände
