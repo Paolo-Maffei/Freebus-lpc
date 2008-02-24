@@ -42,7 +42,8 @@ danach:			Assoziationstabelle:
   ...							...
 01 E9:	xx						Ausgang 8
 
-01 EA:	xx		Zeitschaltfunktion (Bit 0-7 = Ausgang 1-8) 1=Funktion aktiv
+01 EA:	xx		Zeitschaltfunktion (Bit 0-7 = Ausgang 1-8) 1=Funktion aktiv. Achtung, dies
+			bezieht sich nur auf die Zeitschaltfunktion, nicht die Schaltverzögerungen !!!
 
 
 01 ED:	xx		Zusatzfunktionen:
