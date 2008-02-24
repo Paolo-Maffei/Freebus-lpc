@@ -45,6 +45,8 @@ danach:			Assoziationstabelle:
 01 EA:	xx		Zeitschaltfunktion (Bit 0-7 = Ausgang 1-8) 1=Funktion aktiv. Achtung, dies
 			bezieht sich nur auf die Zeitschaltfunktion, nicht die Schaltverzögerungen !!!
 
+01 EB:  xx              Reaktion auf Aus-Telegramm (Bit 0-8 = Ausgang 1-8) 1=Aus-Telegramm ignorieren, 
+                        0=aus schalten (nur für Zweitschaltfunktion wichtig)
 
 01 ED:	xx		Zusatzfunktionen:
 			Bit 0-1 Zusfkt.1: 0=Verknüpfung , 1=Sperren, 2=Zwangsstellung
