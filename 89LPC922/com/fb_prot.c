@@ -2,9 +2,22 @@
 // Hier sind ausschliesslich die Protokoll-Handling Routinen
 
 #include <P89LPC922.h>
-#include <fb_hal_lpc.h>
-#include <fb_app_in8.h>
-#include <fb_prot.h>
+#include "d:/freebus/trunk/software/c51/89LPC922/com/fb_hal_lpc.h"
+//#include <fb_app_in8.h>
+#include "d:/freebus/trunk/software/c51/89LPC922/com/fb_prot.h"
+
+
+
+unsigned char telegramm[23];
+unsigned char telpos;		// Zeiger auf nächste Position im Array Telegramm
+unsigned char cs;			// checksum
+unsigned char pal, pah;		// phys. Adresse
+//int gat[20];				// group address table
+unsigned char gacount;		// Gruppenadresszähler
+
+bit progmode, connected;	// Programmiermodus, Verbindung steht
+unsigned char conh, conl;	// bei bestehender Verbindung phys. Adresse des Kommunikationspartners
+unsigned char pcount;		// Paketzähler, Gruppenadresszähler
 
 
 
@@ -15,12 +28,8 @@ void timer1(void) interrupt 3	// Interrupt von Timer 1, 370us keine Busaktivität
 
   EX1=0;					// ext. Interrupt stoppen 
   ET1=0;					// Interrupt von Timer 1 sperren
-  TR1=0;					// Timer 1 anhalten
-  TF1=0;
-  TH1=0xED;					// und neu starten für korrekte Positionierung des ACK Bytes
-  TL1=0x80;				
-  TR1=1;
-
+  set_timer1(4720);				// und neu starten für korrekte Positionierung des ACK Bytes
+  
   if(cs==0xff)					// Checksum des Telegramms ist OK 
   {
     data_laenge=(telegramm[5]&0x0F);		// Telegramm-Länge = Bit 0 bis 3 
@@ -66,7 +75,11 @@ void timer1(void) interrupt 3	// Interrupt von Timer 1, 370us keine Busaktivität
       }
       else						// Multicast, wenn Zieladresse Gruppenadresse ist
       {
-        if(data_laenge==1 && telegramm[6]==0x00 && ((telegramm[7]&0xFE)==0x80 || telegramm[7]==0x00)) eis1();	// Ausgänge schalten (EIS 1) oder lesen
+        if(data_laenge==1 && telegramm[6]==0x00)
+        {
+          if ((telegramm[7]&0xFE)==0x80) eis1();		// Ausgänge schalten (EIS 1)
+          if (telegramm[7]==0x00) read_value_req();		// Objektwert lesen und als read_value_res auf Bus senden
+        }
       }
     }
   }
@@ -88,13 +101,10 @@ unsigned char get_ack(void)		// Byte empfangen und prüfen ob es ein ACK war
   ret=0;
   do 
   {
-    if(FBINC==1) 
-    {
-      n++;
-    }
+    if(FBINC==1) n++;
     else
     {
-      if (get_byte()==0xCC) ret=1;
+      if (get_byte()==0xCC && parity_ok) ret=1;
     }
   } while (n<3000);
   return(ret);
@@ -104,53 +114,32 @@ unsigned char get_ack(void)		// Byte empfangen und prüfen ob es ein ACK war
 
 void send_telegramm(void)		// sendet das Telegramm, das in telegramm[] vorher abgelegt wurde und berechnet die checksum
 {
-
   unsigned char data_laenge,l,checksum,r;
 
-  
   r=0;
   do
   {
-  //eibcol=0;
-  checksum=0;
-  data_laenge=telegramm[5]&0x0F;	// Telegramm-Länge = Bit 0 bis 3
+    checksum=0;
+    data_laenge=telegramm[5]&0x0F;	// Telegramm-Länge = Bit 0 bis 3
 
-  TR1=0;
-  TH1=0xB6;
-  TL1=0x8F;
-  TF1=0;
-  TR1=1;
-  while(!TF1)
-  {
-    if(!FBINC)
+    set_timer1(18780);			// Warten bis Bus frei ist
+    while(!TF1)
     {
-      TR1=0;
-      TH1=0xB0;
-      TL1=0x4F;
-      TF1=0;
-      TR1=1;
+      if(!FBINC) set_timer1(18780);
     }
-  }
-  TR1=0;
+    TR1=0;
   
-  for(l=0;l<=data_laenge+6;l++)
-  {
-    sendbyte(telegramm[l]);
-    checksum^=telegramm[l];
-
-    TR1=0;
-    TH1=0xFB;
-    TL1=0x1F;
-    TF1=0;
-    TR1=1;
-    while(!TF1);
-    TR1=0;
-  }
-  checksum=~checksum;
-  sendbyte(checksum);
-  if(get_ack()==1) r=3;
-  r++;
-  telegramm[0]&=0xDF;			// Bit 5 löschen = Wiederholung
+    for(l=0;l<=data_laenge+6;l++)
+    {
+      sendbyte(telegramm[l]);
+      checksum^=telegramm[l];
+      delay(1230);			// Interbyte-Abstand
+    }
+    checksum=~checksum;
+    sendbyte(checksum);
+    if(get_ack()==1) r=3;		// wenn ACK empfangen, dann nicht nochmal senden
+    r++;
+    telegramm[0]&=0xDF;			// Bit 5 löschen = Wiederholung
   }
   while(r<=3); 				// falls kein ACK max. 3 Mal wiederholen
 }
@@ -189,48 +178,18 @@ void ucd_clr(void)		// UCD Verbindungsabbau
 }
 
 
-void get_gat(void)					// group address table aus EEPROM lesen und in array gat[] schreiben
-{
-  unsigned char n,x;
-  
-  gacount=read_byte(0x01,ADDRTAB);		// Anzahl Einträge in der group address table
-  gacount--;						// erster Eintrag ist phys. Adresse
-  if(gacount>0)
-  {
-    if(gacount>8) gacount=8;				// Maximal 19 Einträge erlaubt
-    for(n=0;n<gacount;n++)
-    {
-      x=read_byte(0x01,2*n+ADDRTAB+3);	// MSB
-      gat[n]=x; // *256
-      x=read_byte(0x01,2*n+ADDRTAB+4);	// LSB
-      gat[n]=(gat[n]<<8)+x;
-    }
-  }
-}
-    
-
-
-
-
-
 void ncd_quit(void)			// NCD Quittierung zurück senden. Setzt telegramm Bytes 0 bis 6 !!!
 {
-
-  
-
-  telegramm[0]=0xB0;			// Control Byte
-			
-    telegramm[3]=telegramm[1];		// Zieladresse wird Quelladresse
-    telegramm[4]=telegramm[2];
-    telegramm[1]=pah;			// Quelladresse ist phys. Adresse
-    telegramm[2]=pal;
-    telegramm[5]=0x60;			// DRL
-    telegramm[6]|=0xC0;			// Bit 6 und 7 setzen (TCPI = 11 NCD Quittierung)
-    telegramm[6]&=0xFE;			// Bit 0 löschen 
-    send_telegramm();
+  telegramm[0]=0xB0;			// Control Byte			
+  telegramm[3]=telegramm[1];		// Zieladresse wird Quelladresse
+  telegramm[4]=telegramm[2];
+  telegramm[1]=pah;			// Quelladresse ist phys. Adresse
+  telegramm[2]=pal;
+  telegramm[5]=0x60;			// DRL
+  telegramm[6]|=0xC0;			// Bit 6 und 7 setzen (TCPI = 11 NCD Quittierung)
+  telegramm[6]&=0xFE;			// Bit 0 löschen 
+  send_telegramm();
 }
-
-
 
 
 void read_masq(void)			// Maskenversion senden
@@ -370,9 +329,37 @@ int find_ga(unsigned char objno)		// Gruppenadresse über Assoziationstabelle fin
 } 
 
 
+unsigned char gapos_in_gat(unsigned char gah, unsigned char gal)
+{
+  unsigned char ga_position,ga_count,n;
+  
+  ga_count=read_byte(0x01,ADDRTAB);
+  ga_position=0xFF; 
+  if (ga_count>0)
+  {
+    for (n=1;n<=ga_count;n++)
+    {
+      if (gah==read_byte(0x01,ADDRTAB+n*2+1) && gal==read_byte(0x01,ADDRTAB+n*2+2)) ga_position=n;
+    }
+  }
+  return (ga_position);
+}
+
+
+void write_delay_record(unsigned char objno, unsigned char delay_status, long delay_target)		// Schreibt die Schalt-Verzögerungswerte ins Flash
+{
+  start_writecycle();
+  write_byte(0x00,objno*5,objno+delay_status);
+  write_byte(0x00,1+objno*5,delay_target>>24);
+  write_byte(0x00,2+objno*5,delay_target>>16);
+  write_byte(0x00,3+objno*5,delay_target>>8);
+  write_byte(0x00,4+objno*5,delay_target);
+  stop_writecycle();
+}
+
+
 void restart_prot(void)		// Protokoll-relevante Parameter zurücksetzen
 {
-  get_gat();			// Gruppenadressen-Tabelle einlesen
   pah=read_byte(0x01,ADDRTAB+1);	// phys. Adresse einlesen
   pal=read_byte(0x01,ADDRTAB+2);
   

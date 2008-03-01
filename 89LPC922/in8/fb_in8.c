@@ -3,13 +3,9 @@
 	
 
 #include <P89LPC922.h>
-#include "s:/elektronik/eib/c/fb_common/fb_hal_lpc.h"
-#include "s:/elektronik/eib/c/fb_common/fb_prot.h"
-#include <fb_app_in8.h>
-
-#include "s:/elektronik/eib/c/fb_common/fb_hal_lpc.c"
-#include "s:/elektronik/eib/c/fb_common/fb_prot.c"
-#include <fb_app_in8.c>
+#include "d:/freebus/trunk/software/c51/89LPC922/com/fb_hal_lpc.h"
+#include "d:/freebus/trunk/software/c51/89LPC922/com/fb_prot.h"
+#include "d:/freebus/trunk/software/c51/89LPC922/in8/fb_app_in8.h"
 
 
 

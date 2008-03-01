@@ -1,13 +1,15 @@
 
 #include <P89LPC922.h>
-#include <fb_hal_lpc.h>
-#include <fb_prot.h>
-#include <fb_app_in8.h>
+#include "d:/freebus/trunk/software/c51/89LPC922/com/fb_hal_lpc.h"
+#include "d:/freebus/trunk/software/c51/89LPC922/com/fb_prot.h"
+#include "d:/freebus/trunk/software/c51/89LPC922/in8/fb_app_in8.h"
 
-unsigned char portbuffer,p0h;	// Zwischenspeicherung der Portzustände
-int objstate;			// Zwischenspeicer der Objektzustände x.1 (Bit 0-7) und x.2 (Bit 8-15)
+
+
+
+int objstate;		// Zwischenspeicer der Objektzustände x.1 (Bit 0-7) und x.2 (Bit 8-15)
 long timer;			// Timer für Schaltverzögerungen, wird alle 130us hochgezählt
-unsigned char pdir;		// Port-Richtung, wenn Bit gesetzt dann ist der entsprechende Pin ein Ausgang (für kombinierte Ein-/Ausgänge)
+		
 
 
 void pin_changed(unsigned char pinno)
@@ -50,6 +52,11 @@ void pin_changed(unsigned char pinno)
   EX1=1;
 }
              
+void read_value_req(void)				// Objektwerte lesen angefordert
+{
+}
+
+
 
 void send_cyclic(unsigned char pinno)
 {
@@ -163,7 +170,7 @@ void eis1(void)				// Ausgänge schalten gemäß EIS 1 Protokoll (an/aus)
           if((objflags&0x04)==0x04)				// Kommunikation zulässig (Bit 2 = communication enable) 
           {
             port_pattern=0x01<<objno;
-            if((port_pattern&pdir)==port_pattern)		// Portpin darf beschrieben werden
+            if((port_pattern&PDIR)==port_pattern)		// Portpin darf beschrieben werden
             {
               if((objflags&0x10)==0x10)				// Schreiben zulässig (Bit 4 = write enable)
               {
@@ -414,8 +421,6 @@ void restart_app(void)		// Alle Applikations-Parameter zurücksetzen
   start_writecycle();
   write_byte(0x00,0x29,portbuffer);
   stop_writecycle();
-  
-  pdir=0xFF;		// Port-Direction - wenn Bit=1 darf entsprechender Portpin beschrieben werden (Ausgang), sonst nicht (Eingang)
   
   timer=0;		// Timer-Variable, wird alle 135us inkrementiert
   

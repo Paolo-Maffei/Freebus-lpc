@@ -22,13 +22,11 @@
 	
 
 #include <P89LPC922.h>
-#include "d:/freebus/trunk/software/c51/89LPC922/common/fb_hal_lpc.h"
-#include "d:/freebus/trunk/software/c51/89LPC922/common/fb_prot.h"
-#include <fb_app_out8.h>
+#include "d:/freebus/trunk/software/c51/89LPC922/com/fb_hal_lpc.h"
+#include "d:/freebus/trunk/software/c51/89LPC922/com/fb_prot.h"
+#include "d:/freebus/trunk/software/c51/89LPC922/out8/fb_app_out8.h"
 
-#include "d:/freebus/trunk/software/c51/89LPC922/common/fb_hal_lpc.c"
-#include "d:/freebus/trunk/software/c51/89LPC922/common/fb_prot.c"
-#include <fb_app_out8.c>
+
 
 
 
