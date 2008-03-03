@@ -10,7 +10,8 @@
 #define DUTY	0xC0	// war C0  0xFF=immer low 0x00=immer high
 
 
-bit parity_ok;							// Parity Bit des letzten empfangenen Bytes OK
+bit parity_ok;			// Parity Bit des letzten empfangenen Bytes OK
+bit interrupted;		// wird durch interrupt-routine gesetzt. so kann eine andere routine prüfen, ob sie unterbrochen wurde
 
 unsigned char get_byte(void);
 void ext_int0(void) interrupt 2;
