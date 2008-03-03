@@ -1,9 +1,124 @@
 
 #include <P89LPC922.h>
-#include "d:/freebus/trunk/software/c51/89LPC922/com/fb_hal_lpc.h"
-#include "d:/freebus/trunk/software/c51/89LPC922/com/fb_prot.h"
-#include "d:/freebus/trunk/software/c51/89LPC922/com/fb_rs232.h"
-#include "d:/freebus/trunk/software/c51/89LPC922/kombi/fb_app_th.h"
+#include "../com/fb_hal_lpc.h"
+#include "../com/fb_prot.h"
+#include "../com/fb_rs232.h"
+#include "fb_app_th.h"
+
+
+
+
+bit ow_init(void)		// one-wire Gerät initialisieren
+{
+  bit presence;
+  unsigned char n;
+  
+  presence=1;
+  OWDATA=0;
+  delay(2000);
+  OWDATA=1;
+  for (n=0;n<200;n++) presence=presence && OWDATA;
+  presence=!presence;
+  return (presence);
+}
+
+void ow_write(unsigned char owbyte)	// Byte an one-wire Gerät senden
+{
+  unsigned char n,m;
+
+  for (n=0;n<8;n++)		// LSB zuerst
+  {
+   
+    if ((owbyte & (0x01<<n)) != 0)
+    {
+      for (m=0;m<2;m++) OWDATA=0;	// 1-Bit: 5µs auf low dann auf high und 85µs warten
+      OWDATA=1;
+      delay(260);
+    }
+    else
+    {
+      OWDATA=0;			// 0-Bit: 90µs auf low dann auf high
+      delay(275);
+      OWDATA=1;
+    }
+  }
+}
+
+
+unsigned char ow_read(void)			// Byte von one-wire Gerät lesen
+{
+  unsigned char n,m,b,d;
+  
+  d=0;
+  for (n=0;n<8;n++)
+  {
+    for (m=0;m<2;m++) OWDATA=0;
+    OWDATA=1;
+    delay(1);
+    b=OWDATA<<n;
+    delay(120);
+    d=d|b;
+  }
+  return(d);
+}
+
+
+
+bit ow_read_bit(void)				// Bit von one-wire Datenleitung einlesen
+{
+	unsigned char m;
+	bit b;
+	
+	for (m=0;m<2;m++) OWDATA=0;
+	OWDATA=1;
+	delay(1);
+	b=OWDATA;
+	delay (120);
+	return (b);
+}
+
+
+
+int read_temp(void)					// Temperatur einlesen und gem EIS6 umrechnen
+{
+  unsigned char lsb,msb;
+  int t,t2;
+  
+  do {
+	  interrupted=0;
+	  if (ow_init()) {
+		  ow_write(0xCC);			// Skip-ROM command: alle parallel angeschlossenen Geräte werden angesprochen
+		  ow_write(0x44);			// start single temperature conversion command
+		  while(!ow_read_bit());	// warten bis Messung fertig, d.h. Bit = 1 ist
+	  }
+  } while(interrupted);
+   
+  do {
+  	  interrupted=0;
+  	  if (ow_init()) {
+  		  ow_write(0xCC);			// Skip-ROM command: alle parallel angeschlossenen Geräte werden angesprochen
+  		  ow_write(0xBE);			// read scratchpad command: Speicher einlesen
+  		  lsb=ow_read();			// LSB von Temperaturwert
+  		  msb=ow_read();			// MSB von Temperaturwert
+  		  t2=((msb&0x07)<<8)+lsb;	// Umrechnen von Basis 1/16 auf Basis 1/100
+  		  t=t2*6;
+  		  t2=t2>>2;
+  		  t=t+t2;
+  		  t=t>>3;
+  		  t=t+((msb & 0x80)<<8);	// Vorzeichen
+  		  t=t+(0x18 << 8);			// Exponent 3
+  	  }
+  	  else t=0xFFFF;				// im Fehlerfall 0xFFFF zurückmelden
+  } while (interrupted);
+  
+  return (t);
+}
+
+
+
+
+
+
 
 void eis1(void)
 {
