@@ -15,16 +15,16 @@
 //		3.10	Fehler in main() behoben (kein delay!)
 
 //	todo:	- Rückmeldeobjekte müssen bei Busspannungswiederkehr senden
-//		- Objekt leses muss bei allen Objekten funktionieren
+//		- Objekt lesen muss bei allen Objekten funktionieren
 //		- Prio beim Senden implementieren
 //		- Zwangsstellungsobjekte implementieren
 
 	
 
 #include <P89LPC922.h>
-#include "d:/freebus/trunk/software/c51/89LPC922/com/fb_hal_lpc.h"
-#include "d:/freebus/trunk/software/c51/89LPC922/com/fb_prot.h"
-#include "d:/freebus/trunk/software/c51/89LPC922/out8/fb_app_out8.h"
+#include "../com/fb_hal_lpc.h"
+#include "../com/fb_prot.h"
+#include "fb_app_out8.h"
 
 
 
