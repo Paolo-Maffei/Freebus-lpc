@@ -1,8 +1,8 @@
 
 #include <P89LPC922.h>
-#include "d:/freebus/trunk/software/c51/89LPC922/com/fb_hal_lpc.h"
-#include "d:/freebus/trunk/software/c51/89LPC922/com/fb_prot.h"
-#include "d:/freebus/trunk/software/c51/89LPC922/in8/fb_app_in8.h"
+#include "../com/fb_hal_lpc.h"
+#include "../com/fb_prot.h"
+#include "fb_app_in8.h"
 
 
 
@@ -83,7 +83,7 @@ void schalten(unsigned char risefall, unsigned char pinno)	// Schaltbefehl sende
   unsigned char func;
   int ga;
 
-  func=read_byte(0x01,0xD7+((pinno&0x07)*5));
+  func=eeprom[0xD7+((pinno&0x07)*5)];
   if (risefall==1) func=(func>>2)&0x03;		// steigende Flanke
   else func=func&0x03;				// fallende Flanke
   if (func!=0)
@@ -126,7 +126,7 @@ unsigned char debounce(unsigned char pinno)	// Entprellzeit abwarten und prüfen 
 {
   unsigned char debtime,n;
   
-  debtime=read_byte(0x01,DEBTIME);			// Entprellzeit in 0,5ms Schritten
+  debtime=eeprom[DEBTIME];			// Entprellzeit in 0,5ms Schritten
   if (debtime>0)
   {
     for(n=0;n<debtime;n++)
@@ -157,15 +157,15 @@ void eis1(void)				// Ausgänge schalten gemäß EIS 1 Protokoll (an/aus)
     if (gapos!=0xFF)	
     {
       send_ack();
-      atp=read_byte(0x01,0x11);			// Association Table Pointer
-      assno=read_byte(0x01,atp);		// Erster Eintrag = Anzahl Einträge
+      atp=eeprom[0x11];			// Association Table Pointer
+      assno=eeprom[atp];		// Erster Eintrag = Anzahl Einträge
  
       for(n=0;n<assno;n++)				// Schleife über alle Einträge in der Ass-Table, denn es könnten mehrere Objekte (Pins) der gleichen Gruppenadresse zugeordnet sein
       {
-        gaposh=read_byte(0x01,atp+1+(n*2));
+        gaposh=eeprom[atp+1+(n*2)];
         if(gapos==gaposh)					// Wenn Positionsnummer übereinstimmt
         {
-          objno=read_byte(0x01,atp+2+(n*2));			// Objektnummer
+          objno=eeprom[atp+2+(n*2)];			// Objektnummer
           objflags=read_objflags(objno);			// Objekt Flags lesen
           if((objflags&0x04)==0x04)				// Kommunikation zulässig (Bit 2 = communication enable) 
           {
@@ -174,22 +174,22 @@ void eis1(void)				// Ausgänge schalten gemäß EIS 1 Protokoll (an/aus)
             {
               if((objflags&0x10)==0x10)				// Schreiben zulässig (Bit 4 = write enable)
               {
-                delay_base=read_byte(0x01,(((objno+1)>>1)+DELAYTAB));   
+                delay_base=eeprom[(((objno+1)>>1)+DELAYTAB)];   
                 if((objno&0x01)==0x01) delay_base&=0x0F;
                 else delay_base=(delay_base&0xF0)>>4;
                 delay_target=0;
                 delay_onoff=0;
                 delay_status=0;
-                delay_zeit=read_byte(0x01,0xEA);
+                delay_zeit=eeprom[0xEA];
                 delay_zeit=((delay_zeit>>objno)&0x01);
                 
                 switch (telegramm[7])
                 {
                   case 0x80:					// Ausschalten
-                    delay_onoff=read_byte(0x01,(objno+0xE2));
+                    delay_onoff=eeprom[(objno+0xE2)];
                     if(delay_onoff==0x00 || delay_zeit==0x01)
                     { 
-                      if (((read_byte(0x01,RELMODE)>>objno)&0x01)==0x00)
+                      if (((eeprom[RELMODE]>>objno)&0x01)==0x00)
                       {
                         portbuffer=portbuffer&~port_pattern;		// sofort ausschalten (Schliesserbetrieb)
                       }
@@ -204,15 +204,15 @@ void eis1(void)				// Ausgänge schalten gemäß EIS 1 Protokoll (an/aus)
                     }
                     break;
                   case 0x81:					// Einschalten
-                    delay_onoff=read_byte(0x01,(objno+0xDA));
+                    delay_onoff=eeprom[objno+0xDA];
                     if(delay_onoff==0x00)
                     {
                       if(delay_zeit==0x01) 			// Zeitschaltfunktion 
                       {
                         delay_status=0x80;
-                        delay_onoff=read_byte(0x01,(objno+0xE2));
+                        delay_onoff=eeprom[objno+0xE2];
                       }
-                      if (((read_byte(0x01,RELMODE)>>objno)&0x01)==0x00)
+                      if (((eeprom[RELMODE]>>objno)&0x01)==0x00)
                       {
                         portbuffer=portbuffer|port_pattern;		// sofort einschalten (Schliesserbetrieb)
                       }
@@ -312,19 +312,19 @@ void delay_timer(void)	// zählt alle 130ms die Variable Timer hoch und prüft Que
   timer++;
   for(n=0;n<=7;n++)
   {
-    b=read_byte(0x00,n*5);
+    b=userram[n*5];
     if(b!=0x00)							// 0x00 = queue Eintrag ist leer
     {   
-      delval=read_byte(0x00,n*5+1);
-      delval=(delval<<8)+read_byte(0x00,n*5+2);
-      delval=(delval<<8)+read_byte(0x00,n*5+3);
-      delval=(delval<<8)+read_byte(0x00,n*5+4);
+      delval=userram[n*5+1];
+      delval=(delval<<8)+userram[n*5+2];
+      delval=(delval<<8)+userram[n*5+3];
+      delval=(delval<<8)+userram[n*5+4];
       if(delval==timer)
       {       
         port_pattern=0x01<<((b&0x0F));
         if((b&0xF0)==0x90)
         {
-          if (((read_byte(0x01,RELMODE)>>(b&0x0F))&0x01)==0x00)
+          if (((eeprom[RELMODE]>>(b&0x0F))&0x01)==0x00)
           {				
             portbuffer=portbuffer|port_pattern;		// Einschalten (Schliesserbetrieb)
           }
@@ -335,14 +335,14 @@ void delay_timer(void)	// zählt alle 130ms die Variable Timer hoch und prüft Que
           start_writecycle();
           write_byte(0x00,n*5,0x00);
           stop_writecycle();
-          delay_zeit=read_byte(0x01,0xEA);
+          delay_zeit=eeprom[0xEA];
           delay_zeit=((delay_zeit>>n)&0x01);
           if(delay_zeit==0x01)
           {
-            delay_base=read_byte(0x01,(((n+1)>>1)+0xF9));   
+            delay_base=eeprom[((n+1)>>1)+0xF9];   
             if((n&0x01)==0x01) delay_base&=0x0F;
             else delay_base=(delay_base&0xF0)>>4;
-            delay_onoff=read_byte(0x01,(n+0xE2));
+            delay_onoff=eeprom[n+0xE2];
             if (delay_onoff!=0x00 && delay_zeit!=0x00)
             {
               delay_target=delay_onoff;
@@ -360,7 +360,7 @@ void delay_timer(void)	// zählt alle 130ms die Variable Timer hoch und prüft Que
         }
         else
         {
-          if (((read_byte(0x01,RELMODE)>>(b&0x0F))&0x01)==0x00)
+          if (((eeprom[RELMODE]>>(b&0x0F))&0x01)==0x00)
           {
             portbuffer=portbuffer&~port_pattern;		// Ausschalten (Schliesserbetrieb)
           }
@@ -400,15 +400,15 @@ void restart_app(void)		// Alle Applikations-Parameter zurücksetzen
 
   unsigned char bw,bwh,n;
 
-  portbuffer=read_byte(0x00,0x29);	// Verhalten nach Busspannungs-Wiederkehr
-  bw=read_byte(0x01,0xF6);
+  portbuffer=userram[0x29];	// Verhalten nach Busspannungs-Wiederkehr
+  bw=eeprom[0xF6];
   for(n=0;n<=3;n++)			// Ausgänge 1-4
   {
     bwh=(bw>>(2*n))&0x03; 
     if(bwh==0x01)  portbuffer=portbuffer & (0xFF-(0x01<<n));
     if(bwh==0x02)  portbuffer=portbuffer | (0x01<<n);
   }
-  bw=read_byte(0x01,0xF7);
+  bw=eeprom[0xF7];
   for(n=0;n<=3;n++)			// Ausgänge 5-8
   {
     bwh=(bw>>(2*n))&0x03; 

@@ -1,11 +1,10 @@
 // Versionen:	3.00	erste Version Binäreingang auf HW Basis 3
-
 	
 
 #include <P89LPC922.h>
-#include "d:/freebus/trunk/software/c51/89LPC922/com/fb_hal_lpc.h"
-#include "d:/freebus/trunk/software/c51/89LPC922/com/fb_prot.h"
-#include "d:/freebus/trunk/software/c51/89LPC922/in8/fb_app_in8.h"
+#include "../com/fb_hal_lpc.h"
+#include "../com/fb_prot.h"
+#include "fb_app_in8.h"
 
 
 
