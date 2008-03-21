@@ -6,13 +6,17 @@
 #include "../com/fb_prot.h"
 #include "../com/fb_hal_lpc.h"
 
-__code unsigned char __at 0x1C00 dataflash[512];		// Bereich im Flash für User-Memory
+
+__code unsigned char __at 0x1C00 userram[255];	// Bereich im Flash für User-RAM
+__code unsigned char __at 0x1D00 eeprom[255];	// Bereich im Flash für EEPROM
+bit parity_ok;			// Parity Bit des letzten empfangenen Bytes OK
+bit interrupted;		// wird durch interrupt-routine gesetzt. so kann eine andere routine prüfen, ob sie unterbrochen wurde
 
 
 unsigned char get_byte(void)
 {
   bit rbit,parity,ph;			
-  unsigned char n,m,fbb;		//,fbbh;
+  unsigned char n,m,fbb;
   						
   EX1=0;				// Interrupt 1 sperren
   ET1=0;				// Interrupt von Timer 1 sperren
@@ -24,50 +28,24 @@ unsigned char get_byte(void)
   while(!TF1);			// warten auf Timer 1				
   set_timer1(360);		// Timer 1 neu setzen für 2.Bit (300-420)
   rbit=FBINC;			// 1.Bit einlesen
-  for(m=0;m<5;m++)
-  {
-    rbit&=FBINC;		// zur Steigerung der Fehlertoleranz mehrfach lesen
-  }
+  for(m=0;m<5;m++) rbit&=FBINC;		// zur Steigerung der Fehlertoleranz mehrfach lesen
   fbb=rbit;
-  if(rbit) ph=!ph;		// Paritybit berechnen
-  
-  for(n=1;n<8;n++)		// 2. bis 8. Bit
-  {    
-    //fbb=fbb<<1;
+  if(rbit) ph=!ph;		// Paritybit berechnen 
+  for(n=1;n<8;n++) {	// 2. bis 8. Bit  
     while(!TF1);
     set_timer1(350);	// Timer 1 setzen für Position 2.-9.Bit (342-359)
     rbit=FBINC;
-    for(m=0;m<5;m++)
-    {
-      rbit&=FBINC;		// zur Steigerung der Fehlertoleranz mehrfach lesen
-    }
-    // fbb=fbb+rbit;
-       fbb|=rbit<<n;
+    for(m=0;m<5;m++) rbit&=FBINC;	// zur Steigerung der Fehlertoleranz mehrfach lesen
+    fbb|=rbit<<n;
     if(rbit) ph=!ph;	// Paritybit berechnen
   }  
   while(!TF1);				
   TR1=0;
   parity=FBINC;			// Paritybit lesen
-  for(m=0;m<5;m++)
-  {
-    parity&=FBINC;
-  }
-  
-  //fbbh=(fbb&0x80)>>7;	// Byte bitweise vertauschen, da LSB zuerst übertragen wurde
-  //fbbh=fbbh+((fbb&0x40)>>5);
-  //fbbh=fbbh+((fbb&0x20)>>3);
-  //fbbh=fbbh+((fbb&0x10)>>1);
-  //fbbh=fbbh+((fbb&0x08)<<1);
-  //fbbh=fbbh+((fbb&0x04)<<3);
-  //fbbh=fbbh+((fbb&0x02)<<5);
-  //fbbh=fbbh+((fbb&0x01)<<7);
-      
+  for(m=0;m<5;m++) parity&=FBINC;	// zur Steigerung der Fehlertoleranz mehrfach lesen
   if(parity==ph) parity_ok=1;
-  
-  return (fbb);	// war fbbh
+  return (fbb);	
 }
-
-
 
 
 void ext_int0(void) interrupt 2		// Byte vom Bus empfangen, wird durch negative Flanke am INT1 Eingang getriggert
@@ -76,6 +54,7 @@ void ext_int0(void) interrupt 2		// Byte vom Bus empfangen, wird durch negative 
 {									// anschließend wird der time-out Zähler gestartet, wenn während 370us nichts empfangen wird
   									// dann ist das Telegramm komplett übertragen worden
   unsigned char fbbh;
+
   TR1=0;
   EX1=0;					// Interrupt 1 sperren
   ET1=0;					// Interrupt von Timer 1 sperren
@@ -124,29 +103,24 @@ bit sendbyte(unsigned char fbsb)
 			
     set_timer1(100);		//35us Haltezeit für Bit 
     
-    if(!sendbit)		// wenn logische 1 gesendet wird, auf Kollision prüfen
-    {
+    if(!sendbit) {		// wenn logische 1 gesendet wird, auf Kollision prüfen
       parity=!parity;
-      for(m=0;m<5;m++)
-      {
-        if(!FBINC) error=1;
-      }
+      for(m=0;m<5;m++) if(!FBINC) error=1;
     }
     if(error) break;  
       
     while(!TF1);		// Warten bis 35us abgelaufen
     FBOUTC=0;
   }
-  if(!error)
-  {
-  delay(212);			// 69 us Pause vor Parity-Bit
-  FBOUTC=parity;
-  delay(95);			// 35us für Parity-Bit
-  FBOUTC=0;
+  if(!error) {
+	  delay(212);			// 69 us Pause vor Parity-Bit
+	  FBOUTC=parity;
+	  delay(95);			// 35us für Parity-Bit
+	  FBOUTC=0;
   }
   TR1=0;
   
-  return error;
+  return (error);
 }
 
 
@@ -198,13 +172,13 @@ void set_timer1(int deltime)		// Timer 1 stoppen, setzen und starten (Timer wird
 }
 
 
-unsigned char read_byte(unsigned char addrh, unsigned char addrl)		// liest byte aus flash
-{
-  unsigned char zdata;
+//unsigned char read_byte(unsigned char addrh, unsigned char addrl)		// liest byte aus flash
+//{
+//  unsigned char zdata;
   
-  zdata=dataflash[(addrh<<8)+addrl];
-  return (zdata);
-}
+//  zdata=dataflash[(addrh<<8)+addrl];
+//  return (zdata);
+//}
 
 
 void restart_hw(void)	// Alle Hardware Einstellungen zurücksetzen
@@ -227,9 +201,9 @@ void restart_hw(void)	// Alle Hardware Einstellungen zurücksetzen
   TR0=1;			// Timer 0 starten (PWM)
   TR1=0;			// Timer 1 (Empfangs-Timeout) zunächst stoppen
  
-  RTCH=0x1D;		// Real Time Clock
+  RTCH=0x1D;		// Real Time Clock auf 130ms
   RTCL=0x40;
-  RTCCON=0x61;
+  RTCCON=0x61;		// ... und starten
 
   interrupted=0;	// wird durch die interrupt-routine auf 1 gesetzt
   IEN0=0x00;

@@ -16,17 +16,20 @@ void rs_init(void)
 void rs_send_dec(unsigned char wert)
 {
   unsigned char n;
+  bit zero;
   
+  zero=1;
   n=wert/100;
   if(n>0)
   {
     SBUF=n+48;
     while(!TI);
     TI=0;
+    zero=0;
   }
   wert=wert-(n*100);
   n=wert/10;
-  if(n>0)
+  if((n>0) || !zero)
   {
     SBUF=n+48;
     while(!TI);

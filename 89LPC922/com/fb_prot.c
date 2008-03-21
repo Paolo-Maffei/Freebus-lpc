@@ -2,17 +2,14 @@
 // Hier sind ausschliesslich die Protokoll-Handling Routinen
 
 #include <P89LPC922.h>
-#include "d:/freebus/trunk/software/c51/89LPC922/com/fb_hal_lpc.h"
-//#include <fb_app_in8.h>
-#include "d:/freebus/trunk/software/c51/89LPC922/com/fb_prot.h"
-
+#include "../com/fb_hal_lpc.h"
+#include "../com/fb_prot.h"
 
 
 unsigned char telegramm[23];
 unsigned char telpos;		// Zeiger auf nächste Position im Array Telegramm
 unsigned char cs;			// checksum
 unsigned char pal, pah;		// phys. Adresse
-//int gat[20];				// group address table
 unsigned char gacount;		// Gruppenadresszähler
 
 bit progmode, connected;	// Programmiermodus, Verbindung steht
@@ -86,15 +83,16 @@ void timer1(void) interrupt 3	// Interrupt von Timer 1, 370us keine Busaktivität
   telpos=0;  
   IE1=0;		// IRQ zurücksetzen
   EX1=1;		// externen Interrupt 0 wieder freigeben
+  TR1=0;
 }
 
 
 
 
 
-unsigned char get_ack(void)		// Byte empfangen und prüfen ob es ein ACK war
+bit get_ack(void)		// Byte empfangen und prüfen ob es ein ACK war
 {
-  unsigned char ret;
+  bit ret;
   int n;
 
   n=0;
@@ -137,7 +135,7 @@ void send_telegramm(void)		// sendet das Telegramm, das in telegramm[] vorher ab
     }
     checksum=~checksum;
     sendbyte(checksum);
-    if(get_ack()==1) r=3;		// wenn ACK empfangen, dann nicht nochmal senden
+    if(get_ack()) r=3;		// wenn ACK empfangen, dann nicht nochmal senden
     r++;
     telegramm[0]&=0xDF;			// Bit 5 löschen = Wiederholung
   }
@@ -221,7 +219,8 @@ void read_memory(void)			// read_memory_request - Speicher auslesen und senden
   
   for(n=0;n<ab;n++)
   {
-    telegramm[n+10]=read_byte(telegramm[8],(telegramm[9]+n));    
+	  if (telegramm[8]==0) telegramm[n+10]=userram[telegramm[9]+n];
+	  else telegramm[n+10]=eeprom[telegramm[9]+n];    
   }
 
   telegramm[0]=0xB0;			// read_memory_res senden
@@ -293,9 +292,9 @@ unsigned char read_objflags(unsigned char objno)	// Objektflags lesen
 {
   unsigned char ctp,addr,flags;
   
-  ctp=read_byte(0x01,COMMSTABPTR);		// COMMSTAB Pointer
+  ctp=eeprom[COMMSTABPTR];		// COMMSTAB Pointer
   addr=ctp+3+3*objno;
-  flags=read_byte(0x01,addr);	// Objektflags
+  flags=eeprom[addr];	// Objektflags
   return(flags);
 }
 
@@ -306,19 +305,19 @@ int find_ga(unsigned char objno)		// Gruppenadresse über Assoziationstabelle fin
   int ga;
   
   gapos=0;
-  asstab=read_byte(0x01,ASSOCTABPTR);
-  assno=read_byte(0x01,asstab);
+  asstab=eeprom[ASSOCTABPTR];
+  assno=eeprom[asstab];
   for(n=0;n<assno;n++)
   {
-    if(read_byte(0x01,asstab+2+2*n)==objno)
+    if(eeprom[asstab+2+2*n]==objno)
     {
-      gapos=read_byte(0x01,asstab+1+2*n);
+      gapos=eeprom[asstab+1+2*n];
     }
   }
-  if(gapos!=0)
+  if(gapos!=0xFE)
   {
-    gah=read_byte(0x01,ADDRTAB+1+gapos*2);
-    gal=read_byte(0x01,ADDRTAB+2+gapos*2);
+    gah=eeprom[ADDRTAB+1+gapos*2];
+    gal=eeprom[ADDRTAB+2+gapos*2];
     ga=gal+256*gah;
   }
   else
@@ -333,35 +332,104 @@ unsigned char gapos_in_gat(unsigned char gah, unsigned char gal)
 {
   unsigned char ga_position,ga_count,n;
   
-  ga_count=read_byte(0x01,ADDRTAB);
+  ga_count=eeprom[ADDRTAB];
   ga_position=0xFF; 
   if (ga_count>0)
   {
     for (n=1;n<=ga_count;n++)
     {
-      if (gah==read_byte(0x01,ADDRTAB+n*2+1) && gal==read_byte(0x01,ADDRTAB+n*2+2)) ga_position=n;
+      if (gah==eeprom[ADDRTAB+n*2+1] && gal==eeprom[ADDRTAB+n*2+2]) ga_position=n;
     }
   }
   return (ga_position);
 }
 
 
-void write_delay_record(unsigned char objno, unsigned char delay_status, long delay_target)		// Schreibt die Schalt-Verzögerungswerte ins Flash
+unsigned char find_objno(unsigned char gah, unsigned char gal)
 {
+	unsigned char gapos, gaposh, atp, assmax, n, objno;
+	
+	objno=0xFF;
+	
+	gapos=gapos_in_gat(gah,gal);
+	atp=eeprom[ASSOCTABPTR];
+	assmax=eeprom[atp];
+	if (gapos!=0xFF) {	// Gruppenadresse nicht vorhanden
+		for(n=0;n<assmax;n++) {	// Schleife über alle Einträge in der Ass-Table		    
+			gaposh=eeprom[atp+1+(n*2)];
+		    if(gapos==gaposh) objno=eeprom[atp+2+(n*2)];
+		}       	       
+	}
+	return (objno);
+}
+
+
+void write_delay_record(unsigned char objno, unsigned char delay_state, long delay_target)		// Schreibt die Schalt-Verzögerungswerte ins Flash
+{
+	EX1=0;
   start_writecycle();
-  write_byte(0x00,objno*5,objno+delay_status);
+  write_byte(0x00,objno*5,delay_state);
   write_byte(0x00,1+objno*5,delay_target>>24);
   write_byte(0x00,2+objno*5,delay_target>>16);
   write_byte(0x00,3+objno*5,delay_target>>8);
   write_byte(0x00,4+objno*5,delay_target);
   stop_writecycle();
+  EX1=1;
 }
+
+
+int read_obj_value(unsigned char objno)		// gibt den aktuellen Wert eines Objektes zurück
+{
+	unsigned char valuepointer, offset, commstab;
+	int objvalue;
+	
+	objvalue=0xFFFF;
+	offset=objno*3;
+	commstab=eeprom[COMMSTABPTR];
+	
+	if (objno <= commstab) {	// wenn objno <= anzahl objekte
+		valuepointer=eeprom[commstab+offset+2];
+		if (eeprom[commstab+offset+4] < 8) objvalue=userram[valuepointer];
+		if (eeprom[commstab+offset+4] == 8) objvalue=256*userram[valuepointer] + userram[valuepointer+1];
+	}
+	return(objvalue);
+}
+
+
+bit write_obj_value(unsigned char objno,int objvalue)		// schreibt den aktuellen Wert eines Objektes ins 'RAM'
+{
+	unsigned char valuepointer, offset, commstab;
+	bit write_ok;
+	
+	write_ok=0;
+	offset=objno*3;
+	commstab=eeprom[COMMSTABPTR];
+	
+	if (objno <= commstab) {	// wenn objno <= anzahl objekte
+		valuepointer=eeprom[commstab+offset+2];
+		if (eeprom[commstab+offset+4] < 8) {
+			start_writecycle();
+			write_byte(0x00,valuepointer,objvalue);
+			stop_writecycle();
+			write_ok=1;
+		}
+		if (eeprom[commstab+offset+4] == 8) {
+			start_writecycle();
+			write_byte(0x00,valuepointer,objvalue>>8);
+			write_byte(0x00,valuepointer+1,objvalue);
+			stop_writecycle();
+			write_ok=1;
+		}
+	}
+	return(write_ok);
+}
+
 
 
 void restart_prot(void)		// Protokoll-relevante Parameter zurücksetzen
 {
-  pah=read_byte(0x01,ADDRTAB+1);	// phys. Adresse einlesen
-  pal=read_byte(0x01,ADDRTAB+2);
+  pah=eeprom[ADDRTAB+1];	// phys. Adresse einlesen
+  pal=eeprom[ADDRTAB+2];
   
   progmode=0;			// kein Programmiermodus
   pcount=1;			// Paketzähler initialisieren

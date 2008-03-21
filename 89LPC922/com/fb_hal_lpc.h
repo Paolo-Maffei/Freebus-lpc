@@ -10,8 +10,11 @@
 #define DUTY	0xC0	// war C0  0xFF=immer low 0x00=immer high
 
 
-bit parity_ok;			// Parity Bit des letzten empfangenen Bytes OK
-bit interrupted;		// wird durch interrupt-routine gesetzt. so kann eine andere routine prüfen, ob sie unterbrochen wurde
+extern __code unsigned char __at 0x1C00 userram[255];	// Bereich im Flash für User-RAM
+extern __code unsigned char __at 0x1D00 eeprom[255];	// Bereich im Flash für EEPROM
+
+extern bit parity_ok;		// Parity Bit des letzten empfangenen Bytes OK
+extern bit interrupted;		// wird durch interrupt-routine gesetzt. so kann eine andere routine prüfen, ob sie unterbrochen wurde
 
 unsigned char get_byte(void);
 void ext_int0(void) interrupt 2;
