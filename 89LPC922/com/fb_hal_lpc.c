@@ -1,4 +1,17 @@
-
+/*
+ *      __________  ________________  __  _______
+ *     / ____/ __ \/ ____/ ____/ __ )/ / / / ___/
+ *    / /_  / /_/ / __/ / __/ / __  / / / /\__ \ 
+ *   / __/ / _, _/ /___/ /___/ /_/ / /_/ /___/ / 
+ *  /_/   /_/ |_/_____/_____/_____/\____//____/  
+ *                                      
+ *  Copyright (c) 2008 Andreas Krebs <kubi@krebsworld.de>
+ *
+ *  This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License version 2 as
+ *  published by the Free Software Foundation.
+ *
+ */
 
 // Hier sind ausschliesslich die Hardware-spezifischen aber Applikations-unabhängigen Routinen für den 89LPC922
 
@@ -172,14 +185,6 @@ void set_timer1(int deltime)		// Timer 1 stoppen, setzen und starten (Timer wird
 }
 
 
-//unsigned char read_byte(unsigned char addrh, unsigned char addrl)		// liest byte aus flash
-//{
-//  unsigned char zdata;
-  
-//  zdata=dataflash[(addrh<<8)+addrl];
-//  return (zdata);
-//}
-
 
 void restart_hw(void)	// Alle Hardware Einstellungen zurücksetzen
 
@@ -217,12 +222,5 @@ void restart_hw(void)	// Alle Hardware Einstellungen zurücksetzen
   IP1=0x00;
   IP1H=0x00;
   IT1=1;			// Interrupt 1 flankengetriggert=1 pegelgetriggert=0
-  
-  SCON=0x50;		// Serielle auf Mode 1, receive enable
-  SSTAT|=0x40;		// TI wird am Ende des Stopbits gesetzt
-  BRGCON|=0x02;		// Baudrate Generator verwenden aber noch gestoppt
-  BRGR1=0x00;		// Baudrate = cclk/((BRGR1,BRGR0)+16)
-  BRGR0=0x30;
-  BRGCON|=0x01;		// Baudrate Generator starten
   
 }

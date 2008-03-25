@@ -1,3 +1,19 @@
+/*
+ *      __________  ________________  __  _______
+ *     / ____/ __ \/ ____/ ____/ __ )/ / / / ___/
+ *    / /_  / /_/ / __/ / __/ / __  / / / /\__ \ 
+ *   / __/ / _, _/ /___/ /___/ /_/ / /_/ /___/ / 
+ *  /_/   /_/ |_/_____/_____/_____/\____//____/  
+ *                                      
+ *  Copyright (c) 2008 Andreas Krebs <kubi@krebsworld.de>
+ *
+ *  This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License version 2 as
+ *  published by the Free Software Foundation.
+ *
+ */
+
+
 
 // Hier sind ausschliesslich die Protokoll-Handling Routinen
 
@@ -347,11 +363,18 @@ unsigned char gapos_in_gat(unsigned char gah, unsigned char gal)
 
 unsigned char find_objno(unsigned char gah, unsigned char gal)
 {
-	unsigned char gapos, gaposh, atp, assmax, n, objno;
+	unsigned char gapos, gaposh, gacount, atp, assmax, n, objno;
 	
 	objno=0xFF;
+	gapos=0xFF;
 	
-	gapos=gapos_in_gat(gah,gal);
+	gacount=eeprom[ADDRTAB];	// Position der Gruppenadresse in Adresstabelle finden 
+	if (gacount>0) {
+	    for (n=1;n<=gacount;n++) {
+	      if (gah==eeprom[ADDRTAB+n*2+1] && gal==eeprom[ADDRTAB+n*2+2]) gapos=n;
+	    }
+	}
+	
 	atp=eeprom[ASSOCTABPTR];
 	assmax=eeprom[atp];
 	if (gapos!=0xFF) {	// Gruppenadresse nicht vorhanden
