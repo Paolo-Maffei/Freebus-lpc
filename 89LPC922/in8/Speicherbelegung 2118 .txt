@@ -33,22 +33,22 @@ danach:			Assoziationstabelle:
 
 01 D7:	xx		Befehl bei Flanken
 			Bit 1	Bit0	Schaltobjekt 1.1 fallende Flanke
-			0	0	keine Reaktion
-			0	1	EIN
-			1	0	AUS
-			1	1	UM
+			0		0	keine Reaktion
+			0		1	EIN
+			1		0	AUS
+			1		1	UM
 			
 			Bit 3	Bit2	Schaltobjekt 1.1 steigende Flanke
-			0	0	keine Reaktion
-			0	1	EIN
-			1	0	AUS
-			1	1	UM
+			0		0	keine Reaktion
+			0		1	EIN
+			1		0	AUS
+			1		1	UM
 
 			Bit 5	Bit4	Schaltobjekt 1.2 fallende Flanke
-			0	0	keine Reaktion
-			0	1	EIN
-			1	0	AUS
-			1	1	UM
+			0		0	keine Reaktion
+			0		1	EIN
+			1		0	AUS
+			1		1	UM
 			
 			Bit 7	Bit6	Schaltobjekt 1.2 steigende Flanke
 			0	0	keine Reaktion

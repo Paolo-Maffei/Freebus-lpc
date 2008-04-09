@@ -17,9 +17,10 @@
 #include "../com/fb_hal_lpc.h"
 #include "../com/fb_prot.h"
 #include "fb_app_in8.h"
+//#include "../com/fb_rs232.h"
 
 
-
+unsigned char portbuffer,p0h;
 
 int objstate;		// Zwischenspeicer der Objektzustände x.1 (Bit 0-7) und x.2 (Bit 8-15)
 long timer;			// Timer für Schaltverzögerungen, wird alle 130us hochgezählt
@@ -35,7 +36,7 @@ void pin_changed(unsigned char pinno)
     switch (pin_function(pinno))	// Funktion des Eingangs
     {
       case 0x00:				// Funktion Schalten
-        if(((portbuffer>>pinno)&0x01)==0 && ((p0h>>pinno)&0x01)==1)	
+        if((((portbuffer>>pinno)&0x01)==0) && (((p0h>>pinno)&0x01)==1))	
         {
           schalten(1,pinno);			// steigende Flanke Eingang x.1
           schalten(1,pinno+8);			// steigende Flanke Eingang x.2
@@ -97,9 +98,10 @@ void schalten(unsigned char risefall, unsigned char pinno)	// Schaltbefehl sende
   unsigned char func;
   int ga;
 
-  func=eeprom[0xD7+((pinno&0x07)*5)];
+  func=eeprom[0xD7+((pinno&0x07)*4)];
   if (risefall==1) func=(func>>2)&0x03;		// steigende Flanke
   else func=func&0x03;				// fallende Flanke
+
   if (func!=0)
   {
     ga=find_ga(pinno);
@@ -412,29 +414,13 @@ void delay_timer(void)	// zählt alle 130ms die Variable Timer hoch und prüft Que
 void restart_app(void)		// Alle Applikations-Parameter zurücksetzen
 {
 
-  unsigned char bw,bwh,n;
+  
+  
+  P0M1=0xFF;
+  P0M2=0x00;
+  //P0=0xFF;
 
-  portbuffer=userram[0x29];	// Verhalten nach Busspannungs-Wiederkehr
-  bw=eeprom[0xF6];
-  for(n=0;n<=3;n++)			// Ausgänge 1-4
-  {
-    bwh=(bw>>(2*n))&0x03; 
-    if(bwh==0x01)  portbuffer=portbuffer & (0xFF-(0x01<<n));
-    if(bwh==0x02)  portbuffer=portbuffer | (0x01<<n);
-  }
-  bw=eeprom[0xF7];
-  for(n=0;n<=3;n++)			// Ausgänge 5-8
-  {
-    bwh=(bw>>(2*n))&0x03; 
-    if(bwh==0x01)  portbuffer=portbuffer & (0xFF-(0x01<<(n+4)));
-    if(bwh==0x02)  portbuffer=portbuffer | (0x01<<(n+4));
-  }
-  P0=portbuffer;
-  objstate=portbuffer<<8;
-  objstate+=portbuffer;
-  start_writecycle();
-  write_byte(0x00,0x29,portbuffer);
-  stop_writecycle();
+  
   
   timer=0;		// Timer-Variable, wird alle 135us inkrementiert
   

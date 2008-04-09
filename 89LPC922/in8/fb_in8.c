@@ -20,6 +20,7 @@
 #include "../com/fb_hal_lpc.h"
 #include "../com/fb_prot.h"
 #include "fb_app_in8.h"
+//#include "../com/fb_rs232.h"
 
 
 
@@ -32,6 +33,8 @@ void main(void)
   restart_prot();			// Protokoll-relevante Parameter zurücksetzen
   restart_app();			// Anwendungsspezifische Einstellungen zurücksetzen
   portbuffer=0xFF;
+  
+//  rs_init();
   
   do  {
   

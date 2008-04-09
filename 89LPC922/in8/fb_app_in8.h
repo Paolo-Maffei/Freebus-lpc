@@ -21,7 +21,7 @@
 #define	DELAYTAB		0xF9	// Start der Tabelle für Verzögerungswerte (Basis)
 #define PDIR			0xFF	// Port-Richtung, wenn Bit gesetzt dann ist der entsprechende Pin ein Ausgang (für kombinierte Ein-/Ausgänge)
 
-unsigned char portbuffer,p0h;	// Zwischenspeicherung der Portzustände
+extern unsigned char portbuffer,p0h;	// Zwischenspeicherung der Portzustände
 
 void pin_changed(unsigned char pinno);
 void read_value_req(void);				// Objektwerte lesen angefordert
