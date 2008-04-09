@@ -41,7 +41,7 @@ void timer1(void) interrupt 3	// Interrupt von Timer 1, 370us keine Busaktivität
 
   EX1=0;					// ext. Interrupt stoppen 
   ET1=0;					// Interrupt von Timer 1 sperren
-  set_timer1(4720);				// und neu starten für korrekte Positionierung des ACK Bytes
+  set_timer1(4920);				// 4720 und neu starten für korrekte Positionierung des ACK Bytes
   
   if(cs==0xff)					// Checksum des Telegramms ist OK 
   {
@@ -451,8 +451,13 @@ bit write_obj_value(unsigned char objno,int objvalue)		// schreibt den aktuellen
 
 void restart_prot(void)		// Protokoll-relevante Parameter zurücksetzen
 {
+	
+
+	
   pah=eeprom[ADDRTAB+1];	// phys. Adresse einlesen
   pal=eeprom[ADDRTAB+2];
+  
+
   
   progmode=0;			// kein Programmiermodus
   pcount=1;			// Paketzähler initialisieren

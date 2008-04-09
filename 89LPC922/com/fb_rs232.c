@@ -57,6 +57,17 @@ void rs_send_dec(unsigned char wert)
   TI=0;
 }
 
+
+void rs_send_hex(unsigned char wert)
+{
+	const unsigned char hex[]={'0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F'};
+	
+	rs_send(hex[wert>>4]);
+	rs_send(hex[wert&0x0F]);
+}
+	
+
+
 void rs_send_ok(void)
 {
   SBUF='O';

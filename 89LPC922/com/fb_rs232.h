@@ -19,6 +19,7 @@
 
 void rs_init(void);
 void rs_send_dec(unsigned char wert);
+void rs_send_hex(unsigned char wert);
 void rs_send_ok(void);
 void rs_send(unsigned char z);
 
