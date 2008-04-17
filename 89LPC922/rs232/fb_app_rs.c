@@ -54,8 +54,6 @@ void restart_app(void)		// Alle Applikations-Parameter zurücksetzen
 
 
   
-  P0M1=0x00;				// Port 0 Modus push-pull für Ausgang
-  P0M2=0xFF;
-  P0=0;
+  
 
 }
