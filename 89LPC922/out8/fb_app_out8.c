@@ -230,7 +230,7 @@ void object_schalten(unsigned char objno)	// Schaltet einen Ausgang gemäß objsta
             { 
               if (((eeprom[RELMODE]>>objno)&0x01)==0x00) portbuffer=portbuffer&~port_pattern;	// Schliesserbetrieb
               else portbuffer=portbuffer|port_pattern;						// Öffnerbetrieb
-              //respond(objno+12,0x80);
+              respond(objno+12,0x80);
             }
             else delay_state=0x80;				// verzögert ausschalten
           }
@@ -250,7 +250,7 @@ void object_schalten(unsigned char objno)	// Schaltet einen Ausgang gemäß objsta
               } 
               if (((eeprom[RELMODE]>>objno)&0x01)==0x00) portbuffer=portbuffer|port_pattern;	// sofort einschalten (Schliesserbetrieb)
               else portbuffer=portbuffer&~port_pattern;					// sofort einschalten (Öffnerbetrieb)
-              //respond(objno+12,0x81);
+              respond(objno+12,0x81);
             }
             else delay_state=0x81;				// verzögert einschalten
           }
@@ -260,6 +260,7 @@ void object_schalten(unsigned char objno)	// Schaltet einen Ausgang gemäß objsta
         delay_target=(delay_onoff<<delay_base)+timer;				
         write_delay_record(objno,delay_state,delay_target);
       }
+      else clear_delay_record(objno);
       if(((port_pattern&pdir)==port_pattern))	// Portpin darf beschrieben werden
       {  
         port_schalten(portbuffer);		// Ausgänge schalten    
