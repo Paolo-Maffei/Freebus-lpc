@@ -87,7 +87,7 @@ void eis1(void)				// Ausgänge schalten gemäß EIS 1 Protokoll (an/aus)
                 blockstart=(eeprom[BLOCKACT+1]>>4)&0x03;	// Verhalten bei Beginn der Sperrung
                 blockend=(eeprom[BLOCKACT+1]>>6)&0x03;	// Verhalten bei Ende der Sperrung
             }
-            zftyp=((eeprom[FUNCTYP])>>(objno-8)) & 0x03;	// Typ der Zusatzfunktion
+            zftyp=((eeprom[FUNCTYP])>>((objno-8)*2)) & 0x03;	// Typ der Zusatzfunktion
             switch (zftyp)
             {
               case 0x00:			// Verknüpfung
@@ -106,16 +106,16 @@ void eis1(void)				// Ausgänge schalten gemäß EIS 1 Protokoll (an/aus)
                 {
                   case 0x80:					// Ende der Sperrung
                     blocked=blocked&(0xFF-(0x01<<(zfout-1)));
-                    if (blockend==0x01) portbuffer=portbuffer&(0xFF-(0x01<<zfout));	// Bei Ende der Sperrung ausschalten
-                    if (blockend==0x02) portbuffer=portbuffer|(0x01<<zfout);		// Bei Ende der Sperrung einschalten
+                    if (blockend==0x01) portbuffer=portbuffer&(0xFF-(0x01<<(zfout-1)));	// Bei Ende der Sperrung ausschalten
+                    if (blockend==0x02) portbuffer=portbuffer|(0x01<<(zfout-1));		// Bei Ende der Sperrung einschalten
                   break;
                   case 0x81:					// Beginn der Sperrung
                     blocked=blocked|(0x01<<(zfout-1));
-                    if (blockstart==0x01) portbuffer=portbuffer&(0xFF-(0x01<<zfout));	// Bei Beginn der Sperrung ausschalten
-                    if (blockstart==0x02) portbuffer=portbuffer|(0x01<<zfout);		// Bei Beginn der Sperrung einschalten
+                    if (blockstart==0x01) portbuffer=portbuffer&(0xFF-(0x01<<(zfout-1)));	// Bei Beginn der Sperrung ausschalten
+                    if (blockstart==0x02) portbuffer=portbuffer|(0x01<<(zfout-1));		// Bei Beginn der Sperrung einschalten
                     start_writecycle();							
-        	    write_byte(0x00,(zfout-1)*5,0x00);					// ggf. Eintrag für Schaltverzögerung löschen
-          	    stop_writecycle();
+                    write_byte(0x00,(zfout-1)*5,0x00);					// ggf. Eintrag für Schaltverzögerung löschen
+                    stop_writecycle();
                 }
                 port_schalten(portbuffer);
               break;
@@ -418,22 +418,30 @@ void restart_app(void)		// Alle Applikations-Parameter zurücksetzen
     if(bwh==0x01)  portbuffer=portbuffer & (0xFF-(0x01<<(n+4)));
     if(bwh==0x02)  portbuffer=portbuffer | (0x01<<(n+4));
   }
+
+  TH0=0;			// Port-Ausgabe bei Busspannungswiederkehr
+  P1_2=1;
   P0=portbuffer;
-  start_writecycle();
-  write_byte(0x00,0x29,portbuffer);
-  stop_writecycle();
+  TR1=0;					
+  TF1=0;
+  TH1=0xA0;				// Relais zunächst mit vollem Strom einschalten...
+  TL1=0x00;				
+  TR1=1;
+  while (!TF1);
+  TR1=0;
+  TH0=DUTY;				// ...danach mit PWM halten (min5% von I nominal)  
   
   pdir=0xFF;		// Port-Direction - wenn Bit=1 darf entsprechender Portpin beschrieben werden (Ausgang), sonst nicht (Eingang)
   zfstate=0x00;		// Zustand der Zusatzfunktionen 1-4
   blocked=0x00;		// Ausgänge nicht gesperrt
-  timer=0;		// Timer-Variable, wird alle 135us inkrementiert
+  timer=0;			// Timer-Variable, wird alle 135us inkrementiert
   
   logicstate=0;
   objstate=0;
   
   start_writecycle();
   write_byte(0x01,0x04,0x04);	// Herstellercode 0x04 = Jung
-  write_byte(0x01,0x05,0x20);	// Geräte Typ (2038.10) 2060h
+  write_byte(0x01,0x05,0x20);	// Applikationsprogrammnr. (2038.10) 2060h
   write_byte(0x01,0x06,0x60);	// 	"	"	"
   write_byte(0x01,0x07,0x01);	// Versionsnummer
   write_byte(0x01,0x0C,0x00);

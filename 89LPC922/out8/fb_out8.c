@@ -29,6 +29,10 @@
 //		3.08	gat Array entfernt und durch gapos_in_gat funktion ersetzt
 //		3.09	Sperrobjekte hinzugefügt
 //		3.10	Fehler in main() behoben (kein delay!)
+//		3.11	Fehler bei Zusatzfunktionstyp behoben, 
+//				Fehler bei Sperrobjekten behoben,
+//				Relais ziehen jetzt vollen Strom auch bei Busspannungswiederkehr
+
 
 //	todo:	- Rückmeldeobjekte müssen bei Busspannungswiederkehr senden
 //		- Objekt lesen muss bei allen Objekten funktionieren
