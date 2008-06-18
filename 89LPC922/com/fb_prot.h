@@ -48,6 +48,7 @@ unsigned char read_objflags(unsigned char objno);	// Objektflags lesen
 int find_ga(unsigned char objno);	// Gruppenadresse über Assoziationstabelle finden (letzter Eintrag, falls mehrere)
 unsigned char find_objno(unsigned char gah, unsigned char gal);
 void write_delay_record(unsigned char objno, unsigned char delay_status, long delay_target);	// Schreibt die Schalt-Verzögerungswerte ins Flash
+void clear_delay_record(unsigned char objno); // Löscht den Delay Eintrag
 void restart_prot(void);		// Protokoll-relevante Parameter zurücksetzen
 int read_obj_value(unsigned char objno);	// gibt den Wert eines Objektes zurück
 bit write_obj_value(unsigned char objno,int objvalue);	// schreibt den aktuellen Wert eines Objektes ins 'RAM'

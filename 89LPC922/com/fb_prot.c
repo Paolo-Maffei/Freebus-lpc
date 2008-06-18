@@ -400,6 +400,18 @@ void write_delay_record(unsigned char objno, unsigned char delay_state, long del
   EX1=1;
 }
 
+void clear_delay_record(unsigned char objno)		// Schreibt die Schalt-Verzögerungswerte ins Flash
+{
+  EX1=0;
+  start_writecycle();
+  write_byte(0x00,objno*5,0x00);
+  write_byte(0x00,1+objno*5,0x00);
+  write_byte(0x00,2+objno*5,0x00);
+  write_byte(0x00,3+objno*5,0x00);
+  write_byte(0x00,4+objno*5,0x00);
+  stop_writecycle();
+  EX1=1;
+}
 
 int read_obj_value(unsigned char objno)		// gibt den aktuellen Wert eines Objektes zurück
 {
