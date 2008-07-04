@@ -190,8 +190,8 @@ void read_value_req(void)				// Objektwerte lesen angefordert
 void object_schalten(unsigned char objno)	// Schaltet einen Ausgang gemäß objstate und den zugörigen Parametern
 {
 
-  unsigned char port_pattern,objflags,delay_base,delay_onoff,delay_state,delay_zeit,logicfunc,zfno;
-  long delay_target;
+  unsigned char port_pattern,objflags,delay_base,delay_state,delay_zeit,logicfunc,zfno;
+  long delay_target,delay_onoff;
 
   objflags=read_objflags(objno);			// Objekt Flags lesen
   port_pattern=0x01<<objno;
