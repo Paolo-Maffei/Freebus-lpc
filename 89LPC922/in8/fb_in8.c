@@ -14,6 +14,9 @@
  */
 
 // Versionen:	3.00	erste Version Binäreingang auf HW Basis 3
+//				3.01	Lesen von Objekten zugefügt
+//				3.02	Fehler behoben: gelegentliches Dauersenden von Telegrammen
+
 	
 
 #include <P89LPC922.h>
@@ -34,7 +37,6 @@ void main(void)
   restart_app();			// Anwendungsspezifische Einstellungen zurücksetzen
   portbuffer=0xFF;
   
-//  rs_init();
   
   do  {
   
