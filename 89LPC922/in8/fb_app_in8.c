@@ -156,10 +156,9 @@ unsigned char debounce(unsigned char pinno)	// Entprellzeit abwarten und prüfen 
 
 
 
-void eis1(void)				// Ausgänge schalten gemäß EIS 1 Protokoll (an/aus)
+void eis1(void)				// Objekte schalten gemäß EIS 1 Protokoll (an/aus)
 {
-  unsigned char objno,port_pattern,objflags,gapos,atp,assno,delay_base,n,delay_onoff,delay_status,gaposh,delay_zeit;
-  long delay_target;
+  unsigned char objno,port_pattern,objflags,gapos,atp,assno,n,gaposh;
   int ga;
  
     gaposh=0;
@@ -186,113 +185,17 @@ void eis1(void)				// Ausgänge schalten gemäß EIS 1 Protokoll (an/aus)
           if((objflags&0x04)==0x04)				// Kommunikation zulässig (Bit 2 = communication enable) 
           {
             port_pattern=0x01<<objno;
-            if((port_pattern&PDIR)==port_pattern)		// Portpin darf beschrieben werden
-            {
+
               if((objflags&0x10)==0x10)				// Schreiben zulässig (Bit 4 = write enable)
               {
-                delay_base=eeprom[(((objno+1)>>1)+DELAYTAB)];   
-                if((objno&0x01)==0x01) delay_base&=0x0F;
-                else delay_base=(delay_base&0xF0)>>4;
-                delay_target=0;
-                delay_onoff=0;
-                delay_status=0;
-                delay_zeit=eeprom[0xEA];
-                delay_zeit=((delay_zeit>>objno)&0x01);
+                        
                 
-                switch (telegramm[7])
-                {
-                  case 0x80:					// Ausschalten
-                    delay_onoff=eeprom[(objno+0xE2)];
-                    if(delay_onoff==0x00 || delay_zeit==0x01)
-                    { 
-                      if (((eeprom[RELMODE]>>objno)&0x01)==0x00)
-                      {
-                        portbuffer=portbuffer&~port_pattern;		// sofort ausschalten (Schliesserbetrieb)
-                      }
-                      else
-                      {
-                        portbuffer=portbuffer|port_pattern;		// sofort ausschalten (Öffnerbetrieb)
-                      }
-                    }
-                    else
-                    {
-                      delay_status=0x80;				// verzögert
-                    }
-                    break;
-                  case 0x81:					// Einschalten
-                    delay_onoff=eeprom[objno+0xDA];
-                    if(delay_onoff==0x00)
-                    {
-                      if(delay_zeit==0x01) 			// Zeitschaltfunktion 
-                      {
-                        delay_status=0x80;
-                        delay_onoff=eeprom[objno+0xE2];
-                      }
-                      if (((eeprom[RELMODE]>>objno)&0x01)==0x00)
-                      {
-                        portbuffer=portbuffer|port_pattern;		// sofort einschalten (Schliesserbetrieb)
-                      }
-                      else
-                      {
-                        portbuffer=portbuffer&~port_pattern;		// sofort einschalten (Öffnerbetrieb)
-                      }
-                    }
-                    else
-                    {
-                      delay_status=0x90;				// verzögert
+                if (telegramm[7]==0x80) objstate=objstate&(0xFFFF-(0x0001<<objno));
+                else objstate=objstate|(0x0001<<objno);
+                
 
-                    }
-                    break;
-                }
-                if(delay_status!=0)								// wenn Verzögerung, dann timer-Wert schreiben
-                {  
-                  //delay_target=(delay_onoff<<delay_base)+timer;				
-                  delay_target=delay_onoff;
-                  delay_target=delay_target<<delay_base;
-                  delay_target+=timer;
-                  
-                  start_writecycle();
-                  write_byte(0x00,objno*5,objno+delay_status);
-                  write_byte(0x00,1+objno*5,delay_target>>24);
-                  write_byte(0x00,2+objno*5,delay_target>>16);
-                  write_byte(0x00,3+objno*5,delay_target>>8);
-                  write_byte(0x00,4+objno*5,delay_target);
-                  stop_writecycle();
-                } 
-                TH0=0;					// Port-Ausgabe
-      		P1_2=1;
-      		P0=portbuffer;
-      		start_writecycle();	
-      		write_byte(0x00,0x29,portbuffer);
-      		stop_writecycle();
-      		TR1=0;					
-      		TF1=0;
-      		TH1=0xA0;				// Relais zunächst mit vollem Strom einschalten...
-      		TL1=0x00;				
-      		TR1=1;
-      		while (!TF1);
-      		TR1=0;
-      		TH0=DUTY;				// ...danach mit PWM halten (min5% von I nominal)
-      		
-      		objno+=12;				// Rückmeldeobjekt verarbeiten
-      		objflags=read_objflags(objno);
-      		if ((objflags & 0x04) == 0x04)
-      		{
-      		  ga=find_ga(objno);
-      		  if (ga!=0)
-      		  {
-      		    telegramm[0]=0xBC;
-      		    telegramm[1]=pah;
-      		    telegramm[2]=pal;
-      		    telegramm[3]=(ga>>8);
-      		    telegramm[4]=ga;
-      		    telegramm[5]=0xE1;
-      		    telegramm[6]=0x00;
-      		    send_telegramm();
-      		  }
-      		} 
               }
-            }
+
             if(telegramm[7]==0x00 && (objflags&0x08)==0x08)	// Wert lesen, nur wenn read enable gesetzt (Bit3)
             {
               telegramm[0]=0xBC;
