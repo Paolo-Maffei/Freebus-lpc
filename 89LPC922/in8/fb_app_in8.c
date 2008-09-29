@@ -65,6 +65,7 @@ void pin_changed(unsigned char pinno)
         }
     }
   }
+  IE1=0;
   EX1=1;
 }
              

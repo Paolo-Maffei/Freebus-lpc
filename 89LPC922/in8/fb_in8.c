@@ -37,7 +37,6 @@ void main(void)
   restart_app();			// Anwendungsspezifische Einstellungen zurücksetzen
   portbuffer=0xFF;
   
-  
   do  {
   
     if(RTCCON>=0x80) delay_timer();	// Verzögerungs-Timer alle 130ms hochzählen
