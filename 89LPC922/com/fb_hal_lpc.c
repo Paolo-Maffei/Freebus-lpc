@@ -74,16 +74,17 @@ void ext_int0(void) interrupt 2		// Byte vom Bus empfangen, wird durch negative 
   						
   fbbh=get_byte();			// Byte vom Bus empfangen
   delay(200);
-     
+  set_timer1(1350);			// Timer 1 starten f¸r Timeout 370us -> signalisiert Telegrammende (1350)
+  
   if(parity_ok)				// wenn Parity OK
   { 
-    telegramm[telpos]=fbbh; 
+    if (telpos!=0 || (fbbh&0xF0)!=0xC0) telegramm[telpos]=fbbh; 
     if(telpos==0) cs=0;
     cs^=fbbh;				// Checksum durch EXOR der einzelnen Telegramm-Bytes bilden
     telpos++;
   }
   
-  set_timer1(1350);			// Timer 1 starten f¸r Timeout 370us -> signalisiert Telegrammende (1350)
+
   
   ET1=1;					// Interrupt f¸r Timer 1 freigeben
   IE1=0;					// Interrupt 0 request zur¸cksetzen
@@ -192,10 +193,12 @@ void restart_hw(void)	// Alle Hardware Einstellungen zur¸cksetzen
 
   DIVM=0;			// Taktferquenz nicht teilen -> volles Tempo
   
-  P1M1=0x14;		// Port 1 auf quasi-bidirektional, auﬂer P1.2(T0 als PWM Ausgang)=open-drain, P1.4(INT1)=Input only, P1.6(FBOUTC) push-pull
-  P1M2=0x44;
+  P1M1=0x14;		// Port 1 auf quasi-bidirektional, auﬂer P1.2(T0 als PWM Ausgang)=open-drain, P1.3 open drain (muss sein), P1.4(INT1)=Input only, P1.6(FBOUTC) push-pull
+  P1M2=0x4C;
    
   FBOUTC=0;			// Bus-Ausgang auf low
+  
+
 
   TMOD=0x12;		// Timer 0 als PWM, Timer 1 als 16-Bit Timer
   TAMOD=0x01;

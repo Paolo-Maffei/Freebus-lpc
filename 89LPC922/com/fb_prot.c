@@ -31,6 +31,8 @@ unsigned char gacount;		// Gruppenadresszähler
 bit progmode, connected;	// Programmiermodus, Verbindung steht
 unsigned char conh, conl;	// bei bestehender Verbindung phys. Adresse des Kommunikationspartners
 unsigned char pcount;		// Paketzähler, Gruppenadresszähler
+unsigned char last_tel;
+bit transparency;
 
 
 
@@ -41,10 +43,14 @@ void timer1(void) interrupt 3	// Interrupt von Timer 1, 370us keine Busaktivität
 
   EX1=0;					// ext. Interrupt stoppen 
   ET1=0;					// Interrupt von Timer 1 sperren
-  set_timer1(4920);				// 4720 und neu starten für korrekte Positionierung des ACK Bytes
+  set_timer1(4830);				// 4720 und neu starten für korrekte Positionierung des ACK Bytes
   
-  if(cs==0xff)					// Checksum des Telegramms ist OK 
+  if(cs==0xff)					// Checksum des Telegramms ist OK
   {
+   if (transparency) {
+	   last_tel=telpos;
+   }
+   else {
     data_laenge=(telegramm[5]&0x0F);		// Telegramm-Länge = Bit 0 bis 3 
     daf=(telegramm[5]&0x80);			// Destination Adress Flag = Bit 7, 0=phys. Adr., 1=Gruppenadr.
 
@@ -95,11 +101,12 @@ void timer1(void) interrupt 3	// Interrupt von Timer 1, 370us keine Busaktivität
         }
       }
     }
+   } 
   }
   telpos=0;  
   IE1=0;		// IRQ zurücksetzen
   EX1=1;		// externen Interrupt 0 wieder freigeben
-  TR1=0;
+  if (!transparency) TR1=0;
 }
 
 
@@ -470,10 +477,13 @@ void restart_prot(void)		// Protokoll-relevante Parameter zurücksetzen
   pal=eeprom[ADDRTAB+2];
   
 
+
   
   progmode=0;			// kein Programmiermodus
   pcount=1;			// Paketzähler initialisieren
   connected=0;			// keine Verbindung
   
   telpos=0;			// empfangene Bytes an dieser Position im Array telegramm[] ablegen
+  last_tel=0;
+  transparency=0;
 }
