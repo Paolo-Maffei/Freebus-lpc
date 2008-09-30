@@ -106,7 +106,10 @@ void timer1(void) interrupt 3	// Interrupt von Timer 1, 370us keine Busaktivität
   telpos=0;  
   IE1=0;		// IRQ zurücksetzen
   EX1=1;		// externen Interrupt 0 wieder freigeben
-  if (!transparency) TR1=0;
+  if (!transparency) {	// Telegramm abgearbeitet
+	  TR1=0;				// Timer 1 stoppen
+	  cs=0;					// cheksum zurücksetzen
+  }
 }
 
 

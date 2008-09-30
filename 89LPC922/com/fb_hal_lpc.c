@@ -78,10 +78,16 @@ void ext_int0(void) interrupt 2		// Byte vom Bus empfangen, wird durch negative 
   
   if(parity_ok)				// wenn Parity OK
   { 
-    if (telpos!=0 || (fbbh&0xF0)!=0xC0) telegramm[telpos]=fbbh; 
+    if (telpos!=0 || (fbbh&0xF0)!=0xC0) telegramm[telpos]=fbbh;	// keine ACK oder NACK als telegramm speichern
     if(telpos==0) cs=0;
     cs^=fbbh;				// Checksum durch EXOR der einzelnen Telegramm-Bytes bilden
     telpos++;
+  }
+  else {					// bei fehlerhaften Bytes alles verwerfen
+	  telpos=0;
+	  TR1=0;
+	  TF1=0;
+	  cs=0;
   }
   
 
