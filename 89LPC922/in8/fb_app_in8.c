@@ -69,10 +69,6 @@ void pin_changed(unsigned char pinno)
   EX1=1;
 }
              
-void read_value_req(void)				// Objektwerte lesen angefordert
-{
-}
-
 
 
 void send_cyclic(unsigned char pinno)
@@ -101,8 +97,8 @@ void schalten(unsigned char risefall, unsigned char pinno)	// Schaltbefehl sende
   int ga;
 
   func=eeprom[0xD7+((pinno&0x07)*4)];
-  if (risefall==1) func=(func>>2)&0x03;		// steigende Flanke
-  else func=func&0x03;				// fallende Flanke
+  if (risefall==1) func=(func>>2)&0x03;		// Funktion bei steigender Flanke
+  else func=func&0x03;						// Funktion bei fallender Flanke
 
   if (func!=0)
   {
@@ -118,14 +114,21 @@ void schalten(unsigned char risefall, unsigned char pinno)	// Schaltbefehl sende
       telegramm[6]=0x00;
       if (func==0x01) telegramm[7]=0x81;	// EIN
       if (func==0x02) telegramm[7]=0x80;	// AUS
-      if (func==0x03)				// UM
+      if (func==0x03)						// UM
       {
-        if (((objstate>>pinno)&0x01)==0x01) telegramm[7]=0x80;	// AUS
-        else telegramm[7]=0x81;					// EIN
+        if (read_obj_value(pinno)==1) telegramm[7]=0x80;	// AUS
+        else telegramm[7]=0x81;								// EIN
       }
-      if (telegramm[7]==0x80) objstate=objstate&(0xFFFF-(0x0001<<pinno));
-      else objstate=objstate|(0x0001<<pinno);
       send_telegramm();
+      if (telegramm[7]==0x80) {
+    	  // objstate=objstate&(0xFFFF-(0x0001<<pinno));
+    	  write_obj_value(pinno,0);
+      }
+      else {
+    	  // objstate=objstate|(0x0001<<pinno);
+    	  write_obj_value(pinno,1);
+      }
+      
     }
   }
 }
@@ -149,7 +152,7 @@ unsigned char debounce(unsigned char pinno)	// Entprellzeit abwarten und prüfen 
   {
     for(n=0;n<debtime;n++)
     {
-      delay(500);
+      delay(2000);
     }
   }  
   pinno;
@@ -158,163 +161,34 @@ unsigned char debounce(unsigned char pinno)	// Entprellzeit abwarten und prüfen 
 
 
 
-void eis1(void)				// Objekte schalten gemäß EIS 1 Protokoll (an/aus)
+void write_value_req(void)		// Objekt-Wert setzen gemäß empfangenem EIS 1 Telegramms (an/aus)
 {
-  unsigned char objno,port_pattern,objflags,gapos,atp,assno,n,gaposh;
-  int ga;
- 
-    gaposh=0;
-    ga=telegramm[3];
-    ga=ga<<8;
-    ga=ga+telegramm[4];
-    gapos=0xFF;
-    
-    
+	unsigned char objno,port_pattern,objflags,gapos,atp,assno,n,gaposh;
+
     gapos=gapos_in_gat(telegramm[3],telegramm[4]);
     if (gapos!=0xFF)	
     {
-      send_ack();
-      atp=eeprom[0x11];			// Association Table Pointer
-      assno=eeprom[atp];		// Erster Eintrag = Anzahl Einträge
+    	send_ack();
+    	atp=eeprom[ASSOCTABPTR];			// Association Table Pointer
+    	assno=eeprom[atp];		// Erster Eintrag = Anzahl Einträge
  
-      for(n=0;n<assno;n++)				// Schleife über alle Einträge in der Ass-Table, denn es könnten mehrere Objekte (Pins) der gleichen Gruppenadresse zugeordnet sein
-      {
-        gaposh=eeprom[atp+1+(n*2)];
-        if(gapos==gaposh)					// Wenn Positionsnummer übereinstimmt
-        {
-          objno=eeprom[atp+2+(n*2)];			// Objektnummer
-          objflags=read_objflags(objno);			// Objekt Flags lesen
-          if((objflags&0x04)==0x04)				// Kommunikation zulässig (Bit 2 = communication enable) 
-          {
-            port_pattern=0x01<<objno;
+    	for(n=0;n<assno;n++) {				// Schleife über alle Einträge in der Ass-Table, denn es könnten mehrere Objekte (Pins) der gleichen Gruppenadresse zugeordnet sein
+    		gaposh=eeprom[atp+1+(n*2)];
+    		if(gapos==gaposh) {					// Wenn Positionsnummer übereinstimmt
+    			objno=eeprom[atp+2+(n*2)];			// Objektnummer
+    			objflags=read_objflags(objno);			// Objekt Flags lesen
+    			if((objflags&0x04)==0x04) {				// Kommunikation zulässig (Bit 2 = communication enable) 
+    				port_pattern=0x01<<objno;
 
-              if((objflags&0x10)==0x10)				// Schreiben zulässig (Bit 4 = write enable)
-              {
-                        
-                
-                if (telegramm[7]==0x80) objstate=objstate&(0xFFFF-(0x0001<<objno));
-                else objstate=objstate|(0x0001<<objno);
-                
-
-              }
-
-            if(telegramm[7]==0x00 && (objflags&0x08)==0x08)	// Wert lesen, nur wenn read enable gesetzt (Bit3)
-            {
-              telegramm[0]=0xBC;
-              telegramm[1]=pah;			// Source Adresse
-              telegramm[2]=pal;
-              telegramm[5]=0xE1;		// DRL
-              telegramm[6]=0x00;
-              if((port_pattern&portbuffer)>0) telegramm[7]=0x41;	// An
-              else telegramm[7]=0x40;					// Aus
-              send_telegramm();
-            }
-          }
-        }
-      }
-      
+    				if((objflags&0x10)==0x10) {				// Schreiben zulässig (Bit 4 = write enable)
+    					write_obj_value(objno,telegramm[7]&0x3F);	// Objektwert in USERRAM schreiben
+    				}
+    			}
+    		}
+    	}
     }
 }
     
-
-
-
-
-
-void delay_timer(void)	// zählt alle 130ms die Variable Timer hoch und prüft Queue
-{
-  unsigned char n,b,port_pattern,delay_zeit,delay_onoff,delay_base;
-  long delval,delay_target;
-  
-  RTCCON=0x60;		// RTC anhalten und Flag löschen
-  RTCH=0x1D;		// Real Time Clock
-  RTCL=0x40;
-
-  timer++;
-  for(n=0;n<=7;n++)
-  {
-    b=userram[n*5];
-    if(b!=0x00)							// 0x00 = queue Eintrag ist leer
-    {   
-      delval=userram[n*5+1];
-      delval=(delval<<8)+userram[n*5+2];
-      delval=(delval<<8)+userram[n*5+3];
-      delval=(delval<<8)+userram[n*5+4];
-      if(delval==timer)
-      {       
-        port_pattern=0x01<<((b&0x0F));
-        if((b&0xF0)==0x90)
-        {
-          if (((eeprom[RELMODE]>>(b&0x0F))&0x01)==0x00)
-          {				
-            portbuffer=portbuffer|port_pattern;		// Einschalten (Schliesserbetrieb)
-          }
-          else
-          {
-            portbuffer=portbuffer&~port_pattern;	// Einschalten (Öffnerbetrieb)
-          }
-          start_writecycle();
-          write_byte(0x00,n*5,0x00);
-          stop_writecycle();
-          delay_zeit=eeprom[0xEA];
-          delay_zeit=((delay_zeit>>n)&0x01);
-          if(delay_zeit==0x01)
-          {
-            delay_base=eeprom[((n+1)>>1)+0xF9];   
-            if((n&0x01)==0x01) delay_base&=0x0F;
-            else delay_base=(delay_base&0xF0)>>4;
-            delay_onoff=eeprom[n+0xE2];
-            if (delay_onoff!=0x00 && delay_zeit!=0x00)
-            {
-              delay_target=delay_onoff;
-              delay_target=delay_target<<delay_base;
-              delay_target+=timer;  
-              start_writecycle();   
-              write_byte(0x00,n*5,n+0x80);
-              write_byte(0x00,1+n*5,delay_target>>24);
-              write_byte(0x00,2+n*5,delay_target>>16);
-              write_byte(0x00,3+n*5,delay_target>>8);
-              write_byte(0x00,4+n*5,delay_target);
-              stop_writecycle();
-            }
-          }
-        }
-        else
-        {
-          if (((eeprom[RELMODE]>>(b&0x0F))&0x01)==0x00)
-          {
-            portbuffer=portbuffer&~port_pattern;		// Ausschalten (Schliesserbetrieb)
-          }
-          else
-          {
-            portbuffer=portbuffer|port_pattern;			// Ausschalten (Öffnerbetrieb)
-          }
-          start_writecycle();
-          write_byte(0x00,n*5,0x00);
-          stop_writecycle();
-        }
-        TH0=0;					// Port-Ausgabe
-        P1_2=1;
-      	P0=portbuffer;	
-      	start_writecycle();
-      	write_byte(0x00,0x29,portbuffer);
-      	stop_writecycle();
-      	TR1=0;					
-      	TF1=0;
-      	TH1=0xA0;				// Relais zunächst mit vollem Strom einschalten...
-      	TL1=0x00;				
-      	TR1=1;
-      	while (!TF1);
-      	TR1=0;
-      	TH0=DUTY;				// ...danach mit PWM halten (min5% von I nominal)    
-      	
-
-      }
-    }   
-  }
-  RTCCON=0x61;		// RTC starten
-}
-
 
 void restart_app(void)		// Alle Applikations-Parameter zurücksetzen
 {
@@ -330,10 +204,12 @@ void restart_app(void)		// Alle Applikations-Parameter zurücksetzen
   timer=0;		// Timer-Variable, wird alle 135us inkrementiert
   
   start_writecycle();
-  write_byte(0x01,0x04,0x04);	// Herstellercode 0x04 = Jung
+  write_byte(0x01,0x03,0x00);	// Herstellercode 0x0004 = Jung
+  write_byte(0x01,0x04,0x04);
   write_byte(0x01,0x05,0x70);	// Geräte Typ (2118) 7054h
   write_byte(0x01,0x06,0x54);  // 	"	"	"
   write_byte(0x01,0x07,0x02);	// Versionsnummer
+  write_byte(0x01,0x0C,0x00);	// PORT A Direction Bit Setting
   write_byte(0x01,0x0D,0xFF);	// Run-Status (00=stop FF=run)
   write_byte(0x01,0x12,0x84);	// COMMSTAB Pointer
   stop_writecycle();

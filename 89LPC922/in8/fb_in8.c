@@ -39,8 +39,7 @@ void main(void)
   
   do  {
   
-    if(RTCCON>=0x80) delay_timer();	// Verzögerungs-Timer alle 130ms hochzählen
-    
+     
     p0h=P0;				// prüfen ob ein Eingang sich geändert hat
     if (p0h!=portbuffer) 
     {
