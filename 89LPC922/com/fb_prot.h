@@ -46,16 +46,22 @@ void read_memory(void);			// read_memory_request - Speicher auslesen und senden
 void write_memory(void);		// write_memory_request - empfangene Daten in Speicher schreiben
 void set_pa(void);				// neue phys. Adresse programmieren
 void read_pa(void);				// phys. Adresse senden
+void read_value_req(void);		// Objektwert lesen angefordert
+
 unsigned char read_objflags(unsigned char objno);	// Objektflags lesen
-int find_ga(unsigned char objno);	// Gruppenadresse über Assoziationstabelle finden (letzter Eintrag, falls mehrere)
-unsigned char find_objno(unsigned char gah, unsigned char gal);
+
+int find_ga(unsigned char objno);	// Gruppenadresse über Assoziationstabelle finden (erster Eintrag, falls mehrere)
+unsigned char find_first_objno(unsigned char gah, unsigned char gal);
+
 void write_delay_record(unsigned char objno, unsigned char delay_status, long delay_target);	// Schreibt die Schalt-Verzögerungswerte ins Flash
 void clear_delay_record(unsigned char objno); // Löscht den Delay Eintrag
 void restart_prot(void);		// Protokoll-relevante Parameter zurücksetzen
+
 int read_obj_value(unsigned char objno);	// gibt den Wert eines Objektes zurück
+unsigned char read_obj_type(unsigned char objno);		// gibt den Typ eines Objektes zurück
 bit write_obj_value(unsigned char objno,int objvalue);	// schreibt den aktuellen Wert eines Objektes ins 'RAM'
 
-void eis1(void);				// Hauptroutine für Ausgänge schalten gemäß EIS 1 Protokoll (an/aus)
+void write_value_req(void);				// Hauptroutine für Ausgänge schalten gemäß EIS 1 Protokoll (an/aus)
 void read_value_req(void);		// Objektwerte lesen angefordert
 void restart_app(void);			// Alle Applikations-Parameter zurücksetzen
 

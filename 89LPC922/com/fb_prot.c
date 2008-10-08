@@ -96,8 +96,8 @@ void timer1(void) interrupt 3	// Interrupt von Timer 1, 370us keine Busaktivität
       {
         if(data_laenge==1 && telegramm[6]==0x00)
         {
-          if ((telegramm[7]&0xFE)==0x80) eis1();		// Ausgänge schalten (EIS 1)
-          if (telegramm[7]==0x00) read_value_req();		// Objektwert lesen und als read_value_res auf Bus senden
+          if ((telegramm[7]&0xC0)==0x80) write_value_req();	// Objektwerte schreiben (zB. EIS1)
+          if (telegramm[7]==0x00) read_value_req();			// Objektwert lesen und als read_value_res auf Bus senden
         }
       }
     }
@@ -314,6 +314,37 @@ void read_pa(void)			// phys. Adresse senden
 }
 
 
+void read_value_req(void)				// Objektwert lesen angefordert
+{										// todo: sendet derzeit nur Typen 1 bis 6 Bit
+	unsigned char objno, objflags;
+	int objvalue, ga;
+	
+	objno=find_first_objno(telegramm[3],telegramm[4]);	// erste Objektnummer zu empfangener GA finden
+	if(objno!=0xFF) {	// falls Gruppenadresse nicht gefunden
+		send_ack();
+		objvalue=read_obj_value(objno);						// Objektwert aus USER-RAM lesen
+		objflags=read_objflags(objno);						// Objekt Flags lesen
+    
+		if((objflags&0x08)==0x08 && (objflags&0x04)==0x04) {	// Objekt lesen, nur wenn read enable gesetzt (Bit3) und Kommunikation zulässig (Bit2)
+			telegramm[0]=0xBC;
+			telegramm[1]=pah;		// Source Adresse
+			telegramm[2]=pal;
+          
+			if(read_obj_type(objno)<=6) {			// Objekttyp, 1-6 Bit
+				ga=find_ga(objno);
+				telegramm[3]=ga>>8;
+				telegramm[4]=ga;
+				telegramm[5]=0xE1;	// DRL
+				telegramm[6]=0x00;
+				telegramm[7]=0x40+objvalue;			// bis zu 6 Bit passen in das Byte 7
+			}
+			send_telegramm();
+    	}
+    }
+}	
+
+
+
 unsigned char read_objflags(unsigned char objno)	// Objektflags lesen
 {
   unsigned char ctp,addr,flags;
@@ -325,37 +356,31 @@ unsigned char read_objflags(unsigned char objno)	// Objektflags lesen
 }
 
 
-int find_ga(unsigned char objno)		// Gruppenadresse über Assoziationstabelle finden (letzter Eintrag, falls mehrere)
-{						// dient zum Senden eines Telegrammes nach einem Ereignis (Eingang, Rückmeldeobjekt, etc.)
-  unsigned char n,assno,asstab,gapos,gal,gah;
-  int ga;
+
+int find_ga(unsigned char objno)		// Gruppenadresse über Assoziationstabelle finden
+{										// Die sendende Adresse ist diejenige, bei der die Objektnummer
+										// und die Assoziationsnummer übereinstimmt
+	unsigned char asstab,gapos,gal,gah;
+	int ga;
   
-  gapos=0;
-  asstab=eeprom[ASSOCTABPTR];
-  assno=eeprom[asstab];
-  for(n=0;n<assno;n++)
-  {
-    if(eeprom[asstab+2+2*n]==objno)
-    {
-      gapos=eeprom[asstab+1+2*n];
+	gapos=0;
+	asstab=eeprom[ASSOCTABPTR];
+
+    if(eeprom[asstab+2+2*objno]==objno) gapos=eeprom[asstab+1+2*objno];
+
+    if(gapos!=0xFE) {
+    	gah=eeprom[ADDRTAB+1+gapos*2];
+    	gal=eeprom[ADDRTAB+2+gapos*2];
+    	ga=gal+256*gah;
     }
-  }
-  if(gapos!=0xFE)
-  {
-    gah=eeprom[ADDRTAB+1+gapos*2];
-    gal=eeprom[ADDRTAB+2+gapos*2];
-    ga=gal+256*gah;
-  }
-  else
-  {
-    ga=0;
-  }
-  return(ga);
+    else ga=0;
+
+    return(ga);
 } 
 
 
-unsigned char gapos_in_gat(unsigned char gah, unsigned char gal)
-{
+unsigned char gapos_in_gat(unsigned char gah, unsigned char gal)	// GA-Positionsnummer in Groppenadresstabelle finden
+{																	// erste GA=1 (da 0=PA)
   unsigned char ga_position,ga_count,n;
   
   ga_count=eeprom[ADDRTAB];
@@ -371,26 +396,28 @@ unsigned char gapos_in_gat(unsigned char gah, unsigned char gal)
 }
 
 
-unsigned char find_objno(unsigned char gah, unsigned char gal)
+unsigned char find_first_objno(unsigned char gah, unsigned char gal)
 {
-	unsigned char gapos, gaposh, gacount, atp, assmax, n, objno;
+	unsigned char gapos, gaposh, atp, assmax, n, objno;
 	
 	objno=0xFF;
-	gapos=0xFF;
+	gapos=gapos_in_gat(gah,gal);
 	
-	gacount=eeprom[ADDRTAB];	// Position der Gruppenadresse in Adresstabelle finden 
-	if (gacount>0) {
-	    for (n=1;n<=gacount;n++) {
-	      if (gah==eeprom[ADDRTAB+n*2+1] && gal==eeprom[ADDRTAB+n*2+2]) gapos=n;
-	    }
-	}
+	//gacount=eeprom[ADDRTAB];	// Position der Gruppenadresse in Adresstabelle finden 
+	//if (gacount>0) {
+	//    for (n=1;n<=gacount;n++) {
+	//      if (gah==eeprom[ADDRTAB+n*2+1] && gal==eeprom[ADDRTAB+n*2+2]) gapos=n;
+	//    }
+	//}
 	
 	atp=eeprom[ASSOCTABPTR];
 	assmax=eeprom[atp];
-	if (gapos!=0xFF) {	// Gruppenadresse nicht vorhanden
-		for(n=0;n<assmax;n++) {	// Schleife über alle Einträge in der Ass-Table		    
+	if (gapos!=0xFF) {	// falls Gruppenadresse nicht vorhanden
+		n=0;
+		while(objno==0xFF && n<assmax) {	// Schleife über Assoziationstabelle
 			gaposh=eeprom[atp+1+(n*2)];
 		    if(gapos==gaposh) objno=eeprom[atp+2+(n*2)];
+		    n++;
 		}       	       
 	}
 	return (objno);
@@ -400,27 +427,27 @@ unsigned char find_objno(unsigned char gah, unsigned char gal)
 void write_delay_record(unsigned char objno, unsigned char delay_state, long delay_target)		// Schreibt die Schalt-Verzögerungswerte ins Flash
 {
 	EX1=0;
-  start_writecycle();
-  write_byte(0x00,objno*5,delay_state);
-  write_byte(0x00,1+objno*5,delay_target>>24);
-  write_byte(0x00,2+objno*5,delay_target>>16);
-  write_byte(0x00,3+objno*5,delay_target>>8);
-  write_byte(0x00,4+objno*5,delay_target);
-  stop_writecycle();
-  EX1=1;
+	start_writecycle();
+	write_byte(0x00,objno*5,delay_state);
+	write_byte(0x00,1+objno*5,delay_target>>24);
+	write_byte(0x00,2+objno*5,delay_target>>16);
+	write_byte(0x00,3+objno*5,delay_target>>8);
+	write_byte(0x00,4+objno*5,delay_target);
+	stop_writecycle();
+	EX1=1;
 }
 
 void clear_delay_record(unsigned char objno)		// Schreibt die Schalt-Verzögerungswerte ins Flash
 {
-  EX1=0;
-  start_writecycle();
-  write_byte(0x00,objno*5,0x00);
-  write_byte(0x00,1+objno*5,0x00);
-  write_byte(0x00,2+objno*5,0x00);
-  write_byte(0x00,3+objno*5,0x00);
-  write_byte(0x00,4+objno*5,0x00);
-  stop_writecycle();
-  EX1=1;
+	EX1=0;
+	start_writecycle();
+	write_byte(0x00,objno*5,0x00);
+	write_byte(0x00,1+objno*5,0x00);
+	write_byte(0x00,2+objno*5,0x00);
+	write_byte(0x00,3+objno*5,0x00);
+	write_byte(0x00,4+objno*5,0x00);
+	stop_writecycle();
+	EX1=1;
 }
 
 int read_obj_value(unsigned char objno)		// gibt den aktuellen Wert eines Objektes zurück
@@ -441,6 +468,20 @@ int read_obj_value(unsigned char objno)		// gibt den aktuellen Wert eines Objekt
 }
 
 
+unsigned char read_obj_type(unsigned char objno)		// gibt den Typ eines Objektes zurück
+{
+	unsigned char  offset, commstab, objtype;
+	
+	objtype=0xFF;
+	offset=objno*3;
+	commstab=eeprom[COMMSTABPTR];	
+	if (objno <= commstab) {	// wenn objno <= anzahl objekte
+		objtype=eeprom[commstab+offset+4];
+	}
+	return(objtype);
+}
+
+
 bit write_obj_value(unsigned char objno,int objvalue)		// schreibt den aktuellen Wert eines Objektes ins 'RAM'
 {
 	unsigned char valuepointer, offset, commstab;
@@ -452,13 +493,13 @@ bit write_obj_value(unsigned char objno,int objvalue)		// schreibt den aktuellen
 	
 	if (objno <= commstab) {	// wenn objno <= anzahl objekte
 		valuepointer=eeprom[commstab+offset+2];
-		if (eeprom[commstab+offset+4] < 8) {
+		if (eeprom[commstab+offset+4] < 8) {	// Typ zwischen 1 und 8 Bit gross
 			start_writecycle();
 			write_byte(0x00,valuepointer,objvalue);
 			stop_writecycle();
 			write_ok=1;
 		}
-		if (eeprom[commstab+offset+4] == 8) {
+		if (eeprom[commstab+offset+4] == 8) {	// 2-Byte Wert
 			start_writecycle();
 			write_byte(0x00,valuepointer,objvalue>>8);
 			write_byte(0x00,valuepointer+1,objvalue);
