@@ -19,7 +19,7 @@
 #include "fb_app_snif.h"
 #include "../com/fb_rs232.h"
 
-void eis1(void)
+void write_value_req(void)
 {
   rs_send_dec(telegramm[3]>>3);
   SBUF='.';
@@ -42,9 +42,7 @@ void eis1(void)
   TI=0;
 }
 
-void read_value_req(void)
-{
-}
+
 
 
 
@@ -52,14 +50,14 @@ void read_value_req(void)
 void restart_app(void)		// Alle Applikations-Parameter zurücksetzen
 {
 
-  	start_writecycle();
-  	write_byte(0x01,0x04,0x01);	// Herstellercode 0x01 = Siemens
-  	write_byte(0x01,0x05,0x22);	// Geräte Typ (AP254) 221Ch
-  	write_byte(0x01,0x06,0x1C);	// 	"	"	"
-  	write_byte(0x01,0x07,0x01);	// Versionsnummer
-  	write_byte(0x01,0x0C,0x00);
-  	write_byte(0x01,0x0D,0xFF);	// Run-Status (00=stop FF=run)
-  	write_byte(0x01,0x12,0x56);	// COMMSTAB Pointer
-  	stop_writecycle();
+	start_writecycle();
+	write_byte(0x01,0x04,0x01);	// Herstellercode 0x01 = Siemens
+	write_byte(0x01,0x05,0x22);	// Geräte Typ (AP254) 221Ch
+	write_byte(0x01,0x06,0x1C);	// 	"	"	"
+	write_byte(0x01,0x07,0x01);	// Versionsnummer
+	write_byte(0x01,0x0C,0x00);
+	write_byte(0x01,0x0D,0xFF);	// Run-Status (00=stop FF=run)
+	write_byte(0x01,0x12,0x56);	// COMMSTAB Pointer
+	stop_writecycle();
   
 }
