@@ -19,7 +19,7 @@
 #include "fb_app_rs.h"
 #include "../com/fb_rs232.h"
 
-void eis1(void)
+void write_value_req(void)
 {
   rs_send_dec(telegramm[3]>>3);
   SBUF='.';
@@ -42,9 +42,7 @@ void eis1(void)
   TI=0;
 }
 
-void read_value_req(void)
-{
-}
+
 
 
 

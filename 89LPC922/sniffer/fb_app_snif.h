@@ -29,6 +29,5 @@
 
 
 void restart_app(void);		// Alle Applikations-Parameter zurücksetzen
-void eis1(void);
-void read_value_req(void);
+void write_value_req(void);
 #endif
