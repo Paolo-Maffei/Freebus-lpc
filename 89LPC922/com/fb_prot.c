@@ -11,6 +11,11 @@
  *  it under the terms of the GNU General Public License version 2 as
  *  published by the Free Software Foundation.
  *
+ * 09.11.08	- array delrec[] statt flash für zeitverzögerung, auf 24bit gekürzt
+ * 			- funktionen write_delay_record() und clear_delay_record() angepasst
+ * 			- globale variablen pah und pal durch direktes eeprom[] lesen ersetzt
+ * 
+ * 
  */
 
 
@@ -25,14 +30,13 @@
 unsigned char telegramm[23];
 unsigned char telpos;		// Zeiger auf nächste Position im Array Telegramm
 unsigned char cs;			// checksum
-unsigned char pal, pah;		// phys. Adresse
-unsigned char gacount;		// Gruppenadresszähler
 
 bit progmode, connected;	// Programmiermodus, Verbindung steht
 unsigned char conh, conl;	// bei bestehender Verbindung phys. Adresse des Kommunikationspartners
 unsigned char pcount;		// Paketzähler, Gruppenadresszähler
 unsigned char last_tel;
 bit transparency;
+unsigned char delrec[32];
 
 
 
@@ -66,7 +70,7 @@ void timer1(void) interrupt 3	// Interrupt von Timer 1, 370us keine Busaktivität
     {
       if(daf==0x00)					// Unicast, wenn Zieladresse physikalische Adresse ist
       {
-        if(telegramm[3]==pah && telegramm[4]==pal)	// nur wenn es die eigene phys. Adr. ist
+        if(telegramm[3]==eeprom[ADDRTAB+1] && telegramm[4]==eeprom[ADDRTAB+2])	// nur wenn es die eigene phys. Adr. ist
         {
           if((telegramm[6]&0xC3)==0x42 && (telegramm[7]&0xC0)==0x80) write_memory();	// write_memory_request beantworten
           if(data_laenge==0)
@@ -207,8 +211,8 @@ void ncd_quit(void)			// NCD Quittierung zurück senden. Setzt telegramm Bytes 0 
   telegramm[0]=0xB0;			// Control Byte			
   telegramm[3]=telegramm[1];		// Zieladresse wird Quelladresse
   telegramm[4]=telegramm[2];
-  telegramm[1]=pah;			// Quelladresse ist phys. Adresse
-  telegramm[2]=pal;
+  telegramm[1]=eeprom[ADDRTAB+1];			// Quelladresse ist phys. Adresse
+  telegramm[2]=eeprom[ADDRTAB+2];
   telegramm[5]=0x60;			// DRL
   telegramm[6]|=0xC0;			// Bit 6 und 7 setzen (TCPI = 11 NCD Quittierung)
   telegramm[6]&=0xFE;			// Bit 0 löschen 
@@ -285,11 +289,9 @@ void write_memory(void)			// write_memory_request - empfangene Daten in Speicher
 
 void set_pa(void)			// neue phys. Adresse programmieren
 {
-  pah=telegramm[8];
-  pal=telegramm[9];
   start_writecycle();
-  write_byte(0x01,ADDRTAB+1,pah);		// in Flash schreiben
-  write_byte(0x01,ADDRTAB+2,pal);
+  write_byte(0x01,ADDRTAB+1,telegramm[8]);		// in Flash schreiben
+  write_byte(0x01,ADDRTAB+2,telegramm[9]);
   stop_writecycle();
 }
 
@@ -302,8 +304,8 @@ void read_pa(void)			// phys. Adresse senden
 
   telegramm[0]=0xB0;			// read_memory_res senden
 
-    telegramm[1]=pah;
-    telegramm[2]=pal;
+    telegramm[1]=eeprom[ADDRTAB+1];	// PA
+    telegramm[2]=eeprom[ADDRTAB+2];
     telegramm[3]=0x00;
     telegramm[4]=0x00;			
     telegramm[5]=0xE1;			// DRL
@@ -327,8 +329,8 @@ void read_value_req(void)				// Objektwert lesen angefordert
     
 		if((objflags&0x08)==0x08 && (objflags&0x04)==0x04) {	// Objekt lesen, nur wenn read enable gesetzt (Bit3) und Kommunikation zulässig (Bit2)
 			telegramm[0]=0xBC;
-			telegramm[1]=pah;		// Source Adresse
-			telegramm[2]=pal;
+			telegramm[1]=eeprom[ADDRTAB+1];		// Source Adresse
+			telegramm[2]=eeprom[ADDRTAB+2];
           
 			if(read_obj_type(objno)<=6) {			// Objekttyp, 1-6 Bit
 				ga=find_ga(objno);
@@ -363,7 +365,7 @@ int find_ga(unsigned char objno)		// Gruppenadresse über Assoziationstabelle fin
 	unsigned char asstab,gapos,gal,gah;
 	int ga;
   
-	gapos=0;
+	gapos=0xFE;
 	asstab=eeprom[ASSOCTABPTR];
 
     if(eeprom[asstab+2+2*objno]==objno) gapos=eeprom[asstab+1+2*objno];
@@ -403,13 +405,6 @@ unsigned char find_first_objno(unsigned char gah, unsigned char gal)
 	objno=0xFF;
 	gapos=gapos_in_gat(gah,gal);
 	
-	//gacount=eeprom[ADDRTAB];	// Position der Gruppenadresse in Adresstabelle finden 
-	//if (gacount>0) {
-	//    for (n=1;n<=gacount;n++) {
-	//      if (gah==eeprom[ADDRTAB+n*2+1] && gal==eeprom[ADDRTAB+n*2+2]) gapos=n;
-	//    }
-	//}
-	
 	atp=eeprom[ASSOCTABPTR];
 	assmax=eeprom[atp];
 	if (gapos!=0xFF) {	// falls Gruppenadresse nicht vorhanden
@@ -426,7 +421,7 @@ unsigned char find_first_objno(unsigned char gah, unsigned char gal)
 
 void write_delay_record(unsigned char objno, unsigned char delay_state, long delay_target)		// Schreibt die Schalt-Verzögerungswerte ins Flash
 {
-	EX1=0;
+	/*  EX1=0;
 	start_writecycle();
 	write_byte(0x00,objno*5,delay_state);
 	write_byte(0x00,1+objno*5,delay_target>>24);
@@ -434,12 +429,16 @@ void write_delay_record(unsigned char objno, unsigned char delay_state, long del
 	write_byte(0x00,3+objno*5,delay_target>>8);
 	write_byte(0x00,4+objno*5,delay_target);
 	stop_writecycle();
-	EX1=1;
+	EX1=1;  */
+	delrec[objno*4]=delay_state;
+	delrec[objno*4+1]=delay_target>>16;
+	delrec[objno*4+2]=delay_target>>8;
+	delrec[objno*4+3]=delay_target;
 }
 
 void clear_delay_record(unsigned char objno)		// Schreibt die Schalt-Verzögerungswerte ins Flash
 {
-	EX1=0;
+	/*  EX1=0;
 	start_writecycle();
 	write_byte(0x00,objno*5,0x00);
 	write_byte(0x00,1+objno*5,0x00);
@@ -447,7 +446,11 @@ void clear_delay_record(unsigned char objno)		// Schreibt die Schalt-Verzögerung
 	write_byte(0x00,3+objno*5,0x00);
 	write_byte(0x00,4+objno*5,0x00);
 	stop_writecycle();
-	EX1=1;
+	EX1=1;  */
+	delrec[objno*4]=0;
+	delrec[objno*4+1]=0;
+	delrec[objno*4+2]=0;
+	delrec[objno*4+3]=0;
 }
 
 int read_obj_value(unsigned char objno)		// gibt den aktuellen Wert eines Objektes zurück
@@ -514,14 +517,6 @@ bit write_obj_value(unsigned char objno,int objvalue)		// schreibt den aktuellen
 
 void restart_prot(void)		// Protokoll-relevante Parameter zurücksetzen
 {
-	
-
-	
-  pah=eeprom[ADDRTAB+1];	// phys. Adresse einlesen
-  pal=eeprom[ADDRTAB+2];
-  
-
-
   
   progmode=0;			// kein Programmiermodus
   pcount=1;			// Paketzähler initialisieren

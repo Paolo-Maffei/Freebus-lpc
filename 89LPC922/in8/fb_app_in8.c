@@ -106,8 +106,8 @@ void schalten(unsigned char risefall, unsigned char pinno)	// Schaltbefehl sende
     if (ga!=0)
     {
       telegramm[0]=0xBC;
-      telegramm[1]=pah;
-      telegramm[2]=pal;
+      telegramm[1]=eeprom[ADDRTAB+1];		// phys. Adresse
+      telegramm[2]=eeprom[ADDRTAB+2];
       telegramm[3]=ga>>8;
       telegramm[4]=ga;
       telegramm[5]=0xD1;

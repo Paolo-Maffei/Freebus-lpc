@@ -28,7 +28,7 @@
 
 void main(void)
 { 
-  unsigned char n,rsinpos;
+  unsigned char n,rsinpos,pah,pal;
   unsigned char rsin[20];		// seriell empfangener string
   bit cr_received, crlf_received;
   int groupadr;
@@ -75,8 +75,8 @@ void main(void)
           groupadr=groupadr*256;
           groupadr=groupadr+((rsin[11]-48)*100) + ((rsin[12]-48)*10) + (rsin[13]-48);
           telegramm[0]=0xBC;
-          telegramm[1]=pah;
-          telegramm[2]=pal;
+          telegramm[1]=eeprom[ADDRTAB+1];
+          telegramm[2]=eeprom[ADDRTAB+2];
           telegramm[3]=groupadr>>8;
           telegramm[4]=groupadr;
           telegramm[5]=0xE1;
@@ -96,8 +96,8 @@ void main(void)
           groupadr=groupadr*256;
           groupadr=groupadr+((rsin[11]-48)*100) + ((rsin[12]-48)*10) + (rsin[13]-48);
           telegramm[0]=0xBC;
-          telegramm[1]=pah;
-          telegramm[2]=pal;
+          telegramm[1]=eeprom[ADDRTAB+1];
+          telegramm[2]=eeprom[ADDRTAB+2];
           telegramm[3]=groupadr>>8;
           telegramm[4]=groupadr;
           telegramm[5]=0xE2;
@@ -111,15 +111,15 @@ void main(void)
         }
         if(rsin[2]=='r' && rsin[3]=='p' && rsin[4]=='a')	// physikalische Adresse des Adaptrs lesen (fbrpa)
         {
-          rs_send_dec(pah>>4);
+          rs_send_dec(eeprom[ADDRTAB+1]>>4);
           SBUF='.';
           while(!TI);
           TI=0;
-          rs_send_dec(pah&0x0F);
+          rs_send_dec(eeprom[ADDRTAB+1]&0x0F);
           SBUF='.';
           while(!TI);
           TI=0;
-          rs_send_dec(pal);
+          rs_send_dec(eeprom[ADDRTAB+2]);
           SBUF=0x0D;
           while(!TI);
           TI=0;

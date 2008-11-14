@@ -20,7 +20,7 @@
 #define FBOUTC	P1_6	// Sendepin
 #define TASTER	P1_7	// Pin für Programmiertaster
 #define FBINC	P1_4	// Empfangspin
-#define DUTY	0xC0	// war C0  0xFF=immer low 0x00=immer high
+#define DUTY	0xC0	// default C0  0xFF=immer low 0x00=immer high
 
 
 extern __code unsigned char __at 0x1C00 userram[255];	// Bereich im Flash für User-RAM

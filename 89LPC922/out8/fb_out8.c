@@ -74,13 +74,12 @@ void restart_app(void)		// Alle Applikations-Parameter zurücksetzen
   }
   port_schalten(portbuffer);  
   
-  pdir=0xFF;		// Port-Direction - wenn Bit=1 darf entsprechender Portpin beschrieben werden (Ausgang), sonst nicht (Eingang)
   zfstate=0x00;		// Zustand der Zusatzfunktionen 1-4
   blocked=0x00;		// Ausgänge nicht gesperrt
   timer=0;			// Timer-Variable, wird alle 135us inkrementiert
   
   logicstate=0;
-  objstate=0;
+  //objstate=0;
   
   start_writecycle();
   write_byte(0x01,0x03,0x00);	// Herstellercode 0x0004 = Jung
@@ -107,6 +106,7 @@ void main(void)
   restart_hw();				// Hardware zurücksetzen
   restart_prot();			// Protokoll-relevante Parameter zurücksetzen
   restart_app();			// Anwendungsspezifische Einstellungen zurücksetzen
+
   
   do  {
     if(RTCCON>=0x80) delay_timer();	// Realtime clock Überlauf
@@ -118,6 +118,8 @@ void main(void)
     }
     TASTER=!progmode;				// LED entsprechend schalten (low=LED an)
     for(n=0;n<100;n++) {}
+  
+    
   } while(1);
 }
 

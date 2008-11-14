@@ -23,14 +23,13 @@
 extern unsigned char telegramm[23];
 extern unsigned char telpos;		// Zeiger auf nächste Position im Array Telegramm
 extern unsigned char cs;			// checksum
-extern unsigned char pal, pah;		// phys. Adresse
-extern unsigned char gacount;		// Gruppenadresszähler
 extern bit progmode, connected;		// Programmiermodus, Verbindung steht
 extern unsigned char conh, conl;	// bei bestehender Verbindung phys. Adresse des Kommunikationspartners
 extern unsigned char pcount;		// Paketzähler, Gruppenadresszähler
 extern bit parity_ok;				// Parity Bit des letzten empfangenen Bytes OK
 extern unsigned char last_tel;
 extern bit transparency;			// wenn 1 dann wird telegramm lokal nicht verarbeitet
+extern unsigned char delrec[32];
 
 void timer1(void) interrupt 3;	// Interrupt von Timer 1, 370us keine Busaktivität seit letztem Byte, d.h. Telegramm wurde komplett übertragen
 bit get_ack(void);				// wartet bis Byte empfangen wurde und prüft ob es ein ACK war  <- suboptimal, besser mit timeout !!!

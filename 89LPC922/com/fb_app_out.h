@@ -25,19 +25,17 @@
 #define	DELAYTAB	0xF9	// Start der Tabelle für Verzögerungswerte (Basis)
 
 extern unsigned char portbuffer;	// Zwischenspeicherung der Portzustände
-extern unsigned char objstate;		// Zustand der Objekte 0-7
 extern unsigned char zfstate;		// Zustand der Objekte 8-11 = Zusatzfunktionen 1-4
 extern unsigned char blocked;		// Sperrung der 8 Ausgänge (1=gesperrt)
 extern unsigned char logicstate;	// Zustand der Verknüpfungen pro Ausgang
 extern long timer;			// Timer für Schaltverzögerungen, wird alle 130us hochgezählt
-extern unsigned char pdir;		// Port-Richtung, wenn Bit gesetzt dann ist der entsprechende Pin ein Ausgang (für kombinierte Ein-/Ausgänge)
 
 
 void write_value_req(void);		// Hauptroutine für Ausgänge schalten gemäß EIS 1 Protokoll (an/aus)
 void delay_timer(void);		// zählt alle 130ms die Variable Timer hoch und prüft Queue
 void respond(unsigned char objno, unsigned char rval);
 void port_schalten(unsigned char ports);	// Ausgänge schalten
-void object_schalten(unsigned char objno);	// Objekt schalten
+void object_schalten(unsigned char objno, bit objstate);	// Objekt schalten
 
 
 #endif
