@@ -14,6 +14,7 @@
  * 09.11.08	- array delrec[] statt flash für zeitverzögerung, auf 24bit gekürzt
  * 			- funktionen write_delay_record() und clear_delay_record() angepasst
  * 			- globale variablen pah und pal durch direktes eeprom[] lesen ersetzt
+ * 14.11.08	- in find_ga() default value von ga auf 0xFE gesetzt
  * 
  * 
  */
@@ -519,10 +520,10 @@ void restart_prot(void)		// Protokoll-relevante Parameter zurücksetzen
 {
   
   progmode=0;			// kein Programmiermodus
-  pcount=1;			// Paketzähler initialisieren
+  pcount=1;				// Paketzähler initialisieren
   connected=0;			// keine Verbindung
   
-  telpos=0;			// empfangene Bytes an dieser Position im Array telegramm[] ablegen
+  telpos=0;				// empfangene Bytes an dieser Position im Array telegramm[] ablegen
   last_tel=0;
   transparency=0;
 }

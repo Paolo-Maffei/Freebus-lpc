@@ -215,7 +215,9 @@ void delay_timer(void)	// zählt alle 130ms die Variable Timer hoch und prüft Que
 {
   unsigned char objno,delay_state,port_pattern,delay_zeit,delay_onoff,delay_base;
   long delval,delay_target;
+  bit portchanged;
   
+  portchanged=0;
   RTCCON=0x60;		// RTC anhalten und Flag löschen
   RTCH=0x1D;		// Real Time Clock
   RTCL=0x40;
@@ -233,6 +235,7 @@ void delay_timer(void)	// zählt alle 130ms die Variable Timer hoch und prüft Que
       delval=(delval<<8)+delrec[objno*4+3];
       if(delval==timer)
       {       
+    	portchanged=1;
         port_pattern=0x01<<objno;
         if(delay_state==0x81)	// einschalten
         {
@@ -291,7 +294,7 @@ void delay_timer(void)	// zählt alle 130ms die Variable Timer hoch und prüft Que
       }
     }   
   }
-  port_schalten(portbuffer);				// Ausgänge schalten
+  if (portchanged) port_schalten(portbuffer);				// Ausgänge schalten
   RTCCON=0x61;		// RTC starten
 }
 
