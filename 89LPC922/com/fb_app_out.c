@@ -126,8 +126,7 @@ void write_value_req(void)				// Ausgänge schalten gemäß EIS 1 Protokoll (an/aus
           }
         }
       }
-      port_schalten(portbuffer);	//test
-      
+      if (portbuffer != userram[0x29])port_schalten(portbuffer);	//test
     }
 }
 
@@ -301,21 +300,33 @@ void delay_timer(void)	// zählt alle 130ms die Variable Timer hoch und prüft Que
 
 void port_schalten(unsigned char ports)		// Schaltet die Ports mit PWM, DUTY ist Pulsverhältnis
 {
-  TH0=0;					// Port-Ausgabe
-  P1_2=1;
-  P0=ports;
-  TR1=0;					
-  TF1=0;
-  TH1=0xA0;				// Relais zunächst mit vollem Strom einschalten...
-  TL1=0x00;				
-  TR1=1;
-  while (!TF1);
+	unsigned char softpwm;				// Schleifenvariable für SoftPWM
+
+  TH0=0;					// Der HArdware PWM wird voll eingeschaltet
+  P1_2=1;					
+  for (softpwm=0;softpwm<=70;softpwm++)// 70*70µsec soft PWM um den bereits geschalteten Relaisen
+  {										// den Strom zu drosseln
+	  P0=ports & (~(userram[0x29]));// neu Ports undnicht alter Portzustand...
+	  TR1=0;					//schaltet alte Ports aus die an waren
+	  TF1=0;
+	  TH1=0xFF;				
+	  TL1=0x22;			//timer mit -221 für 60µs laden	
+	  TR1=1;
+	  while (!TF1);		// warten bis 60µs vergangen sind
+	  P0=ports;			// alle Ports einschalten
+	  TR1=0;					
+	  TF1=0;
+	  TH1=0xFF;			// timer mit -37 für 10µs laden
+	  TL1=0xF5;				
+	  TR1=1;
+	  while (!TF1);		// warten bis 10µs vergangen sind
+  }
   TR1=0;
   TH0=DUTY;				// ...danach mit PWM halten (min5% von I nominal)
   start_writecycle();	
   write_byte(0x00,0x29,portbuffer);
   stop_writecycle();
-}
+ }
 
 
 
