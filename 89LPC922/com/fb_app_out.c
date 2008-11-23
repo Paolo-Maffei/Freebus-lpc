@@ -29,7 +29,7 @@
 #include "../com/fb_prot.h"
 #include "../com/fb_app_out.h"
 
-unsigned char Tastenvalue;
+unsigned char Tval;
 unsigned char portbuffer;	// Zwischenspeicherung der Portzustände
 unsigned char zfstate;		// Zustand der Objekte 8-11 = Zusatzfunktionen 1-4
 unsigned char blocked;		// Sperrung der 8 Ausgänge (1=gesperrt)
@@ -315,18 +315,18 @@ void delay_timer(void)	// zählt alle 130ms die Variable Timer hoch und prüft Que
   		if (!P1_3) Tasten=Tasten|ledport;	
           ledport=ledport<<1;
         } 
-  	 if (interrupted==1) Tasten=Tastenvalue;  // wenn unterbrochen wurde verwerfen wir die Taste
+  	 if (interrupted==1) Tasten=Tval;  // wenn unterbrochen wurde verwerfen wir die Taste
   	 P0=userram[0x29]; 
   	}
 
-  	if (Tasten != Tastenvalue)  {
+  	if (Tasten != Tval)  {
   	   portbuffer=userram[0x29];
-  	   ledport=Tasten&~Tastenvalue; // ledport ist hier die Hilfsvariable für steigende Flanke
+  	   ledport=Tasten&~Tval; // ledport ist hier die Hilfsvariable für steigende Flanke
   	   if (ledport!=0x00){
   		   portbuffer=portbuffer^ledport; // bei gedrückter Taste toggeln
   		   port_schalten(portbuffer);	// 	und schalten
   	   }
-  	   Tastenvalue=Tasten;			//neue Tasten sichern
+  	   Tval=Tasten;			//neue Tasten sichern
 
   	}
   if (portchanged) port_schalten(portbuffer);				// Ausgänge schalten

@@ -53,7 +53,8 @@ void restart_app(void)		// Alle Applikations-Parameter zurücksetzen
 {
 
   unsigned char bw,bwh,n;
-  
+	Tval=0x00;
+ 
   P0M1=0x00;				// Port 0 Modus push-pull für Ausgang
   P0M2=0xFF;
  
@@ -106,7 +107,6 @@ unsigned char n;
   restart_prot();			// Protokoll-relevante Parameter zurücksetzen
   restart_app();			// Anwendungsspezifische Einstellungen zurücksetzen
 
-  Tastenvalue=0x00;
   do  {
   if(RTCCON>=0x80) delay_timer();	// Realtime clock Überlauf
 //
