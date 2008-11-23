@@ -305,6 +305,7 @@ void delay_timer(void)	// zählt alle 130ms die Variable Timer hoch und prüft Que
   //
   //+++++++   Handbetätigung  ++++++++++
   //
+  while(TL0>0x60);
   	  if (TL0<=0x60){			// PWM scannen um "Hand"-Tasten abzufragen
   	  interrupted=0;	  
   	  Tasten=0;				// 60 ist die Hälfte von C0(duty von kubi)

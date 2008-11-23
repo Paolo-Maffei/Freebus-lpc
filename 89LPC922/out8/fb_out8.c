@@ -45,7 +45,7 @@
 #include "../com/fb_hal_lpc.h"
 #include "../com/fb_prot.h"
 #include "../com/fb_app_out.h"
-
+extern unsigned char Tval;
 
 
 
