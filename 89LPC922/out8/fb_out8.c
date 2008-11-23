@@ -56,7 +56,7 @@ void restart_app(void)		// Alle Applikations-Parameter zurücksetzen
   
   P0M1=0x00;				// Port 0 Modus push-pull für Ausgang
   P0M2=0xFF;
-
+ 
   portbuffer=userram[0x29];	// Verhalten nach Busspannungs-Wiederkehr
   bw=eeprom[0xF6];
   for(n=0;n<=3;n++)			// Ausgänge 1-4
@@ -102,15 +102,44 @@ void restart_app(void)		// Alle Applikations-Parameter zurücksetzen
 void main(void)
 { 
   unsigned char n;
-
+  unsigned char Tasten;
+  unsigned char ledport;
+  unsigned char Tastenvalue;
   restart_hw();				// Hardware zurücksetzen
   restart_prot();			// Protokoll-relevante Parameter zurücksetzen
   restart_app();			// Anwendungsspezifische Einstellungen zurücksetzen
 
-  
+  Tastenvalue=0x00;
   do  {
-    if(RTCCON>=0x80) delay_timer();	// Realtime clock Überlauf
-    TASTER=1;						// Pin als Eingang schalten um Taster abzufragen
+//
+//+++++++   Handbetätigung  ++++++++++
+//
+	  if (TL0<=0x60){			// PWM scannen um "Hand"-Tasten abzufragen
+	  Tasten=0;				// 60 ist die Hälfte von C0(duty von kubi)
+      P1_3= 1;			    //int0 auf 1 wird von LED und ULN auf gnd gezogen.
+      ledport=0x01;
+	  for (n=0;n<8;n++){  						
+        P0=~ledport;
+		if (!P1_3) Tasten=Tasten|ledport;	
+        ledport=ledport<<1;
+      } 
+	 P0=userram[0x29]; 
+	}
+	if (Tasten != Tastenvalue)  {
+	   portbuffer=userram[0x29];
+	   ledport=Tasten&~Tastenvalue; // ledport ist hier die Hilfsvariable für steigende Flanke
+	   if (ledport!=0x00){
+		   portbuffer=portbuffer^ledport; // bei gedrückter Taste toggeln
+		   port_schalten(portbuffer);	// 	und schalten
+	   }
+	   Tastenvalue=Tasten;			//neue Tasten sichern
+
+	}
+  if(RTCCON>=0x80) delay_timer();	// Realtime clock Überlauf
+//
+// +++++ Handhabung des Programmiertasters und der ProgrammierLED +++++
+//
+	TASTER=1;				        // Pin als Eingang schalten um Taster abzufragen
     if(!TASTER) {					// Taster gedrückt
       for(n=0;n<100;n++) {}
       while(!TASTER);				// warten bis Taster losgelassen

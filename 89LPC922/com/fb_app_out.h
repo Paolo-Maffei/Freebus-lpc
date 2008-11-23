@@ -24,11 +24,13 @@
 #define RELMODE		0xF2	// Relaisbetrieb
 #define	DELAYTAB	0xF9	// Start der Tabelle für Verzögerungswerte (Basis)
 
+extern unsigned char Tastenvalue; // Zustand der Tasten bei Handbetätigung
 extern unsigned char portbuffer;	// Zwischenspeicherung der Portzustände
 extern unsigned char zfstate;		// Zustand der Objekte 8-11 = Zusatzfunktionen 1-4
 extern unsigned char blocked;		// Sperrung der 8 Ausgänge (1=gesperrt)
 extern unsigned char logicstate;	// Zustand der Verknüpfungen pro Ausgang
 extern long timer;			// Timer für Schaltverzögerungen, wird alle 130us hochgezählt
+
 
 
 void write_value_req(void);		// Hauptroutine für Ausgänge schalten gemäß EIS 1 Protokoll (an/aus)

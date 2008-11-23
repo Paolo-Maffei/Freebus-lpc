@@ -19,7 +19,9 @@
  * 			- globale variablen pah, pal, rmstate entfernt
  * 			- write_obj_value aufrufe rausgenommen
  * 
- * 
+ * 23.11.08 - Soft PWM während der Vollstromphase
+ * 			- Handbetätigung in main eingefügt (hierzu P1.3 nötig !)
+ *  
  */
 
 #include <P89LPC922.h>
