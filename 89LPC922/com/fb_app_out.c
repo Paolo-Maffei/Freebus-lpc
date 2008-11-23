@@ -29,6 +29,7 @@
 #include "../com/fb_prot.h"
 #include "../com/fb_app_out.h"
 
+unsigned char Tastenvalue;
 unsigned char portbuffer;	// Zwischenspeicherung der Portzustände
 unsigned char zfstate;		// Zustand der Objekte 8-11 = Zusatzfunktionen 1-4
 unsigned char blocked;		// Sperrung der 8 Ausgänge (1=gesperrt)
@@ -215,6 +216,12 @@ void object_schalten(unsigned char objno, bit objstate)	// Schaltet einen Ausgan
 void delay_timer(void)	// zählt alle 130ms die Variable Timer hoch und prüft Queue
 {
   unsigned char objno,delay_state,port_pattern,delay_zeit,delay_onoff,delay_base;
+  unsigned char n;
+  unsigned char Tasten=0;
+  unsigned char ledport;
+
+
+  
   long delval,delay_target;
   bit portchanged;
   
@@ -295,8 +302,36 @@ void delay_timer(void)	// zählt alle 130ms die Variable Timer hoch und prüft Que
       }
     }   
   }
+  //
+  //+++++++   Handbetätigung  ++++++++++
+  //
+  	  if (TL0<=0x60){			// PWM scannen um "Hand"-Tasten abzufragen
+  	  interrupted=0;	  
+  	  Tasten=0;				// 60 ist die Hälfte von C0(duty von kubi)
+        P1_3= 1;			    //int0 auf 1 wird von LED und ULN auf gnd gezogen.
+        ledport=0x01;
+  	  for (n=0;n<8;n++) {  						
+          P0=~ledport;
+  		if (!P1_3) Tasten=Tasten|ledport;	
+          ledport=ledport<<1;
+        } 
+  	 if (interrupted==1) Tasten=Tastenvalue;  // wenn unterbrochen wurde verwerfen wir die Taste
+  	 P0=userram[0x29]; 
+  	}
+
+  	if (Tasten != Tastenvalue)  {
+  	   portbuffer=userram[0x29];
+  	   ledport=Tasten&~Tastenvalue; // ledport ist hier die Hilfsvariable für steigende Flanke
+  	   if (ledport!=0x00){
+  		   portbuffer=portbuffer^ledport; // bei gedrückter Taste toggeln
+  		   port_schalten(portbuffer);	// 	und schalten
+  	   }
+  	   Tastenvalue=Tasten;			//neue Tasten sichern
+
+  	}
   if (portchanged) port_schalten(portbuffer);				// Ausgänge schalten
   RTCCON=0x61;		// RTC starten
+
 }
 
 
