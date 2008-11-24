@@ -20,7 +20,7 @@
  * 			- write_obj_value aufrufe rausgenommen
  * 
  * 23.11.08 - Soft PWM während der Vollstromphase
- * 			- Handbetätigung in main eingefügt (hierzu P1.3 nötig !)
+ * 			- Handbetätigung in delay_timer eingefügt (hierzu P1.3 nötig !)
  *  
  */
 
@@ -129,7 +129,7 @@ void write_value_req(void)				// Ausgänge schalten gemäß EIS 1 Protokoll (an/aus
           }
         }
       }
-      if (portbuffer != userram[0x29])port_schalten(portbuffer);	//test
+      if (portbuffer != userram[0x29])port_schalten(portbuffer);	//Port schalten wenn sich ein Pin geändert hat
     }
 }
 
@@ -306,30 +306,37 @@ void delay_timer(void)	// zählt alle 130ms die Variable Timer hoch und prüft Que
   //+++++++   Handbetätigung  ++++++++++
   //
   while(TL0>0x60);
-  	  if (TL0<=0x60){			// PWM scannen um "Hand"-Tasten abzufragen
-  	  interrupted=0;	  
-  	  Tasten=0;				// 60 ist die Hälfte von C0(duty von kubi)
-        P1_3= 1;			    //int0 auf 1 wird von LED und ULN auf gnd gezogen.
-        ledport=0x01;
-  	  for (n=0;n<8;n++) {  						
-          P0=~ledport;
-  		if (!P1_3) Tasten=Tasten|ledport;	
-          ledport=ledport<<1;
-        } 
+  if (TL0<=0x60){			// PWM scannen um "Hand"-Tasten abzufragen
+	  interrupted=0;	  
+	  Tasten=0;				// 60 ist die Hälfte von C0(duty von kubi)
+	  P1_3= 1;			    //int0 auf 1 wird von LED und ULN auf gnd gezogen.
+	  ledport=0x01;
+	  for (n=0;n<8;n++) {  						
+		  P0=~ledport;
+		  if (!P1_3){
+			  Tasten=Tasten|ledport;
+			  objno=n;
+			  n=7;
+		  }
+		  ledport=ledport<<1;
+     } 
   	 if (interrupted==1) Tasten=Tval;  // wenn unterbrochen wurde verwerfen wir die Taste
   	 P0=userram[0x29]; 
-  	}
+  }
 
-  	if (Tasten != Tval)  {
-  	   portbuffer=userram[0x29];
-  	   ledport=Tasten&~Tval; // ledport ist hier die Hilfsvariable für steigende Flanke
-  	   if (ledport!=0x00){
-  		   portbuffer=portbuffer^ledport; // bei gedrückter Taste toggeln
-  		   port_schalten(portbuffer);	// 	und schalten
-  	   }
-  	   Tval=Tasten;			//neue Tasten sichern
-
-  	}
+  if (Tasten != Tval)  {
+	  portbuffer=userram[0x29];
+  	  ledport=Tasten&~Tval; // ledport ist hier die Hilfsvariable für steigende Flanke
+  	  if (ledport){
+  		  portbuffer^=ledport; // bei gedrückter Taste toggeln
+  		  portchanged=1;
+  		  EX1=0;
+  		  if (((eeprom[RELMODE]>>objno)&0x01)==0x00) respond(objno+12,((portbuffer&ledport)>>objno)+0x80);		//  (Schliesserbetrieb)
+  		  else respond(objno+12,0x81-((portbuffer&ledport)>>objno));	// (Öffnerbetrieb)
+  		  EX1=1;
+  	  }
+  	  Tval=Tasten;			//neue Tasten sichern
+  }
   if (portchanged) port_schalten(portbuffer);				// Ausgänge schalten
   RTCCON=0x61;		// RTC starten
 
