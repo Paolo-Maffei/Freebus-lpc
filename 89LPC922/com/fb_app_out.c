@@ -305,11 +305,10 @@ void delay_timer(void)	// zählt alle 130ms die Variable Timer hoch und prüft Que
   //
   //+++++++   Handbetätigung  ++++++++++
   //
-  while(TL0>0x60);
-  if (TL0<=0x60){			// PWM scannen um "Hand"-Tasten abzufragen
+  while(TL0>256-DUTY+0x10);			// warten auf PWM = "aus" um "Hand"-Tasten abzufragen
 	  interrupted=0;	  
-	  Tasten=0;				// 60 ist die Hälfte von C0(duty von kubi)
-	  P1_3= 1;			    //int0 auf 1 wird von LED und ULN auf gnd gezogen.
+	  Tasten=0;				// 
+	  P1_3= 1;			    //
 	  ledport=0x01;
 	  for (n=0;n<8;n++) {  						
 		  P0=~ledport;
@@ -322,7 +321,7 @@ void delay_timer(void)	// zählt alle 130ms die Variable Timer hoch und prüft Que
      } 
   	 if (interrupted==1) Tasten=Tval;  // wenn unterbrochen wurde verwerfen wir die Taste
   	 P0=userram[0x29]; 
-  }
+  
 
   if (Tasten != Tval)  {
 	  portbuffer=userram[0x29];
@@ -347,7 +346,7 @@ void port_schalten(unsigned char ports)		// Schaltet die Ports mit PWM, DUTY ist
 {
 	unsigned char softpwm;				// Schleifenvariable für SoftPWM
 
-  TH0=0;					// Der HArdware PWM wird voll eingeschaltet
+  TH0=0;					// Der Hardware PWM wird voll eingeschaltet
   P1_2=1;					
   for (softpwm=0;softpwm<=70;softpwm++)// 70*70µsec soft PWM um den bereits geschalteten Relaisen
   {										// den Strom zu drosseln
