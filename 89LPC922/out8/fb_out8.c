@@ -80,7 +80,7 @@ void restart_app(void)		// Alle Applikations-Parameter zurücksetzen
   timer=0;			// Timer-Variable, wird alle 135us inkrementiert
   
   logicstate=0;
-  //objstate=0;
+  delay_toggle=0;
   
   start_writecycle();
   write_byte(0x01,0x03,0x00);	// Herstellercode 0x0004 = Jung

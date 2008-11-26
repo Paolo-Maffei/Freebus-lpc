@@ -215,8 +215,8 @@ void restart_hw(void)	// Alle Hardware Einstellungen zurücksetzen
   TR0=1;			// Timer 0 starten (PWM)
   TR1=0;			// Timer 1 (Empfangs-Timeout) zunächst stoppen
  
-  RTCH=0x1D;		// Real Time Clock auf 130ms
-  RTCL=0x40;
+  RTCH=0x0E;		// Real Time Clock auf 65ms laden
+  RTCL=0xA0;
   RTCCON=0x61;		// ... und starten
 
   interrupted=0;	// wird durch die interrupt-routine auf 1 gesetzt

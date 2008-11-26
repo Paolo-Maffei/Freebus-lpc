@@ -34,8 +34,8 @@ unsigned char portbuffer;	// Zwischenspeicherung der Portzustände
 unsigned char zfstate;		// Zustand der Objekte 8-11 = Zusatzfunktionen 1-4
 unsigned char blocked;		// Sperrung der 8 Ausgänge (1=gesperrt)
 unsigned char logicstate;	// Zustand der Verknüpfungen pro Ausgang
-long timer;			// Timer für Schaltverzögerungen, wird alle 130us hochgezählt
-
+long timer;					// Timer für Schaltverzögerungen, wird alle 130us hochgezählt
+bit delay_toggle;			// um nur jedes 2. Mal die delay routine auszuführen
 
 
 void write_value_req(void)				// Ausgänge schalten gemäß EIS 1 Protokoll (an/aus)
@@ -219,17 +219,16 @@ void delay_timer(void)	// zählt alle 130ms die Variable Timer hoch und prüft Que
   unsigned char n;
   unsigned char Tasten=0;
   unsigned char ledport;
-
-
-  
   long delval,delay_target;
   bit portchanged;
   
   portchanged=0;
   RTCCON=0x60;		// RTC anhalten und Flag löschen
-  RTCH=0x1D;		// Real Time Clock
-  RTCL=0x40;
+  RTCH=0x0E;		// reload Real Time Clock
+  RTCL=0xA0;
+  objno=0;
 
+ if (delay_toggle) {
   timer++;
   if (timer==0x01000000) timer=0;	// nur 3 Byte aktiv
   for(objno=0;objno<=7;objno++)
@@ -237,7 +236,6 @@ void delay_timer(void)	// zählt alle 130ms die Variable Timer hoch und prüft Que
     delay_state=delrec[objno*4];
     if(delay_state!=0x00)			// 0x00 = delay Eintrag ist leer
     {   
-// userram statt delrec
       delval=delrec[objno*4+1];
       delval=(delval<<8)+delrec[objno*4+2];
       delval=(delval<<8)+delrec[objno*4+3];
@@ -256,11 +254,8 @@ void delay_timer(void)	// zählt alle 130ms die Variable Timer hoch und prüft Que
             portbuffer=portbuffer&~port_pattern;	// Einschalten (Öffnerbetrieb)
           }
           EX1=0;
-          respond(objno+12,0x81);			// Rückmeldung
+          respond(objno+12,0x81);			// ggf. Rückmeldung
           EX1=1;
-          //start_writecycle();
-          //write_byte(0x00,objno*5,0x00);			
-          //stop_writecycle();
           delrec[objno*4]=0;
           delay_zeit=eeprom[0xEA];
           delay_zeit=((delay_zeit>>objno)&0x01);
@@ -288,27 +283,22 @@ void delay_timer(void)	// zählt alle 130ms die Variable Timer hoch und prüft Que
             portbuffer=portbuffer|port_pattern;			// Ausschalten (Öffnerbetrieb)
           }
           EX1=0;
-          respond(objno+12,0x80);				// Rückmeldung
+          respond(objno+12,0x80);				// ggf. Rückmeldung
           EX1=1;
-          //start_writecycle();
-          //write_byte(0x00,objno*5,0x00);
-          //stop_writecycle();
           delrec[objno*4]=0;
         }
-
-        //write_obj_value(objno,delay_state&0x3F);		// Objektwert für Schaltobjekt schreiben
-        //write_obj_value(objno+12,delay_state&0x3F);		// Objektwert für Rückmeldeobjekt
-        
       }
     }   
   }
+ }
   //
   //+++++++   Handbetätigung  ++++++++++
   //
-  while(TL0>256-DUTY+0x10);			// warten auf PWM = "aus" um "Hand"-Tasten abzufragen
+  while(TL0>0x60);
+  if (TL0<=0x60){			// PWM scannen um "Hand"-Tasten abzufragen
 	  interrupted=0;	  
-	  Tasten=0;				// 
-	  P1_3= 1;			    //
+	  Tasten=0;				// 60 ist die Hälfte von C0(duty von kubi)
+	  P1_3= 1;			    //int0 auf 1 wird von LED und ULN auf gnd gezogen.
 	  ledport=0x01;
 	  for (n=0;n<8;n++) {  						
 		  P0=~ledport;
@@ -321,7 +311,7 @@ void delay_timer(void)	// zählt alle 130ms die Variable Timer hoch und prüft Que
      } 
   	 if (interrupted==1) Tasten=Tval;  // wenn unterbrochen wurde verwerfen wir die Taste
   	 P0=userram[0x29]; 
-  
+  }
 
   if (Tasten != Tval)  {
 	  portbuffer=userram[0x29];
@@ -338,6 +328,7 @@ void delay_timer(void)	// zählt alle 130ms die Variable Timer hoch und prüft Que
   }
   if (portchanged) port_schalten(portbuffer);				// Ausgänge schalten
   RTCCON=0x61;		// RTC starten
+  delay_toggle=!delay_toggle;
 
 }
 
@@ -346,7 +337,7 @@ void port_schalten(unsigned char ports)		// Schaltet die Ports mit PWM, DUTY ist
 {
 	unsigned char softpwm;				// Schleifenvariable für SoftPWM
 
-  TH0=0;					// Der Hardware PWM wird voll eingeschaltet
+  TH0=0;					// Der HArdware PWM wird voll eingeschaltet
   P1_2=1;					
   for (softpwm=0;softpwm<=70;softpwm++)// 70*70µsec soft PWM um den bereits geschalteten Relaisen
   {										// den Strom zu drosseln

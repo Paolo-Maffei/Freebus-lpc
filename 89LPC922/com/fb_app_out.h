@@ -28,7 +28,8 @@ extern unsigned char portbuffer;	// Zwischenspeicherung der Portzustände
 extern unsigned char zfstate;		// Zustand der Objekte 8-11 = Zusatzfunktionen 1-4
 extern unsigned char blocked;		// Sperrung der 8 Ausgänge (1=gesperrt)
 extern unsigned char logicstate;	// Zustand der Verknüpfungen pro Ausgang
-extern long timer;			// Timer für Schaltverzögerungen, wird alle 130us hochgezählt
+extern long timer;					// Timer für Schaltverzögerungen, wird alle 130us hochgezählt
+extern bit delay_toggle;			// um nur jedes 2. Mal die delay routine auszuführen
 
 
 void write_value_req(void);		// Hauptroutine für Ausgänge schalten gemäß EIS 1 Protokoll (an/aus)
