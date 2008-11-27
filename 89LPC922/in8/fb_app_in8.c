@@ -143,9 +143,9 @@ unsigned char pin_function(unsigned char pinno)		// Funktion des Eingangs ermitt
 }
 
 
-unsigned char debounce(unsigned char pinno)	// Entprellzeit abwarten und prüfen !! Prüfung fehlt noch !!
+unsigned char debounce(unsigned char pinno)	// Entprellzeit abwarten und prüfen !!
 {
-  unsigned char debtime,n;
+  unsigned char debtime,n,ret;
   
   debtime=eeprom[DEBTIME];			// Entprellzeit in 0,5ms Schritten
   if (debtime>0)
@@ -156,7 +156,9 @@ unsigned char debounce(unsigned char pinno)	// Entprellzeit abwarten und prüfen 
     }
   }  
   pinno;
-  return(1);
+  if (((P0>>pinno)&0x01) == ((p0h>>pinno)&0x01)) ret=1;
+  else ret=0; 
+  return(ret);
 }
 
 
