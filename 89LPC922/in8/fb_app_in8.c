@@ -22,8 +22,7 @@
 
 
 unsigned char portbuffer,p0h;
-
-int objstate;		// Zwischenspeicer der Objektzustände x.1 (Bit 0-7) und x.2 (Bit 8-15)
+int objstate;		// Zwischenspeicher der Objektzustände x.1 (Bit 0-7) und x.2 (Bit 8-15)
 long timer;			// Timer für Schaltverzögerungen, wird alle 130us hochgezählt
 		
 
@@ -116,17 +115,18 @@ void schalten(unsigned char risefall, unsigned char pinno)	// Schaltbefehl sende
       if (func==0x02) telegramm[7]=0x80;	// AUS
       if (func==0x03)						// UM
       {
-        if (read_obj_value(pinno)==1) telegramm[7]=0x80;	// AUS
+        //if (read_obj_value(pinno)==1) telegramm[7]=0x80;	// AUS
+    	if (objstate&(0x0001<<pinno)) telegramm[7]=0x80;
         else telegramm[7]=0x81;								// EIN
       }
       send_telegramm();
       if (telegramm[7]==0x80) {
-    	  // objstate=objstate&(0xFFFF-(0x0001<<pinno));
-    	  write_obj_value(pinno,0);
+    	  objstate=objstate&(0xFFFF-(0x0001<<pinno));
+    	  // write_obj_value(pinno,0);
       }
       else {
-    	  // objstate=objstate|(0x0001<<pinno);
-    	  write_obj_value(pinno,1);
+    	  objstate=objstate|(0x0001<<pinno);
+    	  // write_obj_value(pinno,1);
       }
       
     }
