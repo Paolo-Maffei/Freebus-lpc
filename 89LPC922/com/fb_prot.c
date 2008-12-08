@@ -162,7 +162,7 @@ void send_telegramm(void)		// sendet das Telegramm, das in telegramm[] vorher ab
     {
       sendbyte(telegramm[l]);
       checksum^=telegramm[l];
-      delay(1230);			// Interbyte-Abstand
+      sysdelay(1230);			// Interbyte-Abstand
     }
     checksum=~checksum;
     sendbyte(checksum);

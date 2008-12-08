@@ -36,7 +36,7 @@ void start_writecycle(void);
 void stop_writecycle(void);
 void write_byte(unsigned char addrh, unsigned char addrl, unsigned char zdata);
 unsigned char read_byte(unsigned char addrh, unsigned char addrl);
-void delay(int deltime);
+void sysdelay(int deltime);
 void set_timer1(int deltime);
 void restart_hw(void);
 

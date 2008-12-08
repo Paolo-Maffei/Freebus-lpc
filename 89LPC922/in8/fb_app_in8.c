@@ -119,6 +119,7 @@ void schalten(unsigned char risefall, unsigned char pinno)	// Schaltbefehl sende
     	if (objstate&(0x0001<<pinno)) telegramm[7]=0x80;
         else telegramm[7]=0x81;								// EIN
       }
+      EX1=0;
       send_telegramm();
       if (telegramm[7]==0x80) {
     	  objstate=objstate&(0xFFFF-(0x0001<<pinno));
@@ -152,7 +153,7 @@ unsigned char debounce(unsigned char pinno)	// Entprellzeit abwarten und prüfen 
   {
     for(n=0;n<debtime;n++)
     {
-      delay(2000);
+      delay(1100);
     }
   }  
   pinno;
@@ -191,15 +192,20 @@ void write_value_req(void)		// Objekt-Wert setzen gemäß empfangenem EIS 1 Telegr
     }
 }
     
+void delay(int w)	// delay ca. 4,5µs * w
+{
+	int n;
+	for(n=w;n>0;n--) {}
+}
 
 void restart_app(void)		// Alle Applikations-Parameter zurücksetzen
 {
 
   
   
-  P0M1=0xFF;
+  P0M1=0xFF;	//P0 auf input only (high impedance!)
   P0M2=0x00;
-  //P0=0xFF;
+
 
   
   

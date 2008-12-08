@@ -30,6 +30,7 @@ unsigned char debounce(unsigned char pinno);		// Entprellzeit abwarten und prüfe
 void send_cyclic(unsigned char pinno);
 unsigned char operation(unsigned char pinno);
 unsigned char switch_dim(unsigned char pinno);
+void delay(int w);
 
 void write_value_req(void);	
 void restart_app(void);		// Alle Applikations-Parameter zurücksetzen

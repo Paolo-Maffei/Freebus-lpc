@@ -73,7 +73,7 @@ void ext_int0(void) interrupt 2		// Byte vom Bus empfangen, wird durch negative 
   ET1=0;					// Interrupt von Timer 1 sperren
   						
   fbbh=get_byte();			// Byte vom Bus empfangen
-  delay(200);
+  sysdelay(200);
   set_timer1(1350);			// Timer 1 starten für Timeout 370us -> signalisiert Telegrammende (1350)
   
   if(parity_ok)				// wenn Parity OK
@@ -109,7 +109,7 @@ bit sendbyte(unsigned char fbsb)
   error=0;
   
   FBOUTC=1;	// Startbit senden
-  delay(95);	// 35us
+  sysdelay(95);	// 35us
   FBOUTC=0;
   
   for(n=0;n<8;n++)		// 8 Datenbits senden
@@ -133,9 +133,9 @@ bit sendbyte(unsigned char fbsb)
     FBOUTC=0;
   }
   if(!error) {
-	  delay(212);			// 69 us Pause vor Parity-Bit
+	  sysdelay(212);			// 69 us Pause vor Parity-Bit
 	  FBOUTC=parity;
-	  delay(95);			// 35us für Parity-Bit
+	  sysdelay(95);			// 35us für Parity-Bit
 	  FBOUTC=0;
   }
   TR1=0;
@@ -168,9 +168,10 @@ void write_byte(unsigned char addrh, unsigned char addrl, unsigned char zdata)	/
 }
 
 
-void delay(int deltime)			// Warten, deltime = Anzahl Takte / 2 (Timer wird mit CCLK/2 betrieben) 
-{					// Der Aufruf allein dauert schon ca. 12µs !!!
-  TR1=0;				// Timer 1 anhalten
+void sysdelay(int deltime)			// Warten, deltime = Anzahl Takte / 2 (Timer wird mit CCLK/2 betrieben) 
+{									// Der Aufruf allein dauert schon ca. 12µs !!!
+									// NICHT IN APP VERWENDEN !!!
+  TR1=0;					// Timer 1 anhalten
   deltime=0xFFFF-deltime;
   TH1=deltime>>8;			// Timer 1 setzen 
   TL1=deltime;	
