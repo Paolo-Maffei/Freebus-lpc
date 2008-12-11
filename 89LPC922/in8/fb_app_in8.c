@@ -153,11 +153,12 @@ unsigned char debounce(unsigned char pinno)	// Entprellzeit abwarten und prüfen 
   {
     for(n=0;n<debtime;n++)
     {
-      delay(1100);
+      delay(110);
     }
   }  
   pinno;
-  if (((P0>>pinno)&0x01) == ((p0h>>pinno)&0x01)) ret=1;
+  if (((P0>>pinno)&0x01) == ((p0h>>pinno)&0x01)) ret=1;// port erneut fragen ob sich geändert hat
+//  if ((((P0&0x0f)>>pinno)&0x01) == ((p0h>>pinno)&0x01)) ret=1;//<-- 4in !  port erneut fragen ob sich geändert hat
   else ret=0; 
   return(ret);
 }

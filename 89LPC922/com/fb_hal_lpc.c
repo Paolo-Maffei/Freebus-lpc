@@ -85,7 +85,8 @@ void ext_int0(void) interrupt 2		// Byte vom Bus empfangen, wird durch negative 
   }
   else {					// bei fehlerhaften Bytes alles verwerfen
 	  telpos=0;
-	  TR1=0;
+	//  TR1=0;
+	  ET1=0;// Timer stoppen oldcoolman
 	  TF1=0;
 	  cs=0;
   }

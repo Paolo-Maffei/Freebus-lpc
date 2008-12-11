@@ -176,7 +176,7 @@ void send_telegramm(void)		// sendet das Telegramm, das in telegramm[] vorher ab
 
 void send_ack(void)			// wartet auf Timer 1 wegen korrekter Positionierung und sendet ACK (0xCC)
 {
-  while(!TF1) {}
+  while(!TF1&&TR1) {}// &&TR1 eingefügt oldcoolman
   sendbyte(0xCC);
 }
 

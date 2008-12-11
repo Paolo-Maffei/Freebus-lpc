@@ -141,10 +141,10 @@ void object_schalten(unsigned char objno, bit objstate)	// Schaltet einen Ausgan
 	
   unsigned char port_pattern,objflags,delay_base,delay_state,delay_zeit,logicfunc,zfno;
   long delay_target,delay_onoff;
+  bit off_enable;
 
   objflags=read_objflags(objno);			// Objekt Flags lesen
   port_pattern=0x01<<objno;
-  
   zfno=0;
   logicfunc=0;
   if((eeprom[FUNCASS]&0x0F)==(objno+1)) zfno=1;
@@ -167,14 +167,16 @@ void object_schalten(unsigned char objno, bit objstate)	// Schaltet einen Ausgan
       delay_state=0;
       delay_zeit=eeprom[0xEA];
       delay_zeit=((delay_zeit>>objno)&0x01);
-
+      //off_enable=(0x01<<objno)& eeprom[0xEB]==1;
+      off_enable=((eeprom[0xEB]>>objno)&0x01);
 					// Ausschalten
           if ( (objstate==0 && (logicfunc==0 || (logicfunc==1 && ((logicstate>>objno)&0x01)==0x00) || logicfunc>=2))
             || (objstate==1 && (logicfunc>=2 && ((logicstate>>objno)&0x01)==0x00)) )
           {
             delay_onoff=eeprom[objno+0xE2];
-            if(delay_onoff==0x00 || delay_zeit==0x01)		// sofort ausschalten
-            { 
+            //if(delay_onoff==0x00 || delay_zeit==0x01)		// sofort ausschalten
+            if(delay_onoff==0x00 || (delay_zeit==0x01 && off_enable==0x00))	//sofort ausschalten wenn aktiv
+           	{		
               if (((eeprom[RELMODE]>>objno)&0x01)==0x00) portbuffer=portbuffer&~port_pattern;	// Schliesserbetrieb
               else portbuffer=portbuffer|port_pattern;						// Öffnerbetrieb
               respond(objno+12,0x80);
@@ -310,7 +312,7 @@ void delay_timer(void)	// zählt alle 130ms die Variable Timer hoch und prüft Que
      } 
   	 if (interrupted==1) Tasten=Tval;  // wenn unterbrochen wurde verwerfen wir die Taste
   	 P0=userram[0x29]; 
-
+//	Tasten = Tval; // ##############  <----- Hier wird Handbetätigung quasi mit ausgeschaltet !! #########################
   if (Tasten != Tval)  {
 	  portbuffer=userram[0x29];
   	  ledport=Tasten&~Tval; // ledport ist hier die Hilfsvariable für steigende Flanke
@@ -344,15 +346,19 @@ void port_schalten(unsigned char ports)		// Schaltet die Ports mit PWM, DUTY ist
 	  TF1=0;
 	  TH1=0xFF;				
 	  TL1=0x22;			//timer mit -221 für 60µs laden	
-	  TR1=1;
-	  while (!TF1);		// warten bis 60µs vergangen sind
+	  ;
+	  while (!TF1){		// warten bis 60µs vergangen sind
+		  TR1=1;
+	  }
 	  P0=ports;			// alle Ports einschalten
 	  TR1=0;					
 	  TF1=0;
 	  TH1=0xFF;			// timer mit -37 für 10µs laden
 	  TL1=0xF5;				
 	  TR1=1;
-	  while (!TF1);		// warten bis 10µs vergangen sind
+	  while (!TF1){		// warten bis 10µs vergangen sind
+		  TR1=1;
+	  }
   }
   TR1=0;
   TH0=DUTY;				// ...danach mit PWM halten (min5% von I nominal)

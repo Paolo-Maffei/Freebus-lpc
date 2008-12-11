@@ -44,6 +44,7 @@ danach:			Assoziationstabelle:
 
 01 EA:	xx		Zeitschaltfunktion (Bit 0-7 = Ausgang 1-8) 1=Funktion aktiv
 
+01 EB:  xx		Aktion bei Aus Telegramm in Zeitschaltfunktion je Bit 0=ignorieren 1=ausschalten
 
 01 ED:	xx		Zusatzfunktionen:
 			Bit 0-1 Zusfkt.1: 0=Verknüpfung , 1=Sperren, 2=Zwangsstellung
