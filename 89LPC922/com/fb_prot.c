@@ -109,7 +109,7 @@ void timer1(void) interrupt 3	// Interrupt von Timer 1, 370us keine Busaktivität
    } 
   }
   telpos=0;  
-  IE1=0;		// IRQ zurücksetzen
+  IE1=0;		// IRQ Flag zurücksetzen
   EX1=1;		// externen Interrupt 0 wieder freigeben
   if (!transparency) {	// Telegramm abgearbeitet
 	  TR1=0;				// Timer 1 stoppen
@@ -176,7 +176,7 @@ void send_telegramm(void)		// sendet das Telegramm, das in telegramm[] vorher ab
 
 void send_ack(void)			// wartet auf Timer 1 wegen korrekter Positionierung und sendet ACK (0xCC)
 {
-  while(!TF1&&TR1) {}// &&TR1 eingefügt oldcoolman
+  while(!TF1&&TR1) {}
   sendbyte(0xCC);
 }
 

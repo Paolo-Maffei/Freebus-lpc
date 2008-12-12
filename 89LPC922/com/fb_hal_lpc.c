@@ -82,18 +82,19 @@ void ext_int0(void) interrupt 2		// Byte vom Bus empfangen, wird durch negative 
     if(telpos==0) cs=0;
     cs^=fbbh;				// Checksum durch EXOR der einzelnen Telegramm-Bytes bilden
     telpos++;
+    ET1=1;
   }
   else {					// bei fehlerhaften Bytes alles verwerfen
 	  telpos=0;
-	//  TR1=0;
-	  ET1=0;// Timer stoppen oldcoolman
+	  ET1=0;
+	  //TR1=0;
 	  TF1=0;
 	  cs=0;
   }
   
 
   
-  ET1=1;					// Interrupt für Timer 1 freigeben
+  //ET1=1;					// Interrupt für Timer 1 freigeben
   IE1=0;					// Interrupt 0 request zurücksetzen
   EX1=1;					// Interrupt 0 wieder freigeben
   interrupted=1;			// teilt anderen Routinen mit, daß sie unterbrochen wurden
