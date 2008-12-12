@@ -29,7 +29,7 @@ long timer;			// Timer für Schaltverzögerungen, wird alle 130us hochgezählt
 
 void pin_changed(unsigned char pinno)
 {
-  EX1=0;
+  EX1=0;		// externen Interrupt 1 sperren
 
   if (debounce(pinno))			// Entprellzeit abwarten und prüfen
   {
@@ -64,8 +64,8 @@ void pin_changed(unsigned char pinno)
         }
     }
   }
-  IE1=0;
-  EX1=1;
+  IE1=0;	// IRQ 1 Flag zurücksetzen
+  EX1=1;	// externen Interrupt 1 wieder freigeben
 }
              
 
@@ -115,21 +115,17 @@ void schalten(unsigned char risefall, unsigned char pinno)	// Schaltbefehl sende
       if (func==0x02) telegramm[7]=0x80;	// AUS
       if (func==0x03)						// UM
       {
-        //if (read_obj_value(pinno)==1) telegramm[7]=0x80;	// AUS
-    	if (objstate&(0x0001<<pinno)) telegramm[7]=0x80;
-        else telegramm[7]=0x81;								// EIN
+    	if (objstate&(0x0001<<pinno)) {						// AUS
+    		telegramm[7]=0x80;
+    		objstate=objstate&(0xFFFF-(0x0001<<pinno));
+    	}
+        else {
+        	telegramm[7]=0x81;								// EIN
+        	objstate=objstate|(0x0001<<pinno);
+        }
       }
       EX1=0;
       send_telegramm();
-      if (telegramm[7]==0x80) {
-    	  objstate=objstate&(0xFFFF-(0x0001<<pinno));
-    	  // write_obj_value(pinno,0);
-      }
-      else {
-    	  objstate=objstate|(0x0001<<pinno);
-    	  // write_obj_value(pinno,1);
-      }
-      
     }
   }
 }
@@ -149,16 +145,8 @@ unsigned char debounce(unsigned char pinno)	// Entprellzeit abwarten und prüfen 
   unsigned char debtime,n,ret;
   
   debtime=eeprom[DEBTIME];			// Entprellzeit in 0,5ms Schritten
-  if (debtime>0)
-  {
-    for(n=0;n<debtime;n++)
-    {
-      delay(110);
-    }
-  }  
-  pinno;
-  if (((P0>>pinno)&0x01) == ((p0h>>pinno)&0x01)) ret=1;// port erneut fragen ob sich geändert hat
-//  if ((((P0&0x0f)>>pinno)&0x01) == ((p0h>>pinno)&0x01)) ret=1;//<-- 4in !  port erneut fragen ob sich geändert hat
+  if (debtime>0) for(n=0;n<debtime;n++) delay(110);  
+  if (((P0>>pinno)&0x01) == ((p0h>>pinno)&0x01)) ret=1;
   else ret=0; 
   return(ret);
 }
@@ -167,25 +155,24 @@ unsigned char debounce(unsigned char pinno)	// Entprellzeit abwarten und prüfen 
 
 void write_value_req(void)		// Objekt-Wert setzen gemäß empfangenem EIS 1 Telegramms (an/aus)
 {
-	unsigned char objno,port_pattern,objflags,gapos,atp,assno,n,gaposh;
+	unsigned char objno,objflags,gapos,atp,assno,n,gaposh;
 
     gapos=gapos_in_gat(telegramm[3],telegramm[4]);
     if (gapos!=0xFF)	
     {
     	send_ack();
-    	atp=eeprom[ASSOCTABPTR];			// Association Table Pointer
-    	assno=eeprom[atp];		// Erster Eintrag = Anzahl Einträge
+    	atp=eeprom[ASSOCTABPTR];		// Association Table Pointer
+    	assno=eeprom[atp];				// Erster Eintrag = Anzahl Einträge
  
     	for(n=0;n<assno;n++) {				// Schleife über alle Einträge in der Ass-Table, denn es könnten mehrere Objekte (Pins) der gleichen Gruppenadresse zugeordnet sein
     		gaposh=eeprom[atp+1+(n*2)];
     		if(gapos==gaposh) {					// Wenn Positionsnummer übereinstimmt
     			objno=eeprom[atp+2+(n*2)];			// Objektnummer
-    			objflags=read_objflags(objno);			// Objekt Flags lesen
-    			if((objflags&0x04)==0x04) {				// Kommunikation zulässig (Bit 2 = communication enable) 
-    				port_pattern=0x01<<objno;
-
-    				if((objflags&0x10)==0x10) {				// Schreiben zulässig (Bit 4 = write enable)
-    					write_obj_value(objno,telegramm[7]&0x3F);	// Objektwert in USERRAM schreiben
+    			objflags=read_objflags(objno);		// Objekt Flags lesen
+    			if((objflags&0x14)==0x14) {			// Kommunikation zulässig (Bit 2 = communication enable) + Schreiben zulässig (Bit 4 = write enable)
+    				if (objno<16) {					// Status der Eingangsobjekte 0-15
+    					if (telegramm[7]==0x80) objstate&=(0xFFFF-(0x0001<<objno));
+    					if (telegramm[7]==0x81) objstate|=(0x0001<<objno);
     				}
     			}
     		}
@@ -193,24 +180,23 @@ void write_value_req(void)		// Objekt-Wert setzen gemäß empfangenem EIS 1 Telegr
     }
 }
     
+
 void delay(int w)	// delay ca. 4,5µs * w
 {
 	int n;
 	for(n=w;n>0;n--) {}
 }
 
+
 void restart_app(void)		// Alle Applikations-Parameter zurücksetzen
 {
 
-  
-  
   P0M1=0xFF;	//P0 auf input only (high impedance!)
   P0M2=0x00;
 
-
+  transparency=0;
   
-  
-  timer=0;		// Timer-Variable, wird alle 135us inkrementiert
+  timer=0;		// Timer-Variable, wird alle 65us inkrementiert
   
   start_writecycle();
   write_byte(0x01,0x03,0x00);	// Herstellercode 0x0004 = Jung
