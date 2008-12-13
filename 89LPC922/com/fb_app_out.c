@@ -139,78 +139,70 @@ void write_value_req(void)				// Ausgänge schalten gemäß EIS 1 Protokoll (an/aus
 void object_schalten(unsigned char objno, bit objstate)	// Schaltet einen Ausgang gemäß objstate und den zugörigen Parametern
 {
 	
-  unsigned char port_pattern,objflags,delay_base,delay_state,delay_zeit,logicfunc,zfno;
-  long delay_target,delay_onoff;
-  bit off_enable;
-
-  objflags=read_objflags(objno);			// Objekt Flags lesen
-  port_pattern=0x01<<objno;
-  zfno=0;
-  logicfunc=0;
-  if((eeprom[FUNCASS]&0x0F)==(objno+1)) zfno=1;
-  if(((eeprom[FUNCASS]&0xF0)>>4)==(objno+1)) zfno=2;
-  if((eeprom[FUNCASS+1]&0x0F)==(objno+1)) zfno=3;
-  if(((eeprom[FUNCASS+1]&0xF0)>>4)==(objno+1)) zfno=4;
-  if(zfno)
-  {
-    if(((eeprom[FUNCTYP]>>((zfno-1)*2))&0x03)==0x00) logicfunc=((eeprom[LOGICTYP]>>((zfno-1)*2))&0x03);
-  }
+	unsigned char port_pattern,objflags,delay_base,delay_state,delay_zeit,logicfunc,zfno;
+	long delay_target,delay_onoff;
+	bit off_disable;
   
-  if((port_pattern & blocked)==0 && (objflags&0x14)==0x14)	// Objekt ist nicht gesperrt und Kommunikation zulässig (Bit 2 = communication enable) und Schreiben zulässig (Bit 4 = write enable)
-  {
-
-      delay_base=eeprom[(((objno+1)>>1)+DELAYTAB)];   
-      if((objno&0x01)==0x01) delay_base&=0x0F;
-      else delay_base=(delay_base&0xF0)>>4;
-      delay_target=0;
-      delay_onoff=0;
-      delay_state=0;
-      delay_zeit=eeprom[0xEA];
-      delay_zeit=((delay_zeit>>objno)&0x01);
-      //off_enable=(0x01<<objno)& eeprom[0xEB]==1;
-      off_enable=((eeprom[0xEB]>>objno)&0x01);
+	off_disable=((eeprom[OFFDISABLE]>>objno)&0x01);	// nur ausschalten wenn AUS-Tete nicht ignoriert werden soll
+	if ((!objstate && !off_disable) || objstate) {
+		objflags=read_objflags(objno);			// Objekt Flags lesen
+		port_pattern=0x01<<objno;
+		zfno=0;
+		logicfunc=0;
+		if((eeprom[FUNCASS]&0x0F)==(objno+1)) zfno=1;
+		if(((eeprom[FUNCASS]&0xF0)>>4)==(objno+1)) zfno=2;
+		if((eeprom[FUNCASS+1]&0x0F)==(objno+1)) zfno=3;
+		if(((eeprom[FUNCASS+1]&0xF0)>>4)==(objno+1)) zfno=4;
+		if(zfno) {
+			if(((eeprom[FUNCTYP]>>((zfno-1)*2))&0x03)==0x00) logicfunc=((eeprom[LOGICTYP]>>((zfno-1)*2))&0x03);
+		}
+  
+		if((port_pattern & blocked)==0 && (objflags&0x14)==0x14) {	// Objekt ist nicht gesperrt und Kommunikation zulässig (Bit 2 = communication enable) und Schreiben zulässig (Bit 4 = write enable)
+			delay_base=eeprom[(((objno+1)>>1)+DELAYTAB)];   
+			if((objno&0x01)==0x01) delay_base&=0x0F;
+			else delay_base=(delay_base&0xF0)>>4;
+			delay_target=0;
+			delay_onoff=0;
+			delay_state=0;
+			delay_zeit=eeprom[0xEA];
+			delay_zeit=((delay_zeit>>objno)&0x01);    
 					// Ausschalten
-          if ( (objstate==0 && (logicfunc==0 || (logicfunc==1 && ((logicstate>>objno)&0x01)==0x00) || logicfunc>=2))
-            || (objstate==1 && (logicfunc>=2 && ((logicstate>>objno)&0x01)==0x00)) )
-          {
-            delay_onoff=eeprom[objno+0xE2];
-            //if(delay_onoff==0x00 || delay_zeit==0x01)		// sofort ausschalten
-            if(delay_onoff==0x00 || (delay_zeit==0x01 && off_enable==0x00))	//sofort ausschalten wenn aktiv
-           	{		
-              if (((eeprom[RELMODE]>>objno)&0x01)==0x00) portbuffer=portbuffer&~port_pattern;	// Schliesserbetrieb
-              else portbuffer=portbuffer|port_pattern;						// Öffnerbetrieb
-              respond(objno+12,0x80);
-            }
-            else delay_state=0x80;				// verzögert ausschalten
-          }
-
+			if ( (objstate==0 && (logicfunc==0 || (logicfunc==1 && ((logicstate>>objno)&0x01)==0x00) || logicfunc>=2))
+					|| (objstate==1 && (logicfunc>=2 && ((logicstate>>objno)&0x01)==0x00)) )
+			{
+				delay_onoff=eeprom[objno+0xE2];
+				if(delay_onoff==0x00 || delay_zeit==0x01) {		// sofort ausschalten
+					if (((eeprom[RELMODE]>>objno)&0x01)==0x00) portbuffer=portbuffer&~port_pattern;	// Schliesserbetrieb
+					else portbuffer=portbuffer|port_pattern;						// Öffnerbetrieb
+					respond(objno+12,0x80);
+				}
+				else delay_state=0x80;				// verzögert ausschalten
+			}
                     
           			// Einschalten
-          if ( (objstate==1 && (logicfunc==0 || logicfunc==1 || (logicfunc>=2 && ((logicstate>>objno)&0x01)==0x01))) 
-            || (objstate==0 && (logicfunc==1 && ((logicstate>>objno)&0x01)==0x01)) )
-          {
-            delay_onoff=eeprom[objno+0xDA];
-            if(delay_onoff==0x00)
-            {
-              if(delay_zeit==0x01) 			// Zeitschaltfunktion 
-              {
-                delay_state=0x80;
-                delay_onoff=eeprom[objno+0xE2];
-              } 
-              if (((eeprom[RELMODE]>>objno)&0x01)==0x00) portbuffer=portbuffer|port_pattern;	// sofort einschalten (Schliesserbetrieb)
-              else portbuffer=portbuffer&~port_pattern;					// sofort einschalten (Öffnerbetrieb)
-              respond(objno+12,0x81);
-            }
-            else delay_state=0x81;				// verzögert einschalten
-          }
+			if ( (objstate==1 && (logicfunc==0 || logicfunc==1 || (logicfunc>=2 && ((logicstate>>objno)&0x01)==0x01))) 
+					|| (objstate==0 && (logicfunc==1 && ((logicstate>>objno)&0x01)==0x01)) )
+			{
+				delay_onoff=eeprom[objno+0xDA];
+				if(delay_onoff==0x00) {
+					if(delay_zeit==0x01) { 			// Zeitschaltfunktion 
+						delay_state=0x80;
+						delay_onoff=eeprom[objno+0xE2];
+					} 
+					if (((eeprom[RELMODE]>>objno)&0x01)==0x00) portbuffer=portbuffer|port_pattern;	// sofort einschalten (Schliesserbetrieb)
+					else portbuffer=portbuffer&~port_pattern;					// sofort einschalten (Öffnerbetrieb)
+					respond(objno+12,0x81);
+				}
+				else delay_state=0x81;				// verzögert einschalten
+			}
 
-      if(delay_state!=0)					// wenn Verzögerung, dann timer-Wert ins Flash schreiben
-      {  
-        delay_target=(delay_onoff<<delay_base)+timer;				
-        write_delay_record(objno,delay_state,delay_target);
-      }
-      else clear_delay_record(objno);    
-  }
+			if(delay_state!=0) {				// wenn Verzögerung, dann timer-Wert ins Flash schreiben  
+				delay_target=(delay_onoff<<delay_base)+timer;				
+				write_delay_record(objno,delay_state,delay_target);
+			}
+			else clear_delay_record(objno);    
+		}
+	}
 }
 
 
