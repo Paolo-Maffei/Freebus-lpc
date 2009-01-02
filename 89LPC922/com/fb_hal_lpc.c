@@ -197,42 +197,35 @@ void set_timer1(int deltime)		// Timer 1 stoppen, setzen und starten (Timer wird
 
 
 void restart_hw(void)	// Alle Hardware Einstellungen zur¸cksetzen
-
 {
-
-  DIVM=0;			// Taktferquenz nicht teilen -> volles Tempo
+	
+	DIVM=0;			// Taktferquenz nicht teilen -> volles Tempo
   
-  P1M1=0x14;		// Port 1 auf quasi-bidirektional, auﬂer P1.2(T0 als PWM Ausgang)=open-drain, P1.3 open drain (muss sein), P1.4(INT1)=Input only, P1.6(FBOUTC) push-pull
-  P1M2=0x4C;
+	P1M1=0x14;		// Port 1 auf quasi-bidirektional, auﬂer P1.2(T0 als PWM Ausgang)=open-drain, P1.3 open drain (muss sein), P1.4(INT1)=Input only, P1.6(FBOUTC) push-pull
+	P1M2=0x4C;
    
-  FBOUTC=0;			// Bus-Ausgang auf low
+	FBOUTC=0;			// Bus-Ausgang auf low
   
-
-
-  TMOD=0x12;		// Timer 0 als PWM, Timer 1 als 16-Bit Timer
-  TAMOD=0x01;
-  TH0=DUTY;			// Pulsverh‰ltnis PWM
-  AUXR1|=0x10;		// PWM von Timer 0 auf Pin ausgeben, gleichzeitig low-powermode ein (da <8MHz)
-  
-  ET0=0;			// Interrupt f¸r Timer 0 sperren 
-  TR0=1;			// Timer 0 starten (PWM)
-  TR1=0;			// Timer 1 (Empfangs-Timeout) zun‰chst stoppen
+	TMOD=0x11;		// Timer 0 und Timer 1 als 16-Bit Timer
+	TAMOD=0x00;
+	TR0=0;			// Timer 0 zun‰chst stoppen
+	TR1=0;			// Timer 1 (Empfangs-Timeout) zun‰chst stoppen
  
-  RTCH=0x0E;		// Real Time Clock auf 65ms laden
-  RTCL=0xA0;
-  RTCCON=0x61;		// ... und starten
+	RTCH=0x0E;		// Real Time Clock auf 65ms laden
+	RTCL=0xA0;
+	RTCCON=0x61;		// ... und starten
 
-  interrupted=0;	// wird durch die interrupt-routine auf 1 gesetzt
-  IEN0=0x00;
-  IEN1=0x00;
-  EA=1;				// Interrupts prinzipiell freigeben
-  EX0=0;			// Externen Interrupt 0 sperren
-  EX1=1;			// Externen Interrupt 1 freigeben	
+	interrupted=0;	// wird durch die interrupt-routine auf 1 gesetzt
+	IEN0=0x00;
+	IEN1=0x00;
+	EA=1;				// Interrupts prinzipiell freigeben
+	EX0=0;			// Externen Interrupt 0 sperren
+	EX1=1;			// Externen Interrupt 1 freigeben	
 
-  IP0=0x0C;			// hˆchste Priorit‰t f¸r ext. Int. 1 und Timer 1 (Bit 0 und 3)
-  IP0H=0x0C;
-  IP1=0x00;
-  IP1H=0x00;
-  IT1=1;			// Interrupt 1 flankengetriggert=1 pegelgetriggert=0
+	IP0=0x0C;			// hˆchste Priorit‰t f¸r ext. Int. 1 und Timer 1 (Bit 0 und 3)
+	IP0H=0x0C;
+	IP1=0x00;
+	IP1H=0x00;
+	IT1=1;			// Interrupt 1 flankengetriggert=1 pegelgetriggert=0
   
 }

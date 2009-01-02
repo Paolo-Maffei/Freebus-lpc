@@ -37,7 +37,7 @@ unsigned char conh, conl;	// bei bestehender Verbindung phys. Adresse des Kommun
 unsigned char pcount;		// Paketzähler, Gruppenadresszähler
 unsigned char last_tel;
 bit transparency;
-unsigned char delrec[32];
+unsigned char delrec[40];
 
 
 
@@ -328,7 +328,7 @@ void read_value_req(void)				// Objektwert lesen angefordert
 		objvalue=read_obj_value(objno);						// Objektwert aus USER-RAM lesen
 		objflags=read_objflags(objno);						// Objekt Flags lesen
     
-		if((objflags&0x08)==0x08 && (objflags&0x04)==0x04) {	// Objekt lesen, nur wenn read enable gesetzt (Bit3) und Kommunikation zulässig (Bit2)
+		if((objflags&0x0C)==0x0C) {		// Objekt lesen, nur wenn read enable gesetzt (Bit3) und Kommunikation zulässig (Bit2)
 			telegramm[0]=0xBC;
 			telegramm[1]=eeprom[ADDRTAB+1];		// Source Adresse
 			telegramm[2]=eeprom[ADDRTAB+2];
@@ -498,17 +498,21 @@ bit write_obj_value(unsigned char objno,int objvalue)		// schreibt den aktuellen
 	if (objno <= commstab) {	// wenn objno <= anzahl objekte
 		valuepointer=eeprom[commstab+offset+2];
 		if (eeprom[commstab+offset+4] < 8) {	// Typ zwischen 1 und 8 Bit gross
-			start_writecycle();
-			write_byte(0x00,valuepointer,objvalue);
-			stop_writecycle();
-			write_ok=1;
+			while (!write_ok) {
+				start_writecycle();
+				write_byte(0x00,valuepointer,objvalue);
+				stop_writecycle();
+				if(!(FMCON & 0x01)) write_ok=1;
+			}
 		}
 		if (eeprom[commstab+offset+4] == 8) {	// 2-Byte Wert
-			start_writecycle();
-			write_byte(0x00,valuepointer,objvalue>>8);
-			write_byte(0x00,valuepointer+1,objvalue);
-			stop_writecycle();
-			write_ok=1;
+			while (!write_ok) {
+				start_writecycle();
+				write_byte(0x00,valuepointer,objvalue>>8);
+				write_byte(0x00,valuepointer+1,objvalue);
+				stop_writecycle();
+				if(!(FMCON & 0x01)) write_ok=1;
+			}
 		}
 	}
 	return(write_ok);
