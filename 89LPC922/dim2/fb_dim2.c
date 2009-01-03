@@ -1,0 +1,254 @@
+/*
+ *      __________  ________________  __  _______
+ *     / ____/ __ \/ ____/ ____/ __ )/ / / / ___/
+ *    / /_  / /_/ / __/ / __/ / __  / / / /\__ \
+ *   / __/ / _, _/ /___/ /___/ /_/ / /_/ /___/ /
+ *  /_/   /_/ |_/_____/_____/_____/\____//____/
+ *
+ *  Copyright (c) 2008 Andreas Krebs <kubi@krebsworld.de>
+ *
+ *  This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License version 2 as
+ *  published by the Free Software Foundation.
+ *
+ */
+
+
+// Versionen:	2.00	erstes Programm in C für Hardware Ver. 2
+//		2.01	Schaltverzögerung hinzugefügt
+//		2.02	Restart Fehler behoben
+//		2.03	Arrays korrigiert
+//		2.04	Bugs in bin_out behoben
+//		3.01	auf 89LPC922 portiert und Bugs behoben
+//		3.02	Verzögerung über RTC		behobene Bugs: Verzögerung geht nach einiger Zeit sehr langsam
+//		3.03	Timer 0 für PWM
+//		3.04	RX & TX Timing nochmals optimiert 	behobene Bugs: get_ack funktionierte nicht
+//		3.05	Zeitschaltfunktion hinzugefügt
+//		3.06	Öffner-/Schliesserbetrieb und Verhalten nach Busspannungswiederkehr hinzugefügt
+//		3.07	Rückmeldeobjekte eingefügt
+//		3.08	gat Array entfernt und durch gapos_in_gat funktion ersetzt
+//		3.09	Sperrobjekte hinzugefügt
+//		3.10	Fehler in main() behoben (kein delay!)
+//		3.11	Fehler bei Zusatzfunktionstyp behoben,
+//				Fehler bei Sperrobjekten behoben,
+//				Relais ziehen jetzt vollen Strom auch bei Busspannungswiederkehr
+
+
+
+//              umbau anfang zum dimmer (Gira 1032) 30.12.2008
+//dimmer kann:
+//      Dimmen
+//      grundhellikeit
+//      einschalthellikeit
+//      verhalten bei busspannungswiederkehr
+//      verhalten beim emfang eines wertes
+//      dimmgeschwindikeit
+//dimmer kann nicht: @TODO noch viele kleinikeiten
+//      wertobjekt
+//      sonderfunktionen wie LZ zeit ausschalfunktion ...
+
+
+#include <P89LPC922.h>
+#include "../com/fb_hal_lpc.h"
+#include "../com/fb_prot.h"
+#include "../com/fb_app_dim.h"
+#include "../com/fb_rs232.h"
+#include "fb_i2c.h"
+
+extern unsigned char Tval;
+#define MAXDIMMWERT 250
+#define DIMKREISE 2
+
+unsigned char anspringen[DIMKREISE];          //andimmen (0) oder anspringen (1) [0]=K1
+unsigned char dimm_helldunkel[DIMKREISE];          //9=heller 0=stop 1=dunkler
+unsigned char dimm_I2C[DIMKREISE];
+unsigned char dimmwert[DIMKREISE];
+unsigned char mindimmwert[DIMKREISE];             //minimaldimmwert von der applikation
+unsigned char einschathellikeit[DIMKREISE];
+unsigned char mk[DIMKREISE]; //merker Kanal zum übertragen uber i2c
+unsigned int ie=0;              // dimmer immer wieder aktualisieren
+unsigned char dimmgeschwindikeit=0;
+unsigned char hellikeit[]={0,25,40,53,67,80,95,120,140,160,180,200,0};
+
+
+void restart_app(void)		// Alle Applikations-Parameter zurücksetzen
+{
+    //Timer0 einstellen
+    TMOD&=0xf0;   //register löschen
+    TMOD|=0x01;   // Timer 0 als reload, Timer 1 nicht ändern
+    TAMOD&=0xf0;
+    TH0 = 0;
+    AUXR1&=~0x10;             // toggled whenever Timer0 overflows ausschalten
+
+    ET0=1;                        // Interrupt für Timer 0 freigeben
+    TR0=1;                        // Timer 0 starten
+    EA=1;
+
+  // unsigned char bw,bwh,n;
+	Tval=0x00;
+
+  P0M1=0x00;				// Port 0 Modus push-pull für Ausgang
+  P0M2=0xFF;
+  anspringen[0]=(eeprom[0xC6]&(1<<3))>>3;
+  anspringen[1]=(eeprom[0xC6]&(1<<7))>>7;
+  einschathellikeit[0]=eeprom[0xC4]&0x0f;
+  einschathellikeit[1]=eeprom[0xC4]>>4;
+  rs_send_hex(eeprom[0xC4]);
+  dimmwert[0]=hellikeit[eeprom[0xe2]&0x0f]; //Verhalten bei Busspannungswiederkehr
+  dimmwert[1]=hellikeit[(eeprom[0xe2]>>4)&0x0f]; //Verhalten bei Busspannungswiederkehr
+  mindimmwert[0]=(eeprom[0xc2]&0x0f)*10+10;
+  mindimmwert[1]=(eeprom[0xc2]>>4)*10+10;
+  hellikeit[0x1]=mindimmwert[0];
+  hellikeit[0xB]=MAXDIMMWERT;
+  hellikeit[0x1]=mindimmwert[1];//@TODO hellikeit braucht 2 variablen
+  hellikeit[0xB]=MAXDIMMWERT;
+
+/*
+  portbuffer=userram[0x29];	// Verhalten nach Busspannungs-Wiederkehr
+  bw=eeprom[0xF6];
+  for(n=0;n<=3;n++)			// Ausgänge 1-4
+  {
+    bwh=(bw>>(2*n))&0x03;
+    if(bwh==0x01)  portbuffer=portbuffer & (0xFF-(0x01<<n));
+    if(bwh==0x02)  portbuffer=portbuffer | (0x01<<n);
+  }
+  bw=eeprom[0xF7];
+  for(n=0;n<=3;n++)			// Ausgänge 5-8
+  {
+    bwh=(bw>>(2*n))&0x03;
+    if(bwh==0x01)  portbuffer=portbuffer & (0xFF-(0x01<<(n+4)));
+    if(bwh==0x02)  portbuffer=portbuffer | (0x01<<(n+4));
+  }
+  port_schalten(portbuffer);
+
+  zfstate=0x00;		// Zustand der Zusatzfunktionen 1-4
+  blocked=0x00;		// Ausgänge nicht gesperrt
+  timer=0;		// Timer-Variable, wird alle 135us inkrementiert
+
+  logicstate=0;
+  delay_toggle=0;
+*/
+  start_writecycle();
+  write_byte(0x01,0x03,0x00);	// Herstellercode 0x0004 = Jung 0x0008 = Gira
+  write_byte(0x01,0x04,0x08);
+  write_byte(0x01,0x05,0x30);	// Device Type (2038.10) 2060h (0x3015 gira 1032)
+  write_byte(0x01,0x06,0x15);	// 	"	"	"
+  write_byte(0x01,0x07,0x01);	// Versionsnummer
+  write_byte(0x01,0x0C,0x00);	// PORT A Direction Bit Setting
+  write_byte(0x01,0x0D,0xFF);	// Run-Status (00=stop FF=run)
+  write_byte(0x01,0x12,0x9A);	// COMMSTAB Pointer
+  stop_writecycle();
+}
+
+
+void tr0_int(void) interrupt 1          //n=nummer 0x03+8*n
+{
+  TH0=0x10;
+  P0_0 =! P0_0;         //@TODO: testled raus
+
+  if(ie<4000)
+           ++ie;
+   else
+           {
+           i2c_send_daten(dimm_I2C[0],dimm_I2C[1]);
+           ie=0;
+           }
+
+   if(anspringen[0])
+           dimm_I2C[0]=dimmwert[0];  //anspringen vom wert
+   else
+   {
+           if(dimm_I2C[0] > dimmwert[0])
+                   dimm_I2C[0]-=1;
+           if(dimm_I2C[0] < dimmwert[0])
+                   dimm_I2C[0]+=1;
+   }
+
+   if(anspringen[1])
+           dimm_I2C[1]=dimmwert[1];  //anspringen vom wert
+   else
+   {
+           if(dimm_I2C[1] > dimmwert[1])
+                   dimm_I2C[1]-=1;
+           if(dimm_I2C[1] < dimmwert[1])
+                   dimm_I2C[1]+=1;
+   }
+   if(dimm_I2C[0]!=mk[0]||dimm_I2C[1]!=mk[1])
+     {
+      /* rs_send_s("Dimmwert=");
+       rs_send_hex(dimm_I2C[0]);
+       rs_send(' ');
+       rs_send_hex(dimm_I2C[1]);
+       rs_send_s("\n");
+     */mk[0]=dimm_I2C[0];
+       mk[1]=dimm_I2C[1];
+       i2c_send_daten(dimm_I2C[0],dimm_I2C[1]);
+     }
+
+
+
+ //Dimmgeschwindikeit
+  dimmgeschwindikeit=dimm_helldunkel[0]&0x07;
+  if(dimmwert[0] <= (MAXDIMMWERT-dimmgeschwindikeit)&&(dimm_helldunkel[0]&8)!=0)   //heller 9( bit 3 heller dunkler ,bit 0-2 geschwindikeit)
+        {
+        if(dimmwert[0]<mindimmwert[0])
+                dimmwert[0]=mindimmwert[0];
+        else
+                dimmwert[0]+=dimmgeschwindikeit;
+        }
+  if(dimmwert[0] >= (mindimmwert[0]+dimmgeschwindikeit) && (dimm_helldunkel[0]&8)==0)      //dunkler
+        {
+        dimmwert[0]-=dimmgeschwindikeit;
+        }
+
+  dimmgeschwindikeit=dimm_helldunkel[1]&0x07;
+  if(dimmwert[1] <= (MAXDIMMWERT-dimmgeschwindikeit)&&(dimm_helldunkel[1]&8)!=0)   //heller 9( bit 3 heller dunkler ,bit 0-2 geschwindikeit)
+        {
+        if(dimmwert[1]<mindimmwert[1])
+                dimmwert[1]=mindimmwert[1];
+        else
+                dimmwert[1]+=dimmgeschwindikeit;
+        }
+  if(dimmwert[1] >= (mindimmwert[1]+dimmgeschwindikeit) && (dimm_helldunkel[1]&8)==0)      //dunkler
+        dimmwert[1]-=dimmgeschwindikeit;
+}
+
+
+
+
+void main(void)
+{
+unsigned int i=0;
+  unsigned char n;
+  restart_hw();				// Hardware zurücksetzen
+  restart_prot();			// Protokoll-relevante Parameter zurücksetzen
+  restart_app();			// Anwendungsspezifische Einstellungen zurücksetzen
+  rs_init();
+  i2c_init();
+  restart_app();                        // Anwendungsspezifische Einstellungen zurücksetzen
+
+  rs_send_s("Programmstart\n");
+
+
+  do
+      {
+     if(RTCCON>=0x80) delay_timer();	// Realtime clock Überlauf
+      //
+      // +++++ Handhabung des Programmiertasters und der ProgrammierLED +++++
+      //
+      TASTER=1;				        // Pin als Eingang schalten um Taster abzufragen
+      if(!TASTER)
+        {					// Taster gedrückt
+        for(n=0;n<100;n++) {}
+        while(!TASTER);				// warten bis Taster losgelassen
+        progmode=!progmode;
+        }
+      TASTER=!progmode;				// LED entsprechend schalten (low=LED an)
+      for(n=0;n<100;n++) {}
+      }
+  while(1)
+
+    ;
+}
+
+
