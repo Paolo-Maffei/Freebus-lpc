@@ -99,11 +99,8 @@ void timer1(void) interrupt 3	// Interrupt von Timer 1, 370us keine Busaktivität
       }
       else						// Multicast, wenn Zieladresse Gruppenadresse ist
       {
-        if(data_laenge==1 && telegramm[6]==0x00)
-        {
-          if ((telegramm[7]&0xC0)==0x80) write_value_req();	// Objektwerte schreiben (zB. EIS1)
-          if (telegramm[7]==0x00) read_value_req();			// Objektwert lesen und als read_value_res auf Bus senden
-        }
+        if(data_laenge>=1 && telegramm[6]==0x00 && (telegramm[7]&0xC0)==0x80) write_value_req();	// Objektwerte schreiben (zB. EIS1)
+        if(data_laenge==1 && telegramm[6]==0x00 && telegramm[7]==0x00) read_value_req();			// Objektwert lesen und als read_value_res auf Bus senden
       }
     }
    } 
@@ -341,6 +338,15 @@ void read_value_req(void)				// Objektwert lesen angefordert
 				telegramm[6]=0x00;
 				telegramm[7]=0x40+objvalue;			// bis zu 6 Bit passen in das Byte 7
 			}
+			if(read_obj_type(objno)>=7 && read_obj_type(objno)<=8) {	// Objekttyp, 7-8 Bit
+				ga=find_ga(objno);
+				telegramm[3]=ga>>8;
+				telegramm[4]=ga;
+				telegramm[5]=0xE2;	// DRL
+				telegramm[6]=0x00;
+				telegramm[7]=0x40;
+				telegramm[8]=objvalue;	
+			}		
 			send_telegramm();
     	}
     }
