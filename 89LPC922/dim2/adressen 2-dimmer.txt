@@ -38,7 +38,7 @@ EEPROM
 				9=80%
 				A=90%
 				B=Maximale Hellikeit
-				D=Wert vor dem letzen Ausschalten
+				C=Wert vor dem letzen Ausschalten
 				
 01 C6:	XX		Hellikeitswert andimmen oder anspringen  Bit 3=K1, Bit 7=K2 
 				0=andimmen 

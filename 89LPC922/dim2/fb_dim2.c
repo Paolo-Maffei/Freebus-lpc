@@ -6,6 +6,7 @@
  *  /_/   /_/ |_/_____/_____/_____/\____//____/
  *
  *  Copyright (c) 2008 Andreas Krebs <kubi@krebsworld.de>
+ *                   Richard Weissteiner richard@seelaus.at
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License version 2 as
@@ -39,12 +40,14 @@
 //dimmer kann:
 //      Dimmen
 //      grundhellikeit
+//      wertobjekt
 //      einschalthellikeit
 //      verhalten bei busspannungswiederkehr
-//      verhalten beim emfang eines wertes
+//      verhalten beim emfang eines wertes andimmen oder anspringen
 //      dimmgeschwindikeit
+
 //dimmer kann nicht: @TODO noch viele kleinikeiten
-//      wertobjekt
+//      respond
 //      sonderfunktionen wie LZ zeit ausschalfunktion ...
 
 
@@ -68,7 +71,18 @@ unsigned char einschathellikeit[DIMKREISE];
 unsigned char mk[DIMKREISE]; //merker Kanal zum übertragen uber i2c
 unsigned int ie=0;              // dimmer immer wieder aktualisieren
 unsigned char dimmgeschwindikeit=0;
-unsigned char hellikeit[]={0,25,40,53,67,80,95,120,140,160,180,200,0};
+unsigned char code hellikeit[]={0,25,40,53,67,80,95,120,140,160,180,200,0};
+
+
+
+unsigned char helligkeittsstufe(unsigned char stufe,unsigned char kanal)
+{
+  if(stufe == 1)
+    return mindimmwert[kanal];
+  if(stufe == 0x0b)
+    return MAXDIMMWERT;
+  return hellikeit[stufe];
+}
 
 
 void restart_app(void)		// Alle Applikations-Parameter zurücksetzen
@@ -79,55 +93,24 @@ void restart_app(void)		// Alle Applikations-Parameter zurücksetzen
     TAMOD&=0xf0;
     TH0 = 0;
     AUXR1&=~0x10;             // toggled whenever Timer0 overflows ausschalten
-
     ET0=1;                        // Interrupt für Timer 0 freigeben
     TR0=1;                        // Timer 0 starten
     EA=1;
 
-  // unsigned char bw,bwh,n;
-	Tval=0x00;
+    Tval=0x00;
 
   P0M1=0x00;				// Port 0 Modus push-pull für Ausgang
   P0M2=0xFF;
+
   anspringen[0]=(eeprom[0xC6]&(1<<3))>>3;
   anspringen[1]=(eeprom[0xC6]&(1<<7))>>7;
-  einschathellikeit[0]=eeprom[0xC4]&0x0f;
-  einschathellikeit[1]=eeprom[0xC4]>>4;
-  rs_send_hex(eeprom[0xC4]);
-  dimmwert[0]=hellikeit[eeprom[0xe2]&0x0f]; //Verhalten bei Busspannungswiederkehr
-  dimmwert[1]=hellikeit[(eeprom[0xe2]>>4)&0x0f]; //Verhalten bei Busspannungswiederkehr
+  einschathellikeit[0]=eeprom[0xC4]&0x0f;       //wert 0 - 0x0c
+  einschathellikeit[1]=eeprom[0xC4]>>4;         //wert 0 - 0x0c
+  dimmwert[0]=helligkeittsstufe(eeprom[0xe2]&0x0f,0);     //Verhalten bei Busspannungswiederkehr
+  dimmwert[1]=helligkeittsstufe((eeprom[0xe2]>>4)&0x0f,1);//Verhalten bei Busspannungswiederkehr
   mindimmwert[0]=(eeprom[0xc2]&0x0f)*10+10;
   mindimmwert[1]=(eeprom[0xc2]>>4)*10+10;
-  hellikeit[0x1]=mindimmwert[0];
-  hellikeit[0xB]=MAXDIMMWERT;
-  hellikeit[0x1]=mindimmwert[1];//@TODO hellikeit braucht 2 variablen
-  hellikeit[0xB]=MAXDIMMWERT;
 
-/*
-  portbuffer=userram[0x29];	// Verhalten nach Busspannungs-Wiederkehr
-  bw=eeprom[0xF6];
-  for(n=0;n<=3;n++)			// Ausgänge 1-4
-  {
-    bwh=(bw>>(2*n))&0x03;
-    if(bwh==0x01)  portbuffer=portbuffer & (0xFF-(0x01<<n));
-    if(bwh==0x02)  portbuffer=portbuffer | (0x01<<n);
-  }
-  bw=eeprom[0xF7];
-  for(n=0;n<=3;n++)			// Ausgänge 5-8
-  {
-    bwh=(bw>>(2*n))&0x03;
-    if(bwh==0x01)  portbuffer=portbuffer & (0xFF-(0x01<<(n+4)));
-    if(bwh==0x02)  portbuffer=portbuffer | (0x01<<(n+4));
-  }
-  port_schalten(portbuffer);
-
-  zfstate=0x00;		// Zustand der Zusatzfunktionen 1-4
-  blocked=0x00;		// Ausgänge nicht gesperrt
-  timer=0;		// Timer-Variable, wird alle 135us inkrementiert
-
-  logicstate=0;
-  delay_toggle=0;
-*/
   start_writecycle();
   write_byte(0x01,0x03,0x00);	// Herstellercode 0x0004 = Jung 0x0008 = Gira
   write_byte(0x01,0x04,0x08);
@@ -185,8 +168,6 @@ void tr0_int(void) interrupt 1          //n=nummer 0x03+8*n
        i2c_send_daten(dimm_I2C[0],dimm_I2C[1]);
      }
 
-
-
  //Dimmgeschwindikeit
   dimmgeschwindikeit=dimm_helldunkel[0]&0x07;
   if(dimmwert[0] <= (MAXDIMMWERT-dimmgeschwindikeit)&&(dimm_helldunkel[0]&8)!=0)   //heller 9( bit 3 heller dunkler ,bit 0-2 geschwindikeit)
@@ -222,17 +203,13 @@ unsigned int i=0;
   unsigned char n;
   restart_hw();				// Hardware zurücksetzen
   restart_prot();			// Protokoll-relevante Parameter zurücksetzen
-  restart_app();			// Anwendungsspezifische Einstellungen zurücksetzen
   rs_init();
   i2c_init();
   restart_app();                        // Anwendungsspezifische Einstellungen zurücksetzen
-
   rs_send_s("Programmstart\n");
-
-
   do
       {
-     if(RTCCON>=0x80) delay_timer();	// Realtime clock Überlauf
+     //if(RTCCON>=0x80) delay_timer();	// Realtime clock Überlauf
       //
       // +++++ Handhabung des Programmiertasters und der ProgrammierLED +++++
       //
