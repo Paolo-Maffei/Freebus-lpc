@@ -15,52 +15,36 @@
  */
 
 
-// Versionen:	2.00	erstes Programm in C für Hardware Ver. 2
-//		2.01	Schaltverzögerung hinzugefügt
-//		2.02	Restart Fehler behoben
-//		2.03	Arrays korrigiert
-//		2.04	Bugs in bin_out behoben
-//		3.01	auf 89LPC922 portiert und Bugs behoben
-//		3.02	Verzögerung über RTC		behobene Bugs: Verzögerung geht nach einiger Zeit sehr langsam
-//		3.03	Timer 0 für PWM
-//		3.04	RX & TX Timing nochmals optimiert 	behobene Bugs: get_ack funktionierte nicht
-//		3.05	Zeitschaltfunktion hinzugefügt
-//		3.06	Öffner-/Schliesserbetrieb und Verhalten nach Busspannungswiederkehr hinzugefügt
-//		3.07	Rückmeldeobjekte eingefügt
-//		3.08	gat Array entfernt und durch gapos_in_gat funktion ersetzt
-//		3.09	Sperrobjekte hinzugefügt
-//		3.10	Fehler in main() behoben (kein delay!)
-//		3.11	Fehler bei Zusatzfunktionstyp behoben,
-//				Fehler bei Sperrobjekten behoben,
-//				Relais ziehen jetzt vollen Strom auch bei Busspannungswiederkehr
-
-
-
 //              umbau anfang zum dimmer (Gira 1032) 30.12.2008
 //dimmer kann:
 //      Dimmen
 //      grundhellikeit
 //      wertobjekt
 //      einschalthellikeit
-//      verhalten bei busspannungswiederkehr
+//      verhalten bei busspannungswiederkehr auch letzter wert
 //      verhalten beim emfang eines wertes andimmen oder anspringen
 //      dimmgeschwindikeit
+//      lesen der objekte
+//      rückmeldeobjekte 1bit + 1 byte
+//      Lichtzenenfunktionen
+//      Sperrfunktion
 
-//dimmer kann nicht: @TODO noch viele kleinikeiten
-//      respond
-//      sonderfunktionen wie LZ zeit ausschalfunktion ...
+//dimmer kann nicht: @TODO noch viele kleinikeiten zb
+
+//      zeitfunktionen
+//      ausschalfunktion
 
 
 #include <P89LPC922.h>
 #include "../com/fb_hal_lpc.h"
 #include "../com/fb_prot.h"
-#include "../com/fb_app_dim.h"
+#include "fb_app_dim.h"
 #include "../com/fb_rs232.h"
 #include "fb_i2c.h"
 
 extern unsigned char Tval;
 #define MAXDIMMWERT 250
-#define DIMKREISE 2
+
 
 unsigned char anspringen[DIMKREISE];          //andimmen (0) oder anspringen (1) [0]=K1
 unsigned char dimm_helldunkel[DIMKREISE];          //9=heller 0=stop 1=dunkler
@@ -69,6 +53,7 @@ unsigned char dimmwert[DIMKREISE];
 unsigned char mindimmwert[DIMKREISE];             //minimaldimmwert von der applikation
 unsigned char einschathellikeit[DIMKREISE];
 unsigned char mk[DIMKREISE]; //merker Kanal zum übertragen uber i2c
+unsigned char sperren[DIMKREISE];             //Sperren oder nicht 1=sperren
 unsigned int ie=0;              // dimmer immer wieder aktualisieren
 unsigned char dimmgeschwindikeit=0;
 unsigned char code hellikeit[]={0,25,40,53,67,80,95,120,140,160,180,200,0};
@@ -81,6 +66,8 @@ unsigned char helligkeittsstufe(unsigned char stufe,unsigned char kanal)
     return mindimmwert[kanal];
   if(stufe == 0x0b)
     return MAXDIMMWERT;
+  if(stufe == 0x0c)
+    return read_obj_value(kanal+4);
   return hellikeit[stufe];
 }
 
@@ -119,7 +106,7 @@ void restart_app(void)		// Alle Applikations-Parameter zurücksetzen
   write_byte(0x01,0x07,0x01);	// Versionsnummer
   write_byte(0x01,0x0C,0x00);	// PORT A Direction Bit Setting
   write_byte(0x01,0x0D,0xFF);	// Run-Status (00=stop FF=run)
-  write_byte(0x01,0x12,0x9A);	// COMMSTAB Pointer
+  write_byte(0x01,COMMSTABPTR,0x8a);	// COMMSTAB Pointer
   stop_writecycle();
 }
 
@@ -130,12 +117,14 @@ void tr0_int(void) interrupt 1          //n=nummer 0x03+8*n
   P0_0 =! P0_0;         //@TODO: testled raus
 
   if(ie<4000)
-           ++ie;
+    {
+    ++ie;
+    }
    else
-           {
-           i2c_send_daten(dimm_I2C[0],dimm_I2C[1]);
-           ie=0;
-           }
+    {
+    i2c_send_daten(dimm_I2C[0],dimm_I2C[1]);
+    ie=0;
+    }
 
    if(anspringen[0])
            dimm_I2C[0]=dimmwert[0];  //anspringen vom wert
@@ -158,15 +147,21 @@ void tr0_int(void) interrupt 1          //n=nummer 0x03+8*n
    }
    if(dimm_I2C[0]!=mk[0]||dimm_I2C[1]!=mk[1])
      {
-      /* rs_send_s("Dimmwert=");
+    /*  rs_send_s("Dimmwert=");
        rs_send_hex(dimm_I2C[0]);
        rs_send(' ');
        rs_send_hex(dimm_I2C[1]);
        rs_send_s("\n");
-     */mk[0]=dimm_I2C[0];
+*/
+       ie=0;
+       mk[0]=dimm_I2C[0];
        mk[1]=dimm_I2C[1];
        i2c_send_daten(dimm_I2C[0],dimm_I2C[1]);
      }
+
+
+
+
 
  //Dimmgeschwindikeit
   dimmgeschwindikeit=dimm_helldunkel[0]&0x07;
