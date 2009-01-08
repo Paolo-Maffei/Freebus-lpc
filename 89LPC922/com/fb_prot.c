@@ -37,81 +37,69 @@ unsigned char conh, conl;	// bei bestehender Verbindung phys. Adresse des Kommun
 unsigned char pcount;		// Paketzähler, Gruppenadresszähler
 unsigned char last_tel;
 bit transparency;
-unsigned char delrec[40];
+
 
 
 
 
 void timer1(void) interrupt 3	// Interrupt von Timer 1, 370us keine Busaktivität seit letztem Byte, d.h. Telegramm wurde komplett übertragen
 {
-  unsigned char data_laenge,daf;
+	unsigned char data_laenge,daf;
 
-  EX1=0;					// ext. Interrupt stoppen 
-  ET1=0;					// Interrupt von Timer 1 sperren
-  set_timer1(4830);				// 4720 und neu starten für korrekte Positionierung des ACK Bytes
+	EX1=0;					// ext. Interrupt stoppen 
+	ET1=0;					// Interrupt von Timer 1 sperren
+	set_timer1(4830);				// 4720 und neu starten für korrekte Positionierung des ACK Bytes
   
-  if(cs==0xff)					// Checksum des Telegramms ist OK
-  {
-   if (transparency) {
-	   last_tel=telpos;
-   }
-   else {
-    data_laenge=(telegramm[5]&0x0F);		// Telegramm-Länge = Bit 0 bis 3 
-    daf=(telegramm[5]&0x80);			// Destination Adress Flag = Bit 7, 0=phys. Adr., 1=Gruppenadr.
+	if(cs==0xff) {					// Checksum des Telegramms ist OK
+		if (transparency) {
+			last_tel=telpos;
+		}
+		else {
+			data_laenge=(telegramm[5]&0x0F);		// Telegramm-Länge = Bit 0 bis 3 
+			daf=(telegramm[5]&0x80);			// Destination Adress Flag = Bit 7, 0=phys. Adr., 1=Gruppenadr.
 
-    if(telegramm[3]==0 && telegramm[4]==0)		// Broadcast, wenn Zieladresse = 0
-    {
-      if(progmode)
-      {
-        if(data_laenge==3 && telegramm[6]==0x00 && telegramm[7]==0xC0) set_pa();	// set_pa_req
-        if(telegramm[6]==0x01 && telegramm[7]==0x00) read_pa();				// read_pa_req
-      }
-    }
-    else
-    {
-      if(daf==0x00)					// Unicast, wenn Zieladresse physikalische Adresse ist
-      {
-        if(telegramm[3]==eeprom[ADDRTAB+1] && telegramm[4]==eeprom[ADDRTAB+2])	// nur wenn es die eigene phys. Adr. ist
-        {
-          if((telegramm[6]&0xC3)==0x42 && (telegramm[7]&0xC0)==0x80) write_memory();	// write_memory_request beantworten
-          if(data_laenge==0)
-          {    
-            if((telegramm[6]&0xC0)==0xC0) send_ack();				// auf NCD_Quittierung mit ACK antworten
-            if(telegramm[6]==0x80) ucd_opr();					// UCD Verbindungsaufbau
-            if(telegramm[6]==0x81) ucd_clr();					// UCD Verbindungsabbau
-          }
-          if(data_laenge==1)
-          {
-            if((telegramm[6]&0x03)==0x03 && telegramm[7]==0x80)		// restart request
-            {
-              restart_hw();	// Hardware zurücksetzen
-              restart_prot();	// Protokoll-relevante Parameter zurücksetzen
-              restart_app();	// Anwendungsspezifische Einstellungen zurücksetzen
-            }
-            if(telegramm[6]==0x43 && telegramm[7]==0x00) read_masq();		// Maskenversion angefordert
-          }
-          if(data_laenge==3)
-          {
-            if((telegramm[6]&0xC3)==0x42 && (telegramm[7]&0xC0)==0x00) read_memory();	// read_memory_request beantworten
-          }
-          
-        }
-      }
-      else						// Multicast, wenn Zieladresse Gruppenadresse ist
-      {
-        if(data_laenge>=1 && telegramm[6]==0x00 && (telegramm[7]&0xC0)==0x80) write_value_req();	// Objektwerte schreiben (zB. EIS1)
-        if(data_laenge==1 && telegramm[6]==0x00 && telegramm[7]==0x00) read_value_req();			// Objektwert lesen und als read_value_res auf Bus senden
-      }
-    }
-   } 
-  }
-  telpos=0;  
-  IE1=0;		// IRQ Flag zurücksetzen
-  EX1=1;		// externen Interrupt 0 wieder freigeben
-  if (!transparency) {	// Telegramm abgearbeitet
-	  TR1=0;				// Timer 1 stoppen
-	  cs=0;					// cheksum zurücksetzen
-  }
+			if(telegramm[3]==0 && telegramm[4]==0) {		// Broadcast, wenn Zieladresse = 0
+				if(progmode) {
+					if(data_laenge==3 && telegramm[6]==0x00 && telegramm[7]==0xC0) set_pa();	// set_pa_req
+					if(telegramm[6]==0x01 && telegramm[7]==0x00) read_pa();				// read_pa_req
+				}
+			}
+			else {
+				if(daf==0x00) {					// Unicast, wenn Zieladresse physikalische Adresse ist
+					if(telegramm[3]==eeprom[ADDRTAB+1] && telegramm[4]==eeprom[ADDRTAB+2]) {	// nur wenn es die eigene phys. Adr. ist
+						if((telegramm[6]&0xC3)==0x42 && (telegramm[7]&0xC0)==0x80) write_memory();	// write_memory_request beantworten
+						if(data_laenge==0) {    
+							if((telegramm[6]&0xC0)==0xC0) send_ack();				// auf NCD_Quittierung mit ACK antworten
+							if(telegramm[6]==0x80) ucd_opr();					// UCD Verbindungsaufbau
+							if(telegramm[6]==0x81) ucd_clr();					// UCD Verbindungsabbau
+						}
+						if(data_laenge==1) {
+							if((telegramm[6]&0x03)==0x03 && telegramm[7]==0x80) {		// restart request
+								restart_hw();	// Hardware zurücksetzen
+								restart_prot();	// Protokoll-relevante Parameter zurücksetzen
+								restart_app();	// Anwendungsspezifische Einstellungen zurücksetzen
+							}
+							if(telegramm[6]==0x43 && telegramm[7]==0x00) read_masq();		// Maskenversion angefordert
+						}
+						if(data_laenge==3) {
+							if((telegramm[6]&0xC3)==0x42 && (telegramm[7]&0xC0)==0x00) read_memory();	// read_memory_request beantworten
+						}      
+					}
+				}
+				else {		// Multicast, wenn Zieladresse Gruppenadresse ist
+					if(data_laenge>=1 && telegramm[6]==0x00 && (telegramm[7]&0xC0)==0x80) write_value_req();	// Objektwerte schreiben (zB. EISx)
+					if(data_laenge==1 && telegramm[6]==0x00 && telegramm[7]==0x00) read_value_req();			// Objektwert lesen und als read_value_response auf Bus senden
+				}
+			}
+		} 
+	}
+	telpos=0;  
+	IE1=0;					// IRQ Flag zurücksetzen
+	EX1=1;					// externen Interrupt 0 wieder freigeben
+	if (!transparency) {	// Telegramm abgearbeitet
+		TR1=0;				// Timer 1 stoppen
+		cs=0;				// cheksum zurücksetzen
+	}
 }
 
 
@@ -130,7 +118,10 @@ bit get_ack(void)		// Byte empfangen und prüfen ob es ein ACK war
     if(FBINC==1) n++;
     else
     {
-      if (get_byte()==0xCC && parity_ok) ret=1;
+      if (get_byte()==0xCC && parity_ok) {
+    	  ret=1;
+    	  n=3000;
+      }
     }
   } while (n<3000);
   return(ret);
@@ -149,8 +140,7 @@ void send_telegramm(void)		// sendet das Telegramm, das in telegramm[] vorher ab
     data_laenge=telegramm[5]&0x0F;	// Telegramm-Länge = Bit 0 bis 3
 
     set_timer1(18780);			// Warten bis Bus frei ist
-    while(!TF1)
-    {
+    while(!TF1) {
       if(!FBINC) set_timer1(18780);
     }
     TR1=0;
@@ -426,39 +416,7 @@ unsigned char find_first_objno(unsigned char gah, unsigned char gal)
 }
 
 
-void write_delay_record(unsigned char objno, unsigned char delay_state, long delay_target)		// Schreibt die Schalt-Verzögerungswerte ins Flash
-{
-	/*  EX1=0;
-	start_writecycle();
-	write_byte(0x00,objno*5,delay_state);
-	write_byte(0x00,1+objno*5,delay_target>>24);
-	write_byte(0x00,2+objno*5,delay_target>>16);
-	write_byte(0x00,3+objno*5,delay_target>>8);
-	write_byte(0x00,4+objno*5,delay_target);
-	stop_writecycle();
-	EX1=1;  */
-	delrec[objno*4]=delay_state;
-	delrec[objno*4+1]=delay_target>>16;
-	delrec[objno*4+2]=delay_target>>8;
-	delrec[objno*4+3]=delay_target;
-}
 
-void clear_delay_record(unsigned char objno)		// Schreibt die Schalt-Verzögerungswerte ins Flash
-{
-	/*  EX1=0;
-	start_writecycle();
-	write_byte(0x00,objno*5,0x00);
-	write_byte(0x00,1+objno*5,0x00);
-	write_byte(0x00,2+objno*5,0x00);
-	write_byte(0x00,3+objno*5,0x00);
-	write_byte(0x00,4+objno*5,0x00);
-	stop_writecycle();
-	EX1=1;  */
-	delrec[objno*4]=0;
-	delrec[objno*4+1]=0;
-	delrec[objno*4+2]=0;
-	delrec[objno*4+3]=0;
-}
 
 int read_obj_value(unsigned char objno)		// gibt den aktuellen Wert eines Objektes zurück
 {

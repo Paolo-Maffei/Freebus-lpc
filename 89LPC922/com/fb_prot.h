@@ -29,7 +29,7 @@ extern unsigned char pcount;		// Paketzähler, Gruppenadresszähler
 extern bit parity_ok;				// Parity Bit des letzten empfangenen Bytes OK
 extern unsigned char last_tel;
 extern bit transparency;			// wenn 1 dann wird telegramm lokal nicht verarbeitet
-extern unsigned char delrec[40];
+
 
 void timer1(void) interrupt 3;	// Interrupt von Timer 1, 370us keine Busaktivität seit letztem Byte, d.h. Telegramm wurde komplett übertragen
 bit get_ack(void);				// wartet bis Byte empfangen wurde und prüft ob es ein ACK war  <- suboptimal, besser mit timeout !!!
@@ -52,8 +52,7 @@ unsigned char read_objflags(unsigned char objno);	// Objektflags lesen
 int find_ga(unsigned char objno);	// Gruppenadresse über Assoziationstabelle finden (erster Eintrag, falls mehrere)
 unsigned char find_first_objno(unsigned char gah, unsigned char gal);
 
-void write_delay_record(unsigned char objno, unsigned char delay_status, long delay_target);	// Schreibt die Schalt-Verzögerungswerte ins Flash
-void clear_delay_record(unsigned char objno); // Löscht den Delay Eintrag
+
 void restart_prot(void);		// Protokoll-relevante Parameter zurücksetzen
 
 int read_obj_value(unsigned char objno);	// gibt den Wert eines Objektes zurück

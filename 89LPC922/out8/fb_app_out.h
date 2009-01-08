@@ -16,9 +16,9 @@
 #ifndef FB_APP_OUT
 #define FB_APP_OUT
 
-#define GS1					// GS1 für alte Relais-Schaltung, GS2 für neue
+#define GS2					// GS1 für alte Relais-Schaltung, GS2 für neue
 //#define HAND				// Handsteuerung aktiv (auskommentieren wenn nicht gewünscht)
-#define MAX_PORTS_4			// Anzahl Ausgänge (nur 4 oder 8 erlaubt)
+#define MAX_PORTS_8			// Anzahl Ausgänge (nur 4 oder 8 erlaubt)
 
 
 #define FUNCASS		0xD8	// Startadresse der Zuordnung der Zusatzfunktionen (2 Byte)

@@ -23,7 +23,7 @@
 
 unsigned char portbuffer,p0h;
 int objstate;		// Zwischenspeicher der Objektzustände x.1 (Bit 0-7) und x.2 (Bit 8-15)
-long timer;			// Timer für Schaltverzögerungen, wird alle 130us hochgezählt
+long timer;			// Timer für Schaltverzögerungen, wird alle 130ms hochgezählt
 		
 
 
@@ -193,10 +193,11 @@ void restart_app(void)		// Alle Applikations-Parameter zurücksetzen
 
   P0M1=0xFF;	//P0 auf input only (high impedance!)
   P0M2=0x00;
+  P0=0xFF;
 
   transparency=0;
   
-  timer=0;		// Timer-Variable, wird alle 65us inkrementiert
+  timer=0;		// Timer-Variable, wird alle 65ms inkrementiert
   
   start_writecycle();
   write_byte(0x01,0x03,0x00);	// Herstellercode 0x0004 = Jung
