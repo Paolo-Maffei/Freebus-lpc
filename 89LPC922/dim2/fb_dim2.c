@@ -42,6 +42,7 @@
 #include "../com/fb_rs232.h"
 #include "fb_i2c.h"
 
+
 extern unsigned char Tval;
 #define MAXDIMMWERT 250
 
@@ -57,8 +58,6 @@ unsigned char sperren[DIMKREISE];             //Sperren oder nicht 1=sperren
 unsigned int ie=0;              // dimmer immer wieder aktualisieren
 unsigned char dimmgeschwindikeit=0;
 unsigned char code hellikeit[]={0,25,40,53,67,80,95,120,140,160,180,200,0};
-
-
 
 unsigned char helligkeittsstufe(unsigned char stufe,unsigned char kanal)
 {
@@ -110,11 +109,10 @@ void restart_app(void)		// Alle Applikations-Parameter zurücksetzen
   stop_writecycle();
 }
 
-
-void tr0_int(void) interrupt 1          //n=nummer 0x03+8*n
+void tr0_int(void) interrupt 1         //n=nummer 0x03+8*n
 {
   TH0=0x10;
-  P0_0 =! P0_0;         //@TODO: testled raus
+  //P0_0 =! P0_0;
 
   if(ie<4000)
     {
@@ -158,11 +156,6 @@ void tr0_int(void) interrupt 1          //n=nummer 0x03+8*n
        mk[1]=dimm_I2C[1];
        i2c_send_daten(dimm_I2C[0],dimm_I2C[1]);
      }
-
-
-
-
-
  //Dimmgeschwindikeit
   dimmgeschwindikeit=dimm_helldunkel[0]&0x07;
   if(dimmwert[0] <= (MAXDIMMWERT-dimmgeschwindikeit)&&(dimm_helldunkel[0]&8)!=0)   //heller 9( bit 3 heller dunkler ,bit 0-2 geschwindikeit)
@@ -192,14 +185,19 @@ void tr0_int(void) interrupt 1          //n=nummer 0x03+8*n
 
 
 
+
+
+
 void main(void)
 {
 unsigned int i=0;
   unsigned char n;
+  bit flag50hz=0;
+
   restart_hw();				// Hardware zurücksetzen
   restart_prot();			// Protokoll-relevante Parameter zurücksetzen
   rs_init();
-  i2c_init();
+  i2c_ma_init();
   restart_app();                        // Anwendungsspezifische Einstellungen zurücksetzen
   rs_send_s("Programmstart\n");
   do

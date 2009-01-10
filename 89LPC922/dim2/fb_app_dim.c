@@ -126,8 +126,8 @@ void write_value_req(void)				// Ausg‰nge schalten gem‰ﬂ EIS 1 Protokoll (an/aus
                   write_obj_value(c,dimmwert[c]?1:0);     //Schaltobjekt
                   write_obj_value(c+4,dimmwert[c]);       //Dimmobjekt
                   if(eeprom[0xc3]&(1<<(6+c))!=0)// nur wenn eingeschalten
-                    respond(c+6,(dimmwert[c]?1:0)+0x80);
-                   respond(c+8,dimmwert[c]);
+                  respond(c+6,(dimmwert[c]?1:0)+0x80);
+                  respond(c+8,dimmwert[c]);
                   b_send=0;
                 }
               }

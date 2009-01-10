@@ -8,6 +8,34 @@
 #include "fb_i2c.h"
 //#include "fb_rs232.h"
 
+
+void i2c_sla_init(void)
+{
+  P1M1 |= 0x0c;//(1<<2)+(1<<3);
+  P1M2 &= ~0x0c;
+  I2ADR = 0xa0; // default slave address
+  I2CON = 0x44;
+  I2SCLH=0; //I2C takt
+  I2SCLL=0; //I2C takt
+  SDA=1;
+  SCL=1;
+  EI2C=1;
+  EA=1;
+  return;
+}
+
+void i2c_ma_init(void)
+{
+  P1M1 |= 0x0c;//(1<<2)+(1<<3);
+  P1M2 |= 0x0c;//((1<<2)+(1<<3));
+  I2ADR = 0xa0; // default slave address
+  I2CON = 0x44;
+  I2SCLH=17; //I2C takt
+  I2SCLL=17; //I2C takt
+  SDA=1;
+  SCL=1;
+  return;
+}
 unsigned char i2c_wait(void)
         {
         unsigned int timeueberlauf=0;
@@ -51,6 +79,7 @@ unsigned char i2c_send_daten(unsigned char K1,unsigned char K2)
         if(i2c_wait()!=0)
                 return 0xff;
         I2DAT = K2;                             //Daten Senden MASTER
+        //AA=0;
         if(i2c_wait()!=0)
                 return 0xff;
         STO=1;            //send Stop MASTER
@@ -58,12 +87,4 @@ unsigned char i2c_send_daten(unsigned char K1,unsigned char K2)
         }
 
 
-void i2c_init(void)
-{
-  P1M1 |= 0x0c;//(1<<2)+(1<<3);
-  P1M2 |= 0x0c;//((1<<2)+(1<<3));
-  I2ADR = 0x26; // default slave address
-  I2CON = 0x44;
-  return;
-}
 

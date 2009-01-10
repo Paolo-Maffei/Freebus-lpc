@@ -12,6 +12,7 @@
 
 unsigned char i2c_wait(void);
 unsigned char i2c_send_daten(unsigned char K1,unsigned char K2);
-void i2c_init(void);
+void i2c_ma_init(void);
+void i2c_sla_init(void);
 
 #endif /* FB_I2C_H_ */
