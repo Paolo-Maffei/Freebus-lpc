@@ -22,6 +22,10 @@
 #define FBINC	P1_4	// Empfangspin
 #define PWM		P1_2	// PWM-Pin
 
+#define PORT	P0		// Port für 8-bit I/O
+
+#define RECEIVE_INT_ENABLE	EX1		// Interrupt enable Flag für Empfang
+
 
 extern __code unsigned char __at 0x1C00 userram[255];	// Bereich im Flash für User-RAM
 extern __code unsigned char __at 0x1D00 eeprom[255];	// Bereich im Flash für EEPROM
@@ -37,7 +41,12 @@ void stop_writecycle(void);
 void write_byte(unsigned char addrh, unsigned char addrl, unsigned char zdata);
 unsigned char read_byte(unsigned char addrh, unsigned char addrl);
 void sysdelay(int deltime);
+void set_timer0(int deltime);
 void set_timer1(int deltime);
+void set_port_mode_bidirectional(int pin);
+void set_port_mode_pushpull(int pin);
+void set_port_mode_input(int pin);
+void set_port_mode_opendrain(int pin);
 void restart_hw(void);
 
 #endif

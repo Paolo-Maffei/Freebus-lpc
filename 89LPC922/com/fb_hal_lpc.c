@@ -184,6 +184,19 @@ void sysdelay(int deltime)			// Warten, deltime = Anzahl Takte / 2 (Timer wird m
 }
 
 
+void set_timer0(int deltime)		// Timer 0 stoppen, setzen und starten (Timer wird mit CCLK/2 betrieben)
+{
+  TR0=0;					// Timer 0 anhalten
+  deltime=0xFFFF-deltime;
+  TH0=deltime>>8;			// Timer 0 setzen 
+  TL0=deltime;	
+  TF0=0;					// Überlauf-Flag zurücksetzen
+  TR0=1;					// Timer 0 starten
+}
+
+
+
+
 void set_timer1(int deltime)		// Timer 1 stoppen, setzen und starten (Timer wird mit CCLK/2 betrieben)
 {
   TR1=0;				// Timer 1 anhalten
@@ -195,6 +208,52 @@ void set_timer1(int deltime)		// Timer 1 stoppen, setzen und starten (Timer wird
 }
 
 
+void set_port_mode_bidirectional(int pin)	// Konfiguriert den entsprechenden pin als bidirectional mit internem pull-up R
+{
+	unsigned char pattern;
+	
+	if (pin<8) {
+		pattern=0xFF-(1<<pin);
+		P0M1&=pattern;
+		P0M2&=pattern;
+	}
+}
+
+void set_port_mode_pushpull(int pin)		// Konfiguriert den entsprechenden pin als pushpull
+{
+	unsigned char pattern;
+	
+	if (pin<8) {
+		pattern=0xFF-(1<<pin);
+		P0M1&=pattern;
+		pattern=1<<pin;
+		P0M2|=pattern;
+	}
+}
+
+void set_port_mode_input(int pin)			// Konfiguriert den entsprechenden pin als input-only (high impedance, ohne pull-up R) 
+{
+	unsigned char pattern;
+	
+	if (pin<8) {
+		pattern=1<<pin;
+		P0M1&=pattern;
+		pattern=0xFF-(1<<pin);
+		P0M2|=pattern;
+	}
+}
+
+void set_port_mode_opendrain(int pin)		// Konfiguriert den entsprechenden pin als ausgang mit open drain
+{
+	unsigned char pattern;
+	
+	if (pin<8) {
+		pattern=1<<pin;
+		P0M1&=pattern;
+		P0M2&=pattern;
+	}
+}
+
 
 void restart_hw(void)	// Alle Hardware Einstellungen zurücksetzen
 {
@@ -204,7 +263,7 @@ void restart_hw(void)	// Alle Hardware Einstellungen zurücksetzen
 	P1M1=0x14;		// Port 1 auf quasi-bidirektional, außer P1.2(T0 als PWM Ausgang)=open-drain, P1.3 open drain (muss sein), P1.4(INT1)=Input only, P1.6(FBOUTC) push-pull
 	P1M2=0x4C;
    
-	FBOUTC=0;			// Bus-Ausgang auf low
+	FBOUTC=0;		// Bus-Ausgang auf low
   
 	TMOD=0x11;		// Timer 0 und Timer 1 als 16-Bit Timer
 	TAMOD=0x00;
@@ -213,16 +272,16 @@ void restart_hw(void)	// Alle Hardware Einstellungen zurücksetzen
  
 	RTCH=0x0E;		// Real Time Clock auf 65ms laden
 	RTCL=0xA0;
-	RTCCON=0x61;		// ... und starten
+	RTCCON=0x61;	// ... und starten
 
 	interrupted=0;	// wird durch die interrupt-routine auf 1 gesetzt
 	IEN0=0x00;
 	IEN1=0x00;
-	EA=1;				// Interrupts prinzipiell freigeben
+	EA=1;			// Interrupts prinzipiell freigeben
 	EX0=0;			// Externen Interrupt 0 sperren
 	EX1=1;			// Externen Interrupt 1 freigeben	
 
-	IP0=0x0C;			// höchste Priorität für ext. Int. 1 und Timer 1 (Bit 0 und 3)
+	IP0=0x0C;		// höchste Priorität für ext. Int. 1 und Timer 1 (Bit 0 und 3)
 	IP0H=0x0C;
 	IP1=0x00;
 	IP1H=0x00;
