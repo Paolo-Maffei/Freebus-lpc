@@ -267,11 +267,11 @@ void restart_hw(void)	// Alle Hardware Einstellungen zurücksetzen
   
 	TMOD=0x11;		// Timer 0 und Timer 1 als 16-Bit Timer
 	TAMOD=0x00;
-	TR0=0;			// Timer 0 zunächst stoppen
-	TR1=0;			// Timer 1 (Empfangs-Timeout) zunächst stoppen
+	TR0=0;			// Timer 0 (zur Verwendung in app) zunächst stoppen 
+	TR1=0;			// Timer 1 (Empfangs-Timeout, nicht in app verwenden!) zunächst stoppen
  
 	RTCH=0x0E;		// Real Time Clock auf 65ms laden
-	RTCL=0xA0;
+	RTCL=0xA0;		// (RTC ist ein down-counter mit 128 bit prescaler und osc-clock)
 	RTCCON=0x61;	// ... und starten
 
 	interrupted=0;	// wird durch die interrupt-routine auf 1 gesetzt

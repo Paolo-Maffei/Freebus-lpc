@@ -37,6 +37,7 @@ void button_changed(unsigned char buttonno, bit buttonval);	// Taster Aktion aba
 void switch_led(unsigned char ledno, bit onoff);	// LED schalten
 void write_value_req(void);		// Hauptroutine für Ausgänge schalten gemäß EIS 1 Protokoll (an/aus)
 void delay_timer(void);			// zählt alle 130ms die Variable Timer hoch und prüft Queue
+void send_eis(unsigned char eistyp, unsigned char objno, int sval);	// sendet ein EIS Telegramm
 
 
 

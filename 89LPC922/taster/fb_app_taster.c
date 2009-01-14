@@ -27,29 +27,28 @@ bit delay_toggle;			// um nur jedes 2. Mal die delay routine auszuführen
 unsigned char button_buffer;	// puffer für taster werte
 
 
-void port_changed(unsigned char portval)		// ein Taster wurde gedrückt oder losgelassen
+void port_changed(unsigned char portval)		// ein oder mehrere Taster wurden gedrückt oder losgelassen
 {
 	unsigned char n, buttonpattern;
 	
-	set_timer0(50000);		// Entprellzeit
-	WAIT_FOR_TIMER0			// warten auf Timer 0
+	set_timer0(50000);			// Entprellzeit
+	WAIT_FOR_TIMER0				// warten auf Timer 0
 	if ((PORT & 0x0F) == portval) {
-		for (n=0; n<4; n++) {
+		for (n=0; n<4; n++) {	// alle 4 Taster einzeln prüfen (könnten ja mehrere gleichzeitig gedrückt worden sein)
 			buttonpattern=1<<n;
-			if (((portval & buttonpattern) == 1) && ((button_buffer & buttonpattern) == 0)) button_changed(n,0);
-			if (((portval & buttonpattern) == 0) && ((button_buffer & buttonpattern) == 1)) button_changed(n,1);	
+			if ((portval & buttonpattern) && !(button_buffer & buttonpattern)) button_changed(n,0);	// Taster losgelassen
+			if (!(portval & buttonpattern) && (button_buffer & buttonpattern)) button_changed(n,1);	// Taster gedrückt
 		}
-		button_buffer=portval;
+		button_buffer=portval;	// aktuellen port wert in buffer für nächsten Vergleich übernehmen
 	}
 }
 
 
 
-void button_changed(unsigned char buttonno, bit buttonval)	// Taster losgelassen
+void button_changed(unsigned char buttonno, bit buttonval)	// Taster geändert
 {
 	unsigned char command;
 	bit objval=0;
-	int ga;
 	
 	switch ((eeprom[FUNCTION+(buttonno>>1)] >> ((buttonno & 0x01)*4)) & 0x0F) {		// Funktion des Tasters
 	case 1:		// Schalten
@@ -67,24 +66,11 @@ void button_changed(unsigned char buttonno, bit buttonval)	// Taster losgelassen
 		case 3:		// AUS
 			objval=0;
 		}
-		
-		
-		
+
 		if (command) {	// nur wenn EIN, UM oder AUS (0=keine Funktion)
-			ga=find_ga(buttonno);
-			telegramm[0]=0xBC;
-			telegramm[1]=eeprom[ADDRTAB+1];		// phys. Adresse
-			telegramm[2]=eeprom[ADDRTAB+2];
-			telegramm[3]=ga>>8;
-			telegramm[4]=ga;
-			telegramm[5]=0xD1;
-			telegramm[6]=0x00;
-			telegramm[7]=0x80+objval;
-			EX1=0;
-			send_telegramm();
-			EX1=1;
-			write_obj_value(buttonno, objval);
-			switch_led(buttonno, objval);
+			send_eis(1,buttonno,objval);		// EIS 1 Telegramm senden
+			write_obj_value(buttonno, objval);	// Objektwert im USERRAM speichern
+			switch_led(buttonno, objval);		// LED schalten
 		}		
 	}
 }
@@ -127,15 +113,10 @@ void switch_led(unsigned char ledno, bit onoff)	// LEDs schalten
 	if (ledno<4) {
 		command = ((eeprom[COMMAND+(ledno*4)]) & 0x07);	// Befehl der Status LED
 		switch (command) {
-		//case 2:		// LED = Statusanzeige
-		//	switch_led(buttonno,objval);
-		//	break;
 		case 3:		// LED = invertierte Statusanzeige
-			//switch_led(buttonno,!objval);
 			onoff=!onoff;
 			break;
 		case 4:		// LED = Betätigungsanzeige
-			//switch_led(buttonno,1);
 			onoff=1;
 			switch (eeprom[DURATION]) {
 			case 38:	// 0,75 sec
@@ -154,6 +135,44 @@ void switch_led(unsigned char ledno, bit onoff)	// LEDs schalten
 }
 
 
+void send_eis(unsigned char eistyp, unsigned char objno, int sval)	// sucht Gruppenadresse für das Objekt objno und sendet ein EIS Telegramm
+{														// mit dem Wert sval+0x80
+  int ga;
+  
+  ga=find_ga(objno);					// wenn keine Gruppenadresse hintrlegt nix tun
+  if (ga!=0)
+  {
+    telegramm[0]=0xBC;
+	telegramm[1]=eeprom[ADDRTAB+1];		// phys. Adresse
+	telegramm[2]=eeprom[ADDRTAB+2];
+    telegramm[3]=ga>>8;
+    telegramm[4]=ga;
+    switch (eistyp) {
+    case 1:
+    	telegramm[5]=0xD1;
+    	telegramm[6]=0x00;
+    	telegramm[7]=sval+0x80;
+    	break;
+    case 5:
+    	telegramm[5]=0xE3;
+    	telegramm[6]=0x00;
+    	telegramm[7]=0x80;
+    	telegramm[8]=sval>>8;
+    	telegramm[9]=sval;
+    	break;
+    case 6:
+    	telegramm[5]=0xE2;
+    	telegramm[6]=0x00;
+    	telegramm[7]=0x80;
+    	telegramm[8]=sval;
+    	break;
+    }
+    
+    EX1=0;
+    send_telegramm();
+    EX1=1;
+  }
+}  
 
 
 void delay_timer(void)	// zählt alle 130ms die Variable Timer hoch und prüft Queue
@@ -219,5 +238,10 @@ void restart_app(void)		// Alle Applikations-Parameter zurücksetzen und Empfang 
 	write_byte(0x01,0x12,0x9A);	// COMMSTAB Pointer
 	stop_writecycle();
 	
-	RECEIVE_INT_ENABLE=1;						// Empfangs-Interrupt freigeben
+	RECEIVE_INT_ENABLE=1;		// Empfangs-Interrupt freigeben
+	
+	write_obj_value(0,0);		// Taster Objektwerte alle auf 0 setzen
+	write_obj_value(1,0);
+	write_obj_value(2,0);
+	write_obj_value(3,0);
 }
