@@ -19,63 +19,66 @@
 
 
 
-void rs_init(void)
+void rs_init(void)	// serielle auf 115200,n,8,1 initialisieren
 {
-  SCON=0x50;	//Mode 1, receive enable
-  SSTAT|=0x40;	// TI wird am Ende des Stopbits gesetzt
-  BRGCON|=0x02;	// Baudrate Generator verwenden aber noch gestoppt
-  BRGR1=0x00;	// Baudrate = cclk/((BRGR1,BRGR0)+16)=(115200baud)
-  BRGR0=0x30;   //
-  BRGCON|=0x01;	// Baudrate Generator starten
+	P1M1&=0xFC;		// RX und TX auf bidirectional setzen
+	P1M2&=0xFC;
+	SCON=0x50;		// Mode 1, receive enable
+	SSTAT|=0x40;	// TI wird am Ende des Stopbits gesetzt
+	BRGCON|=0x02;	// Baudrate Generator verwenden aber noch gestoppt
+	BRGR1=0x00;		// Baudrate = cclk/((BRGR1,BRGR0)+16)=(115200baud)
+	BRGR0=0x30;   
+	BRGCON|=0x01;	// Baudrate Generator starten
 }
 
 void rs_send_dec(unsigned char wert)
 {
-  unsigned char n;
-  bit zero;
+	unsigned char n;
+	bit zero;
 
-  zero=1;
-  n=wert/100;
-  if(n>0)
-  {
-    SBUF=n+48;
-    while(!TI);
-    TI=0;
-    zero=0;
-  }
-  wert=wert-(n*100);
-  n=wert/10;
-  if((n>0) || !zero)
-  {
-    SBUF=n+48;
-    while(!TI);
-    TI=0;
-  }
-  wert=wert-(n*10);
-  SBUF=wert+48;
-  while(!TI);
-  TI=0;
+	zero=1;
+	n=wert/100;
+  	if(n>0)
+  	{
+  		SBUF=n+48;
+  		while(!TI);
+  		TI=0;
+  		zero=0;
+  	}
+  	wert=wert-(n*100);
+  	n=wert/10;
+  	if((n>0) || !zero)
+  	{
+  		SBUF=n+48;
+  		while(!TI);
+  		TI=0;
+  	}
+  	wert=wert-(n*10);
+  	SBUF=wert+48;
+  	while(!TI);
+  	TI=0;
 }
+
 
 void rs_send_s(unsigned char *s)
 {
-  unsigned char n=0;
-  while (s[n]!=0)
-  {
-    if(s[n]=='\n')
-      {
-      SBUF=0x0d;
-      while(!TI);
-      TI=0;
-      }
-    SBUF=s[n];
-    while(!TI);
-    TI=0;
-    n++;
-    if(n>254)
-      return;
-  }
-  return;
+	unsigned char n=0;
+	while (s[n]!=0)
+	{
+		if(s[n]=='\n')
+		{
+			SBUF=0x0d;
+			while(!TI);
+			TI=0;
+		}
+		SBUF=s[n];
+		while(!TI);
+		TI=0;
+		n++;
+		if(n>254)
+			return;
+	}
+	return;
 }
 
 
@@ -91,23 +94,23 @@ void rs_send_hex(unsigned char wert)
 
 void rs_send_ok(void)
 {
-  SBUF='O';
-  while(!TI);
-  TI=0;
-  SBUF='K';
-  while(!TI);
-  TI=0;
-  SBUF=0x0D;
-  while(!TI);
-  TI=0;
-  SBUF=0x0A;
-  while(!TI);
-  TI=0;
+	SBUF='O';
+	while(!TI);
+	TI=0;
+	SBUF='K';
+	while(!TI);
+	TI=0;
+	SBUF=0x0D;
+	while(!TI);
+	TI=0;
+	SBUF=0x0A;
+	while(!TI);
+	TI=0;
 }
 
 void rs_send(unsigned char z)
 {
-  SBUF=z;
-  while(!TI);
-  TI=0;
+	SBUF=z;
+ 	while(!TI);
+ 	TI=0;
 }
