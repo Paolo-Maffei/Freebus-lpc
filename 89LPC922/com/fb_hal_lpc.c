@@ -255,6 +255,25 @@ void set_port_mode_opendrain(int pin)		// Konfiguriert den entsprechenden pin al
 }
 
 
+void start_rtc(unsigned char base)	// RTC starten, base in ms
+{
+	long rtcval=0;
+	unsigned char n;
+	
+	for (n=0;n<base;n++) rtcval+=7373;
+	//rtcval=7373*base;
+	rtcval=rtcval>>7;	// 128bit prescaler
+	RTCH=(rtcval>>8);
+	RTCL=rtcval;
+	RTCCON=0x61;	// ... und starten
+}
+
+
+void stop_rtc(void)		// RTC stoppen
+{
+	RTCCON=0x60;
+}
+
 void restart_hw(void)	// Alle Hardware Einstellungen zurücksetzen
 {
 	

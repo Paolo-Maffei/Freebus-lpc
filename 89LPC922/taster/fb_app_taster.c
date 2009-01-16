@@ -18,11 +18,13 @@
 #include "../com/fb_hal_lpc.h"
 #include "../com/fb_prot.h"
 #include "../com/fb_delay.h"
+//#include "../com/fb_rs232.h"
 #include "fb_app_taster.h"
 
 
 long timer;					// Timer für Schaltverzögerungen, wird alle 130us hochgezählt
 bit delay_toggle;			// um nur jedes 2. Mal die delay routine auszuführen
+long buttontimer[4];
 
 unsigned char button_buffer;	// puffer für taster werte
 
@@ -49,6 +51,7 @@ void button_changed(unsigned char buttonno, bit buttonval)	// Taster geändert
 {
 	unsigned char command;
 	bit objval=0;
+	long duration=1;		// falls seitens ETS falsch programmiert 8ms default
 	
 	switch ((eeprom[FUNCTION+(buttonno>>1)] >> ((buttonno & 0x01)*4)) & 0x0F) {		// Funktion des Tasters
 	case 1:		// Schalten
@@ -71,7 +74,30 @@ void button_changed(unsigned char buttonno, bit buttonval)	// Taster geändert
 			send_eis(1,buttonno,objval);		// EIS 1 Telegramm senden
 			write_obj_value(buttonno, objval);	// Objektwert im USERRAM speichern
 			switch_led(buttonno, objval);		// LED schalten
-		}		
+		}
+		
+	case 3:		// Jalousie Funktion
+		if (buttonval) {	// Taster gedrückt -> schauen wie lange gehalten
+			send_eis(1, buttonno, ((eeprom[0xD3+(buttonno*4)]&0x10)>>4));	// Kurzzeit telegramm senden
+			switch_led(buttonno,1);	// Status-LED schalten
+			duration=eeprom[0xD5+(buttonno*4)];	// Faktor Dauer			
+			switch (eeprom[0xD4+(buttonno*4)]&0x06) { // Basis Dauer zwischen kurz und langzeit
+			case 2:	// 130ms
+				duration=duration<<4;
+				break;
+			case 4:	// 2,2s
+				duration=duration<<8;
+				break;
+			case 6:	// 33s
+				duration=duration<<12;
+			}
+			duration+=timer;
+			write_delay_record(buttonno+4, ((eeprom[0xD3+(buttonno*4)]&0x10)>>4)+0x80, duration);
+		}
+		else {	// Taster losgelassen
+			if (delrec[(buttonno+4)*4] & 0x10) send_eis(1, buttonno, ((eeprom[0xD3+(buttonno*4)]&0x10)>>4));	// wenn delaytimer noch läuft und in T2 ist, dann kurzzeit telegramm senden
+			else clear_delay_record(buttonno+4);	// T2 bereits abgelaufen
+		}
 	}
 }
 
@@ -106,7 +132,7 @@ void write_value_req(void)				// Ausgänge schalten gemäß EIS 1 Protokoll (an/aus
 }
 
 
-void switch_led(unsigned char ledno, bit onoff)	// LEDs schalten
+void switch_led(unsigned char ledno, bit onoff)	// LEDs schalten entsprechend der parametrierung
 {
 	unsigned char command;
 	
@@ -117,20 +143,20 @@ void switch_led(unsigned char ledno, bit onoff)	// LEDs schalten
 			onoff=!onoff;
 			break;
 		case 4:		// LED = Betätigungsanzeige
-			onoff=1;
-			switch (eeprom[DURATION]) {
+			onoff=1;	// erstmal an beim drücken der taste
+			switch (eeprom[LED_DURATION]) {		// dann über delay-timer aus
 			case 38:	// 0,75 sec
-				write_delay_record(ledno, 0x80, timer+6);
+				write_delay_record(ledno, 0x80, timer+94);
 				break;
 			case 118:	// 2,25 sec
-				write_delay_record(ledno, 0x80, timer+17);
+				write_delay_record(ledno, 0x80, timer+281);
 				break;
 			case 150:	// 3 sec
-				write_delay_record(ledno, 0x80, timer+23);
+				write_delay_record(ledno, 0x80, timer+375);
 			}
 		}
 		PORT &= ~(1<<(ledno+4));	// LEDs sind an Pin 4-7
-		PORT |= onoff<<(ledno+4);
+		PORT |= ((onoff<<(ledno+4)) | 0x0F);	// unteren 4 bits immer auf 1 lassen !!!
 	}
 }
 
@@ -151,7 +177,7 @@ void send_eis(unsigned char eistyp, unsigned char objno, int sval)	// sucht Grup
     case 1:
     	telegramm[5]=0xD1;
     	telegramm[6]=0x00;
-    	telegramm[7]=sval+0x80;
+    	telegramm[7]=(sval & 0x01) + 0x80;	// nur 1 Bit
     	break;
     case 5:
     	telegramm[5]=0xE3;
@@ -175,31 +201,53 @@ void send_eis(unsigned char eistyp, unsigned char objno, int sval)	// sucht Grup
 }  
 
 
-void delay_timer(void)	// zählt alle 130ms die Variable Timer hoch und prüft Queue
+void delay_timer(void)	// zählt alle 8ms die Variable Timer hoch und prüft records
 {
 	unsigned char objno, delay_state;
 	long delval;
+	long duration=1;
 
-	delay_toggle=!delay_toggle;
-	RTCCON=0x60;		// RTC anhalten und Flag löschen
-	RTCH=0x0E;			// reload Real Time Clock
-	RTCL=0xA0;
-	if (delay_toggle) {
-		timer++;
-		if (timer==0x01000000) timer=0;	// nur 3 Byte aktiv
-		for(objno=0;objno<=4;objno++) {
-			delay_state=delrec[objno*4];
-			if(delay_state!=0x00) {			// 0x00 = delay Eintrag ist leer   
-				delval=delrec[objno*4+1];
-				delval=(delval<<8)+delrec[objno*4+2];
-				delval=(delval<<8)+delrec[objno*4+3];
-				if(delval==timer) {
-					switch_led(objno,(delay_state & 0x01));	// LED aus bei Betätigungsanzeige
+	stop_rtc();
+	timer++;
+	if (timer==0x01000000) timer=0;	// nur 3 Byte aktiv
+	for(objno=0;objno<8;objno++) {
+		delay_state=delrec[objno*4];
+		if(delay_state!=0x00) {			// 0x00 = delay Eintrag ist leer   
+			delval=delrec[objno*4+1];
+			delval=(delval<<8)+delrec[objno*4+2];
+			delval=(delval<<8)+delrec[objno*4+3];
+			if(delval==timer) {
+				if (objno<4) {	// LED aus bei Betätigungsanzeige
+					PORT &= ~(1<<(objno+4));	// LEDs sind an Pin 4-7
+					PORT |= 0x0F;				// unbedingt taster pins wieder auf 1
+				}
+				else {
+					if (delay_state & 0x80) { // 0x80, 0x81 für langzeit telegramm senden
+						send_eis(1, objno+4, delay_state & 0x01);	// Langzeit Telegramm senden
+						// *** delay record neu laden für Dauer Lamellenverstellung ***
+						duration=eeprom[DEL_FACTOR2+((objno-4)*4)];	// Faktor Dauer	T2		
+						switch (eeprom[DEL_BASE+((objno-4)*4)]&0x60) { // Basis Dauer T2
+						case 0x20:	// 130ms
+							duration=duration<<4;
+							break;
+						case 0x40:	// 2,2s
+							duration=duration<<8;
+							break;
+						case 0x60:	// 33s
+							duration=duration<<12;
+						}
+						if (duration) {	// wenn keine lamellenverstellzeit dann nix tun
+							duration+=timer;
+							write_delay_record(objno, ((eeprom[COMMAND+((objno-4)*4)]&0x10)>>4)+0x10, duration); // 0x10,0x11 für ende T2 (lamellenvestellzeit)
+						}
+						else clear_delay_record(objno);
+					}
+					else clear_delay_record(objno); // wenn T2 abgelaufen dann nichts mehr machen
 				}
 			}
 		}
 	}
-	RTCCON=0x61;		// RTC starten
+	start_rtc(8);		// RTC neu starten mit 8ms
 }
 
 
@@ -224,8 +272,9 @@ void restart_app(void)		// Alle Applikations-Parameter zurücksetzen und Empfang 
 	
 	button_buffer=0x0F;	// Variable für letzten abgearbeiteten Taster Status
 	
+	stop_rtc();
+	start_rtc(8);		// RTC neu mit 8ms starten
 	timer=0;			// Timer-Variable, wird alle 130ms inkrementiert
-	delay_toggle=0;		// timer_toggle sorgt dafür, daß der 65ms rtc nur jedes 2.mal timer inkrementiert
   
 	start_writecycle();
 	write_byte(0x01,0x03,0x00);	// Herstellercode 0x0004 = Jung
@@ -237,11 +286,18 @@ void restart_app(void)		// Alle Applikations-Parameter zurücksetzen und Empfang 
 	write_byte(0x01,0x0D,0xFF);	// Run-Status (00=stop FF=run)
 	write_byte(0x01,0x12,0x9A);	// COMMSTAB Pointer
 	stop_writecycle();
-	
-	RECEIVE_INT_ENABLE=1;		// Empfangs-Interrupt freigeben
-	
+
 	write_obj_value(0,0);		// Taster Objektwerte alle auf 0 setzen
 	write_obj_value(1,0);
 	write_obj_value(2,0);
 	write_obj_value(3,0);
+	
+	clear_delay_record(0);		// delay records löschen
+	clear_delay_record(1);
+	clear_delay_record(2);
+	clear_delay_record(3);
+	
+	RECEIVE_INT_ENABLE=1;		// Empfangs-Interrupt freigeben	
+	
+	//rs_init();
 }

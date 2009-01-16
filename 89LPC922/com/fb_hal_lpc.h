@@ -47,6 +47,8 @@ void set_port_mode_bidirectional(int pin);
 void set_port_mode_pushpull(int pin);
 void set_port_mode_input(int pin);
 void set_port_mode_opendrain(int pin);
+void start_rtc(unsigned char base);	// RTC starten, base in ms
+void stop_rtc(void);
 void restart_hw(void);
 
 #endif
