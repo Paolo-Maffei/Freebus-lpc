@@ -1,21 +1,43 @@
+/* $Id: dim2_sla.c 718 2008-12-15 17:27:35Z seelaus $ */
 /*
- * main.c
+ *      __________  ________________  __  _______
+ *     / ____/ __ \/ ____/ ____/ __ )/ / / / ___/
+ *    / /_  / /_/ / __/ / __/ / __  / / / /\__ \
+ *   / __/ / _, _/ /___/ /___/ /_/ / /_/ /___/ /
+ *  /_/   /_/ |_/_____/_____/_____/\____//____/
  *
- *  Created on: 08.01.2009
- *      Author: Richard
+ *  Copyright (c) 2009 Richard Weissteiner richard@seelaus.at
+ *
+ *  This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License version 2 as
+ *  published by the Free Software Foundation.
+ *
  */
+/**
+* @file   dim2_sla.c
+* @author
+* @date   Sun Jan 12 21:30:01 2009
+*
+* @brief  Dimmer Slave  2 channel dimmer mit I2C.
+*/
+
 #include <P89LPC922.h>
 #include "..\com\fb_rs232.h"
 #include "..\dim2\fb_i2c.h"
+
+#define K1OUT P0_7
+#define K2OUT P0_6
+#define AB 0 //abschnittdimmer
+#define AN 1 //anschnittdimmer
+#define PW 3 //Pulweitemod
 unsigned char dimm_I2C[2];
 unsigned char mk[2];
 unsigned char bytenummer;
-#define K1OUT P0_7
-#define K2OUT P0_6
 unsigned int zl_50hz=0;
 unsigned int sp=0;
 unsigned int m=0;
-unsigned char dimmzl=0;
+unsigned char dimmzl=0; //beim nulldurchgang auf 0 setzen
+unsigned char mode=AB; //modus des dimmer Anschnitt Abschnitt oder PWM
 
 
 void i2c_int(void)interrupt 6
@@ -33,14 +55,24 @@ void i2c_int(void)interrupt 6
 }
 
 void nulldurchgang(void)
-        {
-         dimmzl=0;
-        if(dimm_I2C[0])  //dimmwert grösser 0 Dimmer  ein
-              K1OUT=1;       //EIN
-        if(dimm_I2C[1])  //dimmwert grösser 0 Dimmer  ein
-               K2OUT=1;       //EIN
-        return;
-        }
+  {
+
+  if(mode==AB)
+    {
+    dimmzl=0;
+    if(dimm_I2C[0])  //dimmwert grösser 0 Dimmer  ein
+      K1OUT=1;       //EIN
+    if(dimm_I2C[1])  //dimmwert grösser 0 Dimmer  ein
+      K2OUT=1;       //EIN
+    }
+  if(mode==AN)
+    {
+      dimmzl=0xff;
+      K1OUT=0;
+      K2OUT=0;
+    }
+    return;
+  }
 
 void ex1_int(void) interrupt 2
 {
@@ -53,18 +85,30 @@ return;
 void tim0_int(void) interrupt 1
 {
   TL0=0x95;
-  TH0=255;
+  TH0=0xff;
   if(zl_50hz<5000)
     zl_50hz++;
   if(zl_50hz==460||zl_50hz==205)
     nulldurchgang();
-  if(dimmzl!=255)
-    dimmzl++;
-  if(dimmzl>=dimm_I2C[0])
-    K1OUT=0;
-  if(dimmzl>=dimm_I2C[1])
-    K2OUT=0;
-
+  if(mode==AB)
+    {
+      if(dimmzl!=255)
+        dimmzl++;
+      if(dimmzl>=dimm_I2C[0])
+        K1OUT=0;
+      if(dimmzl>=dimm_I2C[1])
+        K2OUT=0;
+    }
+  if(mode==AN)
+    {
+      if(dimmzl!=0)
+        dimmzl--;
+      if(dimmzl==dimm_I2C[0]&& dimm_I2C[0]>0)
+          K1OUT=1;
+      if(dimmzl==dimm_I2C[1]&& dimm_I2C[1]>0)
+          K2OUT=1;
+    }
+  if()
   //P0_1 =! P0_1;
    return;
 }
@@ -97,15 +141,17 @@ void main(void)
   K2OUT=0;
 
   TMOD=0x01;   // Timer 0 als reload
-  TH0 = 0;
   //AUXR1&=~0x10;             // toggled whenever Timer0 overflows ausschalten
   ET0=1;                        // Interrupt für Timer 0 freigeben
   TR0=1;                        // Timer 0 starten
   EA=1;
 
-
   P0M1 &= ~(1<<1); // P0_1 = Ausgang zum test
-  P0M2 |= (1<<1);
+  P0M2 &= ~(1<<1);
+  P0_1=1;
+
+  if(P0_1==0)
+    mode=AN;    //anschnittdimmer
 
   while(1)
     {
