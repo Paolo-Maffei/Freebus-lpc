@@ -16,13 +16,15 @@
 #ifndef FB_APP
 #define FB_APP
 
-#define POWERLED	0xCD
+
+
+#define POWERLED		0xCD
 #define LED_DURATION	0xCE
-#define FUNCTION	0xCF	// Funktion der Tester
-#define COMMAND		0xD3	// Funktion der LEDs und Befehle der Taster
-#define DEL_BASE	0xD4
-#define DEL_FACTOR1	0xD5
-#define DEL_FACTOR2	0xD6
+#define FUNCTION		0xCF	// Funktion der Tester
+#define COMMAND			0xD3	// Funktion der LEDs und Befehle der Taster
+#define DEL_BASE		0xD4
+#define DEL_FACTOR1		0xD5
+#define DEL_FACTOR2		0xD6
 
 
 

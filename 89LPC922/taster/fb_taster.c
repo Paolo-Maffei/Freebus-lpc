@@ -26,6 +26,8 @@
 #include "fb_app_taster.h"
 
 
+#define NOPROGBUTTON	// es ist kein prog Taster vorhanden sondern progmode wird durch drücken von taste 1&3 oder 2&4 aktiviert
+
 
 void main(void)
 { 
@@ -43,12 +45,18 @@ void main(void)
 			
 		n=timer;
 		blink=((n>>4) & 0x01);
+		
+#ifndef NOPROGBUTTON
 		TASTER=1;				        	// Pin als Eingang schalten um Programmiertaster abzufragen
 		if (!TASTER) {						// Programmiertaster gedrückt
 			for(n=0;n<100;n++) {}
 			while(!TASTER);					// warten bis Programmiertaster losgelassen
 			progmode=!progmode;
 		}
+#else
+		// progmode wird durch Taste 1&3 bzw. 2&4 getoggelt
+		if (((PORT & 0x0F)== 0x05) || ((PORT & 0x0F)== 0x0A)) progmode=!progmode;
+#endif
 		if (progmode) TASTER = blink;		// LED blinkt im Prog-Mode
 		else TASTER = !((eeprom[0xCD] & 0x10) >> 4);	// LED ist an oder aus gemäß Parameter für Betriebs-LED
 		for(n=0;n<100;n++) {}
