@@ -72,9 +72,58 @@ void button_changed(unsigned char buttonno, bit buttonval)	// Taster geändert
 
 		if (command) {	// nur wenn EIN, UM oder AUS (0=keine Funktion)
 			send_eis(1,buttonno,objval);		// EIS 1 Telegramm senden
-			write_obj_value(buttonno, objval);	// Objektwert im USERRAM speichern
 			switch_led(buttonno, objval);		// LED schalten
 		}
+		break;
+		
+	case 2:		// Dimmer Funktion
+		if (buttonval) {	// Taster gedrückt -> schauen wie lange gehalten
+			if ((eeprom[COMMAND+(buttonno*4)]) & 0x04) switch_led(buttonno,0);	// wenn Betätigungsanzeige, dann gleich beim drücken einschalten
+			duration=eeprom[0xD6+(buttonno*4)];	// Faktor Dauer			
+			switch (eeprom[0xD5+(buttonno*4)]&0x30) { // Basis Dauer zwischen kurz und langzeit
+			case 0:	// 130ms
+				duration=duration<<4;
+				break;			
+			case 0x10:	// 260ms
+				duration=duration<<5;
+				break;
+			case 0x20:	// 520ms
+				duration=duration<<6;
+				break;
+			case 0x30:	// 1s
+				duration=duration<<7;
+			}
+			duration+=timer;
+			switch (eeprom[COMMAND+(buttonno*4)]&0x30) {
+			case 0x10:	// zweiflächen heller
+				write_delay_record(buttonno+4, ((eeprom[0xD4+(buttonno*4)]&0xF0)>>4)+0x40, duration);	// dimmen
+				break;
+			case 0x30:	// zweiflächen dunkler
+				write_delay_record(buttonno+4, ((eeprom[0xD4+(buttonno*4)]&0x0F))+0x40, duration);	// dimmen
+			}
+		}
+		else {		// Taster losgelassen
+			if (delrec[(buttonno+4)*4]) {		// wenn delaytimer noch läuft, dann Schalten, also EIS1 telegramm senden
+				switch (eeprom[COMMAND+(buttonno*4)]&0x30) {
+				case 0x10:	// zweiflächen ein
+					send_eis(1, buttonno, 1);
+					switch_led(buttonno,1);
+					break;
+				case 0x30:	// zweiflächen aus
+					send_eis(1, buttonno, 0);
+					switch_led(buttonno,0);
+				}
+				clear_delay_record(buttonno+4);
+			}
+			else {	// Timer schon abgelaufen (also dimmen), dann beim loslassen stop-telegramm senden
+				if ((eeprom[COMMAND+(buttonno*4)] & 0x40) == 0) {	// ... natürlich nur wenn parameter dementsprechend (0=senden!!!)
+					send_eis(2, buttonno+8, 0);		// Stop Telegramm
+				}
+				else write_obj_value(buttonno+8,0);	// auch wenn Stopp Telegramm nicht gesendet wird, Objektwert auf 0 setzen
+			}
+			
+		}
+		break;
 		
 	case 3:		// Jalousie Funktion
 		if (buttonval) {	// Taster gedrückt -> schauen wie lange gehalten
@@ -121,9 +170,9 @@ void write_value_req(void)				// Ausgänge schalten gemäß EIS 1 Protokoll (an/aus
 	    		objno=eeprom[atp+2+(n*2)];			// Objektnummer
 	    		objflags=read_objflags(objno);		// Objekt Flags lesen
 	    		if((objflags&0x14)==0x14) {			// Kommunikation zulässig (Bit 2 = communication enable) + Schreiben zulässig (Bit 4 = write enable)
-	    			if (objno<4) {					// Status der Eingangsobjekte 0-3
-	    				write_obj_value(objno,telegramm[7]&0x01);
-	    				switch_led(objno,telegramm[7]&0x01);
+	    			if (objno<12) {					// max 12 objekte
+	    				write_obj_value(objno,telegramm[7]);
+	    				if ((objno<4) && ((eeprom[COMMAND+(objno*4)]) & 0x07) <4) switch_led(objno,telegramm[7]&0x01);	// LED nur schalten, wenn nicht auf Betätigungsanzeige parametriert
 	    			}
 	    		}
 	    	}
@@ -139,6 +188,13 @@ void switch_led(unsigned char ledno, bit onoff)	// LEDs schalten entsprechend de
 	if (ledno<4) {
 		command = ((eeprom[COMMAND+(ledno*4)]) & 0x07);	// Befehl der Status LED
 		switch (command) {
+		case 0:		// immer AUS
+			onoff=0;
+			break;
+		case 1:		// immer an
+			onoff=1;
+			break;
+		// case 2 ist Statusanzeige, onoff bleibt also unverändert
 		case 3:		// LED = invertierte Statusanzeige
 			onoff=!onoff;
 			break;
@@ -177,8 +233,15 @@ void send_eis(unsigned char eistyp, unsigned char objno, int sval)	// sucht Grup
     case 1:
     	telegramm[5]=0xD1;
     	telegramm[6]=0x00;
-    	telegramm[7]=(sval & 0x01) + 0x80;	// nur 1 Bit
+    	sval=(sval & 0x01);	// nur 1 Bit
+    	telegramm[7]=sval + 0x80;
     	break;
+    case 2:
+    	telegramm[5]=0xD1;
+    	telegramm[6]=0x00;
+    	sval=(sval & 0x0F);	// nur 4 Bit
+    	telegramm[7]=sval + 0x80;
+    	break;    	
     case 5:
     	telegramm[5]=0xE3;
     	telegramm[6]=0x00;
@@ -197,6 +260,7 @@ void send_eis(unsigned char eistyp, unsigned char objno, int sval)	// sucht Grup
     EX1=0;
     send_telegramm();
     EX1=1;
+	write_obj_value(objno, sval);	// Objektwert im USERRAM speichern
   }
 }  
 
@@ -215,13 +279,13 @@ void delay_timer(void)	// zählt alle 8ms die Variable Timer hoch und prüft recor
 		if(delay_state!=0x00) {			// 0x00 = delay Eintrag ist leer   
 			delval=delrec[objno*4+1];
 			delval=(delval<<8)+delrec[objno*4+2];
-			delval=(delval<<8)+delrec[objno*4+3];
-			if(delval==timer) {
-				if (objno<4) {	// LED aus bei Betätigungsanzeige
+			delval=(delval<<8)+delrec[objno*4+3];	// delval enthält den im delay record gespeicherten timer-wert
+			if(delval==timer) {	// ... es ist also soweit
+				if (objno<4) {	// LED bei Betätigungsanzeige nach eingestellter Zeit ausschalten
 					PORT &= ~(1<<(objno+4));	// LEDs sind an Pin 4-7
-					PORT |= 0x0F;				// unbedingt taster pins wieder auf 1
+					PORT |= 0x0F;				// unbedingt taster pins wieder auf 1 
 				}
-				else {
+				else {	// delrec-Einträge 4-7 sind die Abfragen wie lange Taster gedrückt, bzw. wann er losgelassen wurde
 					if (delay_state & 0x80) { // 0x80, 0x81 für langzeit telegramm senden
 						send_eis(1, objno+4, delay_state & 0x01);	// Langzeit Telegramm senden
 						// *** delay record neu laden für Dauer Lamellenverstellung ***
@@ -242,7 +306,13 @@ void delay_timer(void)	// zählt alle 8ms die Variable Timer hoch und prüft recor
 						}
 						else clear_delay_record(objno);
 					}
-					else clear_delay_record(objno); // wenn T2 abgelaufen dann nichts mehr machen
+					
+					// (else von if(..&0x80) else clear_delay_record(objno); // wenn T2 abgelaufen dann nichts mehr machen
+					
+					if (delay_state & 0x40) { // 0x4? für Dimmer Funktion
+						send_eis(2, objno+4, delay_state);	// Langzeit Telegramm senden
+						clear_delay_record(objno);
+					}
 				}
 			}
 		}
@@ -252,14 +322,11 @@ void delay_timer(void)	// zählt alle 8ms die Variable Timer hoch und prüft recor
 
 
 
-
-
-
-
-
 void restart_app(void)		// Alle Applikations-Parameter zurücksetzen und Empfang sterten
 {
-
+	unsigned char n;
+	bit write_ok=0;
+	
 	set_port_mode_bidirectional(0);		// Pin 0-3 für Taster
 	set_port_mode_bidirectional(1);
 	set_port_mode_bidirectional(2);
@@ -268,15 +335,15 @@ void restart_app(void)		// Alle Applikations-Parameter zurücksetzen und Empfang 
 	set_port_mode_pushpull(5);
 	set_port_mode_pushpull(6);
 	set_port_mode_pushpull(7);
-	PORT=0x0F;							// Taster auf high, LEDs aus
-	
+	PORT=0x0F;							// Taster auf high, LEDs zunächst aus
+
 	button_buffer=0x0F;	// Variable für letzten abgearbeiteten Taster Status
 	
 	stop_rtc();
 	start_rtc(8);		// RTC neu mit 8ms starten
-	timer=0;			// Timer-Variable, wird alle 130ms inkrementiert
-  
-	start_writecycle();
+	timer=0;			// Timer-Variable, wird alle 8ms inkrementiert
+
+	start_writecycle();			// Applikations-spezifische eeprom Einträge schreiben
 	write_byte(0x01,0x03,0x00);	// Herstellercode 0x0004 = Jung
 	write_byte(0x01,0x04,0x04);
 	write_byte(0x01,0x05,0x10);	// Devicetype 0x1052 = Jung Tastsensor 2092
@@ -287,15 +354,11 @@ void restart_app(void)		// Alle Applikations-Parameter zurücksetzen und Empfang 
 	write_byte(0x01,0x12,0x9A);	// COMMSTAB Pointer
 	stop_writecycle();
 
-	write_obj_value(0,0);		// Taster Objektwerte alle auf 0 setzen
-	write_obj_value(1,0);
-	write_obj_value(2,0);
-	write_obj_value(3,0);
+	for (n=0;n<12;n++) write_obj_value(n,0);		// Objektwerte alle auf 0 setzen
+
+	for (n=0;n<8;n++) clear_delay_record(n);		// delay records löschen
 	
-	clear_delay_record(0);		// delay records löschen
-	clear_delay_record(1);
-	clear_delay_record(2);
-	clear_delay_record(3);
+	for (n=0;n<4;n++) switch_led(n,0);	// Alle LEDs gemäß ihren Parametern setzen
 	
 	RECEIVE_INT_ENABLE=1;		// Empfangs-Interrupt freigeben	
 	

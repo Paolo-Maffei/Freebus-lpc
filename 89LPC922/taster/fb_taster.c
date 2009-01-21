@@ -36,7 +36,7 @@ void main(void)
 	restart_prot();							// Protokoll-relevante Parameter zurücksetzen
 	restart_app();							// Anwendungsspezifische Einstellungen zurücksetzen
 	for (n=0;n<50;n++) sysdelay(0xFFFF);	// Warten bis Bus stabil
-	
+
 	do  {
 		if ((PORT & 0x0F) != button_buffer) port_changed(PORT & 0x0F);	// ein Taster wurde gedrückt
 		if (RTCCON>=0x80) delay_timer();	// Realtime clock Überlauf
@@ -45,12 +45,13 @@ void main(void)
 		blink=((n>>4) & 0x01);
 		TASTER=1;				        	// Pin als Eingang schalten um Programmiertaster abzufragen
 		if (!TASTER) {						// Programmiertaster gedrückt
-			for(n=0;n<255;n++) {}
+			for(n=0;n<100;n++) {}
 			while(!TASTER);					// warten bis Programmiertaster losgelassen
 			progmode=!progmode;
 		}
 		if (progmode) TASTER = blink;		// LED blinkt im Prog-Mode
 		else TASTER = !((eeprom[0xCD] & 0x10) >> 4);	// LED ist an oder aus gemäß Parameter für Betriebs-LED
+		for(n=0;n<100;n++) {}
   } while(1);
 }
 

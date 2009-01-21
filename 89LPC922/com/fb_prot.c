@@ -305,7 +305,7 @@ void read_pa(void)			// phys. Adresse senden
 
 
 void read_value_req(void)				// Objektwert lesen angefordert
-{										// todo: sendet derzeit nur Typen 1 bis 6 Bit
+{										// todo: sendet derzeit nur Typen 1 bis 8 Bit
 	unsigned char objno, objflags;
 	int objvalue, ga;
 	
@@ -452,30 +452,30 @@ unsigned char read_obj_type(unsigned char objno)		// gibt den Typ eines Objektes
 
 bit write_obj_value(unsigned char objno,int objvalue)		// schreibt den aktuellen Wert eines Objektes ins 'RAM'
 {
-	unsigned char valuepointer, offset, commstab;
-	bit write_ok;
+	unsigned char objtype, valuepointer, offset, commstab;
+	bit write_ok=0;
 	
-	write_ok=0;
 	offset=objno*3;
 	commstab=eeprom[COMMSTABPTR];
+	objtype=eeprom[commstab+offset+4];
 	
 	if (objno <= commstab) {	// wenn objno <= anzahl objekte
-		valuepointer=eeprom[commstab+offset+2];
-		if (eeprom[commstab+offset+4] < 8) {	// Typ zwischen 1 und 8 Bit gross
+		valuepointer=eeprom[commstab+offset+2];	// Zeiger auf USERRAM, wo der Objekt-Wert gespeichert ist
+		if (objtype < 8) {	// Typ zwischen 1 und 8 Bit gross
 			while (!write_ok) {
 				start_writecycle();
-				write_byte(0x00,valuepointer,objvalue);
+				write_byte(0x00,valuepointer,objvalue & (0xFF>>(7-objtype)));	// nur die tatsächlich erforderlichen bits speichern
 				stop_writecycle();
-				if(!(FMCON & 0x01)) write_ok=1;
+				if(!(FMCON & 0x01)) write_ok=1;	// prüfen, ob erfolgreich geflasht
 			}
 		}
-		if (eeprom[commstab+offset+4] == 8) {	// 2-Byte Wert
+		if (objtype == 8) {	// 2-Byte Wert
 			while (!write_ok) {
 				start_writecycle();
 				write_byte(0x00,valuepointer,objvalue>>8);
 				write_byte(0x00,valuepointer+1,objvalue);
 				stop_writecycle();
-				if(!(FMCON & 0x01)) write_ok=1;
+				if(!(FMCON & 0x01)) write_ok=1;	// prüfen, ob erfolgreich geflasht
 			}
 		}
 	}
