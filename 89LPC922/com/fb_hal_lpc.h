@@ -27,6 +27,39 @@
 #define RECEIVE_INT_ENABLE	EX1		// Interrupt enable Flag für Empfang
 
 
+// Konfiguriert den entsprechenden pin als bidirectional mit internem pull-up R
+#define SET_PORT_MODE_BIDIRECTIONAL(pin) \
+	if (pin<8) { \
+		P0M1&=(0xFF-(1<<pin)); \
+		P0M2&=(0xFF-(1<<pin)); \
+	}
+
+
+
+// Konfiguriert den entsprechenden pin als pushpull
+#define  SET_PORT_MODE_PUSHPULL(pin) \
+	if (pin<8) { \
+		P0M1&=(0xFF-(1<<pin)); \
+		P0M2|=(1<<pin); \
+	}
+
+
+// Konfiguriert den entsprechenden pin als input-only (high impedance, ohne pull-up R) 
+#define  SET_PORT_MODE_INPUT(pin) \
+	if (pin<8) { \
+		P0M1&=(1<<pin); \
+		P0M2|=(0xFF-(1<<pin)); \
+	}
+
+// Konfiguriert den entsprechenden pin als ausgang mit open drain
+#define  SET_PORT_MODE_OPENDRAIN(pin) \
+	if (pin<8) { \
+		P0M1&=(1<<pin); \
+		P0M2&=(1<<pin); \
+	}
+
+
+
 extern __code unsigned char __at 0x1C00 userram[255];	// Bereich im Flash für User-RAM
 extern __code unsigned char __at 0x1D00 eeprom[255];	// Bereich im Flash für EEPROM
 
@@ -43,10 +76,6 @@ unsigned char read_byte(unsigned char addrh, unsigned char addrl);
 void sysdelay(int deltime);
 void set_timer0(int deltime);
 void set_timer1(int deltime);
-void set_port_mode_bidirectional(int pin);
-void set_port_mode_pushpull(int pin);
-void set_port_mode_input(int pin);
-void set_port_mode_opendrain(int pin);
 void start_rtc(unsigned char base);	// RTC starten, base in ms
 void stop_rtc(void);
 void restart_hw(void);

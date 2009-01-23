@@ -26,6 +26,35 @@ bit parity_ok;			// Parity Bit des letzten empfangenen Bytes OK
 bit interrupted;		// wird durch interrupt-routine gesetzt. so kann eine andere routine prüfen, ob sie unterbrochen wurde
 
 
+
+
+
+
+void start_rtc(unsigned char base)	// RTC starten, base in ms
+{
+	long rtcval=0;
+	unsigned char n;
+	
+	for (n=0;n<base;n++) rtcval+=7373;
+	//rtcval=7373*base;
+	rtcval=rtcval>>7;	// 128bit prescaler
+	RTCH=(rtcval>>8);
+	RTCL=rtcval;
+	RTCCON=0x61;	// ... und starten
+}
+
+
+void stop_rtc(void)		// RTC stoppen
+{
+	RTCCON=0x60;
+}
+
+
+
+
+
+
+
 unsigned char get_byte(void)
 {
   bit rbit,parity,ph;			
@@ -208,71 +237,7 @@ void set_timer1(int deltime)		// Timer 1 stoppen, setzen und starten (Timer wird
 }
 
 
-void set_port_mode_bidirectional(int pin)	// Konfiguriert den entsprechenden pin als bidirectional mit internem pull-up R
-{
-	unsigned char pattern;
-	
-	if (pin<8) {
-		pattern=0xFF-(1<<pin);
-		P0M1&=pattern;
-		P0M2&=pattern;
-	}
-}
 
-void set_port_mode_pushpull(int pin)		// Konfiguriert den entsprechenden pin als pushpull
-{
-	unsigned char pattern;
-	
-	if (pin<8) {
-		pattern=0xFF-(1<<pin);
-		P0M1&=pattern;
-		pattern=1<<pin;
-		P0M2|=pattern;
-	}
-}
-
-void set_port_mode_input(int pin)			// Konfiguriert den entsprechenden pin als input-only (high impedance, ohne pull-up R) 
-{
-	unsigned char pattern;
-	
-	if (pin<8) {
-		pattern=1<<pin;
-		P0M1&=pattern;
-		pattern=0xFF-(1<<pin);
-		P0M2|=pattern;
-	}
-}
-
-void set_port_mode_opendrain(int pin)		// Konfiguriert den entsprechenden pin als ausgang mit open drain
-{
-	unsigned char pattern;
-	
-	if (pin<8) {
-		pattern=1<<pin;
-		P0M1&=pattern;
-		P0M2&=pattern;
-	}
-}
-
-
-void start_rtc(unsigned char base)	// RTC starten, base in ms
-{
-	long rtcval=0;
-	unsigned char n;
-	
-	for (n=0;n<base;n++) rtcval+=7373;
-	//rtcval=7373*base;
-	rtcval=rtcval>>7;	// 128bit prescaler
-	RTCH=(rtcval>>8);
-	RTCL=rtcval;
-	RTCCON=0x61;	// ... und starten
-}
-
-
-void stop_rtc(void)		// RTC stoppen
-{
-	RTCCON=0x60;
-}
 
 void restart_hw(void)	// Alle Hardware Einstellungen zurücksetzen
 {

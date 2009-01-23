@@ -54,8 +54,8 @@ void main(void)
 			progmode=!progmode;
 		}
 #else
-		// progmode wird durch Taste 1&3 bzw. 2&4 getoggelt
-		if (((PORT & 0x0F)== 0x05) || ((PORT & 0x0F)== 0x0A)) progmode=!progmode;
+		// progmode wird durch Taste 1&2 bzw. 3&4 getoggelt
+		if (((PORT & 0x0F)== 0x03) || ((PORT & 0x0F)== 0x0C)) progmode=!progmode;
 #endif
 		if (progmode) TASTER = blink;		// LED blinkt im Prog-Mode
 		else TASTER = !((eeprom[0xCD] & 0x10) >> 4);	// LED ist an oder aus gemäß Parameter für Betriebs-LED

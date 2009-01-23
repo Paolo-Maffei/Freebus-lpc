@@ -305,7 +305,7 @@ void read_pa(void)			// phys. Adresse senden
 
 
 void read_value_req(void)				// Objektwert lesen angefordert
-{										// todo: sendet derzeit nur Typen 1 bis 8 Bit
+{										// todo: sendet derzeit nur Typen 1 bis 16 Bit
 	unsigned char objno, objflags;
 	int objvalue, ga;
 	
@@ -320,7 +320,7 @@ void read_value_req(void)				// Objektwert lesen angefordert
 			telegramm[1]=eeprom[ADDRTAB+1];		// Source Adresse
 			telegramm[2]=eeprom[ADDRTAB+2];
           
-			if(read_obj_type(objno)<=6) {			// Objekttyp, 1-6 Bit
+			if(read_obj_type(objno)<6) {			// Objekttyp, 1-6 Bit
 				ga=find_ga(objno);
 				telegramm[3]=ga>>8;
 				telegramm[4]=ga;
@@ -328,7 +328,7 @@ void read_value_req(void)				// Objektwert lesen angefordert
 				telegramm[6]=0x00;
 				telegramm[7]=0x40+objvalue;			// bis zu 6 Bit passen in das Byte 7
 			}
-			if(read_obj_type(objno)>=7 && read_obj_type(objno)<=8) {	// Objekttyp, 7-8 Bit
+			if(read_obj_type(objno)>=6 && read_obj_type(objno)<=7) {	// Objekttyp, 7-8 Bit
 				ga=find_ga(objno);
 				telegramm[3]=ga>>8;
 				telegramm[4]=ga;
@@ -336,6 +336,16 @@ void read_value_req(void)				// Objektwert lesen angefordert
 				telegramm[6]=0x00;
 				telegramm[7]=0x40;
 				telegramm[8]=objvalue;	
+			}		
+			if(read_obj_type(objno)==8) {	// Objekttyp, 16 Bit
+				ga=find_ga(objno);
+				telegramm[3]=ga>>8;
+				telegramm[4]=ga;
+				telegramm[5]=0xE3;	// DRL
+				telegramm[6]=0x00;
+				telegramm[7]=0x40;
+				telegramm[8]=objvalue>>8;
+				telegramm[9]=objvalue;
 			}		
 			send_telegramm();
     	}

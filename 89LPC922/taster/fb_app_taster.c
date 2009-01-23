@@ -22,6 +22,8 @@
 #include "fb_app_taster.h"
 
 
+
+
 long timer;					// Timer für Schaltverzögerungen, wird alle 130us hochgezählt
 bit delay_toggle;			// um nur jedes 2. Mal die delay routine auszuführen
 long buttontimer[4];
@@ -160,7 +162,7 @@ void write_value_req(void)				// Ausgänge schalten gemäß EIS 1 Protokoll (an/aus
 	gapos=gapos_in_gat(telegramm[3],telegramm[4]);
 	if (gapos!=0xFF)	
 	{
-		send_ack();
+		if ((telegramm[1] != eeprom[ADDRTAB+1]) || (telegramm[2] != eeprom[ADDRTAB+2])) send_ack();
 	    atp=eeprom[ASSOCTABPTR];		// Association Table Pointer
 	    assno=eeprom[atp];				// Erster Eintrag = Anzahl Einträge
 	 
@@ -261,6 +263,7 @@ void send_eis(unsigned char eistyp, unsigned char objno, int sval)	// sucht Grup
     send_telegramm();
     EX1=1;
 	write_obj_value(objno, sval);	// Objektwert im USERRAM speichern
+	write_value_req();				// eigenes Telegramm nochmal verarbeiten
   }
 }  
 
@@ -327,14 +330,16 @@ void restart_app(void)		// Alle Applikations-Parameter zurücksetzen und Empfang 
 	unsigned char n;
 	bit write_ok=0;
 	
-	set_port_mode_bidirectional(0);		// Pin 0-3 für Taster
-	set_port_mode_bidirectional(1);
-	set_port_mode_bidirectional(2);
-	set_port_mode_bidirectional(3);
-	set_port_mode_pushpull(4);			// Pin 4-7 für LEDs
-	set_port_mode_pushpull(5);
-	set_port_mode_pushpull(6);
-	set_port_mode_pushpull(7);
+	// Pin 0-3 für Taster
+	for (n=0;n<4;n++) {
+		SET_PORT_MODE_BIDIRECTIONAL(n)
+	}
+	
+	// Pin 4-7 für LEDs
+	for (n=4;n<8;n++) {
+		SET_PORT_MODE_PUSHPULL(n)
+	}
+	
 	PORT=0x0F;							// Taster auf high, LEDs zunächst aus
 
 	button_buffer=0x0F;	// Variable für letzten abgearbeiteten Taster Status
