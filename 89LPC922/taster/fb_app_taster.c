@@ -265,6 +265,7 @@ void send_eis(unsigned char eistyp, unsigned char objno, int sval)	// sucht Grup
 	write_obj_value(objno, sval);	// Objektwert im USERRAM speichern
 	write_value_req();				// eigenes Telegramm nochmal verarbeiten
   }
+  else write_obj_value(objno, sval);	// Objektwert trotzdem im USERRAM speichern
 }  
 
 
