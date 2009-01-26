@@ -15,6 +15,8 @@
 
 
 /* Versionen:	1.00	erstes Programm
+ * 				1.01	eigenes Telegramm wird ausgewertet, "Affengriff" entprellt
+ * 
 
 */
 	
@@ -26,7 +28,7 @@
 #include "fb_app_taster.h"
 
 
-#define NOPROGBUTTON	// es ist kein prog Taster vorhanden sondern progmode wird durch drücken von taste 1&3 oder 2&4 aktiviert
+//#define NOPROGBUTTON	// es ist kein prog Taster vorhanden sondern progmode wird durch drücken von taste 1&3 oder 2&4 aktiviert
 
 
 void main(void)
