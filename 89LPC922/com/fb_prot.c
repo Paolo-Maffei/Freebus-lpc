@@ -113,11 +113,9 @@ bit get_ack(void)		// Byte empfangen und prüfen ob es ein ACK war
 
   n=0;
   ret=0;
-  do 
-  {
+  do {
     if(FBINC==1) n++;
-    else
-    {
+    else {
       if (get_byte()==0xCC && parity_ok) {
     	  ret=1;
     	  n=3000;
@@ -319,31 +317,21 @@ void read_value_req(void)				// Objektwert lesen angefordert
 			telegramm[0]=0xBC;
 			telegramm[1]=eeprom[ADDRTAB+1];		// Source Adresse
 			telegramm[2]=eeprom[ADDRTAB+2];
-          
+			ga=find_ga(objno);
+			telegramm[3]=ga>>8;
+			telegramm[4]=ga;
+			telegramm[6]=0x00;
+			telegramm[7]=0x40;
 			if(read_obj_type(objno)<6) {			// Objekttyp, 1-6 Bit
-				ga=find_ga(objno);
-				telegramm[3]=ga>>8;
-				telegramm[4]=ga;
 				telegramm[5]=0xE1;	// DRL
-				telegramm[6]=0x00;
-				telegramm[7]=0x40+objvalue;			// bis zu 6 Bit passen in das Byte 7
+				telegramm[7]+=objvalue;			// bis zu 6 Bit passen in das Byte 7
 			}
 			if(read_obj_type(objno)>=6 && read_obj_type(objno)<=7) {	// Objekttyp, 7-8 Bit
-				ga=find_ga(objno);
-				telegramm[3]=ga>>8;
-				telegramm[4]=ga;
 				telegramm[5]=0xE2;	// DRL
-				telegramm[6]=0x00;
-				telegramm[7]=0x40;
 				telegramm[8]=objvalue;	
 			}		
 			if(read_obj_type(objno)==8) {	// Objekttyp, 16 Bit
-				ga=find_ga(objno);
-				telegramm[3]=ga>>8;
-				telegramm[4]=ga;
 				telegramm[5]=0xE3;	// DRL
-				telegramm[6]=0x00;
-				telegramm[7]=0x40;
 				telegramm[8]=objvalue>>8;
 				telegramm[9]=objvalue;
 			}		
@@ -394,7 +382,7 @@ unsigned char gapos_in_gat(unsigned char gah, unsigned char gal)	// GA-Positions
   
   ga_count=eeprom[ADDRTAB];
   ga_position=0xFF; 
-  if (ga_count>0)
+  if (ga_count)
   {
     for (n=1;n<=ga_count;n++)
     {
@@ -471,6 +459,8 @@ bit write_obj_value(unsigned char objno,int objvalue)		// schreibt den aktuellen
 	
 	if (objno <= commstab) {	// wenn objno <= anzahl objekte
 		valuepointer=eeprom[commstab+offset+2];	// Zeiger auf USERRAM, wo der Objekt-Wert gespeichert ist
+		
+	  // ACHTUNG! die beiden if's nicht zusammenfassen, das braucht mehr Speicher!
 		if (objtype < 8) {	// Typ zwischen 1 und 8 Bit gross
 			while (!write_ok) {
 				start_writecycle();

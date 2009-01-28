@@ -37,7 +37,7 @@ void start_rtc(unsigned char base)	// RTC starten, base in ms
 	
 	for (n=0;n<base;n++) rtcval+=7373;
 	//rtcval=7373*base;
-	rtcval=rtcval>>7;	// 128bit prescaler
+	rtcval=rtcval>>7;	// 7 bit prescaler ( /128 )
 	RTCH=(rtcval>>8);
 	RTCL=rtcval;
 	RTCCON=0x61;	// ... und starten
@@ -73,12 +73,15 @@ unsigned char get_byte(void)
   for(m=0;m<5;m++) rbit&=FBINC;		// zur Steigerung der Fehlertoleranz mehrfach lesen
   fbb=rbit;
   if(rbit) ph=!ph;		// Paritybit berechnen 
-  for(n=1;n<8;n++) {	// 2. bis 8. Bit  
+  //for(n=1;n<8;n++) {	// 2. bis 8. Bit
+  for (n=2;n!=0;n=n<<1) {
     while(!TF1);
     set_timer1(350);	// Timer 1 setzen für Position 2.-9.Bit (342-359)
     rbit=FBINC;
     for(m=0;m<5;m++) rbit&=FBINC;	// zur Steigerung der Fehlertoleranz mehrfach lesen
-    fbb|=rbit<<n;
+    //fbb|=rbit<<n;
+    if (rbit) fbb+=n;
+    
     if(rbit) ph=!ph;	// Paritybit berechnen
   }  
   while(!TF1);				
