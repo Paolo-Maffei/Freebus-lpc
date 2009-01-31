@@ -23,7 +23,7 @@
 //      einschalthellikeit
 //      verhalten bei busspannungswiederkehr auch letzter wert
 //      verhalten beim emfang eines wertes andimmen oder anspringen
-//      dimmgeschwindikeit
+//      dimmgeschwindikeit @TODO nicht fertig
 //      lesen der objekte
 //      rückmeldeobjekte 1bit + 1 byte
 //      Lichtzenenfunktionen
@@ -44,7 +44,7 @@
 
 
 extern unsigned char Tval;
-#define MAXDIMMWERT 250
+#define MAXDIMMWERT 255
 
 
 unsigned char anspringen[DIMKREISE];          //andimmen (0) oder anspringen (1) [0]=K1
@@ -56,8 +56,14 @@ unsigned char einschathellikeit[DIMKREISE];
 unsigned char mk[DIMKREISE]; //merker Kanal zum übertragen uber i2c
 unsigned char sperren[DIMKREISE];             //Sperren oder nicht 1=sperren
 unsigned int ie=0;              // dimmer immer wieder aktualisieren
-unsigned char dimmgeschwindikeit=0;
+//unsigned char faktor_dimmgeschwindikeit[DIMKREISE];
+unsigned int basis_dimmgeschwindikeit[DIMKREISE];
 unsigned char code hellikeit[]={0,25,40,53,67,80,95,120,140,160,180,200,0};
+unsigned int code basis[]={0,1,16,260,4200,65000};
+unsigned char faktor_zl[DIMKREISE];
+unsigned int basis_zl[DIMKREISE];
+unsigned char kanal_zl=0;
+unsigned char andimm_zl=0;
 
 unsigned char helligkeittsstufe(unsigned char stufe,unsigned char kanal)
 {
@@ -74,10 +80,10 @@ unsigned char helligkeittsstufe(unsigned char stufe,unsigned char kanal)
 void restart_app(void)		// Alle Applikations-Parameter zurücksetzen
 {
     //Timer0 einstellen
-    TMOD&=0xf0;   //register löschen
-    TMOD|=0x01;   // Timer 0 als reload, Timer 1 nicht ändern
+    TMOD&=0xf0;   //register für Timer 0 löschen
+    TMOD|=0x01;   // Timer 0 als reload, Timer 1 nicht ändern !
     TAMOD&=0xf0;
-    TH0 = 0;
+    TH0 = 0xff;
     AUXR1&=~0x10;             // toggled whenever Timer0 overflows ausschalten
     ET0=1;                        // Interrupt für Timer 0 freigeben
     TR0=1;                        // Timer 0 starten
@@ -94,8 +100,18 @@ void restart_app(void)		// Alle Applikations-Parameter zurücksetzen
   einschathellikeit[1]=eeprom[0xC4]>>4;         //wert 0 - 0x0c
   dimmwert[0]=helligkeittsstufe(eeprom[0xe2]&0x0f,0);     //Verhalten bei Busspannungswiederkehr
   dimmwert[1]=helligkeittsstufe((eeprom[0xe2]>>4)&0x0f,1);//Verhalten bei Busspannungswiederkehr
-  mindimmwert[0]=(eeprom[0xc2]&0x0f)*10+10;
-  mindimmwert[1]=(eeprom[0xc2]>>4)*10+10;
+  mindimmwert[0]=(eeprom[0xc2]&0x0f)*80+10;
+  mindimmwert[1]=(eeprom[0xc2]>>4)*80+10;
+
+  basis_dimmgeschwindikeit[0]=basis[(eeprom[0xC6]&0x07)];
+  basis_dimmgeschwindikeit[1]=basis[(eeprom[0xC6]>>4)&0x07];
+  rs_send_s("M=");
+
+
+  rs_send_hex(mindimmwert[0]);
+  rs_send_s(" ");
+  rs_send_hex(mindimmwert[1]);
+  rs_send_s(" ");
 
   start_writecycle();
   write_byte(0x01,0x03,0x00);	// Herstellercode 0x0004 = Jung 0x0008 = Gira
@@ -111,39 +127,20 @@ void restart_app(void)		// Alle Applikations-Parameter zurücksetzen
 
 void tr0_int(void) interrupt 1         //n=nummer 0x03+8*n
 {
-  TH0=0x10;
-  //P0_0 =! P0_0;
+//  TH0=0x10;
+  TL0=0x09;     // timer mit H=0xf9 L=0x09 2KHz = 0,5ms
+  TH0=0xf9;     // timer mit 0xb7 200HZ = 5ms
+  P0_0 =! P0_0;
 
-  if(ie<4000)
-    {
+  if(ie<40000)                   //interwallmäsiges senden kann evetuel raus
     ++ie;
-    }
    else
     {
     i2c_send_daten(dimm_I2C[0],dimm_I2C[1]);
     ie=0;
     }
 
-   if(anspringen[0])
-           dimm_I2C[0]=dimmwert[0];  //anspringen vom wert
-   else
-   {
-           if(dimm_I2C[0] > dimmwert[0])
-                   dimm_I2C[0]-=1;
-           if(dimm_I2C[0] < dimmwert[0])
-                   dimm_I2C[0]+=1;
-   }
-
-   if(anspringen[1])
-           dimm_I2C[1]=dimmwert[1];  //anspringen vom wert
-   else
-   {
-           if(dimm_I2C[1] > dimmwert[1])
-                   dimm_I2C[1]-=1;
-           if(dimm_I2C[1] < dimmwert[1])
-                   dimm_I2C[1]+=1;
-   }
-   if(dimm_I2C[0]!=mk[0]||dimm_I2C[1]!=mk[1])
+  if(dimm_I2C[0]!=mk[0]||dimm_I2C[1]!=mk[1])   //i2c übertragen
      {
     /*  rs_send_s("Dimmwert=");
        rs_send_hex(dimm_I2C[0]);
@@ -156,31 +153,60 @@ void tr0_int(void) interrupt 1         //n=nummer 0x03+8*n
        mk[1]=dimm_I2C[1];
        i2c_send_daten(dimm_I2C[0],dimm_I2C[1]);
      }
- //Dimmgeschwindikeit
-  dimmgeschwindikeit=dimm_helldunkel[0]&0x07;
-  if(dimmwert[0] <= (MAXDIMMWERT-dimmgeschwindikeit)&&(dimm_helldunkel[0]&8)!=0)   //heller 9( bit 3 heller dunkler ,bit 0-2 geschwindikeit)
-        {
-        if(dimmwert[0]<mindimmwert[0])
-                dimmwert[0]=mindimmwert[0];
-        else
-                dimmwert[0]+=dimmgeschwindikeit;
-        }
-  if(dimmwert[0] >= (mindimmwert[0]+dimmgeschwindikeit) && (dimm_helldunkel[0]&8)==0)      //dunkler
-        {
-        dimmwert[0]-=dimmgeschwindikeit;
-        }
 
-  dimmgeschwindikeit=dimm_helldunkel[1]&0x07;
-  if(dimmwert[1] <= (MAXDIMMWERT-dimmgeschwindikeit)&&(dimm_helldunkel[1]&8)!=0)   //heller 9( bit 3 heller dunkler ,bit 0-2 geschwindikeit)
-        {
-        if(dimmwert[1]<mindimmwert[1])
-                dimmwert[1]=mindimmwert[1];
-        else
-                dimmwert[1]+=dimmgeschwindikeit;
+   if(anspringen[0])
+           dimm_I2C[0]=dimmwert[0];  //anspringen vom wert K1
+   if(anspringen[1])
+           dimm_I2C[1]=dimmwert[1];  //anspringen vom wert K2
+
+    if(andimm_zl>8)                    //andimmern vom wert
+     {
+       andimm_zl=0;
+       for(kanal_zl=0;kanal_zl<DIMKREISE;++kanal_zl)
+         {
+       if(dimmwert[kanal_zl]!=dimm_I2C[kanal_zl])        //andimmern von wert
+          {
+          if(dimm_I2C[kanal_zl] > dimmwert[kanal_zl])    //dunkler andimmen
+                   dimm_I2C[kanal_zl]--;
+          if(dimm_I2C[kanal_zl] < dimmwert[kanal_zl])    //heller andimmen
+            {
+            if(dimmwert[kanal_zl]<mindimmwert[kanal_zl])   // mit minimalwert Starten
+               {
+               dimm_I2C[kanal_zl]=mindimmwert[kanal_zl];
+               dimmwert[kanal_zl]=dimm_I2C[kanal_zl];
+               }
+            else dimm_I2C[kanal_zl]++;
+            }
+          }
         }
-  if(dimmwert[1] >= (mindimmwert[1]+dimmgeschwindikeit) && (dimm_helldunkel[1]&8)==0)      //dunkler
-        dimmwert[1]-=dimmgeschwindikeit;
-}
+      }
+     else andimm_zl++;
+
+
+   for(kanal_zl=0;kanal_zl<DIMKREISE;++kanal_zl)//basis und faktor für dimmstufen
+     {
+       basis_zl[kanal_zl]++;
+       if(basis_zl[kanal_zl] > basis_dimmgeschwindikeit[kanal_zl])//1-65000
+          {
+          basis_zl[kanal_zl]=0;
+          faktor_zl[kanal_zl]++;
+          if(faktor_zl[kanal_zl] > eeprom[0xc8+(kanal_zl)])
+             {
+             faktor_zl[kanal_zl]=0;
+              if(dimm_helldunkel[kanal_zl]==9)        //heller=9
+               {
+               if(dimmwert[kanal_zl]<MAXDIMMWERT-1)
+                   dimmwert[kanal_zl]+=2;
+               }
+             if(dimm_helldunkel[kanal_zl]==1)        //dunkler=1
+               {
+               if(dimmwert[kanal_zl]>mindimmwert[kanal_zl]+1)
+                 dimmwert[kanal_zl]-=2;
+               }
+            }
+         }
+     }
+  }
 
 
 

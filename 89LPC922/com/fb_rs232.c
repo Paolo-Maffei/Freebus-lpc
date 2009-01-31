@@ -27,7 +27,7 @@ void rs_init(void)	// serielle auf 115200,n,8,1 initialisieren
 	SSTAT|=0x40;	// TI wird am Ende des Stopbits gesetzt
 	BRGCON|=0x02;	// Baudrate Generator verwenden aber noch gestoppt
 	BRGR1=0x00;		// Baudrate = cclk/((BRGR1,BRGR0)+16)=(115200baud)
-	BRGR0=0x30;   
+	BRGR0=0x30;
 	BRGCON|=0x01;	// Baudrate Generator starten
 }
 
@@ -84,10 +84,34 @@ void rs_send_s(unsigned char *s)
 
 void rs_send_hex(unsigned char wert)
 {
-	const unsigned char hex[]={'0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F'};
+        const unsigned char hex[]={'0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F'};
 
-	rs_send(hex[wert>>4]);
-	rs_send(hex[wert&0x0F]);
+        rs_send(hex[wert>>4]);
+        rs_send(hex[wert&0x0F]);
+}
+
+void rs_send_hex_l(unsigned long wert)
+{
+        const unsigned char hex[]={'0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F'};
+
+        rs_send(hex[wert>>28&0x0F]);
+        rs_send(hex[wert>>24&0x0F]);
+        rs_send(hex[wert>>20&0x0F]);
+        rs_send(hex[wert>>16&0x0F]);
+        rs_send(hex[wert>>12&0x0F]);
+        rs_send(hex[wert>>8&0x0F]);
+        rs_send(hex[wert>>4&0x0F]);
+        rs_send(hex[wert&0x0F]);
+}
+
+
+void rs_send_hex_i(unsigned int wert)
+{
+        const unsigned char hex[]={'0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F'};
+        rs_send(hex[(wert>>12)&0x0F]);
+        rs_send(hex[(wert>>8)&0x0F]);
+        rs_send(hex[(wert>>4)&0x0F]);
+        rs_send(hex[wert&0x0F]);
 }
 
 

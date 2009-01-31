@@ -61,9 +61,9 @@ void nulldurchgang(void)
     {
     dimmzl=0;
     if(dimm_I2C[0])  //dimmwert grösser 0 Dimmer  ein
-      K1OUT=1;       //EIN
+      K1OUT=0;       //EIN
     if(dimm_I2C[1])  //dimmwert grösser 0 Dimmer  ein
-      K2OUT=1;       //EIN
+      K2OUT=0;       //EIN
     }
   if(mode==AN)
     {
@@ -88,16 +88,17 @@ void tim0_int(void) interrupt 1
   TH0=0xff;
   if(zl_50hz<5000)
     zl_50hz++;
-  if(zl_50hz==460||zl_50hz==205)
-    nulldurchgang();
+  //if(zl_50hz==460||zl_50hz==205)      //mit r 100K
+  if(zl_50hz==330||zl_50hz==85)         //mit 68nF
+      nulldurchgang();
   if(mode==AB)
     {
       if(dimmzl!=255)
         dimmzl++;
       if(dimmzl>=dimm_I2C[0])
-        K1OUT=0;
+        K1OUT=1;
       if(dimmzl>=dimm_I2C[1])
-        K2OUT=0;
+        K2OUT=1;
     }
   if(mode==AN)
     {
@@ -108,7 +109,6 @@ void tim0_int(void) interrupt 1
       if(dimmzl==dimm_I2C[1]&& dimm_I2C[1]>0)
           K2OUT=1;
     }
-  if()
   //P0_1 =! P0_1;
    return;
 }
