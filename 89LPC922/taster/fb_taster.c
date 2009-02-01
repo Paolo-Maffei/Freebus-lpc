@@ -28,7 +28,7 @@
 #include "fb_app_taster.h"
 
 
-//#define NOPROGBUTTON	// es ist kein prog Taster vorhanden sondern progmode wird durch drücken von taste 1&3 oder 2&4 aktiviert
+#define NOPROGBUTTON	// es ist kein prog Taster vorhanden sondern progmode wird durch drücken von taste 1&2 oder 3&4 aktiviert
 
 
 void main(void)
@@ -58,7 +58,7 @@ void main(void)
 #else
 		// progmode wird durch Taste 1&2 bzw. 3&4 getoggelt
 		if (((PORT & 0x0F)== 0x03) || ((PORT & 0x0F)== 0x0C)) {
-			while (PORT & 0x0F);	// Warten bis alle Taster losgelassen
+			while ((PORT & 0x0F)!= 0x0F);	// Warten bis alle Taster losgelassen
 			progmode=!progmode;
 		}
 #endif
