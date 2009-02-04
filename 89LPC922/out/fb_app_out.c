@@ -40,7 +40,7 @@ unsigned char blocked;		// Sperrung der 8 Ausgänge (1=gesperrt)
 unsigned char logicstate;	// Zustand der Verknüpfungen pro Ausgang
 long timer;					// Timer für Schaltverzögerungen, wird alle 130us hochgezählt
 bit delay_toggle;			// um nur jedes 2. Mal die delay routine auszuführen
-
+unsigned char owntele;		// ist 0 wenn telegramm vom bus gekommen, 1 wenn eigenes tele (rückmeldung) verarbeitet wird
 
 void write_value_req(void)				// Ausgänge schalten gemäß EIS 1 Protokoll (an/aus)
 {
@@ -52,8 +52,10 @@ void write_value_req(void)				// Ausgänge schalten gemäß EIS 1 Protokoll (an/aus
     gapos=gapos_in_gat(telegramm[3],telegramm[4]);	// Position der Gruppenadresse in der Adresstabelle
     if (gapos!=0xFF)					// =0xFF falls nicht vorhanden
     {
-      send_ack();
-      atp=eeprom[ASSOCTABPTR];			// Start Association Table
+	  if ((telegramm[1] != eeprom[ADDRTAB+1]) || (telegramm[2] != eeprom[ADDRTAB+2])) {
+		  send_ack();
+	  }
+	  atp=eeprom[ASSOCTABPTR];			// Start Association Table
       assno=eeprom[atp];			// Erster Eintrag = Anzahl Einträge
  
       for(n=0;n<assno;n++)				// Schleife über alle Einträge in der Ass-Table, denn es könnten mehrere Objekte (Pins) der gleichen Gruppenadresse zugeordnet sein
@@ -135,6 +137,7 @@ void write_value_req(void)				// Ausgänge schalten gemäß EIS 1 Protokoll (an/aus
       }
       if (portbuffer != userram[0x29])port_schalten(portbuffer);	//Port schalten wenn sich ein Pin geändert hat
     }
+    owntele=0;
 }
 
 
@@ -355,33 +358,34 @@ void port_schalten(unsigned char ports)		// Schaltet die Ports mit PWM, DUTY ist
 
 void respond(unsigned char objno, unsigned char rval)	// sucht Gruppenadresse für das Objekt objno uns sendet ein EIS 1 Telegramm
 {							// mit dem Wert rval (0x80 oder 0x81) für Rückmeldeobjekte	
-  int ga;
-  unsigned char inv;
+	int ga;
+	unsigned char inv;
 
-  ga=find_ga(objno);					// wenn keine Gruppenadresse hinterlegt nix tun
-  if (ga!=0)
-  {	  
-	//EX1=0;
-    telegramm[0]=0xBC;
-    telegramm[1]=eeprom[ADDRTAB+1];
-    telegramm[2]=eeprom[ADDRTAB+2];
-    telegramm[3]=ga>>8;
-    telegramm[4]=ga;
-    telegramm[5]=0xD1;
-    telegramm[6]=0x00;
-    objno=objno-12;
-    inv=eeprom[0xF3];
-    inv=(inv>>objno)&0x01;
-    if (inv==0) telegramm[7]=rval;
-    if (inv==1)
-    {
-      if (rval==0x80) telegramm[7]=0x81;
-      else telegramm[7]=0x80;
-    }  
-    send_telegramm();
-    //EX1=1;
-  }
- 
+	if ((owntele & (1<<objno)) == 0) {
+		owntele|=1<<objno;
+		ga=find_ga(objno);					// wenn keine Gruppenadresse hinterlegt nix tun
+		if (ga!=0) {	  
+			//EX1=0;
+			telegramm[0]=0xBC;
+			telegramm[1]=eeprom[ADDRTAB+1];
+			telegramm[2]=eeprom[ADDRTAB+2];
+			telegramm[3]=ga>>8;
+			telegramm[4]=ga;
+			telegramm[5]=0xD1;
+			telegramm[6]=0x00;
+			objno=objno-12;
+			inv=eeprom[0xF3];
+			inv=(inv>>objno)&0x01;
+			if (inv==0) telegramm[7]=rval;
+			if (inv==1) {
+				if (rval==0x80) telegramm[7]=0x81;
+				else telegramm[7]=0x80;
+			}  
+			send_telegramm();
+			//EX1=1;
+			write_value_req();
+		}
+	}
 }  
 
 
