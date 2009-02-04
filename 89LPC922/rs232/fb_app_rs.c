@@ -12,6 +12,14 @@
  *  published by the Free Software Foundation.
  *
  */
+/**
+* @file   fb_app_rs.c
+* @author Andreas Krebs <kubi@krebsworld.de>
+* @date   2008
+* 
+* @brief  
+*
+*/
 
 #include <P89LPC922.h>
 #include "../com/fb_hal_lpc.h"
@@ -19,6 +27,14 @@
 #include "fb_app_rs.h"
 #include "../com/fb_rs232.h"
 
+
+
+/** 
+*
+*
+*
+* @return
+*/
 void write_value_req(void)
 {
   rs_send_dec(telegramm[3]>>3);
@@ -44,14 +60,13 @@ void write_value_req(void)
 
 
 
-
-
-
-void restart_app(void)		// Alle Applikations-Parameter zurücksetzen
+/** 
+* Alle Applikations-Parameter zurücksetzen
+*
+*
+* @return
+*/
+void restart_app(void)
 {
-
-
-  
-  
-
+ 
 }
