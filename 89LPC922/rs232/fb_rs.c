@@ -12,9 +12,18 @@
  *  published by the Free Software Foundation.
  *
  */
-
-// Versionen:	1.00	erste Version
-
+/**
+* @file   fb_rs.c
+* @author Andreas Krebs <kubi@krebsworld.de>
+* @date   2008
+* 
+* @brief  Dies ist ein EIB-RS232 Interface auf Basis des LPC-Controllerboards.
+*
+*	Die Schnittstelle ist auf 115.200 Baud,n,8,1 eingestellt. 
+*
+* Versionen:	1.00	erste Version
+*
+*/
 	
 
 #include <P89LPC922.h>
@@ -25,7 +34,12 @@
 
 
 
-
+/** 
+* The start point of the program, init all libraries, start the bus interface, the application
+* and check the status of the program button.
+* 
+* @return 
+*/
 void main(void)
 { 
   unsigned char n,rsinpos,pah,pal;
@@ -33,9 +47,9 @@ void main(void)
   bit cr_received, crlf_received;
   int groupadr;
   
-  restart_hw();				// Hardware zurücksetzen
-  restart_prot();			// Protokoll-relevante Parameter zurücksetzen
-  restart_app();			// Anwendungsspezifische Einstellungen zurücksetzen
+  restart_hw();				// Hardware zurï¿½cksetzen
+  restart_prot();			// Protokoll-relevante Parameter zurï¿½cksetzen
+  restart_app();			// Anwendungsspezifische Einstellungen zurï¿½cksetzen
   
   rs_init();				// serielle Schnittstelle initialisieren
   rsinpos=0;
@@ -63,7 +77,7 @@ void main(void)
       RI=0;
     }
     
-    if (crlf_received)			// Zeile vollständig empfangen
+    if (crlf_received)			// Zeile vollstï¿½ndig empfangen
     {
       if (rsin[0]=='f' && rsin[1]=='b')	// Magic-word 'fb' empfangen
       { 
@@ -145,9 +159,8 @@ void main(void)
       crlf_received=0;
     }
     
-    
     TASTER=1;				// Pin als Eingang schalten um Taster abzufragen
-    if(!TASTER) {			// Taster gedrückt
+    if(!TASTER) {			// Taster gedrï¿½ckt
       for(n=0;n<100;n++) {}
       while(!TASTER);			// warten bis Taster losgelassen
       progmode=!progmode;
