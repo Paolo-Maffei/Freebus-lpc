@@ -16,6 +16,7 @@
 
 /* Versionen:	1.00	erstes Programm
  * 				1.01	eigenes Telegramm wird ausgewertet, "Affengriff" entprellt
+ * 				1.02	Affengriff debugged
  * 
 
 */
