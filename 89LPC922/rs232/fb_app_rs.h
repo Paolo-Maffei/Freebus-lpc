@@ -12,6 +12,14 @@
  *  published by the Free Software Foundation.
  *
  */
+/**
+* @file   fb_app_rs.h
+* @author Andreas Krebs <kubi@krebsworld.de>
+* @date   2008
+* 
+* @brief  
+*
+*/
 
 #ifndef FB_APP_RS
 #define FB_APP_RS
