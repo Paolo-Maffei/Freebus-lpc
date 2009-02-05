@@ -12,6 +12,16 @@
  *  published by the Free Software Foundation.
  *
  */
+/**
+* @file   fb_rs232.h
+* @author Andreas Krebs <kubi@krebsworld.de>
+* @date    2008
+* 
+* @brief  Hier sind ausschliesslich die RS232 Routinen fuer den 89LPC922
+* 
+* 
+*/
+
 
 #ifndef FB_RS232
 #define FB_RS232
