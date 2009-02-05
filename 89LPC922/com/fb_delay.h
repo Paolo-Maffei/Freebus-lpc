@@ -11,12 +11,20 @@
  *  it under the terms of the GNU General Public License version 2 as
  *  published by the Free Software Foundation.
  *
- *	Routinen und Array für Zeitschaltfunktionen
+ *
  */
-
+/**
+* @file   fb_delay.h
+* @author Andreas Krebs <kubi@krebsworld.de>
+* @date    2009
+* 
+* @brief  Hier sind ausschliesslich das Array und die Zeitschaltfunktionen fuer den 89LPC922
+* 
+* 
+*/
 
 extern unsigned char delrec[40];
 
 
-void write_delay_record(unsigned char objno, unsigned char delay_status, long delay_target);	// Schreibt die Schalt-Verzögerungswerte ins Flash
-void clear_delay_record(unsigned char objno); // Löscht den Delay Eintrag
+void write_delay_record(unsigned char objno, unsigned char delay_status, long delay_target);	// Schreibt die Schalt-Verzoegerungswerte ins Flash
+void clear_delay_record(unsigned char objno); // Loescht den Delay Eintrag
