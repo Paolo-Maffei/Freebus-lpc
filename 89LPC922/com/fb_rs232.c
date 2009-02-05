@@ -12,6 +12,15 @@
  *  published by the Free Software Foundation.
  *
  */
+/**
+* @file   fb_rs232.c
+* @author Andreas Krebs <kubi@krebsworld.de>
+* @date    2008
+* 
+* @brief  Hier sind ausschliesslich die RS232 Routinen fuer den 89LPC922
+* 
+* 	serielle auf 115200,n,8,1 
+*/
 
 
 #include <P89LPC922.h>
@@ -19,7 +28,13 @@
 
 
 
-void rs_init(void)	// serielle auf 115200,n,8,1 initialisieren
+/** 
+* serielle auf 115200,n,8,1 initialisieren
+*
+*
+*
+*/
+void rs_init(void)
 {
 	P1M1&=0xFC;		// RX und TX auf bidirectional setzen
 	P1M2&=0xFC;
@@ -31,6 +46,14 @@ void rs_init(void)	// serielle auf 115200,n,8,1 initialisieren
 	BRGCON|=0x01;	// Baudrate Generator starten
 }
 
+
+
+/** 
+*
+*
+*
+*
+*/
 void rs_send_dec(unsigned char wert)
 {
 	unsigned char n;
@@ -60,6 +83,14 @@ void rs_send_dec(unsigned char wert)
 }
 
 
+
+
+/** 
+*
+*
+*
+*
+*/
 void rs_send_s(unsigned char *s)
 {
 	unsigned char n=0;
@@ -82,6 +113,14 @@ void rs_send_s(unsigned char *s)
 }
 
 
+
+
+/** 
+*
+*
+*
+*
+*/
 void rs_send_hex(unsigned char wert)
 {
         const unsigned char hex[]={'0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F'};
@@ -90,6 +129,15 @@ void rs_send_hex(unsigned char wert)
         rs_send(hex[wert&0x0F]);
 }
 
+
+
+
+/** 
+*
+*
+*
+*
+*/
 void rs_send_hex_l(unsigned long wert)
 {
         const unsigned char hex[]={'0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F'};
@@ -105,6 +153,14 @@ void rs_send_hex_l(unsigned long wert)
 }
 
 
+
+
+/** 
+*
+*
+*
+*
+*/
 void rs_send_hex_i(unsigned int wert)
 {
         const unsigned char hex[]={'0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F'};
@@ -116,6 +172,13 @@ void rs_send_hex_i(unsigned int wert)
 
 
 
+
+/** 
+*
+*
+*
+*
+*/
 void rs_send_ok(void)
 {
 	SBUF='O';
@@ -132,6 +195,14 @@ void rs_send_ok(void)
 	TI=0;
 }
 
+
+
+/** 
+*
+*
+*
+*
+*/
 void rs_send(unsigned char z)
 {
 	SBUF=z;
