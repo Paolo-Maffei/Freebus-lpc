@@ -11,17 +11,26 @@
  *  it under the terms of the GNU General Public License version 2 as
  *  published by the Free Software Foundation.
  *
- * 09.11.08	- array delrec[] statt flash für zeitverzögerung, auf 24bit gekürzt
+ * 09.11.08	- array delrec[] statt flash fï¿½r zeitverzï¿½gerung, auf 24bit gekï¿½rzt
  * 			- funktionen write_delay_record() und clear_delay_record() angepasst
  * 			- globale variablen pah und pal durch direktes eeprom[] lesen ersetzt
  * 14.11.08	- in find_ga() default value von ga auf 0xFE gesetzt
  * 
  * 
  */
+/**
+* @file   fb_prot.c
+* @author Andreas Krebs <kubi@krebsworld.de>
+* @date    2008
+* 
+* @brief  Hier sind ausschliesslich die Protokoll-Handling Routinen fuer den 89LPC922
+* 
+* 
+*/
 
 
 
-// Hier sind ausschliesslich die Protokoll-Handling Routinen
+
 
 #include <P89LPC922.h>
 #include "../com/fb_hal_lpc.h"
@@ -29,33 +38,39 @@
 
 
 unsigned char telegramm[23];
-unsigned char telpos;		// Zeiger auf nächste Position im Array Telegramm
-unsigned char cs;			// checksum
+unsigned char telpos;		/// Zeiger auf naechste Position im Array Telegramm
+unsigned char cs;			/// checksum
 
-bit progmode, connected;	// Programmiermodus, Verbindung steht
-unsigned char conh, conl;	// bei bestehender Verbindung phys. Adresse des Kommunikationspartners
-unsigned char pcount;		// Paketzähler, Gruppenadresszähler
+bit progmode, connected;	/// Programmiermodus, Verbindung steht
+unsigned char conh, conl;	/// bei bestehender Verbindung phys. Adresse des Kommunikationspartners
+unsigned char pcount;		/// Paketzaehler, Gruppenadresszaehler
 unsigned char last_tel;
 bit transparency;
 
 
 
 
-
-void timer1(void) interrupt 3	// Interrupt von Timer 1, 370us keine Busaktivität seit letztem Byte, d.h. Telegramm wurde komplett übertragen
+/** 
+* Interrupt von Timer 1, 370us keine Busaktivitï¿½t seit letztem Byte,
+* d.h. Telegramm wurde komplett uebertragen
+*
+* 
+* @return 
+*/
+void timer1(void) interrupt 3
 {
 	unsigned char data_laenge,daf;
 
 	EX1=0;					// ext. Interrupt stoppen 
 	ET1=0;					// Interrupt von Timer 1 sperren
-	set_timer1(4830);				// 4720 und neu starten für korrekte Positionierung des ACK Bytes
+	set_timer1(4830);				// 4720 und neu starten fuer korrekte Positionierung des ACK Bytes
   
 	if(cs==0xff) {					// Checksum des Telegramms ist OK
 		if (transparency) {
 			last_tel=telpos;
 		}
 		else {
-			data_laenge=(telegramm[5]&0x0F);		// Telegramm-Länge = Bit 0 bis 3 
+			data_laenge=(telegramm[5]&0x0F);		// Telegramm-Laenge = Bit 0 bis 3 
 			daf=(telegramm[5]&0x80);			// Destination Adress Flag = Bit 7, 0=phys. Adr., 1=Gruppenadr.
 
 			if(telegramm[3]==0 && telegramm[4]==0) {		// Broadcast, wenn Zieladresse = 0
@@ -75,9 +90,9 @@ void timer1(void) interrupt 3	// Interrupt von Timer 1, 370us keine Busaktivität
 						}
 						if(data_laenge==1) {
 							if((telegramm[6]&0x03)==0x03 && telegramm[7]==0x80) {		// restart request
-								restart_hw();	// Hardware zurücksetzen
-								restart_prot();	// Protokoll-relevante Parameter zurücksetzen
-								restart_app();	// Anwendungsspezifische Einstellungen zurücksetzen
+								restart_hw();	// Hardware zuruecksetzen
+								restart_prot();	// Protokoll-relevante Parameter zuruecksetzen
+								restart_app();	// Anwendungsspezifische Einstellungen zuruecksetzen
 							}
 							if(telegramm[6]==0x43 && telegramm[7]==0x00) read_masq();		// Maskenversion angefordert
 						}
@@ -94,19 +109,24 @@ void timer1(void) interrupt 3	// Interrupt von Timer 1, 370us keine Busaktivität
 		} 
 	}
 	telpos=0;  
-	IE1=0;					// IRQ Flag zurücksetzen
+	IE1=0;					// IRQ Flag zuruecksetzen
 	EX1=1;					// externen Interrupt 0 wieder freigeben
 	if (!transparency) {	// Telegramm abgearbeitet
 		TR1=0;				// Timer 1 stoppen
-		cs=0;				// cheksum zurücksetzen
+		cs=0;				// cheksum zurï¿½cksetzen
 	}
 }
 
 
 
 
-
-bit get_ack(void)		// Byte empfangen und prüfen ob es ein ACK war
+/** 
+* Byte empfangen und pruefen ob es ein ACK war
+*
+* 
+*
+*/
+bit get_ack(void)
 {
   bit ret;
   int n;
@@ -127,7 +147,13 @@ bit get_ack(void)		// Byte empfangen und prüfen ob es ein ACK war
 
 
 
-void send_telegramm(void)		// sendet das Telegramm, das in telegramm[] vorher abgelegt wurde und berechnet die checksum
+/** 
+* sendet das Telegramm, das in telegramm[] vorher abgelegt wurde und berechnet die checksum
+*
+*
+*
+*/
+void send_telegramm(void)
 {
   unsigned char data_laenge,l,checksum,r;
 
@@ -135,7 +161,7 @@ void send_telegramm(void)		// sendet das Telegramm, das in telegramm[] vorher ab
   do
   {
     checksum=0;
-    data_laenge=telegramm[5]&0x0F;	// Telegramm-Länge = Bit 0 bis 3
+    data_laenge=telegramm[5]&0x0F;	// Telegramm-Laenge = Bit 0 bis 3
 
     set_timer1(18780);			// Warten bis Bus frei ist
     while(!TF1) {
@@ -153,13 +179,21 @@ void send_telegramm(void)		// sendet das Telegramm, das in telegramm[] vorher ab
     sendbyte(checksum);
     if(get_ack()) r=3;		// wenn ACK empfangen, dann nicht nochmal senden
     r++;
-    telegramm[0]&=0xDF;			// Bit 5 löschen = Wiederholung
+    telegramm[0]&=0xDF;			// Bit 5 loeschen = Wiederholung
   }
   while(r<=3); 				// falls kein ACK max. 3 Mal wiederholen
 }
 
 
-void send_ack(void)			// wartet auf Timer 1 wegen korrekter Positionierung und sendet ACK (0xCC)
+
+
+/** 
+* wartet auf Timer 1 wegen korrekter Positionierung und sendet ACK (0xCC)
+*
+*
+*
+*/
+void send_ack(void)
 {
   while(!TF1&&TR1) {}
   sendbyte(0xCC);
@@ -167,9 +201,14 @@ void send_ack(void)			// wartet auf Timer 1 wegen korrekter Positionierung und s
 
 
 
-  
 
-void ucd_opr(void)		// UCD Verbindungsaufbau
+/** 
+* UCD Verbindungsaufbau
+*
+*
+*
+*/
+void ucd_opr(void)
 {
   if(!connected)		// wenn bereits verbunden: ignorieren
   {
@@ -177,22 +216,38 @@ void ucd_opr(void)		// UCD Verbindungsaufbau
     conh=telegramm[1];		// phys. Adresse des Verbindungspartners
     conl=telegramm[2];
     send_ack();			// quittieren
-    pcount=1;			// Paketzähler zurücksetzen
+    pcount=1;			// Paketzaehler zuruecksetzen
   }
 }
-    
 
-void ucd_clr(void)		// UCD Verbindungsabbau
+
+
+
+/** 
+* UCD Verbindungsaufbau
+*
+*
+*
+*/
+void ucd_clr(void)
 {
   if(conh==telegramm[1] && conl==telegramm[2] && connected)	// nur abbauen, wenn verbunden und Anforderung vom Verbindungspartner, kein ACK senden
   {
     connected=0;
-    pcount=1;			// Paketzähler zurücksetzen
+    pcount=1;			// Paketzaehler zuruecksetzen
   }
 }
 
 
-void ncd_quit(void)			// NCD Quittierung zurück senden. Setzt telegramm Bytes 0 bis 6 !!!
+
+
+/** 
+* NCD Quittierung zurueck senden. 
+*
+* 
+* @return Setzt telegramm Bytes 0 bis 6 !!!
+*/
+void ncd_quit(void)
 {
   telegramm[0]=0xB0;			// Control Byte			
   telegramm[3]=telegramm[1];		// Zieladresse wird Quelladresse
@@ -201,12 +256,19 @@ void ncd_quit(void)			// NCD Quittierung zurück senden. Setzt telegramm Bytes 0 
   telegramm[2]=eeprom[ADDRTAB+2];
   telegramm[5]=0x60;			// DRL
   telegramm[6]|=0xC0;			// Bit 6 und 7 setzen (TCPI = 11 NCD Quittierung)
-  telegramm[6]&=0xFE;			// Bit 0 löschen 
+  telegramm[6]&=0xFE;			// Bit 0 loeschen 
   send_telegramm();
 }
 
 
-void read_masq(void)			// Maskenversion senden
+
+/** 
+* Maskenversion senden
+*
+*
+*
+*/
+void read_masq(void)
 {
 
   
@@ -222,10 +284,18 @@ void read_masq(void)			// Maskenversion senden
     telegramm[9]=0x12;			// Maskenversion 1 = BCU1
     send_telegramm();
 
-}  
-    
+}
 
-void read_memory(void)			// read_memory_request - Speicher auslesen und senden
+
+
+
+/** 
+* read_memory_request - Speicher auslesen und senden
+*
+*
+*
+*/
+void read_memory(void)
 {
   unsigned char ab,n;
 
@@ -242,16 +312,23 @@ void read_memory(void)			// read_memory_request - Speicher auslesen und senden
   telegramm[0]=0xB0;			// read_memory_res senden
 			
     telegramm[5]=ab+0x63;		// DRL (Anzahl Bytes + 3)
-    telegramm[6]=(pcount<<2)|0x42;	// Paketzähler, TCPI und ersten beiden Befehlsbits
+    telegramm[6]=(pcount<<2)|0x42;	// Paketzaehler, TCPI und ersten beiden Befehlsbits
     telegramm[7]=ab|0x40;		// letzten 2 Befehlsbits
     send_telegramm();
 
-  pcount++;				// Paketzähler erhöhen
+  pcount++;				// Paketzï¿½hler erhoehen
   pcount&=0x0F;				// max. 15
 }
 
 
-void write_memory(void)			// write_memory_request - empfangene Daten in Speicher schreiben
+
+/** 
+* write_memory_request - empfangene Daten in Speicher schreiben
+*
+*
+*
+*/
+void write_memory(void)
 {
   unsigned char ab,n;
  
@@ -271,9 +348,16 @@ void write_memory(void)			// write_memory_request - empfangene Daten in Speicher
   }
   stop_writecycle(); 
 }
-  
 
-void set_pa(void)			// neue phys. Adresse programmieren
+
+
+/** 
+* neue phys. Adresse programmieren
+*
+*
+*
+*/
+void set_pa(void)
 {
   start_writecycle();
   write_byte(0x01,ADDRTAB+1,telegramm[8]);		// in Flash schreiben
@@ -282,10 +366,15 @@ void set_pa(void)			// neue phys. Adresse programmieren
 }
 
 
-void read_pa(void)			// phys. Adresse senden
-{
 
-  
+/** 
+* phys. Adresse senden
+*
+*
+*
+*/
+void read_pa(void)
+{
   send_ack();
 
   telegramm[0]=0xB0;			// read_memory_res senden
@@ -302,8 +391,16 @@ void read_pa(void)			// phys. Adresse senden
 }
 
 
-void read_value_req(void)				// Objektwert lesen angefordert
-{										// todo: sendet derzeit nur Typen 1 bis 16 Bit
+
+/** 
+* Objektwert lesen angefordert
+*
+* 
+* @return
+* @todo: sendet derzeit nur Typen 1 bis 16 Bit
+*/
+void read_value_req(void)
+{
 	unsigned char objno, objflags;
 	int objvalue, ga;
 	
@@ -313,7 +410,7 @@ void read_value_req(void)				// Objektwert lesen angefordert
 		objvalue=read_obj_value(objno);						// Objektwert aus USER-RAM lesen
 		objflags=read_objflags(objno);						// Objekt Flags lesen
     
-		if((objflags&0x0C)==0x0C) {		// Objekt lesen, nur wenn read enable gesetzt (Bit3) und Kommunikation zulässig (Bit2)
+		if((objflags&0x0C)==0x0C) {		// Objekt lesen, nur wenn read enable gesetzt (Bit3) und Kommunikation zulaessig (Bit2)
 			telegramm[0]=0xBC;
 			telegramm[1]=eeprom[ADDRTAB+1];		// Source Adresse
 			telegramm[2]=eeprom[ADDRTAB+2];
@@ -342,7 +439,15 @@ void read_value_req(void)				// Objektwert lesen angefordert
 
 
 
-unsigned char read_objflags(unsigned char objno)	// Objektflags lesen
+/** 
+* Objektflags lesen
+*
+*
+* \param objno
+*
+* @return
+*/
+unsigned char read_objflags(unsigned char objno)
 {
   unsigned char ctp,addr,flags;
   
@@ -354,12 +459,21 @@ unsigned char read_objflags(unsigned char objno)	// Objektflags lesen
 
 
 
-int find_ga(unsigned char objno)		// Gruppenadresse über Assoziationstabelle finden
-{										// Die sendende Adresse ist diejenige, bei der die Objektnummer
-										// und die Assoziationsnummer übereinstimmt
+/** 
+* Gruppenadresse ueber Assoziationstabelle finden
+*
+* Die sendende Adresse ist diejenige, bei der die Objektnummer
+* und die Assoziationsnummer uebereinstimmt
+*
+* \param objno
+*
+* @return
+*/
+int find_ga(unsigned char objno)
+{
 	unsigned char asstab,gapos,gal,gah;
 	int ga;
-  
+
 	gapos=0xFE;
 	asstab=eeprom[ASSOCTABPTR];
 
@@ -376,8 +490,20 @@ int find_ga(unsigned char objno)		// Gruppenadresse über Assoziationstabelle fin
 } 
 
 
-unsigned char gapos_in_gat(unsigned char gah, unsigned char gal)	// GA-Positionsnummer in Groppenadresstabelle finden
-{																	// erste GA=1 (da 0=PA)
+
+
+/** 
+* GA-Positionsnummer in Groppenadresstabelle finden
+*
+* erste GA=1 (da 0=PA)
+*
+* \param gah
+* \param gal
+*
+* @return
+*/
+unsigned char gapos_in_gat(unsigned char gah, unsigned char gal)
+{
   unsigned char ga_position,ga_count,n;
   
   ga_count=eeprom[ADDRTAB];
@@ -393,6 +519,16 @@ unsigned char gapos_in_gat(unsigned char gah, unsigned char gal)	// GA-Positions
 }
 
 
+
+
+/** 
+*
+*
+* \param gah
+* \param gal
+*
+* @return
+*/
 unsigned char find_first_objno(unsigned char gah, unsigned char gal)
 {
 	unsigned char gapos, gaposh, atp, assmax, n, objno;
@@ -404,7 +540,7 @@ unsigned char find_first_objno(unsigned char gah, unsigned char gal)
 	assmax=eeprom[atp];
 	if (gapos!=0xFF) {	// falls Gruppenadresse nicht vorhanden
 		n=0;
-		while(objno==0xFF && n<assmax) {	// Schleife über Assoziationstabelle
+		while(objno==0xFF && n<assmax) {	// Schleife ueber Assoziationstabelle
 			gaposh=eeprom[atp+1+(n*2)];
 		    if(gapos==gaposh) objno=eeprom[atp+2+(n*2)];
 		    n++;
@@ -416,7 +552,13 @@ unsigned char find_first_objno(unsigned char gah, unsigned char gal)
 
 
 
-int read_obj_value(unsigned char objno)		// gibt den aktuellen Wert eines Objektes zurück
+/** 
+* 
+*
+*
+* @return gibt den aktuellen Wert eines Objektes zurueck
+*/
+int read_obj_value(unsigned char objno)
 {
 	unsigned char valuepointer, offset, commstab;
 	int objvalue;
@@ -434,7 +576,15 @@ int read_obj_value(unsigned char objno)		// gibt den aktuellen Wert eines Objekt
 }
 
 
-unsigned char read_obj_type(unsigned char objno)		// gibt den Typ eines Objektes zurück
+
+/**
+*
+*
+* \param objno
+*
+* @return gibt den Typ eines Objektes zurueck
+*/
+unsigned char read_obj_type(unsigned char objno)
 {
 	unsigned char  offset, commstab, objtype;
 	
@@ -448,7 +598,17 @@ unsigned char read_obj_type(unsigned char objno)		// gibt den Typ eines Objektes
 }
 
 
-bit write_obj_value(unsigned char objno,int objvalue)		// schreibt den aktuellen Wert eines Objektes ins 'RAM'
+
+
+/** 
+* schreibt den aktuellen Wert eines Objektes ins 'RAM'
+*
+* \param objno
+* \param objvalue
+*
+* @return
+*/
+bit write_obj_value(unsigned char objno,int objvalue)
 {
 	unsigned char objtype, valuepointer, offset, commstab;
 	bit write_ok=0;
@@ -464,9 +624,9 @@ bit write_obj_value(unsigned char objno,int objvalue)		// schreibt den aktuellen
 		if (objtype < 8) {	// Typ zwischen 1 und 8 Bit gross
 			while (!write_ok) {
 				start_writecycle();
-				write_byte(0x00,valuepointer,objvalue & (0xFF>>(7-objtype)));	// nur die tatsächlich erforderlichen bits speichern
+				write_byte(0x00,valuepointer,objvalue & (0xFF>>(7-objtype)));	// nur die tatsaechlich erforderlichen bits speichern
 				stop_writecycle();
-				if(!(FMCON & 0x01)) write_ok=1;	// prüfen, ob erfolgreich geflasht
+				if(!(FMCON & 0x01)) write_ok=1;	// pruefen, ob erfolgreich geflasht
 			}
 		}
 		if (objtype == 8) {	// 2-Byte Wert
@@ -475,7 +635,7 @@ bit write_obj_value(unsigned char objno,int objvalue)		// schreibt den aktuellen
 				write_byte(0x00,valuepointer,objvalue>>8);
 				write_byte(0x00,valuepointer+1,objvalue);
 				stop_writecycle();
-				if(!(FMCON & 0x01)) write_ok=1;	// prüfen, ob erfolgreich geflasht
+				if(!(FMCON & 0x01)) write_ok=1;	// pruefen, ob erfolgreich geflasht
 			}
 		}
 	}
@@ -484,11 +644,17 @@ bit write_obj_value(unsigned char objno,int objvalue)		// schreibt den aktuellen
 
 
 
-void restart_prot(void)		// Protokoll-relevante Parameter zurücksetzen
+/** 
+* Protokoll-relevante Parameter zuruecksetzen
+*
+*
+*
+*/
+void restart_prot(void)
 {
   
   progmode=0;			// kein Programmiermodus
-  pcount=1;				// Paketzähler initialisieren
+  pcount=1;				// Paketzaehler initialisieren
   connected=0;			// keine Verbindung
   
   telpos=0;				// empfangene Bytes an dieser Position im Array telegramm[] ablegen
