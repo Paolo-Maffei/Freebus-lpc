@@ -12,25 +12,36 @@
  *  published by the Free Software Foundation.
  *
  */
-
-// Hier sind ausschliesslich die Hardware-spezifischen aber Applikations-unabhängigen Routinen für den 89LPC922
+/**
+* @file   fb_hal_lpc.c
+* @author Andreas Krebs <kubi@krebsworld.de>
+* @date    2008
+* 
+* @brief  Hier sind ausschliesslich die Hardware-spezifischen aber Applikations-unabhaengigen Routinen fuer den 89LPC922
+* 
+* 
+*/
 
 #include <P89LPC922.h>
 #include "../com/fb_prot.h"
 #include "../com/fb_hal_lpc.h"
 
 
-__code unsigned char __at 0x1C00 userram[255];	// Bereich im Flash für User-RAM
-__code unsigned char __at 0x1D00 eeprom[255];	// Bereich im Flash für EEPROM
-bit parity_ok;			// Parity Bit des letzten empfangenen Bytes OK
-bit interrupted;		// wird durch interrupt-routine gesetzt. so kann eine andere routine prüfen, ob sie unterbrochen wurde
+__code unsigned char __at 0x1C00 userram[255];	/// Bereich im Flash fuer User-RAM
+__code unsigned char __at 0x1D00 eeprom[255];	/// Bereich im Flash fuer EEPROM
+bit parity_ok;			/// Parity Bit des letzten empfangenen Bytes OK
+bit interrupted;		/// Wird durch interrupt-routine gesetzt. So kann eine andere Routine pruefen, ob sie unterbrochen wurde
 
 
 
 
 
-
-void start_rtc(unsigned char base)	// RTC starten, base in ms
+/** 
+* RTC starten, base in ms
+*
+*
+*/
+void start_rtc(unsigned char base)
 {
 	long rtcval=0;
 	unsigned char n;
@@ -44,7 +55,12 @@ void start_rtc(unsigned char base)	// RTC starten, base in ms
 }
 
 
-void stop_rtc(void)		// RTC stoppen
+/** 
+* RTC stoppen
+*
+*
+*/
+void stop_rtc(void)
 {
 	RTCCON=0x60;
 }
@@ -53,8 +69,12 @@ void stop_rtc(void)		// RTC stoppen
 
 
 
-
-
+/** 
+* 
+*
+*
+* @return
+*/
 unsigned char get_byte(void)
 {
   bit rbit,parity,ph;			
@@ -67,8 +87,8 @@ unsigned char get_byte(void)
   
   ph=0;					// Paritybit wird aus empfangenem Byte berechnet
   parity_ok=0;
-  while(!TF1);			// warten auf Timer 1				
-  set_timer1(360);		// Timer 1 neu setzen für 2.Bit (300-420)
+  while(!TF1);			// warten auf Timer 1
+  set_timer1(360);		// Timer 1 neu setzen fuer 2.Bit (300-420)
   rbit=FBINC;			// 1.Bit einlesen
   for(m=0;m<5;m++) rbit&=FBINC;		// zur Steigerung der Fehlertoleranz mehrfach lesen
   fbb=rbit;
@@ -76,7 +96,7 @@ unsigned char get_byte(void)
   //for(n=1;n<8;n++) {	// 2. bis 8. Bit
   for (n=2;n!=0;n=n<<1) {
     while(!TF1);
-    set_timer1(350);	// Timer 1 setzen für Position 2.-9.Bit (342-359)
+    set_timer1(350);	// Timer 1 setzen fuer Position 2.-9.Bit (342-359)
     rbit=FBINC;
     for(m=0;m<5;m++) rbit&=FBINC;	// zur Steigerung der Fehlertoleranz mehrfach lesen
     //fbb|=rbit<<n;
@@ -93,11 +113,19 @@ unsigned char get_byte(void)
 }
 
 
-void ext_int0(void) interrupt 2		// Byte vom Bus empfangen, wird durch negative Flanke am INT1 Eingang getriggert
-									// liest ein Byte und prüft das parity-bit
-									// wenn OK wird das Byte in das array telegramm an die Position telpos abgelegt
-{									// anschließend wird der time-out Zähler gestartet, wenn während 370us nichts empfangen wird
-  									// dann ist das Telegramm komplett übertragen worden
+
+/** 
+* Byte vom Bus empfangen, wird durch negative Flanke am INT1 Eingang getriggert
+*
+* liest ein Byte und prueft das Parity-bit
+* wenn OK wird das Byte in das Array Telegramm an die Position telpos abgelegt
+* anschliessend wird der time-out Zaehler gestartet, wenn waehrend 370us nichts empfangen wird
+* dann ist das Telegramm komplett uebertragen worden
+*
+*
+*/
+void ext_int0(void) interrupt 2
+{
   unsigned char fbbh;
 
   TR1=0;
@@ -106,7 +134,7 @@ void ext_int0(void) interrupt 2		// Byte vom Bus empfangen, wird durch negative 
   						
   fbbh=get_byte();			// Byte vom Bus empfangen
   sysdelay(200);
-  set_timer1(1350);			// Timer 1 starten für Timeout 370us -> signalisiert Telegrammende (1350)
+  set_timer1(1350);			// Timer 1 starten fuer Timeout 370us -> signalisiert Telegrammende (1350)
   
   if(parity_ok)				// wenn Parity OK
   { 
@@ -126,14 +154,20 @@ void ext_int0(void) interrupt 2		// Byte vom Bus empfangen, wird durch negative 
   
 
   
-  //ET1=1;					// Interrupt für Timer 1 freigeben
-  IE1=0;					// Interrupt 0 request zurücksetzen
+  //ET1=1;					// Interrupt fuer Timer 1 freigeben
+  IE1=0;					// Interrupt 0 request zuruecksetzen
   EX1=1;					// Interrupt 0 wieder freigeben
-  interrupted=1;			// teilt anderen Routinen mit, daß sie unterbrochen wurden
+  interrupted=1;			// teilt anderen Routinen mit, dass sie unterbrochen wurden
 } 
 
 
 
+/** 
+* 
+* \param fbsb
+*
+* @return
+*/
 bit sendbyte(unsigned char fbsb)
 {
   unsigned char n,m;
@@ -155,9 +189,9 @@ bit sendbyte(unsigned char fbsb)
     
     FBOUTC=sendbit;		// Bit senden
 			
-    set_timer1(100);		//35us Haltezeit für Bit 
+    set_timer1(100);		//35us Haltezeit fuer Bit 
     
-    if(!sendbit) {		// wenn logische 1 gesendet wird, auf Kollision prüfen
+    if(!sendbit) {		// wenn logische 1 gesendet wird, auf Kollision pruefen
       parity=!parity;
       for(m=0;m<5;m++) if(!FBINC) error=1;
     }
@@ -169,7 +203,7 @@ bit sendbyte(unsigned char fbsb)
   if(!error) {
 	  sysdelay(212);			// 69 us Pause vor Parity-Bit
 	  FBOUTC=parity;
-	  sysdelay(95);			// 35us für Parity-Bit
+	  sysdelay(95);			// 35us fuer Parity-Bit
 	  FBOUTC=0;
   }
   TR1=0;
@@ -178,22 +212,44 @@ bit sendbyte(unsigned char fbsb)
 }
 
 
-void start_writecycle(void)		// Startet den writecycle um in den flash zu schreiben
+
+/** 
+* Startet den writecycle um in den flash zu schreiben
+*
+*
+*/
+void start_writecycle(void)
 {
   FMCON=0x00;					// load command, leert das pageregister
 }
 
 
-void stop_writecycle(void)		// Stoppt den writecycle um in den flash zu schreiben
+
+/** 
+* Stoppt den writecycle um in den flash zu schreiben
+*
+*
+*
+*/
+void stop_writecycle(void)
 {
-  FMCON=0x68;					// write command, schreibt pageregister ins flash und versetzt CPU in idle für 4ms
+  FMCON=0x68;					// write command, schreibt pageregister ins flash und versetzt CPU in idle fuer 4ms
 }
 
 
-void write_byte(unsigned char addrh, unsigned char addrl, unsigned char zdata)	// schreibt byte ins pageregister zum flashen
+
+/** 
+* schreibt byte ins pageregister zum flashen
+*
+*
+* \param addrh high adress byte
+* \param addrl low adress byte
+* \param zdata data
+*/
+void write_byte(unsigned char addrh, unsigned char addrl, unsigned char zdata)
 {
  
-  if (addrh<=0x01)		// sicherstellen, dass nicht versehentlich bootloader überschrieben wird
+  if (addrh<=0x01)		// sicherstellen, dass nicht versehentlich bootloader ueberschrieben wird
   {	
     FMADRH=addrh+0x1C;
     FMADRL=addrl;
@@ -202,9 +258,18 @@ void write_byte(unsigned char addrh, unsigned char addrl, unsigned char zdata)	/
 }
 
 
-void sysdelay(int deltime)			// Warten, deltime = Anzahl Takte / 2 (Timer wird mit CCLK/2 betrieben) 
-{									// Der Aufruf allein dauert schon ca. 12µs !!!
-									// NICHT IN APP VERWENDEN !!!
+
+
+/** 
+* Warten, deltime = Anzahl Takte / 2 (Timer wird mit CCLK/2 betrieben) 
+*
+* Der Aufruf allein dauert schon ca. 12ï¿½s !!!
+* NICHT IN APP VERWENDEN !!!
+*
+* \param deltime
+*/
+void sysdelay(int deltime)
+{
   TR1=0;					// Timer 1 anhalten
   deltime=0xFFFF-deltime;
   TH1=deltime>>8;			// Timer 1 setzen 
@@ -216,46 +281,69 @@ void sysdelay(int deltime)			// Warten, deltime = Anzahl Takte / 2 (Timer wird m
 }
 
 
-void set_timer0(int deltime)		// Timer 0 stoppen, setzen und starten (Timer wird mit CCLK/2 betrieben)
+
+/** 
+* Timer 0 stoppen, setzen und starten (Timer wird mit CCLK/2 betrieben)
+*
+*
+* \param deltime
+*/
+void set_timer0(int deltime)
 {
   TR0=0;					// Timer 0 anhalten
   deltime=0xFFFF-deltime;
   TH0=deltime>>8;			// Timer 0 setzen 
   TL0=deltime;	
-  TF0=0;					// Überlauf-Flag zurücksetzen
+  TF0=0;					// ï¿½berlauf-Flag zuruecksetzen
   TR0=1;					// Timer 0 starten
 }
 
 
 
 
-void set_timer1(int deltime)		// Timer 1 stoppen, setzen und starten (Timer wird mit CCLK/2 betrieben)
+/** 
+* Timer 1 stoppen, setzen und starten (Timer wird mit CCLK/2 betrieben)
+*
+*
+* \param deltime
+*/
+void set_timer1(int deltime)
 {
   TR1=0;				// Timer 1 anhalten
   deltime=0xFFFF-deltime;
   TH1=deltime>>8;			// Timer 1 setzen 
   TL1=deltime;	
-  TF1=0;				// Überlauf-Flag zurücksetzen
+  TF1=0;				// Ueberlauf-Flag zuruecksetzen
   TR1=1;				// Timer 1 starten
 }
 
 
 
 
-void restart_hw(void)	// Alle Hardware Einstellungen zurücksetzen
+/** 
+* Alle Hardware Einstellungen zuruecksetzen
+*
+*
+*
+*/
+void restart_hw(void)
 {
 	
 	DIVM=0;			// Taktferquenz nicht teilen -> volles Tempo
   
-	P1M1=0x14;		// Port 1 auf quasi-bidirektional, außer P1.2(T0 als PWM Ausgang)=open-drain, P1.3 open drain (muss sein), P1.4(INT1)=Input only, P1.6(FBOUTC) push-pull
+	P1M1=0x14;		// Port 1 auf quasi-bidirektional,
+							// ausser P1.2(T0 als PWM Ausgang)=open-drain,
+							// P1.3 open drain (muss sein),
+							// P1.4(INT1)=Input only, P1.6(FBOUTC) push-pull
+
 	P1M2=0x4C;
    
 	FBOUTC=0;		// Bus-Ausgang auf low
   
 	TMOD=0x11;		// Timer 0 und Timer 1 als 16-Bit Timer
 	TAMOD=0x00;
-	TR0=0;			// Timer 0 (zur Verwendung in app) zunächst stoppen 
-	TR1=0;			// Timer 1 (Empfangs-Timeout, nicht in app verwenden!) zunächst stoppen
+	TR0=0;			// Timer 0 (zur Verwendung in app) zunaechst stoppen 
+	TR1=0;			// Timer 1 (Empfangs-Timeout, nicht in app verwenden!) zunaechst stoppen
  
 	RTCH=0x0E;		// Real Time Clock auf 65ms laden
 	RTCL=0xA0;		// (RTC ist ein down-counter mit 128 bit prescaler und osc-clock)
@@ -268,7 +356,7 @@ void restart_hw(void)	// Alle Hardware Einstellungen zurücksetzen
 	EX0=0;			// Externen Interrupt 0 sperren
 	EX1=1;			// Externen Interrupt 1 freigeben	
 
-	IP0=0x0C;		// höchste Priorität für ext. Int. 1 und Timer 1 (Bit 0 und 3)
+	IP0=0x0C;		// hoechste Prioritï¿½t fuer ext. Int. 1 und Timer 1 (Bit 0 und 3)
 	IP0H=0x0C;
 	IP1=0x00;
 	IP1H=0x00;
