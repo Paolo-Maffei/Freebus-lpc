@@ -12,10 +12,18 @@
  *  published by the Free Software Foundation.
  *
  */
+/**
+* @file   fb_app_taster.h
+* @author Andreas Krebs <kubi@krebsworld.de>
+* @date    2008
+* 
+* @brief The Freebus Taster Application, Firmware fï¿½r einen 4-fach Taster mit 4 LEDs
+* 
+* 
+*/
 
 #ifndef FB_APP
 #define FB_APP
-
 
 
 #define POWERLED		0xCD
@@ -31,20 +39,19 @@
 #define WAIT_FOR_TIMER0 while (!TF0);
 
 
-extern long timer;				// Timer für Schaltverzögerungen, wird alle 130us hochgezählt
-extern bit delay_toggle;		// um nur jedes 2. Mal die delay routine auszuführen
+extern long timer;				// Timer fuer Schaltverzoegerungen, wird alle 130us hochgezaehlt
+extern bit delay_toggle;		// um nur jedes 2. Mal die delay routine auszufuehren
 extern long buttontimer[4];
 
-extern unsigned char button_buffer;	// puffer für taster werte
+extern unsigned char button_buffer;	// puffer fuer taster werte
 
 
-void port_changed(unsigned char portval);		// ein Taster wurde gedrückt oder losgelassen
+void port_changed(unsigned char portval);		// ein Taster wurde gedrueckt oder losgelassen
 void button_changed(unsigned char buttonno, bit buttonval);	// Taster Aktion abarbeiten
 void switch_led(unsigned char ledno, bit onoff);	// LED schalten
-void write_value_req(void);		// Hauptroutine für Ausgänge schalten gemäß EIS 1 Protokoll (an/aus)
-void delay_timer(void);			// zählt alle 130ms die Variable Timer hoch und prüft Queue
+void write_value_req(void);		// Hauptroutine fuer Ausgaenge schalten gemaess EIS 1 Protokoll (an/aus)
+void delay_timer(void);			// zaehlt alle 130ms die Variable Timer hoch und prueft Queue
 void send_eis(unsigned char eistyp, unsigned char objno, int sval);	// sendet ein EIS Telegramm
-
 
 
 #endif
