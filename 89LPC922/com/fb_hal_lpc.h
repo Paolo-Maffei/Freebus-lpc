@@ -12,19 +12,28 @@
  *  published by the Free Software Foundation.
  *
  */
+/**
+* @file   fb_hal_lpc.h
+* @author Andreas Krebs <kubi@krebsworld.de>
+* @date    2008
+* 
+* @brief  Hier sind ausschliesslich die Hardware-spezifischen aber Applikations-unabhaengigen Routinen fuer den 89LPC922
+* 
+* 
+*/
 
 
 #ifndef FB_HAL
 #define FB_HAL
 
-#define FBOUTC	P1_6	// Sendepin
-#define TASTER	P1_7	// Pin für Programmiertaster
-#define FBINC	P1_4	// Empfangspin
-#define PWM		P1_2	// PWM-Pin
+#define FBOUTC		P1_6	/// Sendepin
+#define TASTER		P1_7	/// Pin fuer Programmiertaster
+#define FBINC		P1_4	/// Empfangspin
+#define PWM		P1_2	/// PWM-Pin
 
-#define PORT	P0		// Port für 8-bit I/O
+#define PORT	P0		/// Port fuer 8-bit I/O
 
-#define RECEIVE_INT_ENABLE	EX1		// Interrupt enable Flag für Empfang
+#define RECEIVE_INT_ENABLE	EX1		// Interrupt enable Flag fuer Empfang
 
 
 // Konfiguriert den entsprechenden pin als bidirectional mit internem pull-up R
@@ -60,11 +69,11 @@
 
 
 
-extern __code unsigned char __at 0x1C00 userram[255];	// Bereich im Flash für User-RAM
-extern __code unsigned char __at 0x1D00 eeprom[255];	// Bereich im Flash für EEPROM
+extern __code unsigned char __at 0x1C00 userram[255];	// Bereich im Flash fuer User-RAM
+extern __code unsigned char __at 0x1D00 eeprom[255];	// Bereich im Flash fuer EEPROM
 
 extern bit parity_ok;		// Parity Bit des letzten empfangenen Bytes OK
-extern bit interrupted;		// wird durch interrupt-routine gesetzt. so kann eine andere routine prüfen, ob sie unterbrochen wurde
+extern bit interrupted;		// wird durch interrupt-routine gesetzt. so kann eine andere routine pruefen, ob sie unterbrochen wurde
 
 unsigned char get_byte(void);
 void ext_int0(void) interrupt 2;
