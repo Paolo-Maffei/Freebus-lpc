@@ -12,40 +12,50 @@
  *  published by the Free Software Foundation.
  *
  */
-
-
-/* Versionen:	2.00	erstes Programm in C für Hardware Ver. 2
-	2.01	Schaltverzögerung hinzugefügt
-	2.02	Restart Fehler behoben
-	2.03	Arrays korrigiert
-	2.04	Bugs in bin_out behoben		
-	3.01	auf 89LPC922 portiert und Bugs behoben		
-	3.02	Verzögerung über RTC		behobene Bugs: Verzögerung geht nach einiger Zeit sehr langsam
-	3.03	Timer 0 für PWM		
-	3.04	RX & TX Timing nochmals optimiert 	behobene Bugs: get_ack funktionierte nicht
-	3.05	Zeitschaltfunktion hinzugefügt
-	3.06	Öffner-/Schliesserbetrieb und Verhalten nach Busspannungswiederkehr hinzugefügt
-	3.07	Rückmeldeobjekte eingefügt
-	3.08	gat Array entfernt und durch gapos_in_gat funktion ersetzt
-	3.09	Sperrobjekte hinzugefügt
-	3.10	Fehler in main() behoben (kein delay!)
-	3.11	Fehler bei Zusatzfunktionstyp behoben, 
-			Fehler bei Sperrobjekten behoben,
-			Relais ziehen jetzt vollen Strom auch bei Busspannungswiederkehr
-	3.12	Fehler bei Sperrobjekten und Rückmeldung im out8 behoben, 
-			ausserdem ziehen Relais jetzt auch bei Busspannungswiederkehr mit vollem Strom.
-	3.13	Parametrierung für alte/neue Relaisschaltung eingefügt
-			Parametrierung für 4-port / 8-port hinzugefügt, damit eine Soft für out4 und out8
-			Parametrierung für Handbetrieb zunächst eingefügt
-			read_value_request lief nicht korrekt, behoben
-			Rückmeldung bei Busspannungswiederkehr funktioniert jetzt
-			Warteschleife bei Busspannungswiederkehr eingefügt, wg. stabilität
-
-	todo:	- Objekt lesen muss bei allen Objekten funktionieren
-			- Prio beim Senden implementieren
-			- Zwangsstellungsobjekte implementieren
+/**
+* @file   fb_out.c
+* @author Andreas Krebs <kubi@krebsworld.de>
+* @date   Tue Jan 01 17:44:47 2009
+* 
+* @brief  The Freebus relais application to switch  up to 8 relais \n
+* Manufactorer code is 0x04 = Jung \n
+* Device type    8 out (2038.10) 0x2060 Ordernumber: 2138.10REG    or \n
+* 		4 out Devicetype 0x2062 = Jung Aktor 2134.16 
+*
+* \par Changes:
+*	2.00	erstes Programm in C fï¿½r Hardware Ver. 2 \n
+*	2.01	Schaltverzoegerung hinzugefuegt \n
+*	2.02	Restart Fehler behoben \n
+*	2.03	Arrays korrigiert \n
+*	2.04	Bugs in bin_out behoben		\n
+*	3.01	auf 89LPC922 portiert und Bugs behoben		\n
+*	3.02	Verzoegerung ï¿½ber RTC		behobene Bugs: Verzoegerung geht nach einiger Zeit sehr langsam \n
+*	3.03	Timer 0 fï¿½r PWM		\n
+*	3.04	RX & TX Timing nochmals optimiert 	behobene Bugs: get_ack funktionierte nicht \n
+*	3.05	Zeitschaltfunktion hinzugefuegt \n
+*	3.06	ï¿½ffner-/Schliesserbetrieb und Verhalten nach Busspannungswiederkehr hinzugefuegt \n
+*	3.07	Rueckmeldeobjekte eingefuegt \n
+*	3.08	gat Array entfernt und durch gapos_in_gat funktion ersetzt \n
+*	3.09	Sperrobjekte hinzugefuegt \n
+*	3.10	Fehler in main() behoben (kein delay!)
+*	3.11	Fehler bei Zusatzfunktionstyp behoben,  \n
+*			Fehler bei Sperrobjekten behoben, \n
+*			Relais ziehen jetzt vollen Strom auch bei Busspannungswiederkehr \n
+*	3.12	Fehler bei Sperrobjekten und Rueckmeldung im out8 behoben,  \n
+*			ausserdem ziehen Relais jetzt auch bei Busspannungswiederkehr mit vollem Strom. \n
+*	3.13	Parametrierung fï¿½r alte/neue Relaisschaltung eingefuegt \n
+*			Parametrierung fï¿½r 4-port / 8-port hinzugefuegt, damit eine Soft fï¿½r out4 und out8 \n
+*			Parametrierung fï¿½r Handbetrieb zunaechst eingefuegt \n
+*			read_value_request lief nicht korrekt, behoben \n
+*			Rueckmeldung bei Busspannungswiederkehr funktioniert jetzt \n
+*			Warteschleife bei Busspannungswiederkehr eingefuegt, wg. stabilitaet
+*
+* @todo:
+	- Objekt lesen muss bei allen Objekten funktionieren \n
+	- Prio beim Senden implementieren \n
+	- Zwangsstellungsobjekte implementieren \n
 */
-	
+
 
 #include <P89LPC922.h>
 #include "../com/fb_hal_lpc.h"
@@ -54,19 +64,24 @@
 #include "fb_app_out.h"
 
 
-
+/** 
+* The start point of the program, init all libraries, start the bus interface, the application
+* and check the status of the program button.
+* 
+*
+*/
 void main(void)
 { 
 	unsigned char n;
-	restart_hw();							// Hardware zurücksetzen
+	restart_hw();							// Hardware zuruecksetzen
 	for (n=0;n<50;n++) sysdelay(0xFFFF);	// Warten bis Bus stabil
-	restart_prot();							// Protokoll-relevante Parameter zurücksetzen
-	restart_app();							// Anwendungsspezifische Einstellungen zurücksetzen
+	restart_prot();							// Protokoll-relevante Parameter zuruecksetzen
+	restart_app();							// Anwendungsspezifische Einstellungen zuruecksetzen
 
 	do  {
-		if(RTCCON>=0x80) delay_timer();	// Realtime clock Überlauf
+		if(RTCCON>=0x80) delay_timer();	// Realtime clock Ueberlauf
 
-		if(TF0) {						// Vollstrom für Relais ausschalten
+		if(TF0) {						// Vollstrom fï¿½r Relais ausschalten
 #ifdef GS1		// alte Relais-Schaltung mit Transistoren
 			PWM=0;
 #endif
@@ -81,7 +96,7 @@ void main(void)
 		}
   
 		TASTER=1;				        // Pin als Eingang schalten um Taster abzufragen
-		if(!TASTER) {					// Taster gedrückt
+		if(!TASTER) {					// Taster gedrueckt
 			for(n=0;n<100;n++) {}
 			while(!TASTER);				// warten bis Taster losgelassen
 			progmode=!progmode;
