@@ -37,25 +37,53 @@
 */
 void write_value_req(void)
 {
-  rs_send_dec(telegramm[3]>>3);
-  SBUF='.';
-  while(!TI);
-  TI=0;
-  rs_send_dec(telegramm[3] & 0x07);
-  SBUF='.';
-  while(!TI);
-  TI=0;
-  rs_send_dec(telegramm[4]);
-  SBUF='=';
-  while(!TI);
-  TI=0;
-  rs_send_dec(telegramm[7] & 0x01);
-  SBUF=0x0D;
-  while(!TI);
-  TI=0;
-  SBUF=0x0A;
-  while(!TI);
-  TI=0;
+	unsigned char length;
+	
+	length=telegramm[5]&0x0F;
+	
+	if (length==1) {
+		rs_send_dec(telegramm[3]>>3);
+		SBUF='.';
+		while(!TI);
+		TI=0;
+		rs_send_dec(telegramm[3] & 0x07);
+		SBUF='.';
+		while(!TI);
+		TI=0;
+		rs_send_dec(telegramm[4]);
+		SBUF='=';
+		while(!TI);
+		TI=0;
+		rs_send_dec(telegramm[7] & 0x0F);
+		SBUF=0x0D;
+		while(!TI);
+		TI=0;
+		SBUF=0x0A;
+		while(!TI);
+		TI=0;
+	}
+	if (length==2) {
+			rs_send_dec(telegramm[3]>>3);
+			SBUF='.';
+			while(!TI);
+			TI=0;
+			rs_send_dec(telegramm[3] & 0x07);
+			SBUF='.';
+			while(!TI);
+			TI=0;
+			rs_send_dec(telegramm[4]);
+			SBUF='=';
+			while(!TI);
+			TI=0;
+			rs_send_dec(telegramm[8]);
+			SBUF=0x0D;
+			while(!TI);
+			TI=0;
+			SBUF=0x0A;
+			while(!TI);
+			TI=0;
+		}
+	
 }
 
 
