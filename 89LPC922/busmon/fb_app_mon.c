@@ -40,9 +40,9 @@ void timer1(void) interrupt 3	// Interrupt von Timer 1, 370us keine Busaktivität
       {
         ack=get_byte();
         ackok=1;
-        m=3000;
+        m=1000;
       }
-    } while (m<3000);
+    } while (m<1000);
 
     data_laenge=(telegramm[5]&0x0F);		// Telegramm-Länge = Bit 0 bis 3
     
