@@ -49,11 +49,13 @@
 *			read_value_request lief nicht korrekt, behoben \n
 *			Rueckmeldung bei Busspannungswiederkehr funktioniert jetzt \n
 *			Warteschleife bei Busspannungswiederkehr eingefuegt, wg. stabilitaet
-*
+*	3.14	Rückmelde-Telegramm löst intern jetzt max. zwei weitere Rückmeldungen aus
+* 
+* 
 * @todo:
-	- Objekt lesen muss bei allen Objekten funktionieren \n
 	- Prio beim Senden implementieren \n
 	- Zwangsstellungsobjekte implementieren \n
+	- run-mode abfragen \n
 */
 
 
