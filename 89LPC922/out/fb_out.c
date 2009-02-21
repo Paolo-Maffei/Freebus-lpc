@@ -50,6 +50,7 @@
 *			Rueckmeldung bei Busspannungswiederkehr funktioniert jetzt \n
 *			Warteschleife bei Busspannungswiederkehr eingefuegt, wg. stabilitaet
 *	3.14	Rückmelde-Telegramm löst intern jetzt max. zwei weitere Rückmeldungen aus
+* 	3.15	Fehler mit PWM für alte Relais-Schaltung behoben
 * 
 * 
 * @todo:
@@ -83,17 +84,13 @@ void main(void)
 	do  {
 		if(RTCCON>=0x80) delay_timer();	// Realtime clock Ueberlauf
 
-		if(TF0) {						// Vollstrom fï¿½r Relais ausschalten
-#ifdef GS1		// alte Relais-Schaltung mit Transistoren
-			PWM=0;
-#endif
-#ifdef GS2		// neue Relais-Schaltung mit 74HC573
-			PWM=1;	
-#endif
+		if(TF0) {			// Vollstrom für Relais ausschalten und wieder PWM ein
 			TMOD=0x12;		// Timer 0 als PWM, Timer 1 als 16-Bit Timer
 			TAMOD=0x01;
 			TH0=DUTY;
 			TF0=0;
+			AUXR1|=0x10;	// PWM von Timer 0 auf Pin ausgeben
+			PWM=1;			// PWM Pin muss auf 1 gesetzt werden, damit PWM geht !!!
 			TR0=1;
 		}
   

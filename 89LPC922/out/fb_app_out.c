@@ -29,6 +29,8 @@
  * 13.02.09	- owntele ist ein zähler, wie oft ein gesendetes telegramm intern erneut verarbeitet wurde
  */
 
+
+
 #include <P89LPC922.h>
 #include "../com/fb_hal_lpc.h"
 #include "../com/fb_prot.h"
@@ -337,6 +339,7 @@ void port_schalten(unsigned char ports)		// Schaltet die Ports mit PWM, DUTY ist
 {
 	if(ports & ~userram[0x29]) {	// Vollstrom nur wenn ein relais eingeschaltet wird
 		TR0=0;
+		AUXR1&=0xE9;	// PWM von Timer 0 nicht mehr auf Pin ausgeben
 #ifdef GS1
 		PWM=1;
 #endif

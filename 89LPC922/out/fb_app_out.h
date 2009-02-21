@@ -16,8 +16,8 @@
 #ifndef FB_APP_OUT
 #define FB_APP_OUT
 
-#define GS2					// GS1 für alte Relais-Schaltung, GS2 für neue
-#define HAND				// Handsteuerung aktiv (auskommentieren wenn nicht gewünscht)
+#define GS2				// GS1 für alte Relais-Schaltung, GS2 für neue
+//#define HAND				// Handsteuerung aktiv (auskommentieren wenn nicht gewünscht)
 #define MAX_PORTS_8			// Anzahl Ausgänge (nur 4 oder 8 erlaubt)
 
 
