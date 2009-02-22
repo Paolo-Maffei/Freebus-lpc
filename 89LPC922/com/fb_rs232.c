@@ -41,10 +41,13 @@ void rs_init(void)
 	SCON=0x50;		// Mode 1, receive enable
 	SSTAT|=0x40;	// TI wird am Ende des Stopbits gesetzt
 	BRGCON|=0x02;	// Baudrate Generator verwenden aber noch gestoppt
-	BRGR1=0x00;		// Baudrate = cclk/((BRGR1,BRGR0)+16)=(115200baud)
+	BRGR1=0x00;		// Baudrate = cclk/((BRGR1,BRGR0)+16)=(115200baud) = 00 30 (02 F0 für 9600 Baud)
 	BRGR0=0x30;
 	BRGCON|=0x01;	// Baudrate Generator starten
 }
+
+
+
 
 
 
@@ -54,13 +57,18 @@ void rs_init(void)
 *
 *
 */
-void rs_send_dec(unsigned char wert)
+void rs_send_dec(unsigned int wert)
 {
-	unsigned char n;
+	unsigned int n;
 	bit zero;
 
 	zero=1;
-	n=wert/100;
+	
+	n=0;
+	while(wert>=10000){
+		n++;
+		wert-=10000;
+	}
   	if(n>0)
   	{
   		SBUF=n+48;
@@ -68,15 +76,47 @@ void rs_send_dec(unsigned char wert)
   		TI=0;
   		zero=0;
   	}
-  	wert=wert-(n*100);
-  	n=wert/10;
-  	if((n>0) || !zero)
+	
+	n=0;
+	while(wert>=1000){
+		n++;
+		wert-=1000;
+	}
+  	if(n>0 || !zero)
   	{
   		SBUF=n+48;
   		while(!TI);
   		TI=0;
+  		zero=0;
+  	}  	
+
+	n=0;
+	while(wert>=100){
+		n++;
+		wert-=100;
+	}
+  	if(n>0 || !zero)
+  	{
+  		SBUF=n+48;
+  		while(!TI);
+  		TI=0;
+  		zero=0;
   	}
-  	wert=wert-(n*10);
+
+	n=0;
+	while(wert>=10){
+		n++;
+		wert-=10;
+	}
+  	if(n>0 || !zero)
+  	{
+  		SBUF=n+48;
+  		while(!TI);
+  		TI=0;
+  		zero=0;
+  	}
+  	
+
   	SBUF=wert+48;
   	while(!TI);
   	TI=0;

@@ -25,7 +25,7 @@
 * 				1.01	erweitert um 1-Byte Empfang (zB. EIS6)
 * 				1.02	empfangege Telegramme werdwen gespeichert,
 * 						gespeicherte Werte einer GA können mit fbrgaxx/x/xxx ausgelesen werden
-*
+*						mit fbdump wird die interne Tabelle ausgegeben
 */
 
 
@@ -85,7 +85,7 @@ void main(void)
       RI=0;
     }
 
-    if (crlf_received)			// Zeile vollstï¿½ndig empfangen
+    if (crlf_received)			// Zeile vollständig empfangen
     {
       if (rsin[0]=='f' && rsin[1]=='b')	// Magic-word 'fb' empfangen
       {
@@ -181,7 +181,7 @@ void main(void)
 				}
 				n++;
 			}while (n>0);
-			rs_send_dec_i(value);
+			rs_send_dec(value);
 			rs_send(13);
 			rs_send(10);
 
