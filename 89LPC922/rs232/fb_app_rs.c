@@ -23,7 +23,7 @@
 
 #include <P89LPC922.h>
 #include "../com/fb_hal_lpc.h"
-#include "../com/fb_prot.h"
+#include "miniprot.h"
 #include "fb_app_rs.h"
 #include "../com/fb_rs232.h"
 
@@ -93,29 +93,37 @@ void write_value_req(void)
 	save_ga(ga,val);
 }
 
+
+
 void save_ga(int ga, int val)
 {
-	unsigned char n=0;
+	unsigned char n;
+	bit write_ok;
 
+	n=0;
 	do {								// Wert der GA in Flash schreiben
 		if(ga_db[n].ga==ga || ga_db[n].ga==0xFFFF) {
-			start_writecycle();
-			if(ga_db[n].ga==0xFFFF) {			// GA noch nicht gespeichert
-				FMADRH = (n >> 6) + 0x1A;		// High Byte schreiben
-				FMADRL = ((n & 0x3F) * 4);
-				FMDATA=ga>>8;
+			write_ok=0;
+			while (!write_ok) {
+				start_writecycle();
+				if(ga_db[n].ga==0xFFFF) {			// GA noch nicht gespeichert
+					FMADRH = (n >> 6) + 0x1A;		// Low Byte schreiben
+					FMADRL = ((n & 0x3F) * 4);		// (int wird LSB first abgelegt)
+					FMDATA=ga;
+					FMADRH = (n >> 6) + 0x1A;		// High Byte schreiben
+					FMADRL = ((n & 0x3F) * 4) + 1;
+					FMDATA=ga>>8;
+				}
 				FMADRH = (n >> 6) + 0x1A;		// Low Byte schreiben
-				FMADRL = ((n & 0x3F) * 4) + 1;
-				FMDATA=ga;
-			}
-			FMADRH = (n >> 6) + 0x1A;		// High Byte schreiben
-			FMADRL = ((n & 0x3F) * 4) + 2;
-			FMDATA=val>>8;
-			FMADRH = (n >> 6) + 0x1A;		// Low Byte schreiben
-			FMADRL = ((n & 0x3F) * 4) + 3;
-			FMDATA=val;
-			stop_writecycle();
-			n=255;
+				FMADRL = ((n & 0x3F) * 4) + 2;
+				FMDATA=val;
+				FMADRH = (n >> 6) + 0x1A;		// High Byte schreiben
+				FMADRL = ((n & 0x3F) * 4) + 3;
+				FMDATA=val>>8;
+				stop_writecycle();
+				if(!(FMCON & 0x01)) write_ok=1;	// pruefen, ob erfolgreich geflasht
+			}				
+			n=255;	// Schleife abbrechen
 		}
 		n++;
 	}while (n>0);
@@ -129,5 +137,21 @@ void save_ga(int ga, int val)
 */
 void restart_app(void)
 {
-
+	unsigned char n;
+	
+	for (n=0;n<50;n++) sysdelay(0xFFFF);	// Warten bis Bus stabil
+	
+	n=0;
+	
+	do {
+		start_writecycle();
+		FMADRH = (n >> 6) + 0x1A;		// High Byte schreiben
+		FMADRL = ((n & 0x3F) * 4);
+		FMDATA=0xFF;
+		FMADRH = (n >> 6) + 0x1A;		// Low Byte schreiben
+		FMADRL = ((n & 0x3F) * 4) + 1;
+		FMDATA=0xFF;
+		stop_writecycle();
+		n++;
+	}while(n>0);
 }

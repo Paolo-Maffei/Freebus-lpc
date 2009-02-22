@@ -31,7 +31,7 @@
 
 #include <P89LPC922.h>
 #include "../com/fb_hal_lpc.h"
-#include "../com/fb_prot.h"
+#include "miniprot.h"
 #include "../com/fb_rs232.h"
 #include "fb_app_rs.h"
 
@@ -48,8 +48,9 @@ void main(void)
   unsigned char n,rsinpos,pah,pal;
   unsigned char rsin[20];		// seriell empfangener string
   bit cr_received, crlf_received;
-  int groupadr;
-  int value;
+  unsigned int groupadr;
+  unsigned int value;
+  
 
   restart_hw();				// Hardware zur�cksetzen
   restart_prot();			// Protokoll-relevante Parameter zur�cksetzen
@@ -60,6 +61,9 @@ void main(void)
   cr_received=0;
   crlf_received=0;
 
+  rs_send_s("kubi's rs-interface ready.");
+  rs_send(13);
+  rs_send(10);
 
   do  {
     if (RI)
@@ -177,8 +181,26 @@ void main(void)
 				}
 				n++;
 			}while (n>0);
-			rs_send_dec(value);
+			rs_send_dec_i(value);
+			rs_send(13);
+			rs_send(10);
 
+      }
+      
+      if(rsin[2]=='d' && rsin[3]=='u' && rsin[4]=='m' && rsin[5]=='p' && rsinpos==6)
+      {
+    	  n=0;
+    	  do {
+    		  rs_send_hex(n);
+    		  rs_send(':');
+    		  rs_send(' ');
+    		  rs_send_hex_i(ga_db[n].ga);
+    		  rs_send(' ');
+    		  rs_send_hex_i(ga_db[n].val);
+    		  rs_send(13);
+    		  rs_send(10);
+    		  n++;
+    	  }while(n>0);
       }
 
       for(n=0;n<20;n++) rsin[n]=0x00;
@@ -187,14 +209,7 @@ void main(void)
       crlf_received=0;
     }
 
-    TASTER=1;				// Pin als Eingang schalten um Taster abzufragen
-    if(!TASTER) {			// Taster gedr�ckt
-      for(n=0;n<100;n++) {}
-      while(!TASTER);			// warten bis Taster losgelassen
-      progmode=!progmode;
-    }
-    TASTER=!progmode;			// LED entsprechend schalten (low=LED an)
-    for(n=0;n<100;n++) {}
+ 
   } while(1);
 }
 
