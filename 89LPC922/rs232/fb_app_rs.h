@@ -1,10 +1,10 @@
 /*
  *      __________  ________________  __  _______
  *     / ____/ __ \/ ____/ ____/ __ )/ / / / ___/
- *    / /_  / /_/ / __/ / __/ / __  / / / /\__ \ 
- *   / __/ / _, _/ /___/ /___/ /_/ / /_/ /___/ / 
- *  /_/   /_/ |_/_____/_____/_____/\____//____/  
- *                                      
+ *    / /_  / /_/ / __/ / __/ / __  / / / /\__ \
+ *   / __/ / _, _/ /___/ /___/ /_/ / /_/ /___/ /
+ *  /_/   /_/ |_/_____/_____/_____/\____//____/
+ *
  *  Copyright (c) 2008 Andreas Krebs <kubi@krebsworld.de>
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -16,8 +16,8 @@
 * @file   fb_app_rs.h
 * @author Andreas Krebs <kubi@krebsworld.de>
 * @date   2008
-* 
-* @brief  
+*
+* @brief
 *
 */
 
@@ -34,8 +34,15 @@
 #define RELMODE		0xF2	// Relaisbetrieb
 #define	DELAYTAB	0xF9	// Start der Tabelle für Verzögerungswerte (Basis)
 
+struct ga_record {
+	int ga;
+	int val;
+};
 
+
+extern __code struct ga_record __at 0x1A00 ga_db[256];
 
 void restart_app(void);		// Alle Applikations-Parameter zurücksetzen
+void save_ga(int ga, int val);
 void write_value_req(void);
 #endif

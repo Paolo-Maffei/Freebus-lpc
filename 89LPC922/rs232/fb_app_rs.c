@@ -1,10 +1,10 @@
 /*
  *      __________  ________________  __  _______
  *     / ____/ __ \/ ____/ ____/ __ )/ / / / ___/
- *    / /_  / /_/ / __/ / __/ / __  / / / /\__ \ 
- *   / __/ / _, _/ /___/ /___/ /_/ / /_/ /___/ / 
- *  /_/   /_/ |_/_____/_____/_____/\____//____/  
- *                                      
+ *    / /_  / /_/ / __/ / __/ / __  / / / /\__ \
+ *   / __/ / _, _/ /___/ /___/ /_/ / /_/ /___/ /
+ *  /_/   /_/ |_/_____/_____/_____/\____//____/
+ *
  *  Copyright (c) 2008 Andreas Krebs <kubi@krebsworld.de>
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -16,8 +16,8 @@
 * @file   fb_app_rs.c
 * @author Andreas Krebs <kubi@krebsworld.de>
 * @date   2008
-* 
-* @brief  
+*
+* @brief
 *
 */
 
@@ -29,8 +29,10 @@
 
 
 
-/** 
-*
+__code struct ga_record __at 0x1A00 ga_db[256];
+
+/**
+* Empfangenes Telegramm verarbeiten
 *
 *
 * @return
@@ -38,9 +40,11 @@
 void write_value_req(void)
 {
 	unsigned char length;
-	
+	int ga;
+	int val=0;
+
 	length=telegramm[5]&0x0F;
-	
+
 	if (length==1) {
 		rs_send_dec(telegramm[3]>>3);
 		SBUF='.';
@@ -55,6 +59,7 @@ void write_value_req(void)
 		while(!TI);
 		TI=0;
 		rs_send_dec(telegramm[7] & 0x0F);
+		val=telegramm[7] & 0x0F;
 		SBUF=0x0D;
 		while(!TI);
 		TI=0;
@@ -76,6 +81,7 @@ void write_value_req(void)
 			while(!TI);
 			TI=0;
 			rs_send_dec(telegramm[8]);
+			val=telegramm[8];
 			SBUF=0x0D;
 			while(!TI);
 			TI=0;
@@ -83,12 +89,39 @@ void write_value_req(void)
 			while(!TI);
 			TI=0;
 		}
-	
+	ga=256*telegramm[3]+telegramm[4];
+	save_ga(ga,val);
 }
 
+void save_ga(int ga, int val)
+{
+	unsigned char n=0;
 
+	do {								// Wert der GA in Flash schreiben
+		if(ga_db[n].ga==ga || ga_db[n].ga==0xFFFF) {
+			start_writecycle();
+			if(ga_db[n].ga==0xFFFF) {			// GA noch nicht gespeichert
+				FMADRH = (n >> 6) + 0x1A;		// High Byte schreiben
+				FMADRL = ((n & 0x3F) * 4);
+				FMDATA=ga>>8;
+				FMADRH = (n >> 6) + 0x1A;		// Low Byte schreiben
+				FMADRL = ((n & 0x3F) * 4) + 1;
+				FMDATA=ga;
+			}
+			FMADRH = (n >> 6) + 0x1A;		// High Byte schreiben
+			FMADRL = ((n & 0x3F) * 4) + 2;
+			FMDATA=val>>8;
+			FMADRH = (n >> 6) + 0x1A;		// Low Byte schreiben
+			FMADRL = ((n & 0x3F) * 4) + 3;
+			FMDATA=val;
+			stop_writecycle();
+			n=255;
+		}
+		n++;
+	}while (n>0);
+}
 
-/** 
+/**
 * Alle Applikations-Parameter zurücksetzen
 *
 *
@@ -96,5 +129,5 @@ void write_value_req(void)
 */
 void restart_app(void)
 {
- 
+
 }
