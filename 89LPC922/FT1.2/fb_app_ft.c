@@ -44,8 +44,11 @@ bit ft_ack;
 	rsin[3]=0x68; \
 	fcb=!fcb; \
 	rsin[4]=0xD3+(fcb<<5); \
-	rsin[5]=control; 
+	rsin[5]=control;
 
+
+
+//Routine mit even parity
 #define FT_SEND_CHAR(sc) \
 	TB8=0; \
 	for (n=0;n<8;n++) { \
@@ -55,6 +58,18 @@ bit ft_ack;
 	while(!TI); \
 	TI=0; \
 	for(n=0;n<10;n++) TI=0;
+
+
+/*
+// Routine ohne parity
+#define FT_SEND_CHAR(sc) \
+	SBUF=sc; \
+	while(!TI); \
+	TI=0; \
+	for(n=0;n<10;n++) TI=0;
+*/
+
+
 
 
 
@@ -382,11 +397,13 @@ void PEI_identify_req(void)
 void ft_rs_init(void)
 {  
 
-  SCON=0xD0;	// Mode 3, receive enable
+  SCON=0xD0;	// Mode 3, receive enable für even parity
+	//SCON=0x50;	// Mode 1 für no parity
+	
   SSTAT|=0x40;	// TI wird am Ende des Stopbits gesetzt
   BRGCON|=0x02;	// Baudrate Generator verwenden aber noch gestoppt
-  BRGR1=0x01;	// Baudrate = cclk/((BRGR1,BRGR0)+16) = 19200
-  BRGR0=0x80;
+  BRGR1=0x01;	// Baudrate = cclk/((BRGR1,BRGR0)+16) = 19200 = 01 70
+  BRGR0=0x70;
   BRGCON|=0x01;	// Baudrate Generator starten
 }
 
@@ -445,14 +462,17 @@ void restart_app(void)		// Alle Applikations-Parameter zurücksetzen
 	P0M1=0;
 	P0M2=0;
 	
+	if(eeprom[ADDRTAB+1]==0 && eeprom[ADDRTAB+2]==0) {
+		telegramm[8]=0x11;
+		telegramm[9]=0xFF;
+		set_pa();
+	}
+	
 	
 	  ft_rs_init();			// serielle Schnittstelle initialisieren für FT1.2
 	  rsinpos=0;
 	  ES=1;					// enable serial interrupt
 
-//	  telegramm[8]=0x11;	// TODO PA wird hier fix auf 1.1.255 gesetzt
-//	  telegramm[9]=0xFF;
-//	  set_pa();
 	  
 	  switch_mode=0x00;		// normal mode
 	  fcb=0;
