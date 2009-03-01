@@ -5,7 +5,7 @@
  *   / __/ / _, _/ /___/ /___/ /_/ / /_/ /___/ /
  *  /_/   /_/ |_/_____/_____/_____/\____//____/
  *
- *  Copyright (c) 2008 Andreas Krebs <kubi@krebsworld.de>
+ *  Copyright (c) 2008, 2009 Andreas Krebs <kubi@krebsworld.de>
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License version 2 as
@@ -44,57 +44,40 @@ void write_value_req(void)
 	int val=0;
 
 	length=telegramm[5]&0x0F;
-
-	if (length==1) {
-		rs_send_dec(telegramm[3]>>3);
-		SBUF='.';
-		while(!TI);
-		TI=0;
+	
+	if (length<=3)	{
+		rs_send_dec(telegramm[3]>>3);			// GA senden
+		rs_send('/');
 		rs_send_dec(telegramm[3] & 0x07);
-		SBUF='.';
-		while(!TI);
-		TI=0;
+		rs_send('/');
 		rs_send_dec(telegramm[4]);
-		SBUF='=';
-		while(!TI);
-		TI=0;
-		rs_send_dec(telegramm[7] & 0x0F);
-		val=telegramm[7] & 0x0F;
-		SBUF=0x0D;
-		while(!TI);
-		TI=0;
-		SBUF=0x0A;
-		while(!TI);
-		TI=0;
-	}
-	if (length==2) {
-			rs_send_dec(telegramm[3]>>3);
-			SBUF='.';
-			while(!TI);
-			TI=0;
-			rs_send_dec(telegramm[3] & 0x07);
-			SBUF='.';
-			while(!TI);
-			TI=0;
-			rs_send_dec(telegramm[4]);
-			SBUF='=';
-			while(!TI);
-			TI=0;
+		rs_send('=');
+		if (length==1) {						// bis max. 6 Bit Nutzdaten
+			rs_send_dec(telegramm[7] & 0x3F);
+			val=telegramm[7] & 0x3F;
+		}
+		if (length==2) {						// 8 Bit
 			rs_send_dec(telegramm[8]);
 			val=telegramm[8];
-			SBUF=0x0D;
-			while(!TI);
-			TI=0;
-			SBUF=0x0A;
-			while(!TI);
-			TI=0;
 		}
-	ga=256*telegramm[3]+telegramm[4];
-	save_ga(ga,val);
+		if (length==3) {						// 16 Bit
+			rs_send_dec(256*telegramm[8]+telegramm[9]);
+			val=256*telegramm[8]+telegramm[9];
+		}		
+		rs_send(13);							// CR LF
+		rs_send(10);
+		ga=256*telegramm[3]+telegramm[4];
+		save_ga(ga,val);						// GA mit Wert speichern
+	}
 }
 
 
-
+/**
+* Gruppenadresse und deren Wert im Flash speichern
+*
+*
+* @return
+*/
 void save_ga(int ga, int val)
 {
 	unsigned char n;
@@ -142,8 +125,7 @@ void restart_app(void)
 	for (n=0;n<50;n++) sysdelay(0xFFFF);	// Warten bis Bus stabil
 	
 	n=0;
-	
-	do {
+	do {								// GA Tabelle löschen
 		start_writecycle();
 		FMADRH = (n >> 6) + 0x1A;		// High Byte schreiben
 		FMADRL = ((n & 0x3F) * 4);

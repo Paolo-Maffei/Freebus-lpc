@@ -70,15 +70,16 @@ void main(void)
     {
       switch (SBUF)
       {
-        case 0x0D:
+        case 0x0D:			// CR empfangen
           cr_received=1;
           break;
-        case 0x0A:
+        case 0x0A:			// LF empfangen
           if (cr_received) crlf_received=1;
           break;
         default:
-          rsin[rsinpos]=SBUF;
+          rsin[rsinpos]=SBUF;			// empfangenes Byte ablegen
           rsinpos++;
+          if(rsinpos>20) rsinpos=20;	// Überlauf des Puffers vermeiden
           cr_received=0;
           crlf_received=0;
       }
