@@ -39,7 +39,7 @@
 #include "../com/fb_delay.h"
 #include "fb_app_rollo.h"
 #include "../com/fb_rs232.h"
-//unsigned char delrec[64];
+
 unsigned char Tval,serbuf;			// Zwischenspeicher des Zustandes der Tasten (Handbetaetigung)
 unsigned char portbuffer;	// Zwischenspeicherung der Portzustände
 unsigned char oldportvalue; // alter portzustand
@@ -51,7 +51,6 @@ long timer;					// Timer für Schaltverzögerungen, wird alle 8 us hochgezählt
 unsigned char delay_toggle;			// um nur jedes 8. Mal die delay routine auszuführen
 unsigned char owntele;		// Anzahl der internen Verarbeitungen eines gesendeten Telegrammes (Rückmeldung)
 unsigned char respondpattern;// bit wird auf 1 gesetzt wenn objekt eine rückmeldung ausgelöst hat
-//unsigned char Kanalfreigabe; // ist 1 für den jeweiligen Kanal nach umschaltpause
 unsigned char kanal[4];		// Wert des Kanalobjekts
 unsigned char knr,n;
 
@@ -60,7 +59,6 @@ bit portchanged,state;
 void write_value_req(void)				// Ausgänge schalten gemäß EIS 1 Protokoll (an/aus)
 {
   unsigned char objno,objflags,gapos,atp,assno,n,gaposh;
- unsigned char k,zuordnung,sobj,blockstart,blockend;
  
     gaposh=0;
 
@@ -83,56 +81,9 @@ void write_value_req(void)				// Ausgänge schalten gemäß EIS 1 Protokoll (an/aus
 
           if (objno<8) object_schalten(objno,telegramm[7]&0x01);	// Objektnummer 0-4 entspricht den Kanälen 1-4
  
-         if (objno>=16 && objno<=17)	// Objektnummer 16+17 entspricht den Sicherheitsfahrten 1 + 2
-            {
-        	 sobj=objno-16;				//sobj ("Sicherheitsobjektnummer")ist also 0 für Sicherheit1, 1 für Si 2
-     		if (telegramm[7]) write_obj_value(objno,1);		// Objektwert im userram speichern
-     		else write_obj_value(objno,0);
-     		if (telegramm[7]& 0x80){
-     			state=(eeprom[0xE2]& (0x40<<sobj));
-     			if (state^(telegramm[7]==0x81)) zfstate=zfstate |(0x0F<<(sobj<<2));// setzen der sicherhfahrt 1 in zfstate, xor verknüpft die polarität
-     			else zfstate=zfstate & (0xFF-(0x0F<<(sobj<<2)));//in zfstate sind für sich1 0F und sich2 F0
-     			zuordnung=eeprom[0xF1] & zfstate;//in zuordnung jetzt eine 1 für jede sicherheit 
-     			blocked =zuordnung |((zuordnung >>4) | (zuordnung<<4)); //beide Sicherheitsergebnisse verodern..
-     			}
- 			blockstart= blocked & ~oldblockvalue;//steigende Flanke der Blockade(sicherheit)
- 			blockend= ~blocked & oldblockvalue;	//fallende Flanke der Blockade(sicherheit)
-     		oldblockvalue=blocked;
-     		start_writecycle();
-     		write_byte(0x00,0xCA,blocked);		// 0xCA  blocked im userram sichern
-     		stop_writecycle();
-     		for (k=0;k<=3;k++){		//für die 4 Kanäle die Sicherheitsfuntionen schalten
-     			if(blockstart & 0x01){
-     				switch((eeprom[0xF0]<<(k<<1))&0x03){  //EF ende, F0 anfang...
-     				case 1:
-     					object_schalten(k+12,0);
-     				break;
-     				case 2:
-     					object_schalten(k+12,1);
-     				break;
-     				default:
-     				break;
-     				}// ende switch */
-     			}// ende if(blockstart
-     			if(blockend & 0x01){
-     				switch(eeprom[0xEF]<<(k<<1)&0x03){
-     				case 1:
-     					object_schalten(k+12,0);
-     				break;
-     				case 2:
-     					object_schalten(k+12,1);
-     				break;
-     				default:
-     				break;
-     				}// ende switch
-     				
-     			}// ende if(blockend...
-     			blockend=blockend>>1;
-     			blockstart=blockstart>>1;
-     		}// ende for(k=0;k...
-            
-        	}// ende if(objno>=16...
-          }// ende if(gapos...
+          if (objno>=16 && objno<=17)Sobject_schalten(objno);	// Objektnummer 16+17 entspricht den Sicherheitsfahrten 1 + 2
+
+        	}// ende if(gapos...
         }// ende for(n=0;n...
       
       //rollo if (portbuffer != userram[0x29])port_schalten(portbuffer);	//Port schalten wenn sich ein Pin geändert hat
@@ -142,7 +93,57 @@ void write_value_req(void)				// Ausgänge schalten gemäß EIS 1 Protokoll (an/aus
     //rs_send(blocked);
 }//ende void write_value_request(....
 
+void Sobject_schalten(unsigned char objno)
+{
+unsigned char k,zuordnung,sobj,blockstart,blockend;
 
+	 sobj=objno-16;				//sobj ("Sicherheitsobjektnummer")ist also 0 für Sicherheit1, 1 für Si 2
+		if (telegramm[7]) write_obj_value(objno,1);		// Objektwert im userram speichern
+		else write_obj_value(objno,0);
+		if (telegramm[7]& 0x80){
+			state=(eeprom[0xE2]& (0x40<<sobj));
+			if (state^(telegramm[7]==0x81)) zfstate=zfstate |(0x0F<<(sobj<<2));// setzen der sicherhfahrt 1 in zfstate, xor verknüpft die polarität
+			else zfstate=zfstate & (0xFF-(0x0F<<(sobj<<2)));//in zfstate sind für sich1 0F und sich2 F0
+			zuordnung=eeprom[0xF1] & zfstate;//in zuordnung jetzt eine 1 für jede sicherheit 
+			blocked =zuordnung |((zuordnung >>4) | (zuordnung<<4)); //beide Sicherheitsergebnisse verodern..
+			}
+		blockstart= blocked & ~oldblockvalue;//steigende Flanke der Blockade(sicherheit)
+		blockend= ~blocked & oldblockvalue;	//fallende Flanke der Blockade(sicherheit)
+		oldblockvalue=blocked;
+		start_writecycle();
+		write_byte(0x00,0xCA,blocked);		// 0xCA  blocked im userram sichern
+		stop_writecycle();
+		for (k=0;k<=3;k++){		//für die 4 Kanäle die Sicherheitsfuntionen schalten
+			if(blockstart & 0x01){
+				switch((eeprom[0xF0]<<(k<<1))&0x03){  //EF ende, F0 anfang...
+				case 1:
+					object_schalten(k+12,0);
+				break;
+				case 2:
+					object_schalten(k+12,1);
+				break;
+				default:
+				break;
+				}// ende switch */
+			}// ende if(blockstart
+			if(blockend & 0x01){
+				switch(eeprom[0xEF]<<(k<<1)&0x03){
+				case 1:
+					object_schalten(k+12,0);
+				break;
+				case 2:
+					object_schalten(k+12,1);
+				break;
+				default:
+				break;
+				}// ende switch
+				
+			}// ende if(blockend...
+			blockend=blockend>>1;
+			blockstart=blockstart>>1;
+		}// ende for(k=0;k...
+    
+	}//ende Sobject_schalten
 
 
 void object_schalten(unsigned char objno, bit objstate)	// Schaltet einen Kanal gemäß objstate und den zugörigen Parametern
@@ -189,7 +190,7 @@ void object_schalten(unsigned char objno, bit objstate)	// Schaltet einen Kanal 
 			
 				if (objstate==0){	//----- auf -----
 					  if (kwin&0x11){					// wenn fahrt,dann stop
-						  kwout=kwin&0xEE;
+						  kwout=kwin&0xCE;	//war EE
 						  clear_delay_record(objno);	// kurzzeit löschen
 						  clear_delay_record(objno+4);  // lanzeit löschen
 					  }
@@ -206,7 +207,7 @@ void object_schalten(unsigned char objno, bit objstate)	// Schaltet einen Kanal 
 				}
 				else{				//----- ab -----
 					  if (kwin&0x22){					// wenn fahrt, dann stop
-						  kwout=kwin&0xDD;
+						  kwout=kwin&0xCD;//war DD
 						  clear_delay_record(objno);	// kurzzeit löschen
 						  clear_delay_record(objno+4);	//langzeit löschen
 					  }
@@ -318,9 +319,9 @@ void delay_timer(void)	// zählt alle 8ms die Variable Timer hoch und prüft Queue
 						clear_delay_record(objno);
 						kanal[objno&0x03]=0x00;
 					}
-			//		if ((objno>=8) && (objno <=10)){	//zyklische überwachung von sicherheitsobj 1 bzw 2
+					if ((objno>=8) && (objno <=10)){	//zyklische überwachung von sicherheitsobj 1 bzw 2
 						
-			//		}
+					}
 					if ((objno>=11) && (objno<=14)){
 					clear_delay_record(objno);			//timer loeschen
 					kanal[objno-11]=kanal[objno-11]>>4;			// die oberen 4 bit des kanals sind die neue value.
@@ -336,11 +337,11 @@ void delay_timer(void)	// zählt alle 8ms die Variable Timer hoch und prüft Queue
 		}//ende for (objno=0;...
 //#ifdef HAND		//+++++++   Handbetätigung  ++++++++++
 	hand =((eeprom[0xE5]& 0xC0)>0);
-	if (RI){//simulation..
+/*	if (RI){//simulation..
 		RI=0;
 	serbuf=SBUF;
 	}//ende simulation
-	
+*/	
 
 
 	if (((delay_toggle & 0x07)==0x07)&& (hand==1)){   // Handbetätigung nur jedes 8.mal ausführen
@@ -358,7 +359,7 @@ void delay_timer(void)	// zählt alle 8ms die Variable Timer hoch und prüft Queue
 	  	ledport=ledport<<1;
 	} 
 	
-	Tasten=serbuf;
+//	Tasten=serbuf;
 
 	//	if (interrupted==1) Tasten=8;  // wenn unterbrochen wurde verwerfen wir die Taste
 	_asm;
