@@ -45,6 +45,11 @@ extern unsigned char delay_toggle;			// um nur jedes 2. Mal die delay routine au
 extern unsigned char owntele;		// ist 0 wenn telegramm vom bus gekommen, 1 wenn eigenes tele (rückmeldung) verarbeitet wird
 extern unsigned char respondpattern;
 extern unsigned char Kanal[3];		// Wert des Kanalobjekts
+//extern unsigned char delrec[32];
+
+//void write_delay_record(unsigned char objno, unsigned char delay_status, long delay_target);	// Schreibt die Schalt-Verzoegerungswerte ins Flash
+//void clear_delay_record(unsigned char objno); // Loescht den Delay Eintrag
+
 
 void write_value_req(void);		// Hauptroutine für Ausgänge schalten gemäß EIS 1 Protokoll (an/aus)
 void delay_timer(void);		// zählt alle 130ms die Variable Timer hoch und prüft Queue

@@ -39,7 +39,7 @@
 #include "../com/fb_delay.h"
 #include "fb_app_rollo.h"
 #include "../com/fb_rs232.h"
-
+//unsigned char delrec[64];
 unsigned char Tval,serbuf;			// Zwischenspeicher des Zustandes der Tasten (Handbetaetigung)
 unsigned char portbuffer;	// Zwischenspeicherung der Portzustände
 unsigned char oldportvalue; // alter portzustand
@@ -54,6 +54,7 @@ unsigned char respondpattern;// bit wird auf 1 gesetzt wenn objekt eine rückmeld
 //unsigned char Kanalfreigabe; // ist 1 für den jeweiligen Kanal nach umschaltpause
 unsigned char kanal[4];		// Wert des Kanalobjekts
 unsigned char knr,n;
+
 bit portchanged,state;
 
 void write_value_req(void)				// Ausgänge schalten gemäß EIS 1 Protokoll (an/aus)
@@ -496,41 +497,6 @@ void port_schalten(unsigned char ports)		// Schaltet die Ports mit PWM, DUTY ist
   portchanged=0;
 }
 
-
-/*
-void respond(unsigned char objno, unsigned char rval)	// sucht Gruppenadresse für das Objekt objno uns sendet ein EIS 1 Telegramm
-{							// mit dem Wert rval (0x80 oder 0x81) für Rückmeldeobjekte	
-	int ga;
-	unsigned char inv;
-
-	if ((owntele < 3) && ((respondpattern & (1<<(objno-12))) == 0)) {
-		respondpattern |= (1<<(objno-12));
-		owntele++;
-		ga=find_ga(objno);					// wenn keine Gruppenadresse hinterlegt nix tun
-		if (ga!=0) {	  
-			//EX1=0;
-			telegramm[0]=0xBC;
-			telegramm[1]=eeprom[ADDRTAB+1];
-			telegramm[2]=eeprom[ADDRTAB+2];
-			telegramm[3]=ga>>8;
-			telegramm[4]=ga;
-			telegramm[5]=0xD1;
-			telegramm[6]=0x00;
-			objno=objno-12;
-			inv=eeprom[0xF3];
-			inv=(inv>>objno)&0x01;
-			if (inv==0) telegramm[7]=rval;
-			if (inv==1) {
-				if (rval==0x80) telegramm[7]=0x81;
-				else telegramm[7]=0x80;
-			}  
-			send_telegramm();
-			//EX1=1;
-			write_value_req();
-		}
-	}
-}  
-*/
 
 void restart_app(void)		// Alle Applikations-Parameter zurücksetzen
 {
