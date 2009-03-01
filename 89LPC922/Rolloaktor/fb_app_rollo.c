@@ -40,7 +40,7 @@
 #include "fb_app_rollo.h"
 #include "../com/fb_rs232.h"
 
-unsigned char Tval;			// Zwischenspeicher des Zustandes der Tasten (Handbetaetigung)
+unsigned char Tval,serbuf;			// Zwischenspeicher des Zustandes der Tasten (Handbetaetigung)
 unsigned char portbuffer;	// Zwischenspeicherung der Portzustände
 unsigned char oldportvalue; // alter portzustand
 unsigned char zfstate;		// Zustand der Objekte 8-11 = Zusatzfunktionen 1-4
@@ -154,9 +154,9 @@ void object_schalten(unsigned char objno, bit objstate)	// Schaltet einen Kanal 
 
 		kwin = kanal[objno & 0x03]& 0x0f;// kwin heisst KanalWertIN. Bit 0+1 Relaise status, Bit 4+5 gewünschter Relaise status
 		kwout=kwin;
-		if (objstate) write_obj_value(objno,1);		// Objektwert im userram speichern
-		else write_obj_value(objno,0);
-		objflags=read_objflags(objno);			// Objekt Flags lesen
+		if (objstate) write_obj_value(objno & 0x07,1);		// Objektwert im userram speichern
+		else write_obj_value(objno & 0x07,0);
+		objflags=read_objflags(objno&0x07);			// Objekt Flags lesen
 		port_pattern=0x01<<(objno&0x07);// 0x0F ist Absicht, die oberen 8 objekte nicht blockieren, da sie ein bypass über blocked sind
 //		zfno=0;
 //		logicfunc=0;
@@ -223,7 +223,7 @@ void object_schalten(unsigned char objno, bit objstate)	// Schaltet einen Kanal 
 			}// ende kurzzeitobjekte
 			
 				else{				//++++++ Langzeitobjekt +++++++
-					rs_send(objno);
+					//rs_send(objno);
 					delay_target=zeit(0xFB,0xFC,0xDA,objno&0x03);// zeit aus eeprom holen
 					delay_target=delay_target + (delay_target>>2);// +25% zeit bei langzeit 
 					pluszeit=delay_target + (delay_target>>5);// 3% zeit bei "auf" 
@@ -334,8 +334,15 @@ void delay_timer(void)	// zählt alle 8ms die Variable Timer hoch und prüft Queue
 			}//ende if(delay_state...
 		}//ende for (objno=0;...
 //#ifdef HAND		//+++++++   Handbetätigung  ++++++++++
-	hand=((eeprom[0xE5]& 0xC0)>0);
-	if (((delay_toggle & 0x07)==0x07)){   // Handbetätigung nur jedes 8.mal ausführen
+	hand =((eeprom[0xE5]& 0xC0)>0);
+	if (RI){//simulation..
+		RI=0;
+	serbuf=SBUF;
+	}//ende simulation
+	
+
+
+	if (((delay_toggle & 0x07)==0x07)&& (hand==1)){   // Handbetätigung nur jedes 8.mal ausführen
 	while(TL0>256-DUTY+0x10);	// PWM scannen um "Hand"-Tasten abzufragen
 	interrupted=0;	  
 	Tasten=8;				// 
@@ -349,46 +356,50 @@ void delay_timer(void)	// zählt alle 8ms die Variable Timer hoch und prüft Queue
 	  	}
 	  	ledport=ledport<<1;
 	} 
-	if (RI){//simulation..
-		
-		RI=0;
-		Tasten=SBUF;
- 	}//ende simulation
-
 	
-//	if (interrupted==1) Tasten=8;  // wenn unterbrochen wurde verwerfen wir die Taste
+	Tasten=serbuf;
+
+	//	if (interrupted==1) Tasten=8;  // wenn unterbrochen wurde verwerfen wir die Taste
 	_asm;
-	jb _interrupted,00001$;
+	jnb _interrupted,00001$;
 	mov r2,#8;
 	00001$:
 	_endasm;
 	// in ASM weils der doofe Optimizer wegoptimiert!!??!!
 	P0=~oldportvalue; 
+	
 	//	Tasten = Tval; // ##############  <----- Hier wird Handbetätigung quasi mit ausgeschaltet !! #########################
 	if (Tasten <= 0x07){
-		if (Tval > 0x07){
-			rs_send(eeprom[0xE5]);
+		if (Tval >= 0x08){// steigende Flanke des Tasters 
+			//rs_send(eeprom[0xE5]);
+			rs_send('S');
+			rs_send(Tasten);
+			//rs_send(Tval);
 
-			write_delay_record(0x0F,0x01,timer+150);
+			write_delay_record(15,0x01,timer+150);
 
-		}	
+		}
+	}	
 	else{
-		if (Tval<=0x07){// wenn tasten >7 und Taval <=7 also taste losgelassen...
+		if (Tval<=0x07){// wenn tasten >7 und Tval <=7 also taste losgelassen...
+			rs_send('F');
+			//rs_send(Tasten);
+			rs_send((Tval>>1)+8);
 			if (delrec[15*4]>=0x02){// status der zeit=2 also abgelaufen..
 				clear_delay_record(15);	//zeit löschen
-				object_schalten((Tasten>1)+12,(Tasten&0x01==0x01));
+				
+				object_schalten((Tval>>1)+12,(Tval&0x01==0x01));
 			}
 			else{
 				clear_delay_record(15);	
-				object_schalten((Tasten>1)+8,(Tasten&0x01==0x01));
+				object_schalten((Tval>>1)+8,(Tval&0x01==0x01));
 				
 			}	
 				
 		}
-	}
 	}// ende if (Taster<=7)
 	Tval=Tasten;
-	}//ende if delay_toggle...
+   }//ende if delay_toggle...
 	//#endif
 //ende void delay_timer(void)
 
@@ -527,9 +538,9 @@ void restart_app(void)		// Alle Applikations-Parameter zurücksetzen
 	bw;
 	bwh;
 	n;
-#ifdef HAND
-	Tval=0x00;
-#endif
+//#ifdef HAND
+	Tval=0x08;
+// #endif
 	P0=0;
 	P0M1=0x00;		// Port 0 Modus push-pull für Ausgang
 	P0M2=0xFF;
@@ -544,7 +555,7 @@ void restart_app(void)		// Alle Applikations-Parameter zurücksetzen
 	start_rtc(8);		// RTC neu mit 8ms starten
 	timer=0;			// Timer-Variable, wird alle 8ms inkrementiert
 
-for(n=0;n<=13;n++){
+for(n=0;n<=15;n++){
 	delrec[n*4]=0;
 }
 /*	EX1=0;							// Rückmeldung bei Busspannungswiederkehr
