@@ -23,7 +23,7 @@
 * @author Andreas Krebs <kubi@krebsworld.de>
 * @date    2008
 * 
-* @brief  Hier sind ausschliesslich die Protokoll-Handling Routinen fuer den 89LPC922
+* @brief  Hier befinden sich die Protokoll-Handling Routinen fuer den 89LPC922
 * 
 * 
 */
@@ -61,14 +61,13 @@ void timer1(void) interrupt 3
 {
 	unsigned char data_laenge,daf;
 
+
 	EX1=0;					// ext. Interrupt stoppen 
 	ET1=0;					// Interrupt von Timer 1 sperren
 	set_timer1(4830);				// 4720 und neu starten fuer korrekte Positionierung des ACK Bytes
   
 	if(cs==0xff) {					// Checksum des Telegramms ist OK
-		if (transparency) {
-			last_tel=telpos;
-		}
+		if (transparency) last_tel=telpos;
 		else {
 			data_laenge=(telegramm[5]&0x0F);		// Telegramm-Laenge = Bit 0 bis 3 
 			daf=(telegramm[5]&0x80);			// Destination Adress Flag = Bit 7, 0=phys. Adr., 1=Gruppenadr.
@@ -82,11 +81,25 @@ void timer1(void) interrupt 3
 			else {
 				if(daf==0x00) {					// Unicast, wenn Zieladresse physikalische Adresse ist
 					if(telegramm[3]==eeprom[ADDRTAB+1] && telegramm[4]==eeprom[ADDRTAB+2]) {	// nur wenn es die eigene phys. Adr. ist
+					
 						if((telegramm[6]&0xC3)==0x42 && (telegramm[7]&0xC0)==0x80) write_memory();	// write_memory_request beantworten
 						if(data_laenge==0) {    
 							if((telegramm[6]&0xC0)==0xC0) send_ack();				// auf NCD_Quittierung mit ACK antworten
-							if(telegramm[6]==0x80) ucd_opr();					// UCD Verbindungsaufbau
-							if(telegramm[6]==0x81) ucd_clr();					// UCD Verbindungsabbau
+							if(telegramm[6]==0x80) { // UCD Verbindungsaufbau
+								if(!connected) {		// wenn bereits verbunden: ignorieren
+								    connected=1;
+								    conh=telegramm[1];		// phys. Adresse des Verbindungspartners
+								    conl=telegramm[2];
+								    send_ack();			// quittieren
+								    pcount=1;			// Paketzaehler zuruecksetzen
+								}
+							}
+							if(telegramm[6]==0x81) {					// UCD Verbindungsabbau
+								  if(conh==telegramm[1] && conl==telegramm[2] && connected)	{	// nur abbauen, wenn verbunden und Anforderung vom Verbindungspartner, kein ACK senden
+									    connected=0;
+									    pcount=1;			// Paketzaehler zuruecksetzen
+								  }
+							}
 						}
 						if(data_laenge==1) {
 							if((telegramm[6]&0x03)==0x03 && telegramm[7]==0x80) {		// restart request
@@ -96,9 +109,7 @@ void timer1(void) interrupt 3
 							}
 							if(telegramm[6]==0x43 && telegramm[7]==0x00) read_masq();		// Maskenversion angefordert
 						}
-						if(data_laenge==3) {
-							if((telegramm[6]&0xC3)==0x42 && (telegramm[7]&0xC0)==0x00) read_memory();	// read_memory_request beantworten
-						}      
+						if(data_laenge==3 && (telegramm[6]&0xC3)==0x42 && (telegramm[7]&0xC0)==0x00) read_memory();	// read_memory_request beantworten
 					}
 				}
 				else {		// Multicast, wenn Zieladresse Gruppenadresse ist
@@ -134,7 +145,7 @@ bit get_ack(void)
   n=0;
   ret=0;
   do {
-    if(FBINC==1) n++;
+    if(FBINC) n++;
     else {
       if (get_byte()==0xCC && parity_ok) {
     	  ret=1;
@@ -202,41 +213,8 @@ void send_ack(void)
 
 
 
-/** 
-* UCD Verbindungsaufbau
-*
-*
-*
-*/
-void ucd_opr(void)
-{
-  if(!connected)		// wenn bereits verbunden: ignorieren
-  {
-    connected=1;
-    conh=telegramm[1];		// phys. Adresse des Verbindungspartners
-    conl=telegramm[2];
-    send_ack();			// quittieren
-    pcount=1;			// Paketzaehler zuruecksetzen
-  }
-}
 
 
-
-
-/** 
-* UCD Verbindungsaufbau
-*
-*
-*
-*/
-void ucd_clr(void)
-{
-  if(conh==telegramm[1] && conl==telegramm[2] && connected)	// nur abbauen, wenn verbunden und Anforderung vom Verbindungspartner, kein ACK senden
-  {
-    connected=0;
-    pcount=1;			// Paketzaehler zuruecksetzen
-  }
-}
 
 
 
@@ -297,27 +275,26 @@ void read_masq(void)
 */
 void read_memory(void)
 {
-  unsigned char ab,n;
+	unsigned char ab,n;
 
-  send_ack();				// erstmal quittieren
-  ab=telegramm[7];			// Anzahl Bytes
-  ncd_quit();
+	send_ack();					// erstmal ack senden
+	ab=telegramm[7];			// Anzahl Bytes
+	ncd_quit();					// quittieren
   
-  for(n=0;n<ab;n++)
-  {
-	  if (telegramm[8]==0) telegramm[n+10]=userram[telegramm[9]+n];
-	  else telegramm[n+10]=eeprom[telegramm[9]+n];    
-  }
+	for(n=0;n<ab;n++) {
+		if (telegramm[8]==0) telegramm[n+10]=userram[telegramm[9]+n];
+		else telegramm[n+10]=eeprom[telegramm[9]+n];    
+	}
 
-  telegramm[0]=0xB0;			// read_memory_res senden
+	telegramm[0]=0xB0;			// read_memory_res senden
 			
-    telegramm[5]=ab+0x63;		// DRL (Anzahl Bytes + 3)
-    telegramm[6]=(pcount<<2)|0x42;	// Paketzaehler, TCPI und ersten beiden Befehlsbits
-    telegramm[7]=ab|0x40;		// letzten 2 Befehlsbits
-    send_telegramm();
+	telegramm[5]=ab+0x63;		// DRL (Anzahl Bytes + 3)
+	telegramm[6]=(pcount<<2)|0x42;	// Paketzaehler, TCPI und ersten beiden Befehlsbits
+	telegramm[7]=ab|0x40;		// letzten 2 Befehlsbits
+	send_telegramm();
 
-  pcount++;				// Paketzï¿½hler erhoehen
-  pcount&=0x0F;				// max. 15
+	pcount++;					// Paketzï¿½hler erhoehen
+	pcount&=0x0F;				// max. 15
 }
 
 
@@ -330,23 +307,27 @@ void read_memory(void)
 */
 void write_memory(void)
 {
-  unsigned char ab,n;
+	unsigned char ab,n;
  
-  send_ack();
-  ab=telegramm[7]&0x0F;			// Anzahl Bytes
-  ncd_quit();
+	send_ack();
+	ab=telegramm[7]&0x0F;		// Anzahl Bytes
+	ncd_quit();
   
-  start_writecycle();
-  for(n=0;n<ab;n++) 
-  {
-    write_byte(telegramm[8],telegramm[9]+n,telegramm[n+10]);
-    if ((((telegramm[9]+n)&0x3F)==0x3F) && n!=(ab-1))		// Ende des 64-Byte Pageregisters, also zwischendurch flashen
-    {
-      stop_writecycle();
-      start_writecycle();
-    }
-  }
-  stop_writecycle(); 
+	FMCON=0x00;					// load command, leert das pageregister
+	for(n=0;n<ab;n++) {
+		
+		// *** noch nicht optimieren, braucht mehr platz, da letzes Vorkommen von write_byte ***
+		write_byte(telegramm[8],telegramm[9]+n,telegramm[n+10]);
+	    //FMADRH=telegramm[8]+0x1C;
+	    //FMADRL=telegramm[9]+n;
+	    //FMDATA=telegramm[n+10];
+		
+		if ((((telegramm[9]+n)&0x3F)==0x3F) && n!=(ab-1)) {		// Ende des 64-Byte Pageregisters, also zwischendurch flashen
+			FMCON=0x68;			// write command, schreibt pageregister ins flash und versetzt CPU in idle fuer 4ms
+			FMCON=0x00;			// load command, leert das pageregister
+		}
+	}
+	FMCON=0x68;					// write command, schreibt pageregister ins flash und versetzt CPU in idle fuer 4ms
 }
 
 
@@ -359,10 +340,18 @@ void write_memory(void)
 */
 void set_pa(void)
 {
-  start_writecycle();
-  write_byte(0x01,ADDRTAB+1,telegramm[8]);		// in Flash schreiben
-  write_byte(0x01,ADDRTAB+2,telegramm[9]);
-  stop_writecycle();
+	FMCON=0x00;					// load command, leert das pageregister
+	
+	//write_byte(0x01,ADDRTAB+1,telegramm[8]);		// in Flash schreiben
+    FMADRH=0x1D;
+    FMADRL=ADDRTAB+1;
+    FMDATA=telegramm[8];
+	
+	//write_byte(0x01,ADDRTAB+2,telegramm[9]);
+    FMDATA=telegramm[9];	// nächstes Byte, da autoinkrement
+    
+    
+	FMCON=0x68;					// write command, schreibt pageregister ins flash und versetzt CPU in idle fuer 4ms
 }
 
 
@@ -375,19 +364,16 @@ void set_pa(void)
 */
 void read_pa(void)
 {
-  send_ack();
-
-  telegramm[0]=0xB0;			// read_memory_res senden
-
+	send_ack();
+	telegramm[0]=0xB0;				// read_memory_res senden
     telegramm[1]=eeprom[ADDRTAB+1];	// PA
     telegramm[2]=eeprom[ADDRTAB+2];
     telegramm[3]=0x00;
     telegramm[4]=0x00;			
-    telegramm[5]=0xE1;			// DRL
+    telegramm[5]=0xE1;				// DRL
     telegramm[6]=0x01;		
     telegramm[7]=0x40;
     send_telegramm();
-
 }
 
 
@@ -401,7 +387,7 @@ void read_pa(void)
 */
 void read_value_req(void)
 {
-	unsigned char objno, objflags;
+	unsigned char objno, objflags, objtype;
 	int objvalue, ga;
 	
 	objno=find_first_objno(telegramm[3],telegramm[4]);	// erste Objektnummer zu empfangener GA finden
@@ -419,16 +405,17 @@ void read_value_req(void)
 			telegramm[4]=ga;
 			telegramm[6]=0x00;
 			telegramm[7]=0x40;
-			if(read_obj_type(objno)<6) {			// Objekttyp, 1-6 Bit
-				telegramm[5]=0xE1;	// DRL
+			objtype=read_obj_type(objno);
+			if(objtype<6) {		// Objekttyp, 1-6 Bit
+				telegramm[5]=0xE1;				// DRL
 				telegramm[7]+=objvalue;			// bis zu 6 Bit passen in das Byte 7
 			}
-			if(read_obj_type(objno)>=6 && read_obj_type(objno)<=7) {	// Objekttyp, 7-8 Bit
-				telegramm[5]=0xE2;	// DRL
+			if(objtype>=6 && objtype<=7) {	// Objekttyp, 7-8 Bit
+				telegramm[5]=0xE2;				// DRL
 				telegramm[8]=objvalue;	
 			}		
-			if(read_obj_type(objno)==8) {	// Objekttyp, 16 Bit
-				telegramm[5]=0xE3;	// DRL
+			if(objtype==8) {		// Objekttyp, 16 Bit
+				telegramm[5]=0xE3;				// DRL
 				telegramm[8]=objvalue>>8;
 				telegramm[9]=objvalue;
 			}		
@@ -471,18 +458,19 @@ unsigned char read_objflags(unsigned char objno)
 */
 int find_ga(unsigned char objno)
 {
-	unsigned char asstab,gapos,gal,gah;
+	unsigned char asstab,assadr,gapos;
 	int ga;
 
 	gapos=0xFE;
-	asstab=eeprom[ASSOCTABPTR];
-
-    if(eeprom[asstab+2+2*objno]==objno) gapos=eeprom[asstab+1+2*objno];
+	asstab=eeprom[ASSOCTABPTR];		// Adresse der Assoziationstabelle
+	assadr=asstab+1+2*objno;		// Adresse ses Objekts in der Assoziationstabelle
+    if(eeprom[assadr+1]==objno) gapos=eeprom[assadr];
 
     if(gapos!=0xFE) {
-    	gah=eeprom[ADDRTAB+1+gapos*2];
-    	gal=eeprom[ADDRTAB+2+gapos*2];
-    	ga=gal+256*gah;
+    	//gah=eeprom[assadr];
+    	//gal=eeprom[assadr+1];
+    	//ga=gal+256*gah;
+    	ga=256*eeprom[assadr]+eeprom[assadr+1];
     }
     else ga=0;
 
@@ -506,13 +494,11 @@ unsigned char gapos_in_gat(unsigned char gah, unsigned char gal)
 {
   unsigned char ga_position,ga_count,n;
   
-  ga_count=eeprom[ADDRTAB];
-  ga_position=0xFF; 
-  if (ga_count)
-  {
-    for (n=1;n<=ga_count;n++)
-    {
-      if (gah==eeprom[ADDRTAB+n*2+1] && gal==eeprom[ADDRTAB+n*2+2]) ga_position=n;
+  ga_count=eeprom[ADDRTAB];		// Anzahl der Adressen in der Adresstabelle
+  ga_position=0xFF; 			// default return Wert 0xFF = nicht gefunden
+  if (ga_count) {
+    for (n=1;n<=ga_count;n++) {
+      if (gah==eeprom[ADDRTAB+n*2+1] && gal==eeprom[ADDRTAB+n*2+2]) ga_position=n;	// Berechnung in [] nicht in lokale var !!! 
     }
   }
   return (ga_position);
@@ -560,17 +546,18 @@ unsigned char find_first_objno(unsigned char gah, unsigned char gal)
 */
 int read_obj_value(unsigned char objno)
 {
-	unsigned char valuepointer, offset, commstab;
+	unsigned char valuepointer, offset, commstab, objtype;
 	int objvalue;
 	
 	objvalue=0xFFFF;
 	offset=objno*3;
 	commstab=eeprom[COMMSTABPTR];
+	objtype=eeprom[commstab+offset+4];
 	
 	if (objno <= commstab) {	// wenn objno <= anzahl objekte
 		valuepointer=eeprom[commstab+offset+2];
-		if (eeprom[commstab+offset+4] < 8) objvalue=userram[valuepointer];
-		if (eeprom[commstab+offset+4] == 8) objvalue=256*userram[valuepointer] + userram[valuepointer+1];
+		if (objtype < 8 ) objvalue=userram[valuepointer];
+		if (objtype == 8) objvalue=256*userram[valuepointer] + userram[valuepointer+1];
 	}
 	return(objvalue);
 }
@@ -586,13 +573,12 @@ int read_obj_value(unsigned char objno)
 */
 unsigned char read_obj_type(unsigned char objno)
 {
-	unsigned char  offset, commstab, objtype;
+	unsigned char  commstab, objtype;
 	
 	objtype=0xFF;
-	offset=objno*3;
 	commstab=eeprom[COMMSTABPTR];	
 	if (objno <= commstab) {	// wenn objno <= anzahl objekte
-		objtype=eeprom[commstab+offset+4];
+		objtype=eeprom[commstab+objno*3+4];
 	}
 	return(objtype);
 }
@@ -623,18 +609,32 @@ bit write_obj_value(unsigned char objno,int objvalue)
 	  // ACHTUNG! die beiden if's nicht zusammenfassen, das braucht mehr Speicher!
 		if (objtype < 8) {	// Typ zwischen 1 und 8 Bit gross
 			while (!write_ok) {
-				start_writecycle();
-				write_byte(0x00,valuepointer,objvalue & (0xFF>>(7-objtype)));	// nur die tatsaechlich erforderlichen bits speichern
-				stop_writecycle();
+				FMCON=0x00;					// load command, leert das pageregister
+				
+				//write_byte(0x00,valuepointer,objvalue & (0xFF>>(7-objtype)));	// nur die tatsaechlich erforderlichen bits speichern
+				FMADRH=0x1C;
+				FMADRL=valuepointer;
+				FMDATA=objvalue & (0xFF>>(7-objtype));
+				
+				
+				FMCON=0x68;					// write command, schreibt pageregister ins flash und versetzt CPU in idle fuer 4ms
 				if(!(FMCON & 0x01)) write_ok=1;	// pruefen, ob erfolgreich geflasht
 			}
 		}
 		if (objtype == 8) {	// 2-Byte Wert
 			while (!write_ok) {
-				start_writecycle();
-				write_byte(0x00,valuepointer,objvalue>>8);
-				write_byte(0x00,valuepointer+1,objvalue);
-				stop_writecycle();
+				FMCON=0x00;				// load command, leert das pageregister
+				
+				//write_byte(0x00,valuepointer,objvalue>>8);
+			    FMADRH=0x1C;
+			    FMADRL=valuepointer;
+			    FMDATA=objvalue>>8;
+				
+				//write_byte(0x00,valuepointer+1,objvalue);
+			    FMDATA=objvalue;	// Autoinkrement, nächste Daten
+			    
+			    
+				FMCON=0x68;					// write command, schreibt pageregister ins flash und versetzt CPU in idle fuer 4ms
 				if(!(FMCON & 0x01)) write_ok=1;	// pruefen, ob erfolgreich geflasht
 			}
 		}
