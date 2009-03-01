@@ -38,6 +38,7 @@ unsigned int sp=0;
 unsigned int m=0;
 unsigned char dimmzl=0; //beim nulldurchgang auf 0 setzen
 unsigned char mode=AB; //modus des dimmer Anschnitt Abschnitt oder PWM
+bit strom0_fl=0;
 
 
 void i2c_int(void)interrupt 6
@@ -60,7 +61,7 @@ void nulldurchgang(void)
   if(mode==AB)
     {
     dimmzl=0;
-    if(dimm_I2C[0])  //dimmwert grösser 0 Dimmer  ein
+    if(dimm_I2C[0])  //dimmwert grösser 0 Dimmer  ein bei abschnitt
       K1OUT=0;       //EIN
     if(dimm_I2C[1])  //dimmwert grösser 0 Dimmer  ein
       K2OUT=0;       //EIN
@@ -68,8 +69,8 @@ void nulldurchgang(void)
   if(mode==AN)
     {
       dimmzl=0xff;
-      K1OUT=0;
-      K2OUT=0;
+      K1OUT=1;     //AUS bei anschnitt
+      K2OUT=1;
     }
     return;
   }
@@ -77,6 +78,7 @@ void nulldurchgang(void)
 void ex1_int(void) interrupt 2
 {
 //sp=zl_50hz;
+//  if(mode==AN&&zl_50hz>450)
 zl_50hz=0;
 //P0_1 =! P0_1;
 return;
@@ -88,6 +90,16 @@ void tim0_int(void) interrupt 1
   TH0=0xff;
   if(zl_50hz<5000)
     zl_50hz++;
+  if(mode==AN)
+    {
+      if(P0_2==1 && strom0_fl==0)//flankenauswertung Strommessen
+        {
+          strom0_fl=1;
+          zl_50hz=85;
+        }
+      if(P0_2==0)
+        strom0_fl=0;
+    }
   //if(zl_50hz==460||zl_50hz==205)      //mit r 100K
   if(zl_50hz==330||zl_50hz==85)         //mit 68nF
       nulldurchgang();
@@ -105,9 +117,9 @@ void tim0_int(void) interrupt 1
       if(dimmzl!=0)
         dimmzl--;
       if(dimmzl==dimm_I2C[0]&& dimm_I2C[0]>0)
-          K1OUT=1;
+          K1OUT=0;
       if(dimmzl==dimm_I2C[1]&& dimm_I2C[1]>0)
-          K2OUT=1;
+          K2OUT=0;
     }
   //P0_1 =! P0_1;
    return;
@@ -146,13 +158,19 @@ void main(void)
   TR0=1;                        // Timer 0 starten
   EA=1;
 
-  P0M1 &= ~(1<<1); // P0_1 = Ausgang zum test
+  P0M1 &= ~(1<<1); // P0_1 = EINGANG zum test
   P0M2 &= ~(1<<1);
   P0_1=1;
 
-  if(P0_1==0)
-    mode=AN;    //anschnittdimmer
+  P0M1 |= (1<<2); // P0_2 = EINGANG zum test
+  P0M2 &= ~(1<<2);
+  P0_2=0;
 
+  if(P0_1==0)
+    {
+      mode=AN;    //anschnittdimmer
+      rs_send_s("Anschnitt\n");
+    }
   while(1)
     {
       /*if(m<sp-1||m>sp+1)
