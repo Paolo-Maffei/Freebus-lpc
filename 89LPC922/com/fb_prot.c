@@ -458,19 +458,21 @@ unsigned char read_objflags(unsigned char objno)
 */
 int find_ga(unsigned char objno)
 {
-	unsigned char asstab,assadr,gapos;
+	unsigned char asstab,gapos,gah,gal;
 	int ga;
 
 	gapos=0xFE;
 	asstab=eeprom[ASSOCTABPTR];		// Adresse der Assoziationstabelle
-	assadr=asstab+1+2*objno;		// Adresse ses Objekts in der Assoziationstabelle
-    if(eeprom[assadr+1]==objno) gapos=eeprom[assadr];
+
+	if(eeprom[asstab+2+2*objno]==objno) gapos=eeprom[asstab+1+2*objno];
+
 
     if(gapos!=0xFE) {
-    	//gah=eeprom[assadr];
-    	//gal=eeprom[assadr+1];
-    	//ga=gal+256*gah;
-    	ga=256*eeprom[assadr]+eeprom[assadr+1];
+
+    	gah=eeprom[ADDRTAB+1+gapos*2];
+    	gal=eeprom[ADDRTAB+2+gapos*2];
+    	ga=gal+256*gah;
+
     }
     else ga=0;
 
