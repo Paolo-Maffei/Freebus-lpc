@@ -23,7 +23,7 @@
 * 
 */
 
-extern unsigned char delrec[40];
+extern unsigned char delrec[64];
 
 
 void write_delay_record(unsigned char objno, unsigned char delay_status, long delay_target);	// Schreibt die Schalt-Verzoegerungswerte ins Flash

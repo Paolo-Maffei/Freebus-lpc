@@ -23,7 +23,7 @@
 * 
 */
 
-unsigned char delrec[40];
+unsigned char delrec[64];
 
 /** 
 * Schreibt die Schalt-Verzoegerungswerte ins Flash
