@@ -131,6 +131,9 @@ EEPROM
 
 01 EC:	xx		Temperaturschwelle 1 (-15 bis +50°C) zB.: -15°=0xF1, 0°=0x00, 5°=0x05
 					>50 wenn inaktiv
+01 F2:	xx		Helligkeitsschwelle 1 wert bei Überschreiten
+
+01 F3:	xx		Helligkeitsschwelle 1 wert bei Unterschreiten
 
 
 01 FA:	xx		Bit 4-7:	Verzögerung bei Überschreiten der Schwelle (Helligkeitsschwelle 1)
