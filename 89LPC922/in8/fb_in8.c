@@ -16,6 +16,7 @@
 // Versionen:	3.00	erste Version Binäreingang auf HW Basis 3
 //				3.01	Lesen von Objekten zugefügt
 //				3.02	Fehler behoben: gelegentliches Dauersenden von Telegrammen
+//				3.03	Fehler behoben: 2. Objekt eines Eingangs reagierte auf Flanken wie das erste
 
 	
 
@@ -35,7 +36,7 @@ void main(void)
   restart_hw();				// Hardware zurücksetzen
   restart_prot();			// Protokoll-relevante Parameter zurücksetzen
   restart_app();			// Anwendungsspezifische Einstellungen zurücksetzen
-  portbuffer=0xFF;
+  portbuffer=P0;			// zunächst keine Änderungen bei Busspannungswiederkehr
   
   do  {
   

@@ -33,6 +33,8 @@ unsigned char switch_dim(unsigned char pinno);
 void delay(int w);
 
 void write_value_req(void);	
+void read_value_req(void);
+void send_value(unsigned char type, unsigned char objno, int sval);
 void restart_app(void);		// Alle Applikations-Parameter zurücksetzen
 
 #endif

@@ -96,8 +96,15 @@ void schalten(unsigned char risefall, unsigned char pinno)	// Schaltbefehl sende
   int ga;
 
   func=eeprom[0xD7+((pinno&0x07)*4)];
-  if (risefall==1) func=(func>>2)&0x03;		// Funktion bei steigender Flanke
-  else func=func&0x03;						// Funktion bei fallender Flanke
+  
+  if (pinno<=7) {
+	  if (risefall==1) func=(func>>2)&0x03;		// Funktion bei steigender Flanke
+	  else func=func&0x03;						// Funktion bei fallender Flanke
+  }
+  else {
+	  if (risefall==1) func=(func>>6)&0x03;		// Funktion bei steigender Flanke
+	  else func=(func>>4)&0x03;					// Funktion bei fallender Flanke
+  }
 
   if (func!=0)
   {
@@ -181,6 +188,77 @@ void write_value_req(void)		// Objekt-Wert setzen gemäß empfangenem EIS 1 Telegr
 }
     
 
+/** 
+* Objektwert lesen wurde angefordert, read_value_response Telegramm zurücksenden
+*
+* 
+* @return
+* 
+*/
+void read_value_req(void)
+{
+	unsigned char objno, objflags;
+	int objvalue;
+	
+	objno=find_first_objno(telegramm[3],telegramm[4]);	// erste Objektnummer zu empfangener GA finden
+	if(objno!=0xFF) {	// falls Gruppenadresse nicht gefunden
+		send_ack(); 
+		
+		objvalue=read_obj_value(objno);		// Objektwert aus USER-RAM lesen (Standard Einstellung)
+
+		objflags=read_objflags(objno);		// Objekt Flags lesen
+		// Objekt lesen, nur wenn read enable gesetzt (Bit3) und Kommunikation zulaessig (Bit2)
+		if((objflags&0x0C)==0x0C) send_value(0,objno,objvalue);
+    }
+}
+
+
+void send_value(unsigned char type, unsigned char objno, int sval)	// sucht Gruppenadresse für das Objekt objno uns sendet ein EIS Telegramm
+{																	// mit dem Wert sval
+  int ga;
+  unsigned char objtype;
+
+  ga=find_ga(objno);					// wenn keine Gruppenadresse hintrlegt nix tun
+  if (ga!=0)
+  {
+    telegramm[0]=0xBC;
+    telegramm[1]=eeprom[ADDRTAB+1];
+    telegramm[2]=eeprom[ADDRTAB+2];
+    telegramm[3]=ga>>8;
+    telegramm[4]=ga;
+    telegramm[6]=0x00;
+    if (type==0) telegramm[7]=0x40;		// read_value_response Telegramm (angefordert)
+    else telegramm[7]=0x80;				// write_value_request Telegramm (nicht angefordert)
+    
+    objtype=read_obj_type(objno);
+    
+    if(objtype<6) {					// Objekttyp, 1-6 Bit
+    	telegramm[5]=0xE1;
+    	telegramm[7]+=sval;
+    }
+    
+    if(objtype>=6 && objtype<=7) {	// Objekttyp, 7-8 Bit
+    	telegramm[5]=0xE2;
+    	telegramm[8]=sval;
+    }
+    
+     if(objtype==8) {				// Objekttyp, 16 Bit
+    	telegramm[5]=0xE3;  	
+    	telegramm[8]=sval>>8;
+    	telegramm[9]=sval;
+    }   
+    
+    EX1=0;
+    send_telegramm();
+    IE1=0;
+    EX1=1;
+  }
+
+}  
+
+
+
+
 void delay(int w)	// delay ca. 4,5µs * w
 {
 	int n;
@@ -199,14 +277,14 @@ void restart_app(void)		// Alle Applikations-Parameter zurücksetzen
   
   timer=0;		// Timer-Variable, wird alle 65ms inkrementiert
   
-  start_writecycle();
-  write_byte(0x01,0x03,0x00);	// Herstellercode 0x0004 = Jung
-  write_byte(0x01,0x04,0x04);
-  write_byte(0x01,0x05,0x70);	// Geräte Typ (2118) 7054h
-  write_byte(0x01,0x06,0x54);  // 	"	"	"
-  write_byte(0x01,0x07,0x02);	// Versionsnummer
-  write_byte(0x01,0x0C,0x00);	// PORT A Direction Bit Setting
-  write_byte(0x01,0x0D,0xFF);	// Run-Status (00=stop FF=run)
-  write_byte(0x01,0x12,0x84);	// COMMSTAB Pointer
-  stop_writecycle();
+  START_WRITECYCLE
+  WRITE_BYTE(0x01,0x03,0x00)	// Herstellercode 0x0004 = Jung
+  WRITE_BYTE(0x01,0x04,0x04);
+  WRITE_BYTE(0x01,0x05,0x70);	// Geräte Typ (2118) 7054h
+  WRITE_BYTE(0x01,0x06,0x54);  // 	"	"	"
+  WRITE_BYTE(0x01,0x07,0x02);	// Versionsnummer
+  WRITE_BYTE(0x01,0x0C,0x00);	// PORT A Direction Bit Setting
+  WRITE_BYTE(0x01,0x0D,0xFF);	// Run-Status (00=stop FF=run)
+  WRITE_BYTE(0x01,0x12,0x84);	// COMMSTAB Pointer
+  STOP_WRITECYCLE
 }
