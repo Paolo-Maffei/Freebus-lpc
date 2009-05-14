@@ -37,6 +37,8 @@
 #include "../com/fb_delay.h"
 #include "fb_app_out.h"
 
+
+
 unsigned char Tval;
 unsigned char portbuffer;	// Zwischenspeicherung der Portzustände
 unsigned char zfstate;		// Zustand der Objekte 8-11 = Zusatzfunktionen 1-4
@@ -46,6 +48,9 @@ long timer;					// Timer für Schaltverzögerungen, wird alle 130us hochgezählt
 bit delay_toggle;			// um nur jedes 2. Mal die delay routine auszuführen
 unsigned char owntele;		// Anzahl der internen Verarbeitungen eines gesendeten Telegrammes (Rückmeldung)
 unsigned char respondpattern;	// bit wird auf 1 gesetzt wenn objekt eine rückmeldung ausgelöst hat
+
+
+
 
 void write_value_req(void)				// Ausgänge schalten gemäß EIS 1 Protokoll (an/aus)
 {
@@ -61,7 +66,7 @@ void write_value_req(void)				// Ausgänge schalten gemäß EIS 1 Protokoll (an/aus
 		  send_ack();
 	  }
 	  atp=eeprom[ASSOCTABPTR];			// Start Association Table
-      assno=eeprom[atp];			// Erster Eintrag = Anzahl Einträge
+      assno=eeprom[atp];				// Erster Eintrag = Anzahl Einträge
  
       for(n=0;n<assno;n++)				// Schleife über alle Einträge in der Ass-Table, denn es könnten mehrere Objekte (Pins) der gleichen Gruppenadresse zugeordnet sein
       {
@@ -84,7 +89,7 @@ void write_value_req(void)				// Ausgänge schalten gemäß EIS 1 Protokoll (an/aus
             {
               case 0x00:		
                 zfout=eeprom[FUNCASS]&0x0F;		
-                blockstart=eeprom[BLOCKACT]&0x03;	// Verhalten bei Beginn der Sperrung
+                blockstart=eeprom[BLOCKACT]&0x03;		// Verhalten bei Beginn der Sperrung
                 blockend=(eeprom[BLOCKACT]>>2)&0x03;	// Verhalten bei Ende der Sperrung
               break;
               case 0x01:
@@ -94,15 +99,16 @@ void write_value_req(void)				// Ausgänge schalten gemäß EIS 1 Protokoll (an/aus
               break;
               case 0x02:
                 zfout=eeprom[FUNCASS+1]&0x0F;
-                blockstart=eeprom[BLOCKACT+1]&0x03;	// Verhalten bei Beginn der Sperrung
+                blockstart=eeprom[BLOCKACT+1]&0x03;		// Verhalten bei Beginn der Sperrung
                 blockend=(eeprom[BLOCKACT+1]>>2)&0x03;	// Verhalten bei Ende der Sperrung
               break;
               case 0x03:
                 zfout=(eeprom[FUNCASS+1]&0xF0)>>4;
                 blockstart=(eeprom[BLOCKACT+1]>>4)&0x03;	// Verhalten bei Beginn der Sperrung
-                blockend=(eeprom[BLOCKACT+1]>>6)&0x03;	// Verhalten bei Ende der Sperrung
+                blockend=(eeprom[BLOCKACT+1]>>6)&0x03;		// Verhalten bei Ende der Sperrung
             }
             zftyp=((eeprom[FUNCTYP])>>((objno-8)*2)) & 0x03;	// Typ der Zusatzfunktion
+           
             switch (zftyp)
             {
               case 0x00:			// Verknüpfung
@@ -117,21 +123,22 @@ void write_value_req(void)				// Ausgänge schalten gemäß EIS 1 Protokoll (an/aus
                 object_schalten(zfout-1, telegramm[7]&0x01);
               break;
               case 0x01:			// Sperren
-                switch (telegramm[7])
-                {
-                  case 0x80:					// Ende der Sperrung
+                if (((telegramm[7]==0x80) && ((eeprom[BLOCKPOL]&(1<<(objno-8)))==0)) ||	
+                	((telegramm[7]==0x81) && ((eeprom[BLOCKPOL]&(1<<(objno-8)))!=0)))
+                {	// Ende der Sperrung
                     blocked=blocked&(0xFF-(0x01<<(zfout-1)));
                     if (blockend==0x01) portbuffer=portbuffer&(0xFF-(0x01<<(zfout-1)));	// Bei Ende der Sperrung ausschalten
                     if (blockend==0x02) portbuffer=portbuffer|(0x01<<(zfout-1));		// Bei Ende der Sperrung einschalten
-                  break;
-                  case 0x81:					// Beginn der Sperrung
+                }
+                  
+                if (((telegramm[7]==0x81) && ((eeprom[BLOCKPOL]&(1<<(objno-8)))==0)) ||
+                	((telegramm[7]==0x80) && ((eeprom[BLOCKPOL]&(1<<(objno-8)))!=0)))
+                {	// Beginn der Sperrung
+
                     blocked=blocked|(0x01<<(zfout-1));
                     if (blockstart==0x01) portbuffer=portbuffer&(0xFF-(0x01<<(zfout-1)));	// Bei Beginn der Sperrung ausschalten
                     if (blockstart==0x02) portbuffer=portbuffer|(0x01<<(zfout-1));		// Bei Beginn der Sperrung einschalten
-                    //start_writecycle();							
-                    //write_byte(0x00,(zfout-1)*5,0x00);					// ggf. Eintrag für Schaltverzögerung löschen
-                    //stop_writecycle();
-                    delrec[(zfout-1)*4]=0;
+                    delrec[(zfout-1)*4]=0;	// ggf. Eintrag für Schaltverzögerung löschen
                 }
               //port_schalten(portbuffer);
               break;
@@ -147,6 +154,73 @@ void write_value_req(void)				// Ausgänge schalten gemäß EIS 1 Protokoll (an/aus
 }
 
 
+/** 
+* Objektwert lesen wurde angefordert, read_value_response Telegramm zurücksenden
+*
+* 
+* @return
+* 
+*/
+void read_value_req(void)
+{
+	unsigned char objno, objflags;
+	int objvalue;
+	
+	objno=find_first_objno(telegramm[3],telegramm[4]);	// erste Objektnummer zu empfangener GA finden
+	if(objno!=0xFF) {	// falls Gruppenadresse nicht gefunden
+		send_ack(); 
+		
+		objvalue=read_obj_value(objno);		// Objektwert aus USER-RAM lesen (Standard Einstellung)
+
+		objflags=read_objflags(objno);		// Objekt Flags lesen
+		// Objekt lesen, nur wenn read enable gesetzt (Bit3) und Kommunikation zulaessig (Bit2)
+		if((objflags&0x0C)==0x0C) send_value(0,objno,objvalue);
+    }
+}
+
+
+void send_value(unsigned char type, unsigned char objno, int sval)	// sucht Gruppenadresse für das Objekt objno uns sendet ein EIS Telegramm
+{																	// mit dem Wert sval
+  int ga;
+  unsigned char objtype;
+
+  ga=find_ga(objno);					// wenn keine Gruppenadresse hintrlegt nix tun
+  if (ga!=0)
+  {
+    telegramm[0]=0xBC;
+    telegramm[1]=eeprom[ADDRTAB+1];
+    telegramm[2]=eeprom[ADDRTAB+2];
+    telegramm[3]=ga>>8;
+    telegramm[4]=ga;
+    telegramm[6]=0x00;
+    if (type==0) telegramm[7]=0x40;		// read_value_response Telegramm (angefordert)
+    else telegramm[7]=0x80;				// write_value_request Telegramm (nicht angefordert)
+    
+    objtype=read_obj_type(objno);
+    
+    if(objtype<6) {					// Objekttyp, 1-6 Bit
+    	telegramm[5]=0xE1;
+    	telegramm[7]+=sval;
+    }
+    
+    if(objtype>=6 && objtype<=7) {	// Objekttyp, 7-8 Bit
+    	telegramm[5]=0xE2;
+    	telegramm[8]=sval;
+    }
+    
+     if(objtype==8) {				// Objekttyp, 16 Bit
+    	telegramm[5]=0xE3;  	
+    	telegramm[8]=sval>>8;
+    	telegramm[9]=sval;
+    }   
+    
+    EX1=0;
+    send_telegramm();
+    IE1=0;
+    EX1=1;
+  }
+
+}  
 
 
 void object_schalten(unsigned char objno, bit objstate)	// Schaltet einen Ausgang gemäß objstate und den zugörigen Parametern
@@ -356,9 +430,9 @@ void port_schalten(unsigned char ports)		// Schaltet die Ports mit PWM, DUTY ist
 	}
 	else P0=ports;
 	
-  start_writecycle();	
-  write_byte(0x00,0x29,ports);
-  stop_writecycle();
+  START_WRITECYCLE	
+  WRITE_BYTE(0x00,0x29,ports)
+  STOP_WRITECYCLE
 }
 
 
@@ -430,9 +504,10 @@ void restart_app(void)		// Alle Applikations-Parameter zurücksetzen
 		if(bwh==0x02)  portbuffer=portbuffer | (0x01<<(n+4));
 	}
 #endif
-	start_writecycle();
-	write_byte(0x00,0x29,0x00);		// 0x29 auf 0 setzen, da sonst kein Vollstrom aktiviert wird
-	stop_writecycle();
+	START_WRITECYCLE
+	// 0x29 auf 0 setzen, da sonst kein Vollstrom aktiviert wird
+	WRITE_BYTE(0x00,0x29,0x00)		
+	STOP_WRITECYCLE
 	port_schalten(portbuffer);  
 	
 	EX1=0;							// Rückmeldung bei Busspannungswiederkehr
@@ -451,20 +526,20 @@ void restart_app(void)		// Alle Applikations-Parameter zurücksetzen
 	logicstate=0;
 	delay_toggle=0;
   
-	start_writecycle();
-	write_byte(0x01,0x03,0x00);	// Herstellercode 0x0004 = Jung
-	write_byte(0x01,0x04,0x04);
+	START_WRITECYCLE
+	WRITE_BYTE(0x01,0x03,0x00)	// Herstellercode 0x0004 = Jung
+	WRITE_BYTE(0x01,0x04,0x04)
 #ifdef MAX_PORTS_8				// 8-fach Aktor
-	write_byte(0x01,0x05,0x20);	// Devicetype 0x2060 = Jung Aktor 2138.10
-	write_byte(0x01,0x06,0x60);	
+	WRITE_BYTE(0x01,0x05,0x20)	// Devicetype 0x2060 = Jung Aktor 2138.10
+	WRITE_BYTE(0x01,0x06,0x60)	
 #endif
 #ifdef MAX_PORTS_4				// 4-fach Aktor
-	write_byte(0x01,0x05,0x20);	// Devicetype 0x2062 = Jung Aktor 2134.16
-	write_byte(0x01,0x06,0x62);
+	WRITE_BYTE(0x01,0x05,0x20)	// Devicetype 0x2062 = Jung Aktor 2134.16
+	WRITE_BYTE(0x01,0x06,0x62)
 #endif
-	write_byte(0x01,0x07,0x01);	// Versionsnummer
-	write_byte(0x01,0x0C,0x00);	// PORT A Direction Bit Setting
-	write_byte(0x01,0x0D,0xFF);	// Run-Status (00=stop FF=run)
-	write_byte(0x01,0x12,0x9A);	// COMMSTAB Pointer
-	stop_writecycle();
+	WRITE_BYTE(0x01,0x07,0x01)	// Versionsnummer
+	WRITE_BYTE(0x01,0x0C,0x00)	// PORT A Direction Bit Setting
+	WRITE_BYTE(0x01,0x0D,0xFF)	// Run-Status (00=stop FF=run)
+	WRITE_BYTE(0x01,0x12,0x9A)	// COMMSTAB Pointer
+	STOP_WRITECYCLE
 }

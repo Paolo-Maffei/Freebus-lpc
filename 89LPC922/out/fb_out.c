@@ -5,7 +5,7 @@
  *   / __/ / _, _/ /___/ /___/ /_/ / /_/ /___/ / 
  *  /_/   /_/ |_/_____/_____/_____/\____//____/  
  *                                      
- *  Copyright (c) 2008 Andreas Krebs <kubi@krebsworld.de>
+ *  Copyright (c) 2008, 2009 Andreas Krebs <kubi@krebsworld.de>
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License version 2 as
@@ -51,6 +51,8 @@
 *			Warteschleife bei Busspannungswiederkehr eingefuegt, wg. stabilitaet
 *	3.14	Rückmelde-Telegramm löst intern jetzt max. zwei weitere Rückmeldungen aus
 * 	3.15	Fehler mit PWM für alte Relais-Schaltung behoben
+* 	3.16	Polarität der Sperrobjegte eingebaut
+* 	3.17	Bug bei Polarität der Sperrobjekte behoben
 * 
 * 
 * @todo:
@@ -67,6 +69,8 @@
 #include "fb_app_out.h"
 
 
+
+
 /** 
 * The start point of the program, init all libraries, start the bus interface, the application
 * and check the status of the program button.
@@ -76,8 +80,13 @@
 void main(void)
 { 
 	unsigned char n;
+	
+
+	
 	restart_hw();							// Hardware zuruecksetzen
-	for (n=0;n<50;n++) sysdelay(0xFFFF);	// Warten bis Bus stabil
+
+	for (n=0;n<50;n++) sysdelay(0xFFFF);	// Warten bis Bus stabil	
+	
 	restart_prot();							// Protokoll-relevante Parameter zuruecksetzen
 	restart_app();							// Anwendungsspezifische Einstellungen zuruecksetzen
 
