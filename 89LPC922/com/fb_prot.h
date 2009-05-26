@@ -29,19 +29,13 @@
 #define COMMSTABPTR 	0x12	// Adresse des Pointers auf die Kommunikationsobjekt-Tabelle
 #define ADDRTAB			0x16	// Startadresse der Adresstabelle
 
-extern unsigned char telegramm[23];
-extern unsigned char telpos;		// Zeiger auf naechste Position im Array Telegramm
-extern unsigned char cs;			// checksum
-extern bit progmode, connected;		// Programmiermodus, Verbindung steht
-extern unsigned char conh, conl;	// bei bestehender Verbindung phys. Adresse des Kommunikationspartners
-extern unsigned char pcount;		// Paketzaehler, Gruppenadresszï¿½hler
-extern bit parity_ok;				// Parity Bit des letzten empfangenen Bytes OK
+// Globale Variablen
+extern bit progmode;			// Programmiermodus
 extern unsigned char last_tel;
-extern bit transparency;			// wenn 1 dann wird telegramm lokal nicht verarbeitet
+extern bit transparency;		// wenn 1 dann wird telegramm lokal nicht verarbeitet
 
-
-void timer1(void) interrupt 3;	// Interrupt von Timer 1, 370us keine Busaktivitaet seit letztem Byte,
-										//	 d.h. Telegramm wurde komplett uebertragen
+// Funktionen
+void timer1(void) interrupt 3;	// Interrupt von Timer 1, 370us keine Busaktivitaet seit letztem Byte,										//	 d.h. Telegramm wurde komplett uebertragen
 bit get_ack(void);				// wartet bis Byte empfangen wurde und prueft ob es ein ACK war  <- suboptimal, besser mit timeout !!!
 void send_telegramm(void);		// sendet das Telegramm, das in telegramm[] vorher abgelegt wurde und berechnet die checksum
 void send_ack(void);			// wartet auf Timer 1 wegen korrekter Positionierung und sendet ACK (0xCC)
@@ -53,22 +47,18 @@ void read_memory(void);			// read_memory_request - Speicher auslesen und senden
 void write_memory(void);		// write_memory_request - empfangene Daten in Speicher schreiben
 void set_pa(void);				// neue phys. Adresse programmieren
 void read_pa(void);				// phys. Adresse senden
-void read_value_req(void);		// Objektwert lesen angefordert
-
 unsigned char read_objflags(unsigned char objno);	// Objektflags lesen
-
 int find_ga(unsigned char objno);	// Gruppenadresse ueber Assoziationstabelle finden (erster Eintrag, falls mehrere)
 unsigned char find_first_objno(unsigned char gah, unsigned char gal);
-
-
 void restart_prot(void);		// Protokoll-relevante Parameter zuruecksetzen
-
-int read_obj_value(unsigned char objno);	// gibt den Wert eines Objektes zurueck
+int read_obj_value(unsigned char objno);				// gibt den Wert eines Objektes zurueck
 unsigned char read_obj_type(unsigned char objno);		// gibt den Typ eines Objektes zurueck
-bit write_obj_value(unsigned char objno,int objvalue);	// schreibt den aktuellen Wert eines Objektes ins 'RAM'
-
-void write_value_req(void);				// Hauptroutine fuer Ausgaenge schalten gemaess EIS 1 Protokoll (an/aus)
-void read_value_req(void);		// Objektwerte lesen angefordert
+bit write_obj_value(unsigned char objno,int objvalue);	// schreibt den aktuellen Wert eines Objektes ins 'USERRAM'
 void restart_app(void);			// Alle Applikations-Parameter zuruecksetzen
+
+
+// Funktionen die sich in der app befinden müssen
+extern void write_value_req(void);		// Routine zur Verarbeitung eingegegangener Telegramme zum Schreiben eines Objektwertes
+extern void read_value_req(void);		// Objektwerte lesen angefordert
 
 #endif

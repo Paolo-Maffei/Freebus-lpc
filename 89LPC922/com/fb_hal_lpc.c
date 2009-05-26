@@ -23,12 +23,15 @@
 */
 
 #include <P89LPC922.h>
-#include "../com/fb_prot.h"
 #include "../com/fb_hal_lpc.h"
 
+unsigned char telegramm[23];
+unsigned char telpos;		// Zeiger auf naechste Position im Array Telegramm
+unsigned char cs;			// checksum
 
 __code unsigned char __at 0x1C00 userram[255];	/// Bereich im Flash fuer User-RAM
 __code unsigned char __at 0x1D00 eeprom[255];	/// Bereich im Flash fuer EEPROM
+
 bit parity_ok;			/// Parity Bit des letzten empfangenen Bytes OK
 bit interrupted;		/// Wird durch interrupt-routine gesetzt. So kann eine andere Routine pruefen, ob sie unterbrochen wurde
 
@@ -147,7 +150,7 @@ void ext_int0(void) interrupt 2
   else {					// bei fehlerhaften Bytes alles verwerfen
 	  telpos=0;
 	  ET1=0;
-	  //TR1=0;
+	  TR1=0;	// ???????????????????
 	  TF1=0;
 	  cs=0;
   }
@@ -213,49 +216,6 @@ bit sendbyte(unsigned char fbsb)
 
 
 
-/** 
-* Startet den writecycle um in den flash zu schreiben
-*
-*
-*/
-void start_writecycle(void)
-{
-  FMCON=0x00;					// load command, leert das pageregister
-}
-
-
-
-/** 
-* Stoppt den writecycle um in den flash zu schreiben
-*
-*
-*
-*/
-void stop_writecycle(void)
-{
-  FMCON=0x68;					// write command, schreibt pageregister ins flash und versetzt CPU in idle fuer 4ms
-}
-
-
-
-/** 
-* schreibt byte ins pageregister zum flashen
-*
-*
-* \param addrh high adress byte
-* \param addrl low adress byte
-* \param zdata data
-*/
-void write_byte(unsigned char addrh, unsigned char addrl, unsigned char zdata)
-{
- 
-  if (addrh<=0x01)		// sicherstellen, dass nicht versehentlich bootloader ueberschrieben wird
-  {	
-    FMADRH=addrh+0x1C;
-    FMADRL=addrl;
-    FMDATA=zdata;
-  }
-}
 
 
 
@@ -263,7 +223,7 @@ void write_byte(unsigned char addrh, unsigned char addrl, unsigned char zdata)
 /** 
 * Warten, deltime = Anzahl Takte / 2 (Timer wird mit CCLK/2 betrieben) 
 *
-* Der Aufruf allein dauert schon ca. 12ï¿½s !!!
+* Der Aufruf allein dauert schon ca. 12µs !!!
 * NICHT IN APP VERWENDEN !!!
 *
 * \param deltime
@@ -317,8 +277,35 @@ void set_timer1(int deltime)
   TR1=1;				// Timer 1 starten
 }
 
-
-
+/*
+void calibrate(void)
+{
+	unsigned int t;
+	unsigned char n;
+	
+	for (n=0;n<50;n++) {
+		TR0=0;
+		TH0=0;
+		TL0=0;
+		TASTER=0;
+		while(P1_4);
+		TR0=1;
+		while(!P1_4);
+		while(P1_4);
+		TR0=0;
+		t=TH0*256+TL0;
+		if (t<500) {	
+				if (t>385) TRIM+=1;
+				if (t<383) TRIM-=1;
+		}
+		t=0;
+		while(!P1_4);
+		START_WRITECYCLE
+		WRITE_BYTE(0x00,0x30,TRIM)
+		STOP_WRITECYCLE
+	}
+}
+*/
 
 /** 
 * Alle Hardware Einstellungen zuruecksetzen

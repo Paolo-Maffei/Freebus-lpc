@@ -67,20 +67,32 @@
 		P0M2&=(1<<pin); \
 	}
 
+#define START_WRITECYCLE \
+	FMCON=0x00;
 
+#define STOP_WRITECYCLE \
+	FMCON=0x68;
 
+#define WRITE_BYTE(addrh, addrl, zdata) \
+		FMADRH=(addrh&0x01)+0x1C; \
+		FMADRL=addrl; \
+		FMDATA=zdata; 
+	
+
+// Globale Variablen
+extern unsigned char telegramm[23];
+extern unsigned char telpos;		// Zeiger auf naechste Position im Array Telegramm
+extern unsigned char cs;			// checksum
 extern __code unsigned char __at 0x1C00 userram[255];	// Bereich im Flash fuer User-RAM
 extern __code unsigned char __at 0x1D00 eeprom[255];	// Bereich im Flash fuer EEPROM
-
-extern bit parity_ok;		// Parity Bit des letzten empfangenen Bytes OK
+extern bit parity_ok;		// Parity Bit des zuletzt empfangenen Bytes OK
 extern bit interrupted;		// wird durch interrupt-routine gesetzt. so kann eine andere routine pruefen, ob sie unterbrochen wurde
 
+
+// Funktionen
 unsigned char get_byte(void);
 void ext_int0(void) interrupt 2;
 bit sendbyte(unsigned char fbsb);
-void start_writecycle(void);
-void stop_writecycle(void);
-void write_byte(unsigned char addrh, unsigned char addrl, unsigned char zdata);
 unsigned char read_byte(unsigned char addrh, unsigned char addrl);
 void sysdelay(int deltime);
 void set_timer0(int deltime);

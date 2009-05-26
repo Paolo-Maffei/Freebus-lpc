@@ -5,7 +5,7 @@
  *   / __/ / _, _/ /___/ /___/ /_/ / /_/ /___/ / 
  *  /_/   /_/ |_/_____/_____/_____/\____//____/  
  *                                      
- *  Copyright (c) 2008 Andreas Krebs <kubi@krebsworld.de>
+ *  Copyright (c) 2008,2009 Andreas Krebs <kubi@krebsworld.de>
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License version 2 as
@@ -23,7 +23,7 @@
 * @author Andreas Krebs <kubi@krebsworld.de>
 * @date    2008
 * 
-* @brief  Hier befinden sich die Protokoll-Handling Routinen fuer den 89LPC922
+* @brief  Hier befinden sich die Protokoll-Handling Routinen fuer den 89LPC922/936
 * 
 * 
 */
@@ -31,15 +31,20 @@
 
 
 
-
-#include <P89LPC922.h>
-#include "../com/fb_hal_lpc.h"
+#ifndef LPC936
+	#include <P89LPC922.h>
+	#include "../com/fb_hal_lpc.h"
+	#define USERRAMADDRH	0x1C 
+	#define EEPROMADDRH		0x1D
+#else
+	#include <P89LPC935_6.h>
+	#include "../com/fb_hal_lpc936.h"
+	#define USERRAMADDRH	0x36 
+	#define EEPROMADDRH		0x37
+#endif
 #include "../com/fb_prot.h"
 
 
-unsigned char telegramm[23];
-unsigned char telpos;		/// Zeiger auf naechste Position im Array Telegramm
-unsigned char cs;			/// checksum
 
 bit progmode, connected;	/// Programmiermodus, Verbindung steht
 unsigned char conh, conl;	/// bei bestehender Verbindung phys. Adresse des Kommunikationspartners
@@ -206,7 +211,7 @@ void send_telegramm(void)
 */
 void send_ack(void)
 {
-  while(!TF1&&TR1) {}
+  while(!TF1&&TR1);
   sendbyte(0xCC);
 }
 
@@ -317,14 +322,11 @@ void write_memory(void)
 	for(n=0;n<ab;n++) {
 		
 		// *** noch nicht optimieren, braucht mehr platz, da letzes Vorkommen von write_byte ***
-		write_byte(telegramm[8],telegramm[9]+n,telegramm[n+10]);
-	    //FMADRH=telegramm[8]+0x1C;
-	    //FMADRL=telegramm[9]+n;
-	    //FMDATA=telegramm[n+10];
+		WRITE_BYTE(telegramm[8],telegramm[9]+n,telegramm[n+10])
 		
 		if ((((telegramm[9]+n)&0x3F)==0x3F) && n!=(ab-1)) {		// Ende des 64-Byte Pageregisters, also zwischendurch flashen
-			FMCON=0x68;			// write command, schreibt pageregister ins flash und versetzt CPU in idle fuer 4ms
-			FMCON=0x00;			// load command, leert das pageregister
+			STOP_WRITECYCLE			// write command, schreibt pageregister ins flash und versetzt CPU in idle fuer 4ms
+			START_WRITECYCLE			// load command, leert das pageregister
 		}
 	}
 	FMCON=0x68;					// write command, schreibt pageregister ins flash und versetzt CPU in idle fuer 4ms
@@ -343,7 +345,7 @@ void set_pa(void)
 	FMCON=0x00;					// load command, leert das pageregister
 	
 	//write_byte(0x01,ADDRTAB+1,telegramm[8]);		// in Flash schreiben
-    FMADRH=0x1D;
+    FMADRH=EEPROMADDRH;
     FMADRL=ADDRTAB+1;
     FMDATA=telegramm[8];
 	
@@ -385,6 +387,8 @@ void read_pa(void)
 * @return
 * @todo: sendet derzeit nur Typen 1 bis 16 Bit
 */
+
+/*
 void read_value_req(void)
 {
 	unsigned char objno, objflags, objtype;
@@ -392,10 +396,9 @@ void read_value_req(void)
 	
 	objno=find_first_objno(telegramm[3],telegramm[4]);	// erste Objektnummer zu empfangener GA finden
 	if(objno!=0xFF) {	// falls Gruppenadresse nicht gefunden
-		send_ack();
-		objvalue=read_obj_value(objno);						// Objektwert aus USER-RAM lesen
-		objflags=read_objflags(objno);						// Objekt Flags lesen
-    
+		send_ack(); 
+		objvalue=read_obj_value(objno);	// Objektwert aus USER-RAM lesen
+		objflags=read_objflags(objno);						// Objekt Flags lesen  
 		if((objflags&0x0C)==0x0C) {		// Objekt lesen, nur wenn read enable gesetzt (Bit3) und Kommunikation zulaessig (Bit2)
 			telegramm[0]=0xBC;
 			telegramm[1]=eeprom[ADDRTAB+1];		// Source Adresse
@@ -423,7 +426,7 @@ void read_value_req(void)
     	}
     }
 }	
-
+*/
 
 
 /** 
@@ -614,7 +617,7 @@ bit write_obj_value(unsigned char objno,int objvalue)
 				FMCON=0x00;					// load command, leert das pageregister
 				
 				//write_byte(0x00,valuepointer,objvalue & (0xFF>>(7-objtype)));	// nur die tatsaechlich erforderlichen bits speichern
-				FMADRH=0x1C;
+				FMADRH=USERRAMADDRH;
 				FMADRL=valuepointer;
 				FMDATA=objvalue & (0xFF>>(7-objtype));
 				
@@ -628,7 +631,7 @@ bit write_obj_value(unsigned char objno,int objvalue)
 				FMCON=0x00;				// load command, leert das pageregister
 				
 				//write_byte(0x00,valuepointer,objvalue>>8);
-			    FMADRH=0x1C;
+			    FMADRH=USERRAMADDRH;
 			    FMADRL=valuepointer;
 			    FMDATA=objvalue>>8;
 				
