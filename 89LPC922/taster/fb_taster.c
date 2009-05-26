@@ -5,7 +5,7 @@
  *   / __/ / _, _/ /___/ /___/ /_/ / /_/ /___/ / 
  *  /_/   /_/ |_/_____/_____/_____/\____//____/  
  *                                      
- *  Copyright (c) 2008 Andreas Krebs <kubi@krebsworld.de>
+ *  Copyright (c) 2008,2009 Andreas Krebs <kubi@krebsworld.de>
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License version 2 as
@@ -36,7 +36,7 @@
 #include "fb_app_taster.h"
 
 
-#define NOPROGBUTTON	// es ist kein prog Taster vorhanden sondern progmode wird durch druecken von taste 1&3 oder 2&4 aktiviert
+//#define NOPROGBUTTON	// es ist kein prog Taster vorhanden sondern progmode wird durch druecken von taste 1&3 oder 2&4 aktiviert
 
 /** 
 * The start point of the program, init all libraries, start the bus interface, the application

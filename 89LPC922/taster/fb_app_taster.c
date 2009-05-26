@@ -211,6 +211,31 @@ void write_value_req(void)
 }
 
 
+/** 
+* Objektwert lesen wurde angefordert, read_value_response Telegramm zurücksenden
+*
+* 
+* @return
+* 
+*/
+void read_value_req(void)
+{
+	unsigned char objno, objflags;
+	int objvalue;
+	
+	objno=find_first_objno(telegramm[3],telegramm[4]);	// erste Objektnummer zu empfangener GA finden
+	if(objno!=0xFF) {	// falls Gruppenadresse nicht gefunden
+		send_ack(); 
+		
+		objvalue=read_obj_value(objno);		// Objektwert aus USER-RAM lesen (Standard Einstellung)
+
+		objflags=read_objflags(objno);		// Objekt Flags lesen
+		// Objekt lesen, nur wenn read enable gesetzt (Bit3) und Kommunikation zulaessig (Bit2)
+		if((objflags&0x0C)==0x0C) send_eis(0,objno,objvalue);
+    }
+}
+
+
 
 /** 
 * LEDs schalten entsprechend der parametrierung
@@ -254,6 +279,8 @@ void switch_led(unsigned char ledno, bit onoff)
 		PORT |= ((onoff<<(ledno+4)) | 0x0F);	// unteren 4 bits immer auf 1 lassen !!!
 	}
 }
+
+
 
 
 
@@ -409,16 +436,17 @@ void restart_app(void)
 	start_rtc(8);		// RTC neu mit 8ms starten
 	timer=0;			// Timer-Variable, wird alle 8ms inkrementiert
 
-	start_writecycle();			// Applikations-spezifische eeprom Eintraege schreiben
-	write_byte(0x01,0x03,0x00);	// Herstellercode 0x0004 = Jung
-	write_byte(0x01,0x04,0x04);
-	write_byte(0x01,0x05,0x10);	// Devicetype 0x1052 = Jung Tastsensor 2092
-	write_byte(0x01,0x06,0x52);	
-	write_byte(0x01,0x07,0x01);	// Versionsnummer
-	write_byte(0x01,0x0C,0x00);	// PORT A Direction Bit Setting
-	write_byte(0x01,0x0D,0xFF);	// Run-Status (00=stop FF=run)
-	write_byte(0x01,0x12,0x9A);	// COMMSTAB Pointer
-	stop_writecycle();
+	// Applikations-spezifische eeprom Eintraege schreiben
+	START_WRITECYCLE			
+	WRITE_BYTE(0x01,0x03,0x00)	// Herstellercode 0x0004 = Jung
+	WRITE_BYTE(0x01,0x04,0x04)
+	WRITE_BYTE(0x01,0x05,0x10)	// Devicetype 0x1052 = Jung Tastsensor 2092
+	WRITE_BYTE(0x01,0x06,0x52)	
+	WRITE_BYTE(0x01,0x07,0x01)	// Versionsnummer
+	WRITE_BYTE(0x01,0x0C,0x00)	// PORT A Direction Bit Setting
+	WRITE_BYTE(0x01,0x0D,0xFF)	// Run-Status (00=stop FF=run)
+	WRITE_BYTE(0x01,0x12,0x9A)	// COMMSTAB Pointer
+	STOP_WRITECYCLE
 
 	for (n=0;n<12;n++) write_obj_value(n,0);		// Objektwerte alle auf 0 setzen
 
