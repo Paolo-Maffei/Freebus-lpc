@@ -28,7 +28,7 @@
 
 #define POWERLED		0xCD
 #define LED_DURATION	0xCE
-#define FUNCTION		0xCF	// Funktion der Tester
+#define FUNCTION		0xCF	// Funktion der Taster
 #define COMMAND			0xD3	// Funktion der LEDs und Befehle der Taster
 #define DEL_BASE		0xD4
 #define DEL_FACTOR1		0xD5

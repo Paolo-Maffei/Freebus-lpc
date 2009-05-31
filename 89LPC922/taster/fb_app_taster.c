@@ -79,7 +79,12 @@ void button_changed(unsigned char buttonno, bit buttonval)
 	long duration=1;		// falls seitens ETS falsch programmiert 8ms default
 	
 	switch ((eeprom[FUNCTION+(buttonno>>1)] >> ((buttonno & 0x01)*4)) & 0x0F) {		// Funktion des Tasters
-	case 1:		// Schalten
+	
+	
+	/*********************
+	 * Funktion Schalten
+	 *********************/
+	case 1:
 		if (buttonval) command = (((eeprom[COMMAND+(buttonno*4)]) >> 6) & 0x03);	// Befehl beim druecken
 		else command = (((eeprom[COMMAND+(buttonno*4)]) >> 4) & 0x03);				// Befehl beim loslassen
 
@@ -101,7 +106,11 @@ void button_changed(unsigned char buttonno, bit buttonval)
 		}
 		break;
 		
-	case 2:		// Dimmer Funktion
+		
+	/***********************
+	 * Funktion Dimmen
+	 ***********************/
+	case 2:
 		if (buttonval) {	// Taster gedrueckt -> schauen wie lange gehalten
 			if ((eeprom[COMMAND+(buttonno*4)]) & 0x04) switch_led(buttonno,0);	// wenn Betuetigungsanzeige, dann gleich beim druecken einschalten
 			duration=eeprom[0xD6+(buttonno*4)];	// Faktor Dauer			
@@ -150,9 +159,13 @@ void button_changed(unsigned char buttonno, bit buttonval)
 		}
 		break;
 		
-	case 3:		// Jalousie Funktion
+		
+	/****************************
+	 * Funktion Jalousie
+	 ****************************/
+	case 3:
 		if (buttonval) {	// Taster gedrueckt -> schauen wie lange gehalten
-			send_eis(1, buttonno, ((eeprom[0xD3+(buttonno*4)]&0x10)>>4));	// Kurzzeit telegramm senden
+			send_eis(1, buttonno, ((eeprom[0xD3+(buttonno*4)]&0x10)>>4));	// Kurzzeit telegramm immer bei Drücken senden
 			switch_led(buttonno,1);	// Status-LED schalten
 			duration=eeprom[0xD5+(buttonno*4)];	// Faktor Dauer			
 			switch (eeprom[0xD4+(buttonno*4)]&0x06) { // Basis Dauer zwischen kurz und langzeit
@@ -191,10 +204,10 @@ void write_value_req(void)
 	if (gapos!=0xFF)	
 	{
 		if ((telegramm[1] != eeprom[ADDRTAB+1]) || (telegramm[2] != eeprom[ADDRTAB+2])) send_ack();
-	    atp=eeprom[ASSOCTABPTR];		// Association Table Pointer
-	    assno=eeprom[atp];				// Erster Eintrag = Anzahl Eintraege
+	    atp=eeprom[ASSOCTABPTR];			// Association Table Pointer
+	    assno=eeprom[atp];					// Erster Eintrag = Anzahl Eintraege
 	 
-	    for(n=0;n<assno;n++) {				// Schleife ï¿½beruealle Eintraege in der Ass-Table, denn es koennten mehrere Objekte (Pins) der gleichen Gruppenadresse zugeordnet sein
+	    for(n=0;n<assno;n++) {				// Schleife über alle Eintraege in der Ass-Table, denn es koennten mehrere Objekte (Pins) der gleichen Gruppenadresse zugeordnet sein
 	    	gaposh=eeprom[atp+1+(n*2)];
 	    	if(gapos==gaposh) {					// Wenn Positionsnummer uebereinstimmt
 	    		objno=eeprom[atp+2+(n*2)];			// Objektnummer
@@ -371,9 +384,9 @@ void delay_timer(void)
 					PORT |= 0x0F;				// unbedingt taster pins wieder auf 1 
 				}
 				else {	// delrec-Eintraege 4-7 sind die Abfragen wie lange Taster gedrueckt, bzw. wann er losgelassen wurde
-					if (delay_state & 0x80) { // 0x80, 0x81 fï¿½r langzeit telegramm senden
+					if (delay_state & 0x80) { // 0x80, 0x81 für langzeit telegramm senden
 						send_eis(1, objno+4, delay_state & 0x01);	// Langzeit Telegramm senden
-						// *** delay record neu laden fï¿½r Dauer Lamellenverstellung ***
+						// *** delay record neu laden für Dauer Lamellenverstellung ***
 						duration=eeprom[DEL_FACTOR2+((objno-4)*4)];	// Faktor Dauer	T2		
 						switch (eeprom[DEL_BASE+((objno-4)*4)]&0x60) { // Basis Dauer T2
 						case 0x20:	// 130ms
@@ -392,7 +405,7 @@ void delay_timer(void)
 						else clear_delay_record(objno);
 					}
 					
-					// (else von if(..&0x80) else clear_delay_record(objno); // wenn T2 abgelaufen dann nichts mehr machen
+					if (delay_state & 0x10) clear_delay_record(objno); // wenn T2 abgelaufen dann nichts mehr machen
 					
 					if (delay_state & 0x40) { // 0x4? fuer Dimmer Funktion
 						send_eis(2, objno+4, delay_state);	// Langzeit Telegramm senden
