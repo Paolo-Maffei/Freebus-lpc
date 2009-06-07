@@ -15,7 +15,7 @@
 /**
 * @file   fb_taster.c
 * @author Andreas Krebs <kubi@krebsworld.de>
-* @date   2008
+* @date   2009
 * 
 * @brief The Freebus Taster Application, Firmware fuer einen 4-fach Taster mit 4 LEDs
 *		Herstellercode 0x0004 = Jung
@@ -25,6 +25,8 @@
 * \par Changes:
 *		1.00	erste Version;
 *		1.01	eigenes Telegramm wird ausgewertet, "Affengriff" entprellt
+* 		1.02	div. bugs behoben
+* 		1.03	Fehler bei Lamellenverstellzeit (T2) behoben
 * 
 */
 	
