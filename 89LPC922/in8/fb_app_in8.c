@@ -22,7 +22,7 @@
 
 
 unsigned char portbuffer,p0h;
-int objstate;		// Zwischenspeicher der Objektzustände x.1 (Bit 0-7) und x.2 (Bit 8-15)
+unsigned int objstate;		// Zwischenspeicher der Objektzustände x.1 (Bit 0-7) und x.2 (Bit 8-15)
 long timer;			// Timer für Schaltverzögerungen, wird alle 130ms hochgezählt
 		
 
@@ -133,6 +133,7 @@ void schalten(unsigned char risefall, unsigned char pinno)	// Schaltbefehl sende
       }
       EX1=0;
       send_telegramm();
+      write_obj_value(pinno,telegramm[7]&0x01);
     }
   }
 }
@@ -206,6 +207,8 @@ void read_value_req(void)
 		
 		objvalue=read_obj_value(objno);		// Objektwert aus USER-RAM lesen (Standard Einstellung)
 
+
+		
 		objflags=read_objflags(objno);		// Objekt Flags lesen
 		// Objekt lesen, nur wenn read enable gesetzt (Bit3) und Kommunikation zulaessig (Bit2)
 		if((objflags&0x0C)==0x0C) send_value(0,objno,objvalue);
