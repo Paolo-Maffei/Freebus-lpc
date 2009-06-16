@@ -370,8 +370,7 @@ void delay_timer(void)	// zählt alle 130ms die Variable Timer hoch und prüft Que
 	}
 		
 #ifdef HAND		//+++++++   Handbetätigung  ++++++++++
-
-	while(TL0>256-DUTY+0x10);	// PWM scannen um "Hand"-Tasten abzufragen
+	while(!PWM || (TL0>0x72));// PWM scannen um "Hand"-Tasten abzufragen
 	interrupted=0;	  
 	Tasten=0;				// 60 ist die Hälfte von C0(duty von kubi)
 	P1_3= 1;			    //int0 auf 1 wird von LED und ULN auf gnd gezogen.
