@@ -113,16 +113,16 @@ void restart_app(void)		// Alle Applikations-Parameter zurücksetzen
   rs_send_hex(mindimmwert[1]);
   rs_send_s(" ");
 
-  start_writecycle();
-  write_byte(0x01,0x03,0x00);	// Herstellercode 0x0004 = Jung 0x0008 = Gira
-  write_byte(0x01,0x04,0x08);
-  write_byte(0x01,0x05,0x30);	// Device Type (2038.10) 2060h (0x3015 gira 1032)
-  write_byte(0x01,0x06,0x15);	// 	"	"	"
-  write_byte(0x01,0x07,0x01);	// Versionsnummer
-  write_byte(0x01,0x0C,0x00);	// PORT A Direction Bit Setting
-  write_byte(0x01,0x0D,0xFF);	// Run-Status (00=stop FF=run)
-  write_byte(0x01,COMMSTABPTR,0x8a);	// COMMSTAB Pointer
-  stop_writecycle();
+  START_WRITECYCLE
+  WRITE_BYTE(0x01,0x03,0x00);	// Herstellercode 0x0004 = Jung 0x0008 = Gira
+  WRITE_BYTE(0x01,0x04,0x08);
+  WRITE_BYTE(0x01,0x05,0x30);	// Device Type (2038.10) 2060h (0x3015 gira 1032)
+  WRITE_BYTE(0x01,0x06,0x15);	// 	"	"	"
+  WRITE_BYTE(0x01,0x07,0x01);	// Versionsnummer
+  WRITE_BYTE(0x01,0x0C,0x00);	// PORT A Direction Bit Setting
+  WRITE_BYTE(0x01,0x0D,0xFF);	// Run-Status (00=stop FF=run)
+  WRITE_BYTE(0x01,COMMSTABPTR,0x8a);	// COMMSTAB Pointer
+  STOP_WRITECYCLE
 }
 
 void tr0_int(void) interrupt 1         //n=nummer 0x03+8*n

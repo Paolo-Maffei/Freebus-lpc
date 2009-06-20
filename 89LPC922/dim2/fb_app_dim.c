@@ -34,6 +34,52 @@ bit delay_toggle;			// um nur jedes 2. Mal die delay routine auszuführen
 
 bit write_obj_lz(unsigned char objno,int objvalue);
 
+void send_value(unsigned char type, unsigned char objno, int sval)      // sucht Gruppenadresse für das Objekt objno uns sendet ein EIS Telegramm
+{                                                                                                                                       // mit dem Wert sval
+  int ga;
+  unsigned char objtype;
+
+  ga=find_ga(objno);                                    // wenn keine Gruppenadresse hintrlegt nix tun
+  if (ga!=0)
+  {
+    telegramm[0]=0xBC;
+    telegramm[1]=eeprom[ADDRTAB+1];
+    telegramm[2]=eeprom[ADDRTAB+2];
+    telegramm[3]=ga>>8;
+    telegramm[4]=ga;
+    telegramm[6]=0x00;
+    if (type==0) telegramm[7]=0x40;             // read_value_response Telegramm (angefordert)
+    else telegramm[7]=0x80;                             // write_value_request Telegramm (nicht angefordert)
+
+    objtype=read_obj_type(objno);
+
+    if(objtype<6) {                                     // Objekttyp, 1-6 Bit
+        telegramm[5]=0xE1;
+        telegramm[7]+=sval;
+    }
+
+    if(objtype>=6 && objtype<=7) {      // Objekttyp, 7-8 Bit
+        telegramm[5]=0xE2;
+        telegramm[8]=sval;
+    }
+
+     if(objtype==8) {                           // Objekttyp, 16 Bit
+        telegramm[5]=0xE3;
+        telegramm[8]=sval>>8;
+        telegramm[9]=sval;
+    }
+
+    EX1=0;
+    send_telegramm();
+    IE1=0;
+    EX1=1;
+  }
+
+}
+
+
+
+
 void write_value_req(void)				// Ausgänge schalten gemäß EIS 1 Protokoll (an/aus)
 {
   unsigned char c,objno,gapos,atp,assno,n,gaposh,datal;
@@ -143,12 +189,36 @@ bit write_obj_lz(unsigned char objno,int objvalue)  // schreibt den aktuellen We
         bit write_ok=0;
         while (!write_ok)
             {
-            start_writecycle();
-            write_byte(0x01,objno,objvalue);
-            stop_writecycle();
+            START_WRITECYCLE
+            WRITE_BYTE(0x01,objno,objvalue);
+            STOP_WRITECYCLE
             if(!(FMCON & 0x01)) write_ok=1;
             }
         return(write_ok);
+}
+
+/**
+* Objektwert lesen wurde angefordert, read_value_response Telegramm zurücksenden
+*
+*
+* @return
+*
+*/
+void read_value_req(void)
+{
+        unsigned char objno, objflags;
+        int objvalue;
+
+        objno=find_first_objno(telegramm[3],telegramm[4]);      // erste Objektnummer zu empfangener GA finden
+        if(objno!=0xFF) {       // falls Gruppenadresse nicht gefunden
+                send_ack();
+
+                objvalue=read_obj_value(objno);         // Objektwert aus USER-RAM lesen (Standard Einstellung)
+
+                objflags=read_objflags(objno);          // Objekt Flags lesen
+                // Objekt lesen, nur wenn read enable gesetzt (Bit3) und Kommunikation zulaessig (Bit2)
+                if((objflags&0x0C)==0x0C) send_value(0,objno,objvalue);
+    }
 }
 
 
