@@ -16,7 +16,7 @@
 #ifndef FB_APP_OUT
 #define FB_APP_OUT
 
-#define GS2					// GS1 für alte Relais-Schaltung, GS2 für neue
+#define GS1					// GS1 für alte Relais-Schaltung, GS2 für neue
 //#define HAND				// Handsteuerung aktiv (auskommentieren wenn nicht gewünscht)
 #define MAX_PORTS_8			// Anzahl Ausgänge (nur 4 oder 8 erlaubt)
 
@@ -26,22 +26,25 @@
 #define FUNCTYP		0xED	// Typ der Zusatzfunktion
 #define LOGICTYP	0xEE	// Verknüpfungs Typ 0=keine 1=ODER 2=UND 3=UND mir Rückführung
 #define BLOCKACT	0xEF	// Verhalten beim Sperren
-#define BLOCKPOL	0xF1	// Polarität der Sperrobjekte
 #define RELMODE		0xF2	// Relaisbetrieb
 #define	DELAYTAB	0xF9	// Start der Tabelle für Verzögerungswerte (Basis)
 
 #ifdef GS1
-	#define DUTY	0xC0	// 0xFF=immer low 0x00=immer high
+	#define DUTY	0xE7	// 0xFF=immer low 0x00=immer high
 #endif
 #ifdef GS2
 	#define DUTY	0x50	// 0xFF=immer low 0x00=immer high
 #endif
 
+extern unsigned char portbuffer;	// Zwischenspeicherung der Portzustände
+extern unsigned char zfstate;		// Zustand der Objekte 8-11 = Zusatzfunktionen 1-4
+extern unsigned char blocked;		// Sperrung der 8 Ausgänge (1=gesperrt)
+extern unsigned char logicstate;	// Zustand der Verknüpfungen pro Ausgang
+extern long timer;					// Timer für Schaltverzögerungen, wird alle 130us hochgezählt
+extern bit delay_toggle;			// um nur jedes 2. Mal die delay routine auszuführen
 
 
 void write_value_req(void);		// Hauptroutine für Ausgänge schalten gemäß EIS 1 Protokoll (an/aus)
-void read_value_req(void);
-void send_value(unsigned char type, unsigned char objno, int sval);
 void delay_timer(void);		// zählt alle 130ms die Variable Timer hoch und prüft Queue
 void respond(unsigned char objno, unsigned char rval);
 void port_schalten(unsigned char ports);	// Ausgänge schalten
