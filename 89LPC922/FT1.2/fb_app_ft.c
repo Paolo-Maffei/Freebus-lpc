@@ -204,9 +204,11 @@ void ft_process_var_frame(void)
 							//EX1=0;
 							write_ok=0;
 							while (!write_ok) {
-								start_writecycle();
-								for (n=0;n<(rsin[13]&0x0F);n++) write_byte(rsin[14],rsin[15]+n,rsin[16+n]);
-								stop_writecycle();
+								START_WRITECYCLE
+								for (n=0;n<(rsin[13]&0x0F);n++) {
+									WRITE_BYTE(rsin[14],rsin[15]+n,rsin[16+n])
+								}
+								STOP_WRITECYCLE
 								if(!(FMCON & 0x0F)) write_ok=1;	// prüfen, ob erfolgreich geflasht
 							}
 							EA=1;
@@ -306,12 +308,15 @@ void process_telegram(void)		// EIB telegram received
 	else {
 		EX1=0;
 		send_ack();
-		IE1=0;
-		EX1=1;
+		
+		
 		FT_SET_HEADER((telegramm[5]&0x0F)+9,0x29)	// +9
 		for (n=0;n<(rsin[1]-1);n++) rsin[n+6]=telegramm[n];	// -1
 		ft_send_frame();
 		last_tel=0;
+		
+		IE1=0;
+		EX1=1;
 	}
 }
 
@@ -431,6 +436,7 @@ void serial_int(void) interrupt 4 using 2	// Interrupt on received char from ser
 		}
 
 		else {
+			RI=0;
 			rsinpos=0;
 			TF0=0;
 			TR0=0;
@@ -453,7 +459,10 @@ void write_value_req(void)
 
 
 
+void read_value_req(void)
+{
 
+}
 
 
 

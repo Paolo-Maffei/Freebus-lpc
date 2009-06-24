@@ -14,6 +14,8 @@
  */
 
 // Versionen:	1.00	erste Version
+//				1.01	int freigabe bei empfangenen telegrammen war zu früh
+//				1.02	Makros in Schleifen korrigiert
 
 	
 
@@ -43,9 +45,7 @@ void main(void)
 	  
   			if (rsin[rsinpos-1]==0x16 && rsinpos==(rsin[1]+6)) ft_process_var_frame();
   			if (rsin[0]==0x10 && rsinpos==4) ft_process_fix_frame();
-  			if (TF0) {		// timeout
-
-  				
+  			if (TF0) {		// timeout, frame verwerfen
   				rsinpos=0;
   				TR0=0;
   				TF0=0;

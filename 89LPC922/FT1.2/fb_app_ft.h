@@ -52,4 +52,5 @@ void serial_int(void) interrupt 4 using 2;
 // void ft_send_char(unsigned char sc);
 void restart_app(void);		// Alle Applikations-Parameter zurücksetzen
 void write_value_req(void);
+void read_value_req(void);
 #endif
