@@ -18,6 +18,7 @@
 //				3.02	Fehler behoben: gelegentliches Dauersenden von Telegrammen
 //				3.03	Fehler behoben: 2. Objekt eines Eingangs reagierte auf Flanken wie das erste
 //				3.04	Bug beim Lesen eines GA-Wertes behoben
+//				3.05	Bug: Empfing nach Senden eines Schaltbefehls keine Telegramme mehr 
 
 	
 

@@ -133,7 +133,8 @@ void schalten(unsigned char risefall, unsigned char pinno)	// Schaltbefehl sende
       }
       EX1=0;
       send_telegramm();
-      write_obj_value(pinno,telegramm[7]&0x01);
+      write_obj_value(pinno,telegramm[7]&0x01);		// Objektwert ins USERRAM schreiben
+      EX1=1;
     }
   }
 }
