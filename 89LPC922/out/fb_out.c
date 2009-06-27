@@ -53,7 +53,7 @@
 * 	3.15	Fehler mit PWM für alte Relais-Schaltung behoben
 * 	3.16	Polarität der Sperrobjegte eingebaut
 * 	3.17	Bug bei Polarität der Sperrobjekte behoben
-* 
+*   
 * 
 * @todo:
 	- Prio beim Senden implementieren \n
@@ -93,7 +93,7 @@ void main(void)
 	do  {
 		if(RTCCON>=0x80) delay_timer();	// Realtime clock Ueberlauf
 
-		if(TF0) {			// Vollstrom für Relais ausschalten und wieder PWM ein
+		if(TF0 && TMOD==0x011) {			// Vollstrom für Relais ausschalten und wieder PWM ein
 			TMOD=0x12;		// Timer 0 als PWM, Timer 1 als 16-Bit Timer
 			TAMOD=0x01;
 			TH0=DUTY;
