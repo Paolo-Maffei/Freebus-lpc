@@ -209,8 +209,8 @@ unsigned char i2c_send_einstellungen(void)
   P0_3=1;
   starti2c();
   sendi2c(0x82);
-  sendi2c(0x02); //bass
-  sendi2c(0xff);
+  sendi2c(0x02); //bass==0 =0xf6
+  sendi2c(0xf6);
   stopi2c();
   P0_2=0;
   P0_3=0;

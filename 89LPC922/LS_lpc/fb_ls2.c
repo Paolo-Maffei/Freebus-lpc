@@ -205,15 +205,15 @@ void tr0_int(void) interrupt 1         //n=nummer 0x03+8*n
           if(faktor_zl[kanal_zl] > eeprom[0xc8+(kanal_zl)])
              {
              faktor_zl[kanal_zl]=0;
-              if(dimm_helldunkel[kanal_zl]==9)        //heller=9
+             if(dimm_helldunkel[kanal_zl]>=9 && dimm_helldunkel[kanal_zl]<=0xf)        //heller=9
                {
                if(dimmwert[kanal_zl]<MAXDIMMWERT-1)
-                   dimmwert[kanal_zl]+=2;
+                 dimmwert[kanal_zl]+=2;
                }
-             if(dimm_helldunkel[kanal_zl]==1)        //dunkler=1
+             if(dimm_helldunkel[kanal_zl]>=1 && dimm_helldunkel[kanal_zl]<=7)        //dunkler=1
                {
-               if(dimmwert[kanal_zl]>mindimmwert[kanal_zl]+1)
-                 dimmwert[kanal_zl]-=2;
+                 if(dimmwert[kanal_zl]>mindimmwert[kanal_zl]+1)
+                   dimmwert[kanal_zl]-=2;
                }
             }
          }
