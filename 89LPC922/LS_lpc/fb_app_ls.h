@@ -33,6 +33,8 @@ void delay_timer(void);		// zählt alle 130ms die Variable Timer hoch und prüft Q
 void respond(unsigned char objno, unsigned char rval);
 void port_schalten(unsigned char ports);     // Ausgänge schalten
 unsigned char helligkeittsstufe(unsigned char stufe,unsigned char kanal);
+unsigned char send_bass(unsigned char kanal,unsigned char wert);
+unsigned char send_hoehen(unsigned char kanal,unsigned char wert);
 
 extern unsigned char anspringen[DIMKREISE];          //andimmen (0) oder anspringen (1) [0]=K1
 extern unsigned char dimm_helldunkel[DIMKREISE];     //9=heller 0=stop 1=dunkler
@@ -42,4 +44,7 @@ extern unsigned char mindimmwert[DIMKREISE];         //minimaldimmwert von der a
 extern unsigned char einschathellikeit[DIMKREISE];   //einschathellikeit
 extern unsigned char sperren[DIMKREISE];             //Sperren oder nicht 1=sperren
 extern unsigned char sel_audioinput[DIMKREISE];
+extern unsigned char hoehen[DIMKREISE];
+extern unsigned char bass[DIMKREISE];
+
 #endif

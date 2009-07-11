@@ -33,6 +33,8 @@ unsigned char logicstate;	// Zustand der Verknüpfungen pro Ausgang
 long timer;					// Timer für Schaltverzögerungen, wird alle 130us hochgezählt
 bit delay_toggle;			// um nur jedes 2. Mal die delay routine auszuführen
 extern void send_audioinput(void);
+//extern unsigned char  send_bass(unsigned char kanal,unsigned char wert);
+//extern unsigned char  send_hoehen(unsigned char kanal,unsigned char wert);
 bit write_obj_lz(unsigned char objno,int objvalue);
 
 void send_value(unsigned char type, unsigned char objno, int sval)      // sucht Gruppenadresse für das Objekt objno uns sendet ein EIS Telegramm
@@ -146,6 +148,24 @@ void write_value_req(void)				// Ausgänge schalten gemäß EIS 1 Protokoll (an/aus
                   else                          //Lichtzenen aufrufen
                     b_send=1;
                   dimmwert[c]=eeprom[0xe7+(datal&~0x80)+(c*8)]; //Nummer der LZ
+                }
+              if(commObjectNumber==c+0x0e)      //Bass Kurzschluss
+                {
+                  if(dataw==1)
+                    bass[c]++;
+                  else
+                    bass[c]--;
+                  bass[c]=send_bass(c,bass[c]);
+                  rs_send_s(" ");
+                  rs_send_hex(bass[c]);
+                }
+              if(commObjectNumber==c+0x10)      //Höhen Lastausfall
+                {
+                  if(dataw==1)
+                    hoehen[c]++ ;
+                  else
+                    hoehen[c]-- ;
+                  hoehen[c]=send_hoehen(c,hoehen[c]);
                 }
               if(commObjectNumber==c+0x0a)      // Sperren
                 {

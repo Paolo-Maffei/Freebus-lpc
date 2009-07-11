@@ -29,7 +29,9 @@
 //      Lichtzenenfunktionen
 //      Sperrfunktion für eingangsauswahl
 
-//dimmer kann nicht: @TODO noch viele kleinikeiten zb
+
+//                eingangsauswahl über sperrobjekt
+//      10.7.2009 Bass und höhen über lastausfall und kurzschlussobjekt
 
 
 
@@ -54,6 +56,9 @@ unsigned char einschathellikeit[DIMKREISE];
 unsigned char mk[DIMKREISE]; //merker Kanal zum übertragen uber i2c
 unsigned char sperren[DIMKREISE];             //Sperren oder nicht 1=sperren
 unsigned char sel_audioinput[DIMKREISE];
+unsigned char send_bass(unsigned char kanal,unsigned char wert);
+unsigned char send_hoehen(unsigned char kanal,unsigned char wert);
+
 unsigned int ie=0;              // dimmer immer wieder aktualisieren
 //unsigned char faktor_dimmgeschwindikeit[DIMKREISE];
 unsigned int basis_dimmgeschwindikeit[DIMKREISE];
@@ -63,6 +68,8 @@ unsigned char faktor_zl[DIMKREISE];
 unsigned int basis_zl[DIMKREISE];
 unsigned char kanal_zl=0;
 unsigned char andimm_zl=0;
+unsigned char hoehen[DIMKREISE];
+unsigned char bass[DIMKREISE];
 
 unsigned char helligkeittsstufe(unsigned char stufe,unsigned char kanal)
 {
@@ -105,8 +112,10 @@ void restart_app(void)		// Alle Applikations-Parameter zurücksetzen
   basis_dimmgeschwindikeit[0]=basis[(eeprom[0xC6]&0x07)];
   basis_dimmgeschwindikeit[1]=basis[(eeprom[0xC6]>>4)&0x07];
   rs_send_s("M=");
-
-
+  hoehen[0]=6; // 0db ==6
+  hoehen[1]=6;
+  bass[0]=6;
+  bass[1]=6;
 
   rs_send(i2c_send_einstellungen()+0x30);
   rs_send_s(" ");
@@ -116,7 +125,7 @@ void restart_app(void)		// Alle Applikations-Parameter zurücksetzen
   rs_send_s(" ");
   rs_send_hex(mindimmwert[1]);
   rs_send_s(" ");
-
+  EA=0;
   START_WRITECYCLE
   WRITE_BYTE(0x01,0x03,0x00);	// Herstellercode 0x0004 = Jung 0x0008 = Gira
   WRITE_BYTE(0x01,0x04,0x08);
@@ -127,6 +136,7 @@ void restart_app(void)		// Alle Applikations-Parameter zurücksetzen
   WRITE_BYTE(0x01,0x0D,0xFF);	// Run-Status (00=stop FF=run)
   WRITE_BYTE(0x01,COMMSTABPTR,0x8a);	// COMMSTAB Pointer
   STOP_WRITECYCLE
+  EA=1;
 }
 
 void tr0_int(void) interrupt 1         //n=nummer 0x03+8*n

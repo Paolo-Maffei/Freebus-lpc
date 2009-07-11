@@ -205,7 +205,7 @@ unsigned char i2c_send_daten(unsigned char K1,unsigned char K2)
 unsigned char i2c_send_einstellungen(void)
 {
   send_audioinput();
-  P0_2=1;
+/*  P0_2=1;
   P0_3=1;
   starti2c();
   sendi2c(0x82);
@@ -214,8 +214,48 @@ unsigned char i2c_send_einstellungen(void)
   stopi2c();
   P0_2=0;
   P0_3=0;
-  return 0;
+  */return 0;
 
+}
+
+unsigned char send_bass(unsigned char kanal,unsigned char wert)
+{
+  if(kanal==0)
+    P0_2=1;
+  else
+    P0_3=1;
+  starti2c();
+  sendi2c(0x82);
+  sendi2c(0x02); //bass==0 =0xf6
+  if (wert>=13)
+    wert=13;
+  if(wert<=1)
+    wert=1;
+  sendi2c(wert+0xf0);
+  stopi2c();
+  P0_2=0;
+  P0_3=0;
+  return(wert);
+}
+
+unsigned char send_hoehen(unsigned char kanal,unsigned char wert)
+{
+  if(kanal==0)
+    P0_2=1;
+  else
+    P0_3=1;
+  starti2c();
+  sendi2c(0x82);
+  sendi2c(0x03); //Höhen==0 =0xf6
+  if (wert>=13)
+    wert=13;
+  if(wert<=1)
+    wert=1;
+  sendi2c(wert+0xf0);
+  stopi2c();
+  P0_2=0;
+  P0_3=0;
+  return(wert);
 }
 
 

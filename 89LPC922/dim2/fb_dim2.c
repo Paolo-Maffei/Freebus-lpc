@@ -112,7 +112,7 @@ void restart_app(void)		// Alle Applikations-Parameter zurücksetzen
   rs_send_s(" ");
   rs_send_hex(mindimmwert[1]);
   rs_send_s(" ");
-
+  EA=0;
   START_WRITECYCLE
   WRITE_BYTE(0x01,0x03,0x00);	// Herstellercode 0x0004 = Jung 0x0008 = Gira
   WRITE_BYTE(0x01,0x04,0x08);
@@ -123,6 +123,7 @@ void restart_app(void)		// Alle Applikations-Parameter zurücksetzen
   WRITE_BYTE(0x01,0x0D,0xFF);	// Run-Status (00=stop FF=run)
   WRITE_BYTE(0x01,COMMSTABPTR,0x8a);	// COMMSTAB Pointer
   STOP_WRITECYCLE
+  EA=1;
 }
 
 void tr0_int(void) interrupt 1         //n=nummer 0x03+8*n
