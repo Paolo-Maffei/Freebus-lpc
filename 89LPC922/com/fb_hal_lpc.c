@@ -87,7 +87,9 @@ unsigned char get_byte(void)
   ET1=0;				// Interrupt von Timer 1 sperren
   
   set_timer1(380);		// Timer setzen um 1. Bit zu treffen (320-440)
-  
+#ifdef HAND
+  REFRESH				//refresh
+#endif   
   ph=0;					// Paritybit wird aus empfangenem Byte berechnet
   parity_ok=0;
   while(!TF1);			// warten auf Timer 1

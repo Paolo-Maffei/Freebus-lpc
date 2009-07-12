@@ -77,7 +77,7 @@
 		FMADRH=(addrh&0x01)+0x1C; \
 		FMADRL=addrl; \
 		FMDATA=zdata; 
-	
+
 
 // Globale Variablen
 extern unsigned char telegramm[23];
