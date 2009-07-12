@@ -151,7 +151,9 @@ void timer1(void) interrupt 3
 			}
 		} 
 	}
-	else send_nack();	// falls checksum nicht ok war, nack senden
+	else {
+		if(telpos>1) send_nack();	// falls checksum nicht ok war, nack senden
+	}
 	telpos=0;  
 	IE1=0;					// IRQ Flag zuruecksetzen
 	EX1=1;					// externen Interrupt 0 wieder freigeben
@@ -241,6 +243,9 @@ void send_ack(void)
 {
   while(!TF1&&TR1);
   sendbyte(0xCC);
+  TR1=0;
+  TF1=0;
+  ET1=0;
 }
 
 
@@ -255,6 +260,9 @@ void send_nack(void)
 {
   while(!TF1&&TR1);
   sendbyte(0x0C);
+  TR1=0;
+  TF1=0;
+  ET1=0;
 }
 
 
@@ -694,11 +702,13 @@ void restart_prot(void)
 {
   
   //progmode=0;			// kein Programmiermodus
+	/*
 	EA=0;
 	START_WRITECYCLE;
 	WRITE_BYTE(0x00,0x60,0x00);
 	STOP_WRITECYCLE;
 	EA=1;
+	*/
 	
   pcount=1;				// Paketzaehler initialisieren
   connected=0;			// keine Verbindung
