@@ -30,7 +30,7 @@
 #define ADDRTAB			0x16	// Startadresse der Adresstabelle
 
 // Globale Variablen
-extern bit progmode;			// Programmiermodus
+//extern bit progmode;			// Programmiermodus
 extern unsigned char last_tel;
 extern bit transparency;		// wenn 1 dann wird telegramm lokal nicht verarbeitet
 
@@ -48,10 +48,10 @@ void write_memory(void);		// write_memory_request - empfangene Daten in Speicher
 void set_pa(void);				// neue phys. Adresse programmieren
 void read_pa(void);				// phys. Adresse senden
 unsigned char read_objflags(unsigned char objno);	// Objektflags lesen
-int find_ga(unsigned char objno);	// Gruppenadresse ueber Assoziationstabelle finden (erster Eintrag, falls mehrere)
+unsigned int find_ga(unsigned char objno);	// Gruppenadresse ueber Assoziationstabelle finden (erster Eintrag, falls mehrere)
 unsigned char find_first_objno(unsigned char gah, unsigned char gal);
 void restart_prot(void);		// Protokoll-relevante Parameter zuruecksetzen
-int read_obj_value(unsigned char objno);				// gibt den Wert eines Objektes zurueck
+unsigned int read_obj_value(unsigned char objno);				// gibt den Wert eines Objektes zurueck
 unsigned char read_obj_type(unsigned char objno);		// gibt den Typ eines Objektes zurueck
 bit write_obj_value(unsigned char objno,int objvalue);	// schreibt den aktuellen Wert eines Objektes ins 'USERRAM'
 void restart_app(void);			// Alle Applikations-Parameter zuruecksetzen

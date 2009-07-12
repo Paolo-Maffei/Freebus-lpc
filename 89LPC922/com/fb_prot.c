@@ -46,7 +46,7 @@
 
 
 
-bit progmode, connected;	/// Programmiermodus, Verbindung steht
+bit connected;	/// Programmiermodus, Verbindung steht
 unsigned char conh, conl;	/// bei bestehender Verbindung phys. Adresse des Kommunikationspartners
 unsigned char pcount;		/// Paketzaehler, Gruppenadresszaehler
 unsigned char last_tel;
@@ -78,7 +78,8 @@ void timer1(void) interrupt 3
 			daf=(telegramm[5]&0x80);			// Destination Adress Flag = Bit 7, 0=phys. Adr., 1=Gruppenadr.
 
 			if(telegramm[3]==0 && telegramm[4]==0) {		// Broadcast, wenn Zieladresse = 0
-				if(progmode) {
+				//if(progmode) {
+				if(userram[0x60] & 0x01) {		// prog mode
 					if(data_laenge==3 && telegramm[6]==0x00 && telegramm[7]==0xC0) set_pa();	// set_pa_req
 					if(telegramm[6]==0x01 && telegramm[7]==0x00) read_pa();				// read_pa_req
 				}
@@ -145,7 +146,7 @@ void timer1(void) interrupt 3
 bit get_ack(void)
 {
   bit ret;
-  int n;
+  unsigned int n;
 
   n=0;
   ret=0;
@@ -326,10 +327,11 @@ void write_memory(void)
 		
 		if ((((telegramm[9]+n)&0x3F)==0x3F) && n!=(ab-1)) {		// Ende des 64-Byte Pageregisters, also zwischendurch flashen
 			STOP_WRITECYCLE			// write command, schreibt pageregister ins flash und versetzt CPU in idle fuer 4ms
-			START_WRITECYCLE			// load command, leert das pageregister
+			START_WRITECYCLE		// load command, leert das pageregister
 		}
 	}
 	FMCON=0x68;					// write command, schreibt pageregister ins flash und versetzt CPU in idle fuer 4ms
+	//if (telegramm[8]==0x00 && telegramm[9]==0x60) progmode=userram[0x60]&0x01;	//Progmode wurde evtl. gesetzt
 }
 
 
@@ -459,10 +461,10 @@ unsigned char read_objflags(unsigned char objno)
 *
 * @return
 */
-int find_ga(unsigned char objno)
+unsigned int find_ga(unsigned char objno)
 {
 	unsigned char asstab,gapos,gah,gal;
-	int ga;
+	unsigned int ga;
 
 	gapos=0xFE;
 	asstab=eeprom[ASSOCTABPTR];		// Adresse der Assoziationstabelle
@@ -549,10 +551,10 @@ unsigned char find_first_objno(unsigned char gah, unsigned char gal)
 *
 * @return gibt den aktuellen Wert eines Objektes zurueck
 */
-int read_obj_value(unsigned char objno)
+unsigned int read_obj_value(unsigned char objno)
 {
 	unsigned char valuepointer, offset, commstab, objtype;
-	int objvalue;
+	unsigned int objvalue;
 	
 	objvalue=0xFFFF;
 	offset=objno*3;
@@ -658,7 +660,13 @@ bit write_obj_value(unsigned char objno,int objvalue)
 void restart_prot(void)
 {
   
-  progmode=0;			// kein Programmiermodus
+  //progmode=0;			// kein Programmiermodus
+	EA=0;
+	START_WRITECYCLE;
+	WRITE_BYTE(0x00,0x60,0x00);
+	STOP_WRITECYCLE;
+	EA=1;
+	
   pcount=1;				// Paketzaehler initialisieren
   connected=0;			// keine Verbindung
   
