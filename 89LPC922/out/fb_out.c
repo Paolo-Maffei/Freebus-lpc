@@ -97,7 +97,7 @@ void main(void)
 	do  {
 		if(RTCCON>=0x80) delay_timer();	// Realtime clock Ueberlauf
 
-		if(TF0) {			// Vollstrom für Relais ausschalten und wieder PWM ein
+		if(TF0&& TMOD==0x11) {			// Vollstrom für Relais ausschalten und wieder PWM ein
 			TMOD=0x12;		// Timer 0 als PWM, Timer 1 als 16-Bit Timer
 			TAMOD=0x01;
 			TH0=DUTY;

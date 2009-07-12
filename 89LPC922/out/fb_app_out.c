@@ -371,35 +371,60 @@ void delay_timer(void)	// zählt alle 130ms die Variable Timer hoch und prüft Que
 		
 #ifdef HAND		//+++++++   Handbetätigung  ++++++++++
 
-	while(TL0>256-DUTY+0x10);	// PWM scannen um "Hand"-Tasten abzufragen
-	interrupted=0;	  
-	Tasten=0;				// 60 ist die Hälfte von C0(duty von kubi)
-	P1_3= 1;			    //int0 auf 1 wird von LED und ULN auf gnd gezogen.
-	ledport=0x01;
-	for (n=0;n<8;n++) {  						
-		P0=~ledport;
-	  	if (!P1_3){
-	  		Tasten=Tasten|ledport;
-	  		objno=n;
-	  		n=7;
-	  	}
-	  	ledport=ledport<<1;
-	} 
-	if (interrupted==1) Tasten=Tval;  // wenn unterbrochen wurde verwerfen wir die Taste
-	P0=userram[0x29]; 
-	//	Tasten = Tval; // ##############  <----- Hier wird Handbetätigung quasi mit ausgeschaltet !! #########################
-	if (Tasten != Tval)  {
-		portbuffer=userram[0x29];
-	  	ledport=Tasten&~Tval; // ledport ist hier die Hilfsvariable für steigende Flanke
-	  	if (ledport){
-	  		portbuffer^=ledport; // bei gedrückter Taste toggeln
-	  		portchanged=1;
-	  		EX1=0;
-	  		if (((eeprom[RELMODE]>>objno)&0x01)==0x00) respond(objno+12,((portbuffer&ledport)>>objno)+0x80);		//  (Schliesserbetrieb)
-	  		else respond(objno+12,0x81-((portbuffer&ledport)>>objno));	// (Öffnerbetrieb)
-	  		EX1=1;
-	  	}
-	  	Tval=Tasten;			//neue Tasten sichern
+	if(TMOD==0x12){
+	#ifdef GS1
+		while( TMOD==0x12 && (PWM || (TL0>0x72)));// PWM scannen um "Hand"-Tasten abzufragen
+	#endif
+	#ifdef GS2
+		while( TMOD==0x12 && (!PWM || (TL0>0x72)));// PWM scannen um "Hand"-Tasten abzufragen
+	#endif
+		interrupted=0;	  
+		Tasten=0;				
+
+	#ifdef MAX_PORTS_8
+		P1_3= 1;			    //int0 auf 1, wird über Dioden und taster auf low IO gezogen.
+		ledport=0x01;
+		for (n=0;n<8;n++) {  						
+			P0=~ledport;
+		  	if (!P1_3){
+		  		Tasten=Tasten|ledport;
+		  		objno=n;
+		  		n=7;
+		  	}
+		  	ledport=ledport<<1;
+		} 
+	#endif	
+		
+	#ifdef MAX_PORTS_4
+		ledport=0x01;
+		for (n=0;n<4;n++) {  						
+			P0=~ledport;
+			P0_5=1;			//P0.5 auf 1, wird über Dioden und taster auf low IO gezogen.
+			if (!P0_5){
+		  		Tasten=Tasten|ledport;
+		  		objno=n;
+		  		n=3;
+		  	}
+		  	ledport=ledport<<1;
+		} 
+	#endif
+		
+		if (interrupted==1) Tasten=Tval;  // wenn unterbrochen wurde verwerfen wir die Taste
+		REFRESH //P0=userram[0x29]; 
+		//	Tasten = Tval; // ##############  <----- Hier wird Handbetätigung quasi mit ausgeschaltet !! #########################
+		if (Tasten != Tval)  {
+			portbuffer=userram[0x29];
+		  	ledport=Tasten&~Tval; // ledport ist hier die Hilfsvariable für steigende Flanke
+		  	if (ledport){
+		  		portbuffer^=ledport; // bei gedrückter Taste toggeln
+		  		portchanged=1;
+		  		EX1=0;
+		  		if (((eeprom[RELMODE]>>objno)&0x01)==0x00) respond(objno+12,((portbuffer&ledport)>>objno)+0x80);		//  (Schliesserbetrieb)
+		  		else respond(objno+12,0x81-((portbuffer&ledport)>>objno));	// (Öffnerbetrieb)
+		  		EX1=1;
+		  	}
+		  	Tval=Tasten;			//neue Tasten sichern
+		}
 	}
 #endif
 	
