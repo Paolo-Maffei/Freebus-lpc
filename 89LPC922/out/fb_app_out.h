@@ -17,7 +17,7 @@
 #define FB_APP_OUT
 
 #define GS2					// GS1 für alte Relais-Schaltung, GS2 für neue
-#define HAND				// Handsteuerung aktiv (auskommentieren wenn nicht gewünscht)
+//#define HAND				// Handsteuerung aktiv (auskommentieren wenn nicht gewünscht)
 #define MAX_PORTS_8			// Anzahl Ausgänge (nur 4 oder 8 erlaubt)
 
 
@@ -41,7 +41,7 @@
 
 void write_value_req(void);		// Hauptroutine für Ausgänge schalten gemäß EIS 1 Protokoll (an/aus)
 void read_value_req(void);
-void send_value(unsigned char type, unsigned char objno, int sval);
+void send_value(unsigned char type, unsigned char objno, unsigned int sval);
 void delay_timer(void);		// zählt alle 130ms die Variable Timer hoch und prüft Queue
 void respond(unsigned char objno, unsigned char rval);
 void port_schalten(unsigned char ports);	// Ausgänge schalten

@@ -53,7 +53,11 @@
 * 	3.15	Fehler mit PWM für alte Relais-Schaltung behoben
 * 	3.16	Polarität der Sperrobjegte eingebaut
 * 	3.17	Bug bei Polarität der Sperrobjekte behoben
-*   
+* 	3.18	Progmode lässt sich per ets setzen
+* 			Interrupts beim retart aus, da sonst ggf. flashen unterbrochen wird wenn int
+* 			Ausführungszustand wird in Geräteinfo angezeigt
+* 			NACK wird bei fehlerhaft empfangenem Telegramm gesendet
+* 
 * 
 * @todo:
 	- Prio beim Senden implementieren \n
@@ -93,7 +97,7 @@ void main(void)
 	do  {
 		if(RTCCON>=0x80) delay_timer();	// Realtime clock Ueberlauf
 
-		if(TF0 && TMOD==0x011) {			// Vollstrom für Relais ausschalten und wieder PWM ein
+		if(TF0) {			// Vollstrom für Relais ausschalten und wieder PWM ein
 			TMOD=0x12;		// Timer 0 als PWM, Timer 1 als 16-Bit Timer
 			TAMOD=0x01;
 			TH0=DUTY;
@@ -103,14 +107,16 @@ void main(void)
 			TR0=1;
 		}
   
-		TASTER=1;				        // Pin als Eingang schalten um Taster abzufragen
-		if(!TASTER) {					// Taster gedrueckt
-			for(n=0;n<100;n++) {}
-			while(!TASTER);				// warten bis Taster losgelassen
-			progmode=!progmode;
+		TASTER=1;				// Pin als Eingang schalten um Taster abzufragen
+		if(!TASTER) {				// Taster gedrückt
+			for(n=0;n<100;n++) {}	// Entprell-Zeit
+			while(!TASTER);			// warten bis Taster losgelassen	
+			START_WRITECYCLE;
+			WRITE_BYTE(0x00,0x60,userram[0x60] ^ 0x81);	// Prog-Bit und Parity-Bit im system_state toggeln
+			STOP_WRITECYCLE;
 		}
-		TASTER=!progmode;				// LED entsprechend schalten (low=LED an)
-		for(n=0;n<100;n++) {}
+		TASTER=!(userram[0x060] & 0x01);	// LED entsprechend Prog-Bit schalten (low=LED an)
+		for(n=0;n<100;n++) {}	// falls Hauptroutine keine Zeit verbraucht, der LED etwas Zeit geben, damit sie auch leuchten kann
   } while(1);
 }
 

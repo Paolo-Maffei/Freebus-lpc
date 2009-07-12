@@ -64,67 +64,94 @@ bit transparency;
 */
 void timer1(void) interrupt 3
 {
-	unsigned char data_laenge,daf;
+	unsigned char tpdu;
 
 
 	EX1=0;					// ext. Interrupt stoppen 
 	ET1=0;					// Interrupt von Timer 1 sperren
-	set_timer1(4830);				// 4720 und neu starten fuer korrekte Positionierung des ACK Bytes
+	set_timer1(4830);		// 4720 und neu starten fuer korrekte Positionierung des ACK Bytes
   
-	if(cs==0xff) {					// Checksum des Telegramms ist OK
+	if(cs==0xff) {			// Checksum des Telegramms ist OK
 		if (transparency) last_tel=telpos;
 		else {
-			data_laenge=(telegramm[5]&0x0F);		// Telegramm-Laenge = Bit 0 bis 3 
-			daf=(telegramm[5]&0x80);			// Destination Adress Flag = Bit 7, 0=phys. Adr., 1=Gruppenadr.
 
-			if(telegramm[3]==0 && telegramm[4]==0) {		// Broadcast, wenn Zieladresse = 0
-				//if(progmode) {
+			tpdu=telegramm[6]&0xC3;
+			
+			
+			// Broadcast, wenn Zieladresse = 0
+			if(telegramm[3]==0 && telegramm[4]==0) {		
+				
 				if(userram[0x60] & 0x01) {		// prog mode
-					if(data_laenge==3 && telegramm[6]==0x00 && telegramm[7]==0xC0) set_pa();	// set_pa_req
-					if(telegramm[6]==0x01 && telegramm[7]==0x00) read_pa();				// read_pa_req
+					if(tpdu==0x00 && telegramm[7]==0xC0) set_pa();	// set_pa_req
+					if(tpdu==0x01 && telegramm[7]==0x00) read_pa();	// read_pa_req
 				}
 			}
-			else {
-				if(daf==0x00) {					// Unicast, wenn Zieladresse physikalische Adresse ist
+			
+			
+
+			else {	// Unicast oder Multiccast		
+				if((telegramm[5]&0x80)==0x00) {	// Destination Adress Flag = Bit 7, 0=phys. Adr., 1=Gruppenadr.														
 					if(telegramm[3]==eeprom[ADDRTAB+1] && telegramm[4]==eeprom[ADDRTAB+2]) {	// nur wenn es die eigene phys. Adr. ist
-					
-						if((telegramm[6]&0xC3)==0x42 && (telegramm[7]&0xC0)==0x80) write_memory();	// write_memory_request beantworten
-						if(data_laenge==0) {    
-							if((telegramm[6]&0xC0)==0xC0) send_ack();				// auf NCD_Quittierung mit ACK antworten
-							if(telegramm[6]==0x80) { // UCD Verbindungsaufbau
-								if(!connected) {		// wenn bereits verbunden: ignorieren
-								    connected=1;
-								    conh=telegramm[1];		// phys. Adresse des Verbindungspartners
-								    conl=telegramm[2];
-								    send_ack();			// quittieren
-								    pcount=1;			// Paketzaehler zuruecksetzen
-								}
+						
+						
+						// Unicast, wenn Zieladresse physikalische Adresse ist					
+						switch (tpdu) {	// transport layer control field
+						
+						case 0x42:	// Data PDU - memory operations
+							if((telegramm[7]&0xC0)==0x80) write_memory();	// write_memory_request	
+							if((telegramm[7]&0xC0)==0x00) read_memory();	// read_memory_request
+							break;
+							
+						case 0x43:	// Data PDU - misc.
+							if(telegramm[7]==0x80) {	// restart request
+								restart_hw();			// Hardware zuruecksetzen
+								restart_prot();			// Protokoll-relevante Parameter zuruecksetzen
+								restart_app();			// Anwendungsspezifische Einstellungen zuruecksetzen
 							}
-							if(telegramm[6]==0x81) {					// UCD Verbindungsabbau
-								  if(conh==telegramm[1] && conl==telegramm[2] && connected)	{	// nur abbauen, wenn verbunden und Anforderung vom Verbindungspartner, kein ACK senden
-									    connected=0;
-									    pcount=1;			// Paketzaehler zuruecksetzen
-								  }
+							if(telegramm[7]==0x00) read_masq();		// read_mask_version_request
+							break;
+							
+						case 0x80:	// UCD Verbindungsaufbau
+							if(!connected) {		// wenn bereits verbunden: ignorieren
+							    connected=1;
+							    conh=telegramm[1];	// phys. Adresse des Verbindungspartners
+							    conl=telegramm[2];
+							    send_ack();			// quittieren
+							    pcount=1;			// Paketzaehler zuruecksetzen
 							}
+							break;
+							
+						case 0x81:	// UCD Verbindungsabbau
+							if(conh==telegramm[1] && conl==telegramm[2] && connected)	{	// nur abbauen, wenn verbunden und Anforderung vom Verbindungspartner, kein ACK senden
+								connected=0;
+								pcount=1;			// Paketzaehler zuruecksetzen
+							}
+							break;
+							
+						case 0xC2:	// ACK PDU
+							send_ack();				// auf NCD_Quittierung mit ACK antworten
+							break;
+							
+						case 0xC3:	// NACK PDU
+							send_ack();
 						}
-						if(data_laenge==1) {
-							if((telegramm[6]&0x03)==0x03 && telegramm[7]==0x80) {		// restart request
-								restart_hw();	// Hardware zuruecksetzen
-								restart_prot();	// Protokoll-relevante Parameter zuruecksetzen
-								restart_app();	// Anwendungsspezifische Einstellungen zuruecksetzen
-							}
-							if(telegramm[6]==0x43 && telegramm[7]==0x00) read_masq();		// Maskenversion angefordert
-						}
-						if(data_laenge==3 && (telegramm[6]&0xC3)==0x42 && (telegramm[7]&0xC0)==0x00) read_memory();	// read_memory_request beantworten
 					}
 				}
-				else {		// Multicast, wenn Zieladresse Gruppenadresse ist
-					if(data_laenge>=1 && telegramm[6]==0x00 && (telegramm[7]&0xC0)==0x80) write_value_req();	// Objektwerte schreiben (zB. EISx)
-					if(data_laenge==1 && telegramm[6]==0x00 && telegramm[7]==0x00) read_value_req();			// Objektwert lesen und als read_value_response auf Bus senden
+				
+				
+				// Multicast, wenn Zieladresse Gruppenadresse ist
+				else {
+					if(tpdu==0x00){
+						if((telegramm[7]&0xC0)==0x80) write_value_req();	// Objektwerte schreiben (zB. EISx)
+						if(telegramm[7]==0x00) read_value_req();			// Objektwert lesen und als read_value_response auf Bus senden
+					}
+
+
 				}
 			}
 		} 
 	}
+	else send_nack();	// falls checksum nicht ok war, nack senden
 	telpos=0;  
 	IE1=0;					// IRQ Flag zuruecksetzen
 	EX1=1;					// externen Interrupt 0 wieder freigeben
@@ -218,7 +245,17 @@ void send_ack(void)
 
 
 
-
+/** 
+* wartet auf Timer 1 wegen korrekter Positionierung und sendet NACK (0x0C)
+*
+*
+*
+*/
+void send_nack(void)
+{
+  while(!TF1&&TR1);
+  sendbyte(0x0C);
+}
 
 
 
@@ -344,18 +381,14 @@ void write_memory(void)
 */
 void set_pa(void)
 {
-	FMCON=0x00;					// load command, leert das pageregister
-	
-	//write_byte(0x01,ADDRTAB+1,telegramm[8]);		// in Flash schreiben
+	EA=0;
+	FMCON=0x00;				// load command, leert das pageregister
     FMADRH=EEPROMADDRH;
     FMADRL=ADDRTAB+1;
     FMDATA=telegramm[8];
-	
-	//write_byte(0x01,ADDRTAB+2,telegramm[9]);
     FMDATA=telegramm[9];	// nächstes Byte, da autoinkrement
-    
-    
-	FMCON=0x68;					// write command, schreibt pageregister ins flash und versetzt CPU in idle fuer 4ms
+	FMCON=0x68;				// write command, schreibt pageregister ins flash und versetzt CPU in idle fuer 4ms
+	EA=1;
 }
 
 
