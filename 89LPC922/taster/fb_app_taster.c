@@ -51,7 +51,7 @@ void port_changed(unsigned char portval)
 	unsigned char n, buttonpattern;
 	
 	set_timer0(50000);			// Entprellzeit
-	WAIT_FOR_TIMER0				// warten auf Timer 0
+	while (!TF0);				// warten auf Timer 0
 	if ((PORT & 0x0F) == portval) {
 		for (n=0; n<4; n++) {	// alle 4 Taster einzeln pruefen (koennten ja mehrere gleichzeitig gedrueckt worden sein)
 			buttonpattern=1<<n;
@@ -441,14 +441,15 @@ void restart_app(void)
 		SET_PORT_MODE_PUSHPULL(n)
 	}
 	
-	PORT=0x0F;							// Taster auf high, LEDs zunï¿½chst aus
+	PORT=0x0F;							// Taster auf high, LEDs zunächst aus
 
-	button_buffer=0x0F;	// Variable fï¿½r letzten abgearbeiteten Taster Status
+	button_buffer=0x0F;	// Variable für letzten abgearbeiteten Taster Status
 	
 	stop_rtc();
 	start_rtc(8);		// RTC neu mit 8ms starten
 	timer=0;			// Timer-Variable, wird alle 8ms inkrementiert
 
+	EA=0;		// Interrupts sperren
 	// Applikations-spezifische eeprom Eintraege schreiben
 	START_WRITECYCLE			
 	WRITE_BYTE(0x01,0x03,0x00)	// Herstellercode 0x0004 = Jung
@@ -460,6 +461,9 @@ void restart_app(void)
 	WRITE_BYTE(0x01,0x0D,0xFF)	// Run-Status (00=stop FF=run)
 	WRITE_BYTE(0x01,0x12,0x9A)	// COMMSTAB Pointer
 	STOP_WRITECYCLE
+	START_WRITECYCLE;
+	WRITE_BYTE(0x00,0x60,0x2E);	// system state: all layers active (run), not in prog mode
+	STOP_WRITECYCLE;
 
 	for (n=0;n<12;n++) write_obj_value(n,0);		// Objektwerte alle auf 0 setzen
 
@@ -467,7 +471,7 @@ void restart_app(void)
 	
 	for (n=0;n<4;n++) switch_led(n,0);	// Alle LEDs gemaess ihren Parametern setzen
 	
-	RECEIVE_INT_ENABLE=1;		// Empfangs-Interrupt freigeben	
+	EA=1;		// Interrupts freigeben	
 	
 	//rs_init();
 }

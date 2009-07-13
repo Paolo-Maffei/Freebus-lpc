@@ -35,10 +35,6 @@
 #define DEL_FACTOR2		0xD6
 
 
-
-#define WAIT_FOR_TIMER0 while (!TF0);
-
-
 extern long timer;				// Timer fuer Schaltverzoegerungen, wird alle 130us hochgezaehlt
 extern bit delay_toggle;		// um nur jedes 2. Mal die delay routine auszufuehren
 extern long buttontimer[4];

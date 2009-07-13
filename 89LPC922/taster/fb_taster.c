@@ -38,7 +38,10 @@
 #include "fb_app_taster.h"
 
 
-#define NOPROGBUTTON	// es ist kein prog Taster vorhanden sondern progmode wird durch druecken von taste 1&3 oder 2&4 aktiviert
+//#define NOPROGBUTTON	// es ist kein prog Taster vorhanden sondern progmode wird durch druecken von taste 1&3 oder 2&4 aktiviert
+
+
+
 
 /** 
 * The start point of the program, init all libraries, start the bus interface, the application
@@ -51,10 +54,13 @@ void main(void)
 	unsigned char n;
 	bit blink;
 	
-	restart_hw();							// Hardware zuruecksetzen
+	restart_hw();							// Hardware zuruecksetzen	
+	for (n=0;n<50;n++) {
+		set_timer0(0xFFFF);					// Warten bis Bus stabil
+		while(!TF0);
+	}
 	restart_prot();							// Protokoll-relevante Parameter zuruecksetzen
 	restart_app();							// Anwendungsspezifische Einstellungen zuruecksetzen
-	for (n=0;n<50;n++) sysdelay(0xFFFF);	// Warten bis Bus stabil
 
 	do  {
 		if ((PORT & 0x0F) != button_buffer) port_changed(PORT & 0x0F);	// ein Taster wurde gedrueckt
@@ -68,17 +74,27 @@ void main(void)
 		if (!TASTER) {						// Programmiertaster gedrueckt
 			for(n=0;n<100;n++) {}
 			while(!TASTER);					// warten bis Programmiertaster losgelassen
-			progmode=!progmode;
+			START_WRITECYCLE;
+			WRITE_BYTE(0x00,0x60,userram[0x60] ^ 0x81);	// Prog-Bit und Parity-Bit im system_state toggeln
+			STOP_WRITECYCLE;
 		}
 #else
 		// progmode wird durch Taste 1&2 bzw. 3&4 getoggelt
 		if (((PORT & 0x0F)== 0x03) || ((PORT & 0x0F)== 0x0C)) {
 			while ((PORT & 0x0F)< 0x0F) ;	// Warten bis alle Taster losgelassen
-			progmode=!progmode;
+			START_WRITECYCLE;
+			WRITE_BYTE(0x00,0x60,userram[0x60] ^ 0x81);	// Prog-Bit und Parity-Bit im system_state toggeln
+			STOP_WRITECYCLE;
 		}
 #endif
-		if (progmode) TASTER = blink;		// LED blinkt im Prog-Mode
+#ifdef NOPROGBUTTON
+		if (userram[0x60]&0x01) TASTER = blink;		// LED blinkt im Prog-Mode
 		else TASTER = !((eeprom[0xCD] & 0x10) >> 4);	// LED ist an oder aus gemaess Parameter fuer Betriebs-LED
+#else
+		if (userram[0x60]&0x01) TASTER = 0;		// LED leuchtet im Prog-Mode
+		else TASTER = 1;						// LED aus
+#endif
+
 		for(n=0;n<100;n++) {}
   } while(1);
 }
