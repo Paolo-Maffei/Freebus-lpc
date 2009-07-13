@@ -341,11 +341,13 @@ void restart_hw(void)
 	interrupted=0;	// wird durch die interrupt-routine auf 1 gesetzt
 	IEN0=0x00;
 	IEN1=0x00;
-	EA=1;			// Interrupts prinzipiell freigeben
+
+	ET1=0;			// Interrupt von Timer 1 sperren
 	EX0=0;			// Externen Interrupt 0 sperren
 	EX1=1;			// Externen Interrupt 1 freigeben	
-
-	IP0=0x0C;		// hoechste Prioritï¿½t fuer ext. Int. 1 und Timer 1 (Bit 0 und 3)
+	EA=1;			// Interrupts prinzipiell freigeben
+	
+	IP0=0x0C;		// höchste Priorität fuer ext. Int. 1 und Timer 1 (Bit 0 und 3)
 	IP0H=0x0C;
 	IP1=0x00;
 	IP1H=0x00;
