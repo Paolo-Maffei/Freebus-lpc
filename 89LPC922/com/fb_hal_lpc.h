@@ -94,9 +94,9 @@ unsigned char get_byte(void);
 void ext_int0(void) interrupt 2;
 bit sendbyte(unsigned char fbsb);
 unsigned char read_byte(unsigned char addrh, unsigned char addrl);
-void sysdelay(int deltime);
-void set_timer0(int deltime);
-void set_timer1(int deltime);
+void sysdelay(unsigned int deltime);
+void set_timer0(unsigned int deltime);
+void set_timer1(unsigned int deltime);
 void start_rtc(unsigned char base);	// RTC starten, base in ms
 void stop_rtc(void);
 void restart_hw(void);

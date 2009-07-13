@@ -46,7 +46,7 @@ bit interrupted;		/// Wird durch interrupt-routine gesetzt. So kann eine andere 
 */
 void start_rtc(unsigned char base)
 {
-	long rtcval=0;
+	unsigned long rtcval=0;
 	unsigned char n;
 	
 	for (n=0;n<base;n++) rtcval+=7373;
@@ -230,7 +230,7 @@ bit sendbyte(unsigned char fbsb)
 *
 * \param deltime
 */
-void sysdelay(int deltime)
+void sysdelay(unsigned int deltime)
 {
   TR1=0;					// Timer 1 anhalten
   deltime=0xFFFF-deltime;
@@ -250,7 +250,7 @@ void sysdelay(int deltime)
 *
 * \param deltime
 */
-void set_timer0(int deltime)
+void set_timer0(unsigned int deltime)
 {
   TR0=0;					// Timer 0 anhalten
   deltime=0xFFFF-deltime;
@@ -269,7 +269,7 @@ void set_timer0(int deltime)
 *
 * \param deltime
 */
-void set_timer1(int deltime)
+void set_timer1(unsigned int deltime)
 {
   TR1=0;				// Timer 1 anhalten
   deltime=0xFFFF-deltime;
