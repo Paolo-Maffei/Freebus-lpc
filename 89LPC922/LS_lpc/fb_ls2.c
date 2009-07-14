@@ -136,6 +136,9 @@ void restart_app(void)		// Alle Applikations-Parameter zurücksetzen
   WRITE_BYTE(0x01,0x0D,0xFF);	// Run-Status (00=stop FF=run)
   WRITE_BYTE(0x01,COMMSTABPTR,0x8a);	// COMMSTAB Pointer
   STOP_WRITECYCLE
+  START_WRITECYCLE;
+  WRITE_BYTE(0x00,0x60,0x2E);     // system state: all layers active (run), not in prog mode
+  STOP_WRITECYCLE;
   EA=1;
 }
 
@@ -254,15 +257,16 @@ unsigned int i=0;
       //
       // +++++ Handhabung des Programmiertasters und der ProgrammierLED +++++
       //
-      TASTER=1;				        // Pin als Eingang schalten um Taster abzufragen
-      if(!TASTER)
-        {					// Taster gedrückt
-        for(n=0;n<100;n++) {}
-        while(!TASTER);				// warten bis Taster losgelassen
-        progmode=!progmode;
+        TASTER=1;                                       // Pin als Eingang schalten um Taster abzufragen
+        if(!TASTER) {                           // Taster gedrückt
+                for(n=0;n<100;n++) {}   // Entprell-Zeit
+                while(!TASTER);                 // warten bis Taster losgelassen
+                START_WRITECYCLE;
+                WRITE_BYTE(0x00,0x60,userram[0x60] ^ 0x81);     // Prog-Bit und Parity-Bit im system_state toggeln
+                STOP_WRITECYCLE;
         }
-      TASTER=!progmode;				// LED entsprechend schalten (low=LED an)
-      for(n=0;n<100;n++) {}
+        TASTER=!(userram[0x060] & 0x01);        // LED entsprechend Prog-Bit schalten (low=LED an)
+        for(n=0;n<100;n++) {}           // falls Hauptroutine keine Zeit verbraucht, der LED etwas Zeit geben, damit sie auch leuchten kann
       }
   while(1)
 
