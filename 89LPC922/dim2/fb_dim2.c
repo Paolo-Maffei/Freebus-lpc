@@ -238,11 +238,13 @@ unsigned int i=0;
       //
         TASTER=1;                                       // Pin als Eingang schalten um Taster abzufragen
         if(!TASTER) {                           // Taster gedrückt
-                for(n=0;n<100;n++) {}   // Entprell-Zeit
+                for(n=0;n<200;n++) {}   // Entprell-Zeit
                 while(!TASTER);                 // warten bis Taster losgelassen
+                EA=0;
                 START_WRITECYCLE;
                 WRITE_BYTE(0x00,0x60,userram[0x60] ^ 0x81);     // Prog-Bit und Parity-Bit im system_state toggeln
                 STOP_WRITECYCLE;
+                EA=1;
         }
         TASTER=!(userram[0x060] & 0x01);        // LED entsprechend Prog-Bit schalten (low=LED an)
         for(n=0;n<100;n++) {}           // falls Hauptroutine keine Zeit verbraucht, der LED etwas Zeit geben, damit sie auch leuchten kann

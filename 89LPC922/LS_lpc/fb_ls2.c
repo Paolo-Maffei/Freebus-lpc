@@ -32,6 +32,11 @@
 
 //                eingangsauswahl über sperrobjekt
 //      10.7.2009 Bass und höhen über lastausfall und kurzschlussobjekt
+//       3.18    Progmode lässt sich per ets setzen
+//               Interrupts beim retart aus, da sonst ggf. flashen unterbrochen wird wenn int
+//               Ausführungszustand wird in Geräteinfo angezeigt
+//               NACK wird bei fehlerhaft empfangenem Telegramm gesendet
+//               Handsteuerung läuft
 
 
 
@@ -245,7 +250,11 @@ unsigned int i=0;
   unsigned char n;
   bit flag50hz=0;
 
-  restart_hw();				// Hardware zurücksetzen
+  restart_hw();                           // Hardware zuruecksetzen
+  for (n=0;n<50;n++) {
+          set_timer0(0xFFFF);             // Warten bis Bus stabil
+          while(!TF0);
+  }
   restart_prot();			// Protokoll-relevante Parameter zurücksetzen
   rs_init();
   i2c_ma_init();
@@ -259,14 +268,25 @@ unsigned int i=0;
       //
         TASTER=1;                                       // Pin als Eingang schalten um Taster abzufragen
         if(!TASTER) {                           // Taster gedrückt
-                for(n=0;n<100;n++) {}   // Entprell-Zeit
-                while(!TASTER);                 // warten bis Taster losgelassen
-                START_WRITECYCLE;
-                WRITE_BYTE(0x00,0x60,userram[0x60] ^ 0x81);     // Prog-Bit und Parity-Bit im system_state toggeln
-                STOP_WRITECYCLE;
+            for(n=0;n<200;n++) {}   // Entprell-Zeit
+            while(!TASTER);                 // warten bis Taster losgelassen
+
+            //n=userram[0x60];
+            //rs_send_hex(n);
+            //n=n^0x81;
+            //rs_send_hex(n);
+            EA=0;
+            START_WRITECYCLE;
+            WRITE_BYTE(0x00,0x60,userram[0x60]^0x81);     // Prog-Bit und Parity-Bit im system_state toggeln
+            STOP_WRITECYCLE;
+            EA=1;
+
+            //n=userram[0x60];
+            //rs_send_hex(n);
+            //rs_send_s("\n");
         }
-        TASTER=!(userram[0x060] & 0x01);        // LED entsprechend Prog-Bit schalten (low=LED an)
-        for(n=0;n<100;n++) {}           // falls Hauptroutine keine Zeit verbraucht, der LED etwas Zeit geben, damit sie auch leuchten kann
+        TASTER=!(userram[0x60] & 0x01);        // LED entsprechend Prog-Bit schalten (low=LED an)
+        for(n=0;n<200;n++) {}           // falls Hauptroutine keine Zeit verbraucht, der LED etwas Zeit geben, damit sie auch leuchten kann
       }
   while(1)
 
