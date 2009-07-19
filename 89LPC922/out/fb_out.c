@@ -57,7 +57,6 @@
 * 			Interrupts beim retart aus, da sonst ggf. flashen unterbrochen wird wenn int
 * 			Ausführungszustand wird in Geräteinfo angezeigt
 * 			NACK wird bei fehlerhaft empfangenem Telegramm gesendet
-* 			Handsteuerung läuft
 * 
 * 
 * @todo:
@@ -89,10 +88,9 @@ void main(void)
 
 	
 	restart_hw();							// Hardware zuruecksetzen
-	for (n=0;n<50;n++) {
-		set_timer0(0xFFFF);					// Warten bis Bus stabil
-		while(!TF0);
-	}
+
+	for (n=0;n<50;n++) sysdelay(0xFFFF);	// Warten bis Bus stabil	
+	
 	restart_prot();							// Protokoll-relevante Parameter zuruecksetzen
 	restart_app();							// Anwendungsspezifische Einstellungen zuruecksetzen
 
