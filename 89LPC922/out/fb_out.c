@@ -57,7 +57,6 @@
 * 			Interrupts beim retart aus, da sonst ggf. flashen unterbrochen wird wenn int
 * 			Ausführungszustand wird in Geräteinfo angezeigt
 * 			NACK wird bei fehlerhaft empfangenem Telegramm gesendet
-* 			Handsteuerung läuft
 * 
 * 
 * @todo:
@@ -86,12 +85,12 @@ void main(void)
 { 
 	unsigned char n;
 	
+
 	
 	restart_hw();							// Hardware zuruecksetzen
-	for (n=0;n<50;n++) {
-		set_timer0(0xFFFF);					// Warten bis Bus stabil
-		while(!TF0);
-	}
+
+	for (n=0;n<50;n++) sysdelay(0xFFFF);	// Warten bis Bus stabil	
+	
 	restart_prot();							// Protokoll-relevante Parameter zuruecksetzen
 	restart_app();							// Anwendungsspezifische Einstellungen zuruecksetzen
 
@@ -111,13 +110,10 @@ void main(void)
 		TASTER=1;				// Pin als Eingang schalten um Taster abzufragen
 		if(!TASTER) {				// Taster gedrückt
 			for(n=0;n<100;n++) {}	// Entprell-Zeit
-			while(!TASTER);			// warten bis Taster losgelassen
-			EA=0;
-			EA=0;
+			while(!TASTER);			// warten bis Taster losgelassen	
 			START_WRITECYCLE;
 			WRITE_BYTE(0x00,0x60,userram[0x60] ^ 0x81);	// Prog-Bit und Parity-Bit im system_state toggeln
 			STOP_WRITECYCLE;
-			EA=1;
 		}
 		TASTER=!(userram[0x060] & 0x01);	// LED entsprechend Prog-Bit schalten (low=LED an)
 		for(n=0;n<100;n++) {}	// falls Hauptroutine keine Zeit verbraucht, der LED etwas Zeit geben, damit sie auch leuchten kann
