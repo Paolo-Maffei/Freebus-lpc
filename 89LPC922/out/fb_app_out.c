@@ -48,7 +48,7 @@ long timer;					// Timer für Schaltverzögerungen, wird alle 130us hochgezählt
 bit delay_toggle;			// um nur jedes 2. Mal die delay routine auszuführen
 unsigned char owntele;		// Anzahl der internen Verarbeitungen eines gesendeten Telegrammes (Rückmeldung)
 unsigned char respondpattern;	// bit wird auf 1 gesetzt wenn objekt eine rückmeldung ausgelöst hat
-bit portchanged;
+
 
 
 
@@ -147,8 +147,7 @@ void write_value_req(void)				// Ausgänge schalten gemäß EIS 1 Protokoll (an/aus
           }
         }
       }
-      if (portbuffer != userram[0x29]) portchanged=1;//post für port_schalten hinterlegen
-      //port_schalten(portbuffer);	//Port schalten wenn sich ein Pin geändert hat
+      if (portbuffer != userram[0x29])port_schalten(portbuffer);	//Port schalten wenn sich ein Pin geändert hat
     }
     owntele=0;
     respondpattern=0;
@@ -303,7 +302,7 @@ void delay_timer(void)	// zählt alle 130ms die Variable Timer hoch und prüft Que
 {
 	unsigned char objno,delay_state,port_pattern,delay_zeit,delay_onoff,delay_base;
 	unsigned long delval,delay_target;
-//	bit portchanged; (nicht mehr lokal...)
+	bit portchanged;
 	
 #ifdef HAND		// für Handbetätigung
 	unsigned char n;
@@ -311,6 +310,7 @@ void delay_timer(void)	// zählt alle 130ms die Variable Timer hoch und prüft Que
 	unsigned char Tasten=0;
 #endif
 	
+	portchanged=0;
 	RTCCON=0x60;		// RTC anhalten und Flag löschen
 	RTCH=0x0E;			// reload Real Time Clock
 	RTCL=0xA0;
@@ -458,8 +458,6 @@ void port_schalten(unsigned char ports)		// Schaltet die Ports mit PWM, DUTY ist
   START_WRITECYCLE	
   WRITE_BYTE(0x00,0x29,ports)
   STOP_WRITECYCLE
-  portchanged=0;
-
 }
 
 
@@ -538,9 +536,8 @@ void restart_app(void)		// Alle Applikations-Parameter zurücksetzen
 	WRITE_BYTE(0x00,0x29,0x00);		
 	STOP_WRITECYCLE;
 	EA=1;
-	//port_schalten(portbuffer);  
-	portchanged=1;// Post hinterlegen damit in delaytimer nach portschalten springt
-
+	port_schalten(portbuffer);  
+	
 	EX1=0;							// Rückmeldung bei Busspannungswiederkehr
 	for (n=0;n<8;n++) {
 		owntele=1;

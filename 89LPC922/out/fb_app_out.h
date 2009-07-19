@@ -17,7 +17,7 @@
 #define FB_APP_OUT
 
 #define GS2					// GS1 für alte Relais-Schaltung, GS2 für neue
-#define HAND				// Handsteuerung aktiv (auskommentieren wenn nicht gewünscht)
+//#define HAND				// Handsteuerung aktiv (auskommentieren wenn nicht gewünscht)
 #define MAX_PORTS_8			// Anzahl Ausgänge (nur 4 oder 8 erlaubt)
 
 
@@ -40,7 +40,6 @@
 #define REFRESH \
 		P0= userram[0x29];	// refresh des Portzustandes in der hal
 
-extern 	bit portchanged;// globale variable, sie ist 1 wenn sich portbuffer geändert hat
 
 void write_value_req(void);		// Hauptroutine für Ausgänge schalten gemäß EIS 1 Protokoll (an/aus)
 void read_value_req(void);
