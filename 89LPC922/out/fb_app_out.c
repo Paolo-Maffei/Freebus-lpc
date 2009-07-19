@@ -48,7 +48,7 @@ long timer;					// Timer für Schaltverzögerungen, wird alle 130us hochgezählt
 bit delay_toggle;			// um nur jedes 2. Mal die delay routine auszuführen
 unsigned char owntele;		// Anzahl der internen Verarbeitungen eines gesendeten Telegrammes (Rückmeldung)
 unsigned char respondpattern;	// bit wird auf 1 gesetzt wenn objekt eine rückmeldung ausgelöst hat
-
+bit portchanged;
 
 
 
@@ -147,7 +147,7 @@ void write_value_req(void)				// Ausgänge schalten gemäß EIS 1 Protokoll (an/aus
           }
         }
       }
-      if (portbuffer != userram[0x29])port_schalten(portbuffer);	//Port schalten wenn sich ein Pin geändert hat
+      if (portbuffer != userram[0x29]) portchanged=1;//port_schalten(portbuffer);	//Port schalten wenn sich ein Pin geändert hat
     }
     owntele=0;
     respondpattern=0;
@@ -302,7 +302,7 @@ void delay_timer(void)	// zählt alle 130ms die Variable Timer hoch und prüft Que
 {
 	unsigned char objno,delay_state,port_pattern,delay_zeit,delay_onoff,delay_base;
 	unsigned long delval,delay_target;
-	bit portchanged;
+//	bit portchanged;
 	
 #ifdef HAND		// für Handbetätigung
 	unsigned char n;
