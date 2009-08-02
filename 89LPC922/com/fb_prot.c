@@ -70,7 +70,10 @@ void timer1(void) interrupt 3
 	EX1=0;					// ext. Interrupt stoppen 
 	ET1=0;					// Interrupt von Timer 1 sperren
 	set_timer1(4830);		// 4720 und neu starten fuer korrekte Positionierung des ACK Bytes
-  
+#ifdef HAND
+	REFRESH
+	interrupted=1;			// teilt anderen Routinen mit, dass sie unterbrochen wurden
+#endif
 	if(cs==0xff) {			// Checksum des Telegramms ist OK
 		if (transparency) last_tel=telpos;
 		else {
