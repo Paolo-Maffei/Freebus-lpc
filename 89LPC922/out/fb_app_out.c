@@ -376,7 +376,12 @@ void delay_timer(void)	// zählt alle 130ms die Variable Timer hoch und prüft Que
 		while( TMOD==0x12 && (PWM || (TL0>0x72)));// PWM scannen um "Hand"-Tasten abzufragen
 	#endif
 	#ifdef GS2
+		#ifdef MAX_PORTS_8
 		while( TMOD==0x12 && (!PWM || (TL0>0x72)));// PWM scannen um "Hand"-Tasten abzufragen
+		#endif
+		#ifdef MAX_PORTS_4
+		while( TMOD==0x12 && ( TL0>0x72));// PWM scannen um "Hand"-Tasten abzufragen
+		#endif
 	#endif
 		interrupted=0;	  
 		Tasten=0;				
@@ -427,7 +432,6 @@ void delay_timer(void)	// zählt alle 130ms die Variable Timer hoch und prüft Que
 		}
 	}
 #endif
-	
 	if (portchanged) port_schalten(portbuffer);				// Ausgänge schalten
 	RTCCON=0x61;		// RTC starten
 	delay_toggle=!delay_toggle;
@@ -506,8 +510,12 @@ void restart_app(void)		// Alle Applikations-Parameter zurücksetzen
 #endif
 	P0=0;
 	P0M1=0x00;		// Port 0 Modus push-pull für Ausgang
+#ifdef MAX_PORTS_8
 	P0M2=0xFF;
-  
+#endif
+#ifdef MAX_PORTS_4
+	P0M2= 0x0F;
+#endif	
 	TMOD=0x12;		// Timer 0 als PWM, Timer 1 als 16-Bit Timer
 	TAMOD=0x01;
 	TH0=DUTY;		// Pulsverhältnis PWM
