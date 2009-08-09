@@ -432,7 +432,7 @@ void delay_timer(void)	// zählt alle 130ms die Variable Timer hoch und prüft Que
 		}
 	}
 #endif
-	if (portchanged) port_schalten(portbuffer);				// Ausgänge schalten
+//	if (portchanged) port_schalten(portbuffer);				// Ausgänge schalten
 	RTCCON=0x61;		// RTC starten
 	delay_toggle=!delay_toggle;
 }

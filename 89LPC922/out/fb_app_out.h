@@ -18,7 +18,7 @@
 
 #define GS2					// GS1 für alte Relais-Schaltung, GS2 für neue
 #define HAND				// Handsteuerung aktiv (auskommentieren wenn nicht gewünscht)
-#define MAX_PORTS_4			// Anzahl Ausgänge (nur 4 oder 8 erlaubt)
+#define MAX_PORTS_8			// Anzahl Ausgänge (nur 4 oder 8 erlaubt)
 
 
 #define FUNCASS		0xD8	// Startadresse der Zuordnung der Zusatzfunktionen (2 Byte)
@@ -41,6 +41,7 @@
 		P0= userram[0x29];	// refresh des Portzustandes in der hal
 
 extern 	bit portchanged;// globale variable, sie ist 1 wenn sich portbuffer geändert hat
+extern unsigned char portbuffer;
 
 void write_value_req(void);		// Hauptroutine für Ausgänge schalten gemäß EIS 1 Protokoll (an/aus)
 void read_value_req(void);

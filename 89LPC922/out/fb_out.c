@@ -60,7 +60,7 @@
 * 			Handsteuerung läuft
 * 	3.19	Relais bekamen manchmal keinen Vollstrom -> behoben
 * 			Interrupts bei progmode flashen in der main() aus
-* 
+*   3.20	port_schalten() wird jetzt zentral von der main aufgerufen
 * 
 * @todo:
 	- Prio beim Senden implementieren \n
@@ -112,7 +112,11 @@ void main(void)
 			PWM=1;			// PWM Pin muss auf 1 gesetzt werden, damit PWM geht !!!
 			TR0=1;
 		}
+		if (portchanged) port_schalten(portbuffer);				// Ausgänge schalten
   
+		
+		
+		
 		TASTER=1;				// Pin als Eingang schalten um Taster abzufragen
 		if(!TASTER) {				// Taster gedrückt
 			for(n=0;n<100;n++) {}	// Entprell-Zeit
