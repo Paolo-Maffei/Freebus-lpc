@@ -2,7 +2,7 @@
 #ifndef FB_APP_KOMBI
 #define FB_APP_KOMBI
 
-#define	TEMPCORR			0xCA	// Abgleichwert für Temperatur in 0,1°C (-127 bis 128)
+#define	TEMPCORR			0xCA	// Abgleichwert für Temperaturanzeige (-127 bis 128)
 #define FUNKTION			0xCB	// schalten oder wert senden
 
 #define LUXDELAY3			0xCC
@@ -59,11 +59,25 @@
 #define LUXCYCLE1			0xFA
 #define LUXSCHWELLWERT		0xFB
 
+#define NIGHT		P0_0
+#define RLY			P0_1
+#define UP 			P0_4
+#define DOWN		P0_6
+#define BL			P0_7
+#define POLARITY	P2_4
+#define RESET		P2_5
+
+
+
+
+
+#define EDITTIMEOUT	21
 
 
 extern unsigned int timer;			// Timer für Schaltverzögerungen, wird alle 130us hochgezählt
 extern int temp, eis5temp,lasttemp,lux,lastlux, eis5lux;
 extern unsigned char overrun, dimmwert, underrun, sequence, lockatt, resend, solltempmanu;
+extern bit editmode, lastrly;
 
 
 extern struct delayrecord {

@@ -40,15 +40,17 @@
 
 
 
+
 #include <P89LPC935_6.h>
 
+#include "app_ert30.h"
 #include "_divuint.c"
 #include "../com/fb_hal_lpc936.h"
 #include "../com/fb_prot.h"
 #include "../com/onewire.h"
 #include "../com/adc_922.h"
 #include "../com/fb_rs232.h"
-#include "app_ert30.h"
+
 
 
 unsigned int timer;
@@ -73,13 +75,15 @@ void main(void)
 	restart_hw();				// Hardware zurücksetzen
 	restart_prot();			// Protokoll-relevante Parameter zurücksetzen
 	restart_app();			// Anwendungsspezifische Einstellungen zurücksetzen
+P1_2=!P1_2;
 
 	rs_init();
-	
+
 	do {
-		if(1){//if (!TR1 && (eeprom[0x0D]==0xFF)) {	// Nur wenn nicht gerade TR1 läuft, also Senden/Empfangen noch nicht abgeschlossen
+		if (!TR1 && (eeprom[0x0D]==0xFF)) {	// Nur wenn nicht gerade TR1 läuft, also Senden/Empfangen noch nicht abgeschlossen
 			switch (sequence) {						// Temperatur messen
 			case 1:	
+				P1_2=!P1_2;
 				interrupted=0;
 				start_tempconversion();				// Konvertierung starten
 				if (!interrupted) sequence=2;
@@ -90,7 +94,9 @@ void main(void)
 			case 3:	
 				interrupted=0;
 				th=read_temp();						// Temperatur einlesen
-			
+				
+			rs_send(th>>8);
+			rs_send(th);
 		  		
 				if (!interrupted) {
 					temp=th;
@@ -99,21 +105,21 @@ void main(void)
 					tempx2=_divuint((temp-25),50);
 					if (tempx2<18) tempx2=18;
 					if (tempx2>80) tempx2=80;
-					AD0DAT3=dactemp[tempx2-18];
+					AD0DAT3=dactemp[tempx2-18]+eeprom[TEMPCORR];	// + Abgleichwert
 					
 					if (temp != lasttemp) {
 						eis5temp=(temp>>3)&0x07FF;			// durch 8 teilen, da später Exponent 3 dazukommt
 						eis5temp=eis5temp+(0x18 << 8);	
 						if (temp<0) eis5temp+=0x8000;		// Vorzeichen
-						schwelle(6);					// Temperaturschwellen prüfen und ggf. reagieren
-						schwelle(7);	  					
+						//schwelle(6);					// Temperaturschwellen prüfen und ggf. reagieren
+						schwelle(7);	  				// (nur Temp.Schwelle 2 prüfen)	
 					}
 					
 					sequence=4;
 				}
 				break;
 			case 4:		// Helligkeitswert konvertieren
-				Get_ADC(3);		// ADC-Wert holen
+				Get_ADC(2);		// ADC-Wert holen
 				n=0;
 				while (HighByte >= logtable[n]) n++;
 				if (n>1) {
@@ -165,7 +171,19 @@ void main(void)
 		
 		schwelle(8);	// Verknüpfungsobjekte
 		schwelle(9);
+		
+		if (RLY && !lastrly) {	// Schaltausgang ein
+			lastrly=1;
+			send_value(1,6,1);
+			write_obj_value(6,1);
+		}
+		if (!RLY && lastrly) {	// Schaltausgang aus
+			lastrly=0;
+			send_value(1,6,0);
+			write_obj_value(6,0);
+		}
 
+		if (!RESET) restart_app();		// wenn Reset-Taste am ERT30 gedrückt wurde
 	  
 		if(RTCCON>=0x80) delay_timer();	// Realtime clock Überlauf
 	  
@@ -173,9 +191,13 @@ void main(void)
 		if(!TASTER) {				// Taster wurde gedrückt
 			for(n=0;n<100;n++) {}
 			while(!TASTER);			// warten bis Taster losgelassen
-			progmode=!progmode;
+			  EA=0;
+		      START_WRITECYCLE;
+		      WRITE_BYTE(0x00,0x60,userram[0x60] ^ 0x81);	// Prog-Bit und Parity-Bit im system_state toggeln
+		      STOP_WRITECYCLE;
+		      EA=1;
 		}
-		TASTER=!progmode;			// LED entsprechend schalten (low=LED an)
+	    TASTER=!(userram[0x060] & 0x01);	// LED entsprechend Prog-Bit schalten (low=LED an)
 	} while(1);
 }
 

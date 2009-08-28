@@ -22,12 +22,10 @@
 #include "app_ert30.h"
 
 
-#define UP 			P0_4
-#define DOWN		P0_6
-#define EDITTIMEOUT	21
 
 
-const __code unsigned char __at 0x3600 SOLLMANU=40;
+
+//const __code unsigned char __at 0x3600 SOLLMANU=40;
 
 //292
 const int cycleval[] = {17490, 292, 875, 1458, 2915, 5830, 8745, 13117, 17490}; // Zykluszeit in 130ms
@@ -40,7 +38,7 @@ const unsigned char ctrl_adr[]  = {0xD2,0xD1,0,0xF9,0xF4,0xEF,0xEA,0xE5,0xE0,0xD
 
 int temp, eis5temp,lasttemp,lux,lastlux, eis5lux;
 unsigned char overrun, dimmwert, underrun, sequence, lockatt, resend, solltempmanu;
-bit editmode;
+bit editmode, lastrly;
 
 
 struct delayrecord {
@@ -368,6 +366,22 @@ void write_value_req(void)
 			}
 		}
 	}
+	if (objno==2) {		// Nachtabsenkung
+		send_ack();
+		write_obj_value(objno,telegramm[7]&0x01);
+		NIGHT=telegramm[7]&0x01;
+	}
+	if (objno==11) {		// Heizen/Kühlen
+		send_ack();
+		write_obj_value(objno,telegramm[7]&0x01);
+		POLARITY=telegramm[7]&0x01;
+		restart_app();
+	}
+	if (objno==12) {		// Heizen/Kühlen
+			send_ack();
+			write_obj_value(objno,telegramm[7]&0x01);
+			BL=telegramm[7]&0x01;
+		}
 }
 
 
@@ -496,7 +510,7 @@ void sync(void)
 		WRITE_DELAY_RECORD(9,1,0,timer+EDITTIMEOUT)
 	}
 	KBCON=0;
-	EKBI=1;
+	//EKBI=1;
 }
 
 
@@ -541,23 +555,52 @@ void restart_app(void)		// Alle Applikations-Parameter zurücksetzen
 	
 	unsigned char objno, bitmask, ctrl, n, m;
   
-	//PT0AD=0xF0; 		// disable digital inputs P0.1 ... P0.5
-	//P0= 0xBF;			// P0.0 push-pull for charging the capacitor, P0.6 push-pull status-LED
-	//P0M1= 0x22;			// others bidirectional,
-	//P0M2= 0x41;			// P0_5 & P0_1 high impedance for adc inputs
+	PT0AD=0xF0; 		// disable digital inputs P0.1 ... P0.5
+	P0= 0xBF;			// P0.3 push-pull for charging the capacitor, P0.6 push-pull status-LED
+	P0M1= 0x24;			// others bidirectional,
+	P0M2= 0x48;			// P0_5 & P0_2 high impedance for adc inputs
 	
-	SET_PORT_MODE_BIDIRECTIONAL(4)
-	SET_PORT_MODE_BIDIRECTIONAL(6)
-	SET_PORT_MODE_BIDIRECTIONAL(7)
+
+	P2M1=0x00;			// Port 2 - alle bidirektional
+	P2M2=0x00;
+	P2=0xFE;
+	
 	UP=1;
 	DOWN=1;
-	editmode=0;
+	
+	RESET=0;
+	set_timer0(0xFFFF);					// ERT30 zurücksetzen
+	while(!TF0);
+	RESET=1;
+	TR0=0;
+
+	NIGHT=read_obj_value(2)&0x01;		// Nachtabsenkung
+	POLARITY=read_obj_value(11)&0x01;	// Heizen/Kühlen
+	BL=read_obj_value(12)&0x01;			// Backlight
 	
 
 	
+	
+	editmode=0;
+	
+	START_WRITECYCLE;
+	WRITE_BYTE(0x00,0x60,0x2E);	// system state: all layers active (run), not in prog mode
+	STOP_WRITECYCLE;
+	TASTER=1;					// LED aus
+
 	for (m=0;m<3;m++) {
-		for (n=0;n<200;n++) sysdelay(0xFFFF);	// Warten bis Bus stabil
-	}	
+		for (n=0;n<200;n++) {
+			set_timer0(0xFFFF);					// Warten bis Bus stabil und Anzeige bereit
+			while(!TF0);
+		}
+	}
+	TR0=0;
+	
+	lastrly=0;							// Schaltausgang zunächst aus
+	send_value(1,6,0);
+	write_obj_value(6,0);
+	
+	while (!ow_init());
 
 	
 	// Init DAC 0
@@ -569,15 +612,20 @@ void restart_app(void)		// Alle Applikations-Parameter zurücksetzen
 	KBMASK=0x50;		// P0.4 & P0.6 enabled for KB-Interrupt
 	KBPATN=0x50;		// Pattern
 	KBCON=0;			// Interrupt when port not equal to pattern
-	EKBI=1;
+	//EKBI=1;
 	EA=1;
-	
+
 	lux=0;
 	lastlux=0;
 	temp=-10000;
 	lasttemp=-10000;
 	
-	solltempmanu=userram[0];
+	solltempmanu=eeprom[TEMPSCHWELLWERT1]*2;
+	EA=0;
+	START_WRITECYCLE;
+	WRITE_BYTE(0x00,0x00,solltempmanu);
+	STOP_WRITECYCLE;
+	EA=1;
 	
 	sync();
 	
@@ -588,6 +636,7 @@ void restart_app(void)		// Alle Applikations-Parameter zurücksetzen
 
 	timer=0;
 	sequence=1;
+	TR1=0;
 	
 	// in lockatt bit setzen für jedes Objekt, das Sperre beachten muss
 	lockatt=0;
@@ -601,16 +650,16 @@ void restart_app(void)		// Alle Applikations-Parameter zurücksetzen
   
   	for (objno=0;objno<9;objno++) WRITE_DELAY_RECORD(objno,0,0,0)			// erstmal alle delay-records auf inaktiv setzen
 
-	START_WRITECYCLE			// Applikations-spezifische eeprom Eintraege schreiben
-	WRITE_BYTE(0x01,0x03,0x00)	// Herstellercode: 0x0001 Siemens
-  	WRITE_BYTE(0x01,0x04,0x01)
-  	WRITE_BYTE(0x01,0x05,0x22)	// Gerätetyp: 0x221C AP254
-  	WRITE_BYTE(0x01,0x06,0x1C)	
-  	WRITE_BYTE(0x01,0x07,0x01)	// Software-Versionsnummer
-  	WRITE_BYTE(0x01,0x0C,0x00)	// PORT A Direction Bit Setting
-  	WRITE_BYTE(0x01,0x0D,0xFF)	// Run-Status (00=stop FF=run)
-  	WRITE_BYTE(0x01,0x12,0x56)	// COMMSTAB Pointer
-	STOP_WRITECYCLE
+	START_WRITECYCLE;			// Applikations-spezifische eeprom Eintraege schreiben
+	WRITE_BYTE(0x01,0x03,0x00);	// Herstellercode: 0x0000 Freebus
+  	WRITE_BYTE(0x01,0x04,0x00);
+  	WRITE_BYTE(0x01,0x05,0x10);	// Gerätetyp: 0x221C AP254
+  	WRITE_BYTE(0x01,0x06,0x00);	
+  	WRITE_BYTE(0x01,0x07,0x01);	// Software-Versionsnummer
+  	WRITE_BYTE(0x01,0x0C,0x00);	// PORT A Direction Bit Setting
+  	WRITE_BYTE(0x01,0x0D,0xFF);	// Run-Status (00=stop FF=run)
+  	WRITE_BYTE(0x01,0x12,0x56);	// COMMSTAB Pointer
+	STOP_WRITECYCLE;
 
 
 }
