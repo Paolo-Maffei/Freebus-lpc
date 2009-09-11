@@ -556,9 +556,9 @@ void restart_app(void)		// Alle Applikations-Parameter zurücksetzen
 	unsigned char objno, bitmask, ctrl, n, m;
   
 	PT0AD=0xF0; 		// disable digital inputs P0.1 ... P0.5
-	P0= 0xBF;			// P0.3 push-pull for charging the capacitor, P0.6 push-pull status-LED
+	P0= 0xBF;			// P0.3 push-pull for charging the capacitor
 	P0M1= 0x24;			// others bidirectional,
-	P0M2= 0x48;			// P0_5 & P0_2 high impedance for adc inputs
+	P0M2= 0x08;			// P0_5 & P0_2 high impedance for adc inputs
 	
 
 	P2M1=0x00;			// Port 2 - alle bidirektional
@@ -567,13 +567,13 @@ void restart_app(void)		// Alle Applikations-Parameter zurücksetzen
 	
 	UP=1;
 	DOWN=1;
-	
+
 	RESET=0;
 	set_timer0(0xFFFF);					// ERT30 zurücksetzen
 	while(!TF0);
 	RESET=1;
 	TR0=0;
-
+P1_2=!P1_2;
 	NIGHT=read_obj_value(2)&0x01;		// Nachtabsenkung
 	POLARITY=read_obj_value(11)&0x01;	// Heizen/Kühlen
 	BL=read_obj_value(12)&0x01;			// Backlight
@@ -600,7 +600,7 @@ void restart_app(void)		// Alle Applikations-Parameter zurücksetzen
 	send_value(1,6,0);
 	write_obj_value(6,0);
 	
-	while (!ow_init());
+	//while (!ow_init());
 
 	
 	// Init DAC 0
@@ -628,8 +628,6 @@ void restart_app(void)		// Alle Applikations-Parameter zurücksetzen
 	EA=1;
 	
 	sync();
-	
-	rs_init();
 	
 	overrun=0;
 	underrun=0;

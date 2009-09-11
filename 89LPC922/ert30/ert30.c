@@ -49,7 +49,7 @@
 #include "../com/fb_prot.h"
 #include "../com/onewire.h"
 #include "../com/adc_922.h"
-#include "../com/fb_rs232.h"
+//#include "../com/fb_rs232.h"
 
 
 
@@ -77,7 +77,7 @@ void main(void)
 	restart_app();			// Anwendungsspezifische Einstellungen zurücksetzen
 P1_2=!P1_2;
 
-	rs_init();
+	//rs_init();
 
 	do {
 		if (!TR1 && (eeprom[0x0D]==0xFF)) {	// Nur wenn nicht gerade TR1 läuft, also Senden/Empfangen noch nicht abgeschlossen
@@ -95,12 +95,12 @@ P1_2=!P1_2;
 				interrupted=0;
 				th=read_temp();						// Temperatur einlesen
 				
-			rs_send(th>>8);
-			rs_send(th);
+			//rs_send(th>>8);
+			//rs_send(th);
 		  		
 				if (!interrupted) {
 					temp=th;
-					
+
 					// Anzeige der Temperatur auf dem ERT30 Display
 					tempx2=_divuint((temp-25),50);
 					if (tempx2<18) tempx2=18;

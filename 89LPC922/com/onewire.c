@@ -90,11 +90,11 @@ bit ow_read_bit(void)				// Bit von one-wire Datenleitung einlesen
 
 void start_tempconversion(void)		// Temperaturmessung starten
 {
-	//if (ow_init()) {
-	while (!ow_init());
+	if (ow_init()) {
+	//while (!ow_init());
 		ow_write(0xCC);			// Skip-ROM command: alle parallel angeschlossenen Geräte werden angesprochen
 		ow_write(0x44);			// start single temperature conversion command
-	//}
+	}
 }
 
 signed int read_temp(void)					// Temperatur einlesen
