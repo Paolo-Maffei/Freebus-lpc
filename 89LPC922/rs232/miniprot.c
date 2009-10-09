@@ -205,10 +205,10 @@ void send_ack(void)
 */
 void set_pa(void)
 {
-  start_writecycle();
-  write_byte(0x01,ADDRTAB+1,telegramm[8]);		// in Flash schreiben
-  write_byte(0x01,ADDRTAB+2,telegramm[9]);
-  stop_writecycle();
+  START_WRITECYCLE
+  WRITE_BYTE(0x01,ADDRTAB+1,telegramm[8])
+  WRITE_BYTE(0x01,ADDRTAB+2,telegramm[9]);
+  STOP_WRITECYCLE
 }
 
 

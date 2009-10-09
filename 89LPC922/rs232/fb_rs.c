@@ -55,6 +55,7 @@ void main(void)
   restart_hw();				// Hardware zur�cksetzen
   restart_prot();			// Protokoll-relevante Parameter zur�cksetzen
   restart_app();			// Anwendungsspezifische Einstellungen zur�cksetzen
+  
 
   rs_init();				// serielle Schnittstelle initialisieren
   rsinpos=0;
@@ -159,10 +160,10 @@ void main(void)
 		  pah=(((rsin[5]-48)*10) + (rsin[6]-48))*16;
 		  pah=pah + (((rsin[8]-48)*10) + (rsin[9]-48));
 		  pal=(((rsin[11]-48)*100) + ((rsin[12]-48)*10) + (rsin[13]-48));
-		  start_writecycle();
-		  write_byte(0x01,ADDRTAB+1,pah);		// in Flash schreiben
-		  write_byte(0x01,ADDRTAB+2,pal);
-		  stop_writecycle();
+		  START_WRITECYCLE
+		  WRITE_BYTE(0x01,ADDRTAB+1,pah)
+		  WRITE_BYTE(0x01,ADDRTAB+2,pal)
+		  STOP_WRITECYCLE
 		  rs_send_ok();
 		}
       }

@@ -88,7 +88,7 @@ void save_ga(int ga, int val)
 		if(ga_db[n].ga==ga || ga_db[n].ga==0xFFFF) {
 			write_ok=0;
 			while (!write_ok) {
-				start_writecycle();
+				START_WRITECYCLE
 				if(ga_db[n].ga==0xFFFF) {			// GA noch nicht gespeichert
 					FMADRH = (n >> 6) + 0x1A;		// Low Byte schreiben
 					FMADRL = ((n & 0x3F) * 4);		// (int wird LSB first abgelegt)
@@ -103,7 +103,7 @@ void save_ga(int ga, int val)
 				FMADRH = (n >> 6) + 0x1A;		// High Byte schreiben
 				FMADRL = ((n & 0x3F) * 4) + 3;
 				FMDATA=val>>8;
-				stop_writecycle();
+				STOP_WRITECYCLE
 				if(!(FMCON & 0x01)) write_ok=1;	// pruefen, ob erfolgreich geflasht
 			}				
 			n=255;	// Schleife abbrechen
@@ -126,14 +126,14 @@ void restart_app(void)
 	
 	n=0;
 	do {								// GA Tabelle löschen
-		start_writecycle();
+		START_WRITECYCLE
 		FMADRH = (n >> 6) + 0x1A;		// High Byte schreiben
 		FMADRL = ((n & 0x3F) * 4);
 		FMDATA=0xFF;
 		FMADRH = (n >> 6) + 0x1A;		// Low Byte schreiben
 		FMADRL = ((n & 0x3F) * 4) + 1;
 		FMDATA=0xFF;
-		stop_writecycle();
+		STOP_WRITECYCLE
 		n++;
 	}while(n>0);
 }
