@@ -6,6 +6,7 @@
  */
 #include <P89LPC922.h>
 #include "fb_i2c.h"
+
 //#include "fb_rs232.h"
 
 
@@ -59,32 +60,38 @@ unsigned char i2c_wait(void)
 
 
 unsigned char i2c_send_daten(unsigned char K1,unsigned char K2)
-        {
-        I2SCLH=17;
-        I2SCLL=17;
-        I2CON=0;
-        I2EN=1;         //Master Transmit mode
-        CRSEL=0;        //CRSEL=0
-        STA=1;           //send Start MASTER
-        if(i2c_wait()!=0)
-                return 0xff;
-        STA=0;
-        I2DAT = 0xa0+0;//a0= adresse i2c eeprom 0=schreiben SLA_W;       //Adresse senden MASTER
-        if(i2c_wait()!=0)
-                return 0xff;
-        I2DAT = 0x00;                           //Daten Senden MASTER
-        if(i2c_wait()!=0)
-                return 0xff;
-        I2DAT = K1;                             //Daten Senden MASTER
-        if(i2c_wait()!=0)
-                return 0xff;
-        I2DAT = K2;                             //Daten Senden MASTER
-        //AA=0;
-        if(i2c_wait()!=0)
-                return 0xff;
-        STO=1;            //send Stop MASTER
-        return 0;
-        }
+  {
+    unsigned char m1=P0M1;      //wert sichern
+    unsigned char m2=P0M2;      //wert sichern
+    P0M1=0xFF;  //eingänge umschalten wegen Tastererweiterung
+    P0M2=0x00;  //eingänge umschalten wegen Tastererweiterung
+    I2SCLH=17;
+    I2SCLL=17;
+    I2CON=0;
+    I2EN=1;         //Master Transmit mode
+    CRSEL=0;        //CRSEL=0
+    STA=1;           //send Start MASTER
+    if(i2c_wait()!=0)
+            return 0xff;
+    STA=0;
+    I2DAT = 0xa0+0;//a0= adresse i2c eeprom 0=schreiben SLA_W;       //Adresse senden MASTER
+    if(i2c_wait()!=0)
+            return 0xff;
+    I2DAT = 0x00;                           //Daten Senden MASTER
+    if(i2c_wait()!=0)
+            return 0xff;
+    I2DAT = K1;                             //Daten Senden MASTER
+    if(i2c_wait()!=0)
+            return 0xff;
+    I2DAT = K2;                             //Daten Senden MASTER
+    //AA=0;
+    if(i2c_wait()!=0)
+            return 0xff;
+    STO=1;            //send Stop MASTER
+    P0M1=m1;  //eingänge umschalten wegen Tastererweiterung
+    P0M2=m2;  //eingänge umschalten wegen Tastererweiterung
+    return 0;
+  }
 
 
 

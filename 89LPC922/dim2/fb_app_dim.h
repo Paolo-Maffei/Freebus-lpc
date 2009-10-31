@@ -41,5 +41,5 @@ extern unsigned char dimmwert[DIMKREISE];            //Dimmwert verarbeiten und 
 extern unsigned char mindimmwert[DIMKREISE];         //minimaldimmwert von der applikation
 extern unsigned char einschathellikeit[DIMKREISE];   //einschathellikeit
 extern unsigned char sperren[DIMKREISE];             //Sperren oder nicht 1=sperren
-
+extern unsigned char taste;                          //Handbetätigung
 #endif

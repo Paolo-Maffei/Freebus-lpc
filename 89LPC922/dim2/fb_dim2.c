@@ -25,7 +25,7 @@
 //      verhalten beim emfang eines wertes andimmen oder anspringen
 //      dimmgeschwindikeit @TODO nicht fertig
 //      lesen der objekte
-//      rückmeldeobjekte 1bit + 1 byte
+//      rückmeldeobjekte 1bit + 1 byte(ok am 26.10.2009)
 //      Lichtzenenfunktionen
 //      Sperrfunktion
 
@@ -64,6 +64,8 @@ unsigned char faktor_zl[DIMKREISE];
 unsigned int basis_zl[DIMKREISE];
 unsigned char kanal_zl=0;
 unsigned char andimm_zl=0;
+unsigned char ctaste;    //zähler für Taste welche gerade abgefragt wird
+unsigned char mtaste[8]; //merker Taste mit zähler (Tastenprllung und langer tastendruck)  1-8 =tasten
 
 unsigned char helligkeittsstufe(unsigned char stufe,unsigned char kanal)
 {
@@ -84,15 +86,16 @@ void restart_app(void)		// Alle Applikations-Parameter zurücksetzen
     TMOD|=0x01;   // Timer 0 als reload, Timer 1 nicht ändern !
     TAMOD&=0xf0;
     TH0 = 0xff;
-    AUXR1&=~0x10;             // toggled whenever Timer0 overflows ausschalten
-    ET0=1;                        // Interrupt für Timer 0 freigeben
-    TR0=1;                        // Timer 0 starten
+    AUXR1&=~0x10;      // toggled whenever Timer0 overflows ausschalten
+    ET0=1;             // Interrupt für Timer 0 freigeben
+    TR0=1;             // Timer 0 starten
     EA=1;
 
     Tval=0x00;
 
-  P0M1=0x00;				// Port 0 Modus push-pull für Ausgang
-  P0M2=0xFF;
+  P0M1=0xEE;            // Port 0 Modus push-pull für Ausgang nur PIN 0 und 4 Output
+  P0M2=0x11;            // nur PIN 0 und 4 Output
+  P0=0;
 
   anspringen[0]=(eeprom[0xC6]&(1<<3))>>3;
   anspringen[1]=(eeprom[0xC6]&(1<<7))>>7;
@@ -129,12 +132,100 @@ void restart_app(void)		// Alle Applikations-Parameter zurücksetzen
   EA=1;
 }
 
+
+
+
+void tastenauswertung(void)
+{
+  unsigned char retp0=P0;//port 0 merken
+  P3_0=0;                //SCL damit i2c nicht meckert
+  P0=0;
+  if(ctaste<6)           //0 bis 7
+    ctaste++;
+  else ctaste=0;
+  P0M1=~(1<<ctaste);    // Port 0  PIN Output
+  P0M2=(1<<ctaste);
+  P0=~(1<<ctaste);      //nur eine Taste aktivieren
+  if(P1_3==0)           //abfrage Taste getrückt
+    {
+      if(mtaste[ctaste]<254)  mtaste[ctaste]++;
+      if(mtaste[ctaste]==200) //langer tastendruck
+        {
+          if(ctaste==1)
+            dimm_helldunkel[0]=9;
+          if(ctaste==2)
+            dimm_helldunkel[0]=1;
+          if(ctaste==5)
+            dimm_helldunkel[1]=1;
+          if(ctaste==6)
+            dimm_helldunkel[1]=9;
+        }
+
+     }
+  else
+    {
+      if(mtaste[ctaste]>20)
+        {
+          if(mtaste[ctaste]>20&&mtaste[ctaste]<200) //kurzer tastendruck mit Tastenprellung
+            {
+              if(ctaste==1) dimmwert[0]=0xff;
+              if(ctaste==2) dimmwert[0]=0x0;
+              if(ctaste==5) dimmwert[1]=0x0;
+              if(ctaste==6) dimmwert[1]=0xff;
+            }
+          if(mtaste[ctaste]>199) //langer tastendruck
+            if(ctaste==1||ctaste==2)
+              dimm_helldunkel[0]=0;
+            if(ctaste==5||ctaste==6)
+              dimm_helldunkel[1]=0;
+        }
+      mtaste[ctaste]=0;
+    }
+  P0=retp0;
+  //wieder auf eingang stellen
+  P0M1=0x00;    //ee   // Port 0  PIN 0 und 4 Output
+  P0M2=0xFF;    //11
+  P3_1=1;       //SDA damit i2c nicht meckert
+  P3_0=1;       //SCL damit i2c nicht meckert
+
+
+}
+
 void tr0_int(void) interrupt 1         //n=nummer 0x03+8*n
 {
-//  TH0=0x10;
+
   TL0=0x09;     // timer mit H=0xf9 L=0x09 2KHz = 0,5ms
   TH0=0xf9;     // timer mit 0xb7 200HZ = 5ms
-  P0_0 =! P0_0;
+
+  tastenauswertung();
+/*     dimmwert[0]=0xff;
+   if((taste&0x04)==0x04)
+     dimmwert[0]=0x0;
+
+    if((taste&0x20)==0x20)       //Kanal 2
+      dimmwert[1]=0xff;
+    if((taste&0x40)==0x40)
+      dimmwert[1]=0x0;
+*/
+/*if(taste!= mtaste)
+    rs_send_hex(taste);
+  mtaste=taste;
+*/
+    P0_0=(dimm_I2C[0])?1:0;     //LED_zeile K1
+    if(dimm_I2C[0]>75) P0_1=1;
+    else P0_1=0;
+    if(dimm_I2C[0]>125) P0_2=1;
+    else P0_2=0;
+    if(dimm_I2C[0]>220) P0_3=1;
+    else P0_3=0;
+
+    P0_7=(dimm_I2C[1])?1:0;     //LED_zeile K2
+    if(dimm_I2C[1]>75) P0_6=1;
+    else P0_6=0;
+    if(dimm_I2C[1]>125) P0_5=1;
+    else P0_5=0;
+    if(dimm_I2C[1]>220) P0_4=1;
+    else P0_4=0;
 
   if(ie<40000)                   //interwallmäsiges senden kann evetuel raus
     ++ie;
@@ -146,7 +237,8 @@ void tr0_int(void) interrupt 1         //n=nummer 0x03+8*n
 
   if(dimm_I2C[0]!=mk[0]||dimm_I2C[1]!=mk[1])   //i2c übertragen
      {
-    /*  rs_send_s("Dimmwert=");
+/*      //zum Testen rs232 Ausgabe
+       rs_send_s("D=");//Dimmwert
        rs_send_hex(dimm_I2C[0]);
        rs_send(' ');
        rs_send_hex(dimm_I2C[1]);
@@ -168,22 +260,22 @@ void tr0_int(void) interrupt 1         //n=nummer 0x03+8*n
        andimm_zl=0;
        for(kanal_zl=0;kanal_zl<DIMKREISE;++kanal_zl)
          {
-       if(dimmwert[kanal_zl]!=dimm_I2C[kanal_zl])        //andimmern von wert
-          {
-          if(dimm_I2C[kanal_zl] > dimmwert[kanal_zl])    //dunkler andimmen
-                   dimm_I2C[kanal_zl]--;
-          if(dimm_I2C[kanal_zl] < dimmwert[kanal_zl])    //heller andimmen
-            {
-            if(dimmwert[kanal_zl]<mindimmwert[kanal_zl])   // mit minimalwert Starten
+           if(dimmwert[kanal_zl]!=dimm_I2C[kanal_zl])        //andimmern von wert
+             {
+             if(dimm_I2C[kanal_zl] > dimmwert[kanal_zl])    //dunkler andimmen
+                dimm_I2C[kanal_zl]--;
+             if(dimm_I2C[kanal_zl] < dimmwert[kanal_zl])    //heller andimmen
                {
-               dimm_I2C[kanal_zl]=mindimmwert[kanal_zl];
-               dimmwert[kanal_zl]=dimm_I2C[kanal_zl];
+               if(dimmwert[kanal_zl]<mindimmwert[kanal_zl])   // mit minimalwert Starten
+                  {
+                  dimm_I2C[kanal_zl]=mindimmwert[kanal_zl];
+                  dimmwert[kanal_zl]=dimm_I2C[kanal_zl];
+                  }
+               else dimm_I2C[kanal_zl]++;
                }
-            else dimm_I2C[kanal_zl]++;
-            }
-          }
-        }
-      }
+             }
+         }
+     }
      else andimm_zl++;
 
 
@@ -236,17 +328,17 @@ unsigned int i=0;
       //
       // +++++ Handhabung des Programmiertasters und der ProgrammierLED +++++
       //
-        TASTER=1;                                       // Pin als Eingang schalten um Taster abzufragen
-        if(!TASTER) {                           // Taster gedrückt
+        TASTER=1;                       // Pin als Eingang schalten um Taster abzufragen
+        if(!TASTER) {                   // Taster gedrückt
                 for(n=0;n<200;n++) {}   // Entprell-Zeit
-                while(!TASTER);                 // warten bis Taster losgelassen
+                while(!TASTER);         // warten bis Taster losgelassen
                 EA=0;
                 START_WRITECYCLE;
                 WRITE_BYTE(0x00,0x60,userram[0x60] ^ 0x81);     // Prog-Bit und Parity-Bit im system_state toggeln
                 STOP_WRITECYCLE;
                 EA=1;
         }
-        TASTER=!(userram[0x060] & 0x01);        // LED entsprechend Prog-Bit schalten (low=LED an)
+        TASTER=!(userram[0x060] & 0x01);// LED entsprechend Prog-Bit schalten (low=LED an)
         for(n=0;n<100;n++) {}           // falls Hauptroutine keine Zeit verbraucht, der LED etwas Zeit geben, damit sie auch leuchten kann
       }
         while(1)

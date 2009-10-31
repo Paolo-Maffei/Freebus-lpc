@@ -18,6 +18,7 @@
  *
  *
  */
+ //26.10.2009 werobjekt Senden fehler (Fehler : nur bei eingeschaltenen Rückmelde wertobjekt sendet das Schaltobjekt)
 
 #include <P89LPC922.h>
 #include "../com/fb_hal_lpc.h"
@@ -170,10 +171,10 @@ void write_value_req(void)				// Ausgänge schalten gemäß EIS 1 Protokoll (an/aus
               if(b_send==1)
                 {
                   write_obj_value(c,dimmwert[c]?1:0);     //Schaltobjekt
-                  write_obj_value(c+4,dimmwert[c]);       //Dimmobjekt
-                  if(eeprom[0xc3]&(1<<(6+c))!=0)// nur wenn eingeschalten
+                  write_obj_value(c+4,dimmwert[c]);       //wertobjekt
+                  if(eeprom[0xc3]&(1<<(6+c))!=0)// nur wenn  wertobjekt eingeschalten
+                    respond(c+8,dimmwert[c]);
                   respond(c+6,(dimmwert[c]?1:0)+0x80);
-                  respond(c+8,dimmwert[c]);
                   b_send=0;
                 }
               }
