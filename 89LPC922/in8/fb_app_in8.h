@@ -31,10 +31,11 @@ void send_cyclic(unsigned char pinno);
 unsigned char operation(unsigned char pinno);
 unsigned char switch_dim(unsigned char pinno);
 void delay(int w);
-
+void delay_timer(void);
 void write_value_req(void);	
 void read_value_req(void);
-void send_value(unsigned char type, unsigned char objno, int sval);
+//void send_value(unsigned char type, unsigned char objno, int sval);
 void restart_app(void);		// Alle Applikations-Parameter zurücksetzen
+void send_eis(unsigned char eistyp, unsigned char objno, int sval);	// sendet ein EIS Telegramm
 
 #endif

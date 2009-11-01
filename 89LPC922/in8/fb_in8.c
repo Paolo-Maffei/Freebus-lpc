@@ -26,7 +26,7 @@
 #include "../com/fb_hal_lpc.h"
 #include "../com/fb_prot.h"
 #include "fb_app_in8.h"
-//#include "../com/fb_rs232.h"
+#include "../com/fb_rs232.h"
 
 
 
@@ -39,7 +39,8 @@ void main(void)
   restart_prot();			// Protokoll-relevante Parameter zurücksetzen
   restart_app();			// Anwendungsspezifische Einstellungen zurücksetzen
   portbuffer=P0;			// zunächst keine Änderungen bei Busspannungswiederkehr
-  
+  rs_init();				// serielle Schnittstelle initialisieren
+
   do  {
   
      
@@ -55,14 +56,19 @@ void main(void)
       }
       portbuffer=p0h;					// neuen Portzustand in buffer speichern
     }
-    
+	if (RTCCON>=0x80) delay_timer();	// Realtime clock ueberlauf
+
     TASTER=1;				// Pin als Eingang schalten um Taster abzufragen
     if(!TASTER) {				// Taster gedrückt
       for(n=0;n<100;n++) {}
       while(!TASTER);
-      progmode=!progmode;
+		EA=0;
+		START_WRITECYCLE;
+		WRITE_BYTE(0x00,0x60,userram[0x60] ^ 0x81);	// Prog-Bit und Parity-Bit im system_state toggeln
+		STOP_WRITECYCLE;
+		EA=1;
     }
-    TASTER=!progmode;				// LED entsprechend schalten (low=LED an)
+	TASTER=!(userram[0x060] & 0x01);	// LED entsprechend Prog-Bit schalten (low=LED an)
     for(n=0;n<100;n++) {}
   } while(1);
 }
