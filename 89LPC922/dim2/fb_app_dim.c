@@ -19,7 +19,7 @@
  *
  */
  //26.10.2009 werobjekt Senden fehler (Fehler : nur bei eingeschaltenen Rückmelde wertobjekt sendet das Schaltobjekt)
-
+ //3.11.2009 einschalthellikeit (hellikeitswert vor letzten auschalten) fehler behoben
 #include <P89LPC922.h>
 #include "../com/fb_hal_lpc.h"
 #include "../com/fb_prot.h"
@@ -30,8 +30,8 @@ unsigned char portbuffer;	// Zwischenspeicherung der Portzustände
 unsigned char zfstate;		// Zustand der Objekte 8-11 = Zusatzfunktionen 1-4
 unsigned char blocked;		// Sperrung der 8 Ausgänge (1=gesperrt)
 unsigned char logicstate;	// Zustand der Verknüpfungen pro Ausgang
-long timer;					// Timer für Schaltverzögerungen, wird alle 130us hochgezählt
-bit delay_toggle;			// um nur jedes 2. Mal die delay routine auszuführen
+long timer;			// Timer für Schaltverzögerungen, wird alle 130us hochgezählt
+bit delay_toggle;		// um nur jedes 2. Mal die delay routine auszuführen
 
 bit write_obj_lz(unsigned char objno,int objvalue);
 
@@ -40,7 +40,7 @@ void send_value(unsigned char type, unsigned char objno, int sval)      // sucht
   int ga;
   unsigned char objtype;
 
-  ga=find_ga(objno);                                    // wenn keine Gruppenadresse hintrlegt nix tun
+  ga=find_ga(objno);                            // wenn keine Gruppenadresse hintrlegt nix tun
   if (ga!=0)
   {
     telegramm[0]=0xBC;
@@ -50,16 +50,16 @@ void send_value(unsigned char type, unsigned char objno, int sval)      // sucht
     telegramm[4]=ga;
     telegramm[6]=0x00;
     if (type==0) telegramm[7]=0x40;             // read_value_response Telegramm (angefordert)
-    else telegramm[7]=0x80;                             // write_value_request Telegramm (nicht angefordert)
+    else telegramm[7]=0x80;                     // write_value_request Telegramm (nicht angefordert)
 
     objtype=read_obj_type(objno);
 
-    if(objtype<6) {                                     // Objekttyp, 1-6 Bit
+    if(objtype<6) {                             // Objekttyp, 1-6 Bit
         telegramm[5]=0xE1;
         telegramm[7]+=sval;
     }
 
-    if(objtype>=6 && objtype<=7) {      // Objekttyp, 7-8 Bit
+    if(objtype>=6 && objtype<=7) {              // Objekttyp, 7-8 Bit
         telegramm[5]=0xE2;
         telegramm[8]=sval;
     }
@@ -122,7 +122,7 @@ void write_value_req(void)				// Ausgänge schalten gemäß EIS 1 Protokoll (an/aus
                 }
               if(dataw==1&&commObjectNumber==c && sperren[c]==0) //schaltobjekt  EIN
                 {
-                dimmwert[c]=helligkeittsstufe(einschathellikeit[c],c);
+                dimmwert[c]=helligkeittsstufe(einschathellikeit[c]-1,c);
                 b_send=1;
                 }
               if(commObjectNumber==c+2 && sperren[c]==0)         //Dimmobjekt
@@ -175,7 +175,10 @@ void write_value_req(void)				// Ausgänge schalten gemäß EIS 1 Protokoll (an/aus
                   if(eeprom[0xc3]&(1<<(6+c))!=0)// nur wenn  wertobjekt eingeschalten
                     respond(c+8,dimmwert[c]);
                   respond(c+6,(dimmwert[c]?1:0)+0x80);
+                  if(dimmwert[c]>0)
+                    ausschalthellikeit[c]=dimmwert[c];
                   b_send=0;
+
                 }
               }
 

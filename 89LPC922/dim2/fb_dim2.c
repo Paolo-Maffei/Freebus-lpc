@@ -58,8 +58,9 @@ unsigned char sperren[DIMKREISE];             //Sperren oder nicht 1=sperren
 unsigned int ie=0;              // dimmer immer wieder aktualisieren
 //unsigned char faktor_dimmgeschwindikeit[DIMKREISE];
 unsigned int basis_dimmgeschwindikeit[DIMKREISE];
-unsigned char code hellikeit[]={0,25,40,53,67,80,95,120,140,160,180,200,0};
+unsigned char code hellikeit[]={0,25,40,51,76,102,127,153,178,204,230,255,255};
 unsigned int code basis[]={0,1,16,260,4200,65000};
+unsigned char ausschalthellikeit[DIMKREISE];
 unsigned char faktor_zl[DIMKREISE];
 unsigned int basis_zl[DIMKREISE];
 unsigned char kanal_zl=0;
@@ -67,14 +68,14 @@ unsigned char andimm_zl=0;
 unsigned char ctaste;    //zähler für Taste welche gerade abgefragt wird
 unsigned char mtaste[8]; //merker Taste mit zähler (Tastenprllung und langer tastendruck)  1-8 =tasten
 
-unsigned char helligkeittsstufe(unsigned char stufe,unsigned char kanal)
+unsigned char helligkeittsstufe(unsigned char stufe,unsigned char kanal)//Stufe 0-c
 {
   if(stufe == 1)
     return mindimmwert[kanal];
   if(stufe == 0x0b)
     return MAXDIMMWERT;
   if(stufe == 0x0c)
-    return read_obj_value(kanal+4);
+    return ausschalthellikeit[kanal];
   return hellikeit[stufe];
 }
 
@@ -103,8 +104,8 @@ void restart_app(void)		// Alle Applikations-Parameter zurücksetzen
   einschathellikeit[1]=eeprom[0xC4]>>4;         //wert 0 - 0x0c
   dimmwert[0]=helligkeittsstufe(eeprom[0xe2]&0x0f,0);     //Verhalten bei Busspannungswiederkehr
   dimmwert[1]=helligkeittsstufe((eeprom[0xe2]>>4)&0x0f,1);//Verhalten bei Busspannungswiederkehr
-  mindimmwert[0]=(eeprom[0xc2]&0x0f)*80+10;
-  mindimmwert[1]=(eeprom[0xc2]>>4)*80+10;
+  mindimmwert[0]=(eeprom[0xc2]&0x0f)*15+30;
+  mindimmwert[1]=(eeprom[0xc2]>>4)*15+30;
 
   basis_dimmgeschwindikeit[0]=basis[(eeprom[0xC6]&0x07)];
   basis_dimmgeschwindikeit[1]=basis[(eeprom[0xC6]>>4)&0x07];
@@ -198,19 +199,6 @@ void tr0_int(void) interrupt 1         //n=nummer 0x03+8*n
   TH0=0xf9;     // timer mit 0xb7 200HZ = 5ms
 
   tastenauswertung();
-/*     dimmwert[0]=0xff;
-   if((taste&0x04)==0x04)
-     dimmwert[0]=0x0;
-
-    if((taste&0x20)==0x20)       //Kanal 2
-      dimmwert[1]=0xff;
-    if((taste&0x40)==0x40)
-      dimmwert[1]=0x0;
-*/
-/*if(taste!= mtaste)
-    rs_send_hex(taste);
-  mtaste=taste;
-*/
     P0_0=(dimm_I2C[0])?1:0;     //LED_zeile K1
     if(dimm_I2C[0]>75) P0_1=1;
     else P0_1=0;
@@ -289,12 +277,12 @@ void tr0_int(void) interrupt 1         //n=nummer 0x03+8*n
           if(faktor_zl[kanal_zl] > eeprom[0xc8+(kanal_zl)])
              {
              faktor_zl[kanal_zl]=0;
-              if(dimm_helldunkel[kanal_zl]>=9 && dimm_helldunkel[kanal_zl]<=0xf)        //heller=9
+              if(dimm_helldunkel[kanal_zl]>=9 && dimm_helldunkel[kanal_zl]<=0xf)//heller=9
                {
                if(dimmwert[kanal_zl]<MAXDIMMWERT-1)
                    dimmwert[kanal_zl]+=2;
                }
-              if(dimm_helldunkel[kanal_zl]>=1 && dimm_helldunkel[kanal_zl]<=7)        //dunkler=1
+              if(dimm_helldunkel[kanal_zl]>=1 && dimm_helldunkel[kanal_zl]<=7) //dunkler=1
                {
                if(dimmwert[kanal_zl]>mindimmwert[kanal_zl]+1)
                  dimmwert[kanal_zl]-=2;

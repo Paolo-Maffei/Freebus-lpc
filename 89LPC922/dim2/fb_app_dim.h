@@ -42,4 +42,5 @@ extern unsigned char mindimmwert[DIMKREISE];         //minimaldimmwert von der a
 extern unsigned char einschathellikeit[DIMKREISE];   //einschathellikeit
 extern unsigned char sperren[DIMKREISE];             //Sperren oder nicht 1=sperren
 extern unsigned char taste;                          //Handbetätigung
+extern unsigned char ausschalthellikeit[DIMKREISE];  //merker für den letzte hellikeit
 #endif
