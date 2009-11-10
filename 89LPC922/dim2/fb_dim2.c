@@ -34,6 +34,7 @@
 //      zeitfunktionen
 //      ausschalfunktion
 
+//10.11.2009    schrittweite zwischen zwei dimmstufen zugefügt
 
 #include <P89LPC922.h>
 #include "../com/fb_hal_lpc.h"
@@ -60,6 +61,7 @@ unsigned int ie=0;              // dimmer immer wieder aktualisieren
 unsigned int basis_dimmgeschwindikeit[DIMKREISE];
 unsigned char code hellikeit[]={0,25,40,51,76,102,127,153,178,204,230,255,255};
 unsigned int code basis[]={0,1,16,260,4200,65000};
+unsigned char code schritttabelle[]={0,200,100,50,25,12,6,3}; //schrittweite heller dunkler dimmen
 unsigned char ausschalthellikeit[DIMKREISE];
 unsigned char faktor_zl[DIMKREISE];
 unsigned int basis_zl[DIMKREISE];
@@ -67,7 +69,7 @@ unsigned char kanal_zl=0;
 unsigned char andimm_zl=0;
 unsigned char ctaste;    //zähler für Taste welche gerade abgefragt wird
 unsigned char mtaste[8]; //merker Taste mit zähler (Tastenprllung und langer tastendruck)  1-8 =tasten
-
+unsigned char schritt_zl_dim[DIMKREISE];//zähler schrittweite zum heller-dunklerdimmen
 unsigned char helligkeittsstufe(unsigned char stufe,unsigned char kanal)//Stufe 0-c
 {
   if(stufe == 1)
@@ -277,15 +279,23 @@ void tr0_int(void) interrupt 1         //n=nummer 0x03+8*n
           if(faktor_zl[kanal_zl] > eeprom[0xc8+(kanal_zl)])
              {
              faktor_zl[kanal_zl]=0;
-              if(dimm_helldunkel[kanal_zl]>=9 && dimm_helldunkel[kanal_zl]<=0xf)//heller=9
+              if(dimm_helldunkel[kanal_zl]>=9 && dimm_helldunkel[kanal_zl]<=0xf)//heller=9==100%
                {
                if(dimmwert[kanal_zl]<MAXDIMMWERT-1)
-                   dimmwert[kanal_zl]+=2;
+                 {
+                   schritt_zl_dim[kanal_zl]+=schritttabelle[(dimm_helldunkel[kanal_zl]-8)];
+                   dimmwert[kanal_zl]+=(schritt_zl_dim[kanal_zl]/100);
+                   schritt_zl_dim[kanal_zl]%=100;
+                 }
                }
-              if(dimm_helldunkel[kanal_zl]>=1 && dimm_helldunkel[kanal_zl]<=7) //dunkler=1
+              if(dimm_helldunkel[kanal_zl]>=1 && dimm_helldunkel[kanal_zl]<8) //dunkler=1==100%
                {
                if(dimmwert[kanal_zl]>mindimmwert[kanal_zl]+1)
-                 dimmwert[kanal_zl]-=2;
+                 {
+                   schritt_zl_dim[kanal_zl]+=schritttabelle[(dimm_helldunkel[kanal_zl])];
+                   dimmwert[kanal_zl]-=(schritt_zl_dim[kanal_zl]/100);
+                   schritt_zl_dim[kanal_zl]%=100;
+                 }
                }
             }
          }
