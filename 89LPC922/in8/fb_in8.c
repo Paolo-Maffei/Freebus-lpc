@@ -34,22 +34,27 @@ void main(void)
 { 
 
   unsigned char n;
-
   restart_hw();				// Hardware zurücksetzen
   restart_prot();			// Protokoll-relevante Parameter zurücksetzen
   restart_app();			// Anwendungsspezifische Einstellungen zurücksetzen
   portbuffer=P0;			// zunächst keine Änderungen bei Busspannungswiederkehr
   rs_init();				// serielle Schnittstelle initialisieren
-
+  
   do  {
   
-     
+/*	    if (RI)
+	    {
+	    	RI=0;
+	    	if (SBUF>47) rs_send_hex(read_obj_value(SBUF-48));
+	    }
+*/
+	  
     p0h=P0;				// prüfen ob ein Eingang sich geändert hat
     if (p0h!=portbuffer) 
     {
       for(n=0;n<8;n++)					// jeden Eingangspin einzel prüfen
       {
-        if (((p0h>>n)&0x01) != ((portbuffer>>n)&0x01))
+        if ((((p0h>>n)&0x01) != ((portbuffer>>n)&0x01))&& !(blocked>>n)&0x01)
         {
           pin_changed(n);				// Änderung verarbeiten
         }

@@ -22,7 +22,7 @@
 #define PDIR			0xFF	// Port-Richtung, wenn Bit gesetzt dann ist der entsprechende Pin ein Ausgang (für kombinierte Ein-/Ausgänge)
 
 extern unsigned char portbuffer,p0h;	// Zwischenspeicherung der Portzustände
-
+extern unsigned char blocked;	// Sperrobjekte
 void pin_changed(unsigned char pinno);
 void schalten(unsigned char risefall, unsigned char pinno);	// Schaltbefehl senden
 unsigned char pin_function(unsigned char pinno);	// Funktion des Eingangs ermitteln
@@ -33,9 +33,10 @@ unsigned char switch_dim(unsigned char pinno);
 void delay(int w);
 void delay_timer(void);
 void write_value_req(void);	
+void sperren(unsigned char objno,unsigned char freigabe);
 void read_value_req(void);
-//void send_value(unsigned char type, unsigned char objno, int sval);
+void send_value(unsigned char type, unsigned char objno, int sval);
 void restart_app(void);		// Alle Applikations-Parameter zurücksetzen
-void send_eis(unsigned char eistyp, unsigned char objno, int sval);	// sendet ein EIS Telegramm
+//void send_eis(unsigned char eistyp, unsigned char objno, int sval);	// sendet ein EIS Telegramm
 
 #endif
