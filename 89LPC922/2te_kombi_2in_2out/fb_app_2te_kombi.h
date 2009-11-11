@@ -23,26 +23,12 @@
 
 extern long timer;				// Timer fuer Schaltverzoegerungen, wird alle 130us hochgezaehlt
 extern bit delay_toggle;		// um nur jedes 2. Mal die delay routine auszufuehren
-extern long buttontimer[4];
+//extern long buttontimer[4];
 extern unsigned char button_buffer;	// puffer fuer taster werte
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 void port_changed(unsigned char portval);		// ein Taster wurde gedrueckt oder losgelassen
 void button_changed(unsigned char buttonno, bit buttonval);	// Taster Aktion abarbeiten
-void send_eis(unsigned char eistyp, unsigned char objno, int sval);	// sendet ein EIS Telegramm
-
 
 
 
@@ -72,10 +58,10 @@ void object_schalten(unsigned char objno, bit objstate);	// Objekt schalten
 #define BLOCKACT	0xEE	// Verhalten beim Sperren angepasst
 #define BLOCKPOL	0xEF	// Polarität der Sperrobjekte angepasst
 #define RELMODE		0xF0	// Relaisbetrieb angepasst
-#define	DELAYTAB	0xF6	// Start der Tabelle für Verzögerungswerte (Basis) angepasst
+//#define	DELAYTAB	0xF6	// Start der Tabelle für Verzögerungswerte (Basis) angepasst
 extern 	bit portchanged;// globale variable, sie ist 1 wenn sich portbuffer geändert hat
 extern unsigned char portbuffer;
-
+extern bit direktbetrieb;
 
 
 

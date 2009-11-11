@@ -21,6 +21,8 @@
  *
  *
  *
+ *
+ *
  */
 
 
@@ -28,7 +30,7 @@
 #include "../com/fb_hal_lpc.h"
 #include "../com/fb_prot.h"
 #include "fb_app_2te_kombi.h"
-#include "../com/fb_rs232.h"
+//#include "../com/fb_rs232.h"
 
 
 
@@ -48,7 +50,7 @@ void main(void)
 		while(!TF0);
 	}
 
-	rs_init();
+//	rs_init();
 
 	restart_prot();				// Protokoll-relevante Parameter zuruecksetzen
 	restart_app();				// Anwendungsspezifische Einstellungen zuruecksetzen
@@ -60,12 +62,12 @@ void main(void)
 		// ***************************************************************************
 
 
-	    if (RI)
+/*	    if (RI)
 	    {
 	    	RI=0;
 	    	rs_send(eeprom[SBUF]);
 	    }
-
+*/
 
 
 
