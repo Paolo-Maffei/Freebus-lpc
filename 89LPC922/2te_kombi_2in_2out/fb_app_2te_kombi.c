@@ -181,7 +181,9 @@ void object_schalten(unsigned char objno, bit objstate)	// Schaltet einen Ausgan
 
 	unsigned char port_pattern,objflags,delay_base,delay_state,delay_zeit,logicfunc,zfno;
 	unsigned long delay_target,delay_onoff;
-	bit off_disable,rel_mode;
+	bit off_disable,rel_mode, objlogicstate;
+
+	objlogicstate=((logicstate>>objno)&0x01);
 
 //	delay_zeit=eeprom[0xE9];  //ZeitSCHALTfunktion angepasst
 //	delay_zeit=((delay_zeit>>objno)&0x01);
@@ -232,8 +234,8 @@ void object_schalten(unsigned char objno, bit objstate)	// Schaltet einen Ausgan
 
 
 			// Ausschalten
-			if ( (objstate==0 && (logicfunc==0 || (logicfunc==1 && ((logicstate>>objno)&0x01)==0x00) || logicfunc>=2))
-					|| (objstate==1 && (logicfunc>=2 && ((logicstate>>objno)&0x01)==0x00)) )
+			if ( (objstate==0 && (logicfunc==0 || (logicfunc==1 && objlogicstate==0x00) || logicfunc>=2))
+					|| (objstate==1 && (logicfunc>=2 && objlogicstate==0x00)) )
 
 //			if (objstate==0)
 			{
@@ -251,8 +253,8 @@ void object_schalten(unsigned char objno, bit objstate)	// Schaltet einen Ausgan
 
 
 			// Einschalten
-			if ( (objstate==1 && (logicfunc==0 || logicfunc==1 || (logicfunc>=2 && ((logicstate>>objno)&0x01)==0x01)))
-					|| (objstate==0 && (logicfunc==1 && ((logicstate>>objno)&0x01)==0x01)) )
+			if ( (objstate==1 && (logicfunc==0 || logicfunc==1 || (logicfunc>=2 && objlogicstate==0x01)))
+					|| (objstate==0 && (logicfunc==1 && objlogicstate==0x01)) )
 
 
 //			if (objstate==1)
@@ -472,7 +474,7 @@ void respond(unsigned char objno, unsigned char rval)	// sucht Gruppenadresse fü
 void write_value_req(void)	// Empfangenes write_value_request Telegramm verarbeiten
 {
 	  unsigned char objno,objflags,gapos,atp,assno,n,gaposh,zfout,zftyp,objno_help;
-	  unsigned char blockstart,blockend,blockpol_help,blockact_help;
+	  unsigned char blockstart,blockend,blockpol_help,blockact_help, ohs;
 
 
 	    gaposh=0;
@@ -523,6 +525,7 @@ void write_value_req(void)	// Empfangenes write_value_request Telegramm verarbei
 */
 //	            zfout=objno-7;
 	            objno_help=objno-8;
+	            ohs=(0x01<<objno_help);
 
 	            blockact_help=eeprom[BLOCKACT]>>(objno_help)*4;
 
@@ -540,10 +543,10 @@ void write_value_req(void)	// Empfangenes write_value_request Telegramm verarbei
 	                switch (telegramm[7])
 	                {
 	                  case 0x80:
-	                    logicstate=logicstate&(0xFF-(0x01<<objno_help));
+	                    logicstate=logicstate&(0xFF-ohs);
 	                  break;
 	                  case 0x81:
-	                    logicstate=logicstate|(0x01<<objno_help);
+	                    logicstate=logicstate|ohs;
 	                }
 	                object_schalten(objno_help, telegramm[7]&0x01);
 	              break;
@@ -552,14 +555,14 @@ void write_value_req(void)	// Empfangenes write_value_request Telegramm verarbei
 
 	              case 0x01:			// Sperren
 
-	            	  blockpol_help=eeprom[BLOCKPOL]&(1<<(objno-8));
+	            	  blockpol_help=eeprom[BLOCKPOL]&ohs;
 
 	            	if (((telegramm[7]==0x80) && (blockpol_help==0)) ||
 	                	((telegramm[7]==0x81) && (blockpol_help!=0)))
 	                {	// Ende der Sperrung
-	                    blocked=blocked&(0xFF-(0x01<<objno_help));
-	                    if (blockend==0x01) portbuffer=portbuffer&(0xFF-(0x01<<objno_help));	// Bei Ende der Sperrung ausschalten
-	                    if (blockend==0x02) portbuffer=portbuffer|(0x01<<objno_help);		// Bei Ende der Sperrung einschalten
+	                    blocked=blocked&(0xFF-ohs);
+	                    if (blockend==0x01) portbuffer=portbuffer&(0xFF-ohs);	// Bei Ende der Sperrung ausschalten
+	                    if (blockend==0x02) portbuffer=portbuffer|ohs;		// Bei Ende der Sperrung einschalten
 	                }
 
 	                if (((telegramm[7]==0x81) && (blockpol_help==0)) ||
@@ -567,8 +570,8 @@ void write_value_req(void)	// Empfangenes write_value_request Telegramm verarbei
 	                {	// Beginn der Sperrung
 
 	                    blocked=blocked|(0x01<<objno_help);
-	                    if (blockstart==0x01) portbuffer=portbuffer&(0xFF-(0x01<<objno_help));	// Bei Beginn der Sperrung ausschalten
-	                    if (blockstart==0x02) portbuffer=portbuffer|(0x01<<objno_help);		// Bei Beginn der Sperrung einschalten
+	                    if (blockstart==0x01) portbuffer=portbuffer&(0xFF-ohs);	// Bei Beginn der Sperrung ausschalten
+	                    if (blockstart==0x02) portbuffer=portbuffer|ohs;		// Bei Beginn der Sperrung einschalten
 	                    delrec[objno_help*4]=0;	// ggf. Eintrag für Schaltverzögerung löschen
 	                }
 	              //port_schalten(portbuffer);
