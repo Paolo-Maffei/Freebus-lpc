@@ -35,10 +35,11 @@ void main(void)
 
   unsigned char n;
   restart_hw();				// Hardware zurücksetzen
+  rs_init();				// serielle Schnittstelle initialisieren
+
   restart_prot();			// Protokoll-relevante Parameter zurücksetzen
   restart_app();			// Anwendungsspezifische Einstellungen zurücksetzen
   portbuffer=P0;			// zunächst keine Änderungen bei Busspannungswiederkehr
-  rs_init();				// serielle Schnittstelle initialisieren
   
   do  {
   

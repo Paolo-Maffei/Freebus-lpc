@@ -25,9 +25,8 @@
 unsigned char portbuffer,p0h;
 unsigned int objstate;		// Zwischenspeicher der Objektzustände x.1 (Bit 0-7) und x.2 (Bit 8-15)
 unsigned char blocked;			//zwischenspeicherung der Sperren
-
 long timer;			// Timer für Schaltverzögerungen, wird alle 130ms hochgezählt
-		
+//unsigned char value[16];		
 
 
 void pin_changed(unsigned char pinno)
@@ -121,7 +120,7 @@ void pin_changed(unsigned char pinno)
   				if (eeprom[0xD5+(pinnoX4)] & 0x08) {	// ... natuerlich nur wenn parameter dementsprechend 
   					send_value(2, pinno+8, tmp & 0x08);		// Stop Telegramm
   				}
-  				else write_obj_value(pinno+8,tmp & 0x08);	// auch wenn Stopp Telegramm nicht gesendet wird, Objektwert auf 0 setzen
+  				else while(!write_obj_value(pinno+8,tmp & 0x08));	// auch wenn Stopp Telegramm nicht gesendet wird, Objektwert auf 0 setzen
   			}
   			
   		}
@@ -275,13 +274,13 @@ void schalten(unsigned char risefall, unsigned char pinno)	// Schaltbefehl sende
       if (func==0x02) send_value(1,pinno,0x00);	// AUS
       if (func==0x03)						// UM
       {
-    	if (objstate&(0x0001<<pinno)) {						// AUS
+    	if (read_obj_value(pinno)&0x01) {		// AUS
     		send_value(1,pinno,0x00);
-    		objstate=objstate&(0xFFFF-(0x0001<<pinno));
+    		//objstate=objstate&(0xFFFF-(0x0001<<pinno));
     	}
         else {
-        	send_value(1,pinno,0x01);//telegramm[7]=0x81;								// EIN
-        	objstate=objstate|(0x0001<<pinno);
+        	send_value(1,pinno,0x01);//telegramm[7]=0x81;	// EIN
+        	//objstate=objstate|(0x0001<<pinno);
         }
       }
   }
@@ -327,9 +326,9 @@ void write_value_req(void)		// Objekt-Wert setzen gemäß empfangenem EIS  Telegra
     			objflags=read_objflags(objno);		// Objekt Flags lesen
     			if((objflags&0x14)==0x14) {			// Kommunikation zulässig (Bit 2 = communication enable) + Schreiben zulässig (Bit 4 = write enable)
     				if (objno<16) {					// Status der Eingangsobjekte 0-15
-    					if (telegramm[7]==0x80) objstate&=(0xFFFF-(0x0001<<objno));
-    					if (telegramm[7]==0x81) objstate|=(0x0001<<objno);
-    					write_obj_value(objno,telegramm[7]&0x0F);
+    					//if (telegramm[7]==0x80) objstate&=(0xFFFF-(0x0001<<objno));
+    					//if (telegramm[7]==0x81) objstate|=(0x0001<<objno);
+    					while(!write_obj_value(objno,telegramm[7]&0x0F));
     				}
  //   				if (objno>7&&objno<16){ // zum Bsp Langzeitobjekte		
  //   					write_obj_value(objno,telegramm[7]&0x0F);
@@ -337,7 +336,7 @@ void write_value_req(void)		// Objekt-Wert setzen gemäß empfangenem EIS  Telegra
     				if (objno>15){		//16-23 Sperrobjekte
     					tmp=telegramm[7]& 0x01;
     					if (read_obj_value(objno)^tmp) {
-	    					write_obj_value(objno,tmp);
+	    					while(!write_obj_value(objno,tmp));
 	    					para_value= (eeprom[0xD5+((objno & 0x07)*4)]&0x03);
 	    					tmp = tmp ^ ((para_value) & 0x01);
 	    					if (para_value){			// wenn eine sperre aktiviert parametriert ist
@@ -370,6 +369,7 @@ void sperren (unsigned char obj,unsigned char freigabe)
 	switch ((eeprom[0xCE+(obj>>1)] >> ((obj & 0x01)*4)) & 0x0F){// Funtion des zugehörigen Eingangs
 	case 0x01:// funktion Schalten sperren
 		switch ((eeprom[0xD5+(obj*4)]>>((freigabe^0x01)*2))&0x0C){
+
 			case 0x04:		//EIN
 				objval=1;
 			break;
@@ -377,8 +377,8 @@ void sperren (unsigned char obj,unsigned char freigabe)
 				objval=0;
 			break;
 			case 0x0C:	//UM
-				if (freigabe){ //ende sperre-> alter Zustand(nur woher??)
-				objval= read_obj_value(obj);//(oldvalue >> obj)&0x01;
+				if (freigabe){ //ende sperre-> aktueller Zustand
+				objval= (portbuffer>>obj)& 0x01;
 				}
 				else{	
     			objval=read_obj_value(obj)^0x01;//Tele invers senden
@@ -387,7 +387,7 @@ void sperren (unsigned char obj,unsigned char freigabe)
 			default:
 			sending=0;
 		}
-		if (sending) send_value(49,obj,objval);//nicht speichern BUG !! weil um nicht funzt dann
+		if (sending) send_value(1,obj,objval);//nicht speichern BUG !! weil um nicht funzt dann
 	break;	
 	case 0x02:// funktion Dimmer-sperren
 		objval = read_obj_value(obj);
@@ -466,7 +466,7 @@ void read_value_req(void)
 
 
 void send_value(unsigned char type, unsigned char objno, int sval)	// sucht Gruppenadresse für das Objekt objno uns sendet ein EIS Telegramm
-{																	// mit dem Wert sval
+{				//|0x10->nosafe, |0x020 no selftele													// mit dem Wert sval
   int ga;
   unsigned char objtype;
   bit safe;
@@ -513,7 +513,7 @@ void send_value(unsigned char type, unsigned char objno, int sval)	// sucht Grup
     }   
     
     EX1=0;
-    if (safe)  write_obj_value(objno, sval);	// Objektwert im USERRAM speichern
+    if (safe)  while(!write_obj_value(objno, sval));	// Objektwert im USERRAM speichern
 	if (selftele)write_value_req();				// eigenes Telegramm nochmal verarbeiten
 
     send_telegramm();
@@ -536,7 +536,9 @@ void delay(int w)	// delay ca. 4,5µs * w
 
 void restart_app(void)		// Alle Applikations-Parameter zurücksetzen
 {
-
+	unsigned char n;
+	bit objval=0,senden;
+	
   P0M1=0xFF;	//P0 auf input only (high impedance!)
   P0M2=0x00;
   P0=0xFF;
@@ -546,7 +548,7 @@ void restart_app(void)		// Alle Applikations-Parameter zurücksetzen
 	start_rtc(130);		// RTC neu mit 8ms starten
 	timer=0;			// Timer-Variable, wird alle 8ms inkrementiert
 
-  
+  EA=0; 
   START_WRITECYCLE
   WRITE_BYTE(0x01,0x03,0x00)	// Herstellercode 0x0004 = Jung
   WRITE_BYTE(0x01,0x04,0x04);
@@ -557,4 +559,46 @@ void restart_app(void)		// Alle Applikations-Parameter zurücksetzen
   WRITE_BYTE(0x01,0x0D,0xFF);	// Run-Status (00=stop FF=run)
   WRITE_BYTE(0x01,0x12,0x84);	// COMMSTAB Pointer
   STOP_WRITECYCLE
+  EA=1;
+  
+  //  ++++++++++++    Startverhalten bei Buswiederkehr ++++++++++
+  for (n=0;n<8;n++){
+	  senden=0;
+	  switch ((eeprom[0xCE+(n>>1)] >> ((n & 0x01)*4)) & 0x0F)	// Funktion des objektes
+		{
+		case 0x01:// schalten
+		case 0x03:// Jalousie
+			switch(eeprom[0xD5+(n*4)]&0xCE){
+			case 0x40:
+				objval=1;
+				senden=1;
+			break;	
+			case 0x80:
+				objval=0;
+				senden=1;
+			break;
+			case 0xC0:
+				objval=(p0h>>n);
+				senden=1;
+			// ansonsten nichst tun !	
+			}
+		break;
+		case 0x02://dimmen austele
+			if(eeprom[0xD7+(n*4)]&0x80){
+				objval=0;
+				senden=1;
+				}
+		case 0x04:	//Wertgeber+Dimmer eintele
+			if(eeprom[0xD8+(n*4)]&0x80){
+				objval=1;
+				senden=1;
+			//ansonsten nichts tun !	
+			}
+  		}
+	if (senden)send_value(17,n,objval);// eis1, kein selftele, speichern ja
+	blocked=blocked | ((read_obj_value(n+16)& 0x01)<<n);
+  }
+  
+  
+  
 }
