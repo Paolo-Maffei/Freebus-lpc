@@ -38,10 +38,11 @@ void pin_changed(unsigned char pinno)
 	unsigned char n;
 	bit objval=0,jobj=0;
 	bit st_Flanke=0;
-	unsigned char pinnoX4;
+	unsigned char pinnoX4,para_adr;
 	//const unsigned char para_adr_feld[]={0xF6,0xF7,0xF7,0xF8,0xF8,0xF9,0xF9,0xFA};
 	EX1=0;		// externen Interrupt 1 sperren
 	pinnoX4=pinno*4;
+	para_adr=0xD5+(pinnoX4);
 	n;
   if (debounce(pinno))			// Entprellzeit abwarten und prüfen
   {
@@ -68,15 +69,14 @@ void pin_changed(unsigned char pinno)
     		/***********************
     		 * Funktion Dimmen
     		 ***********************/
-
-  		// Taster gedrueckt -> schauen wie lange gehalten
+    		// Taster gedrueckt -> schauen wie lange gehalten
             if (st_Flanke){// Taster gedrueckt -> schauen wie lange gehalten
   			duration=(eeprom[0xD7+(pinnoX4)]&0x7F);	// Faktor Dauer			
             // im Nachfolgenden wird die Zeitbasis geholt und schiebt duration nach links
 			duration=duration << timebase;// Basis Dauer zwischen kurz und langzeit)	
   			duration+=timer;
   			objval=(read_obj_value(pinno+8)>>3)&0x01;
-  			switch (eeprom[0xD5+(pinnoX4)]&0x70) {
+  			switch (eeprom[para_adr + 0x02]&0x70) {
   			case 0x00:	// UM Dimmen
   				objval = !objval;	// Dimmrichtung ändern
   				break;
@@ -90,16 +90,16 @@ void pin_changed(unsigned char pinno)
   				objval=0;
   			}
   			if(objval){	// wenn heller dimmen soll
-  				write_delay_record(pinno, ((eeprom[0xD6+(pinnoX4)]&0x38)>>3)+ 0x48, duration);	// dimmen
+  				write_delay_record(pinno, ((eeprom[para_adr+0x01]&0x38)>>3)+ 0x48, duration);	// dimmen
   				}
   			else{		// wenn dunkler dimmen soll
-  				write_delay_record(pinno, (eeprom[0xD6+(pinno*4)]&0x07)+ 0x40, duration);	// dimmen
+  				write_delay_record(pinno, (eeprom[para_adr+0x01]&0x07)+ 0x40, duration);	// dimmen
   				}
           }
   		else {		// Taster losgelassen
   			if (delrec[pinnoX4]) {		// wenn delaytimer noch laeuft, dann Schalten, also EIS1 telegramm senden
   				objval = read_obj_value(pinno);
-  				switch (eeprom[0xD5+(pinnoX4)]&0x70) {//Bedienkonzept angucken
+  				switch (eeprom[para_adr]&0x70) {//Bedienkonzept angucken
   				case 0x10:	// zweiflaechen ein
   					objval=1;
   					break;
@@ -130,7 +130,8 @@ void pin_changed(unsigned char pinno)
         	/****************************
         	 * Funktion Jalousie
         	 ****************************/
-			para_value=(eeprom[0xD8+(pinno*4)]&0x30)>>4;//Jalofunktion holen
+        	n=0xD8+(pinno*4);
+			para_value=(eeprom[n]&0x30)>>4;//Jalofunktion holen
 			switch (para_value){
 				case 1:		//auf
 					jobj=0;
@@ -143,14 +144,14 @@ void pin_changed(unsigned char pinno)
 	    		break;
 			}
 			if (st_Flanke){// Taster gedrueckt -> schauen wie lange gehalten
-            	if(eeprom[(0xD8+(pinnoX4))]& 0x08){	//wenn Bedienkonzept lang-kurz
+            	if(eeprom[n]& 0x08){	//wenn Bedienkonzept lang-kurz ()
             		write_delay_record(pinno, jobj+0x80, timer+1);
             	}
             	else{								//wenn Bedienkonzept kurz-lang-kurz
 	            	send_value(1, pinno, jobj);	// Kurzzeit telegramm immer bei Drücken senden
-	    			duration=eeprom[0xD6+(pinno*4)];	// Faktor Dauer
+	    			duration=eeprom[0xD6+(pinno*4)];//Faktor Dauer )
 	   			// im Nachfolgenden wird die Zeitbasis geholt und schiebt duration nach links
-	    			duration=duration << timebase;//(eeprom[para_adr]>>(4*(1-(pinno&0x01))));// Basis Dauer zwischen kurz und langzeit)	
+	    			duration=duration << timebase;// Basis Dauer zwischen kurz und langzeit)	
 	     			duration+=timer;
 	    			write_delay_record(pinno, jobj+0x80, duration);
 	            }// ende Bedienkonzept lang-kurz-lang
@@ -161,16 +162,40 @@ void pin_changed(unsigned char pinno)
     		}
         break;
  
+    	/**********************************************************
+    	 * Funktion Wertgeber Dimmen,Temparatur,Helligkeit
+    	 **********************************************************/
         
-        
-        case 0x04:				// Wertgeber
-            rs_send_dec (4);
-        break;
-        case 0x09:				// Impulszähler
-            rs_send_dec (9);
-      	break;
-        case 0x0A:				// Schaltzähler	
-            rs_send_dec (10);
+        case 0x04:// Dimmwertgeber
+        	para_value=0xFF;
+        case 0x07:// Temperaturwertgeber
+        case 0x08:// Helligkeitswertgeber,
+        	para_value=para_value |0x1F;
+        	//rs_send_hex(para_value);
+        	n=0xD5+(pinno*4);
+        	tmp=(((eeprom[n]&0x04)>>2)|(eeprom[n+1]&0x80)>>6);
+			if (st_Flanke){// Taster gedrueckt
+				if(tmp&0x01) send_value(54, pinno, eeprom[n+2]& para_value);	//Dimmwert senden
+            }//ende steigende Flanke
+    		else {	// Taster losgelassen dimmwert senden
+  			if (tmp>=0x02) send_value(54, pinno, eeprom[n+tmp]& para_value);
+    		}
+         break;
+ 
+         case 0x05:
+    	/*******************************************
+    	 * Funktion Wertgeber Lichtszenen
+    	 *******************************************/
+        	 n=0xD5+(pinno*4);
+        	 para_value=eeprom[n] & 0x0C;
+        	 
+		if (st_Flanke){// Taster gedrueckt -> schauen wie lange gehalten
+			if(para_value!=0x04) send_value(54, pinno,eeprom[n+2]&0x7F );	// Lichtszenennummer sanden
+		}
+		else{
+			if(para_value>=0x04) send_value(54, pinno,eeprom[n+3]&0x7F );	// Lichtszenennummer sanden
+		}
+ 	
         break;    
     }
   }
@@ -242,7 +267,7 @@ void delay_timer(void)
 					if (delay_state & 0x10) clear_delay_record(objno); // wenn T2 abgelaufen dann nichts mehr machen
 					
 					if (delay_state & 0x40) { // 0x4? fuer Dimmer Funktion
-						send_value(2, objno+8, delay_state);	// Langzeit Telegramm senden
+						send_value(2, objno+8, delay_state );	// Langzeit Telegramm senden
 						clear_delay_record(objno);
 					}
 				//}
@@ -256,7 +281,7 @@ void delay_timer(void)
 
 void schalten(unsigned char risefall, unsigned char pinno)	// Schaltbefehl senden
 {
-  unsigned char func;
+  unsigned char func,sendval=0;
   func=eeprom[0xD7+((pinno&0x07)*4)];
   
   if (pinno<=7) {
@@ -270,19 +295,9 @@ void schalten(unsigned char risefall, unsigned char pinno)	// Schaltbefehl sende
 
   if (func!=0)
   {
-      if (func==0x01) send_value(1,pinno,0x01);	// EIN
-      if (func==0x02) send_value(1,pinno,0x00);	// AUS
-      if (func==0x03)						// UM
-      {
-    	if (read_obj_value(pinno)&0x01) {		// AUS
-    		send_value(1,pinno,0x00);
-    		//objstate=objstate&(0xFFFF-(0x0001<<pinno));
-    	}
-        else {
-        	send_value(1,pinno,0x01);//telegramm[7]=0x81;	// EIN
-        	//objstate=objstate|(0x0001<<pinno);
-        }
-      }
+      if (func==0x03) sendval=(read_obj_value(pinno)^0x01);  //UM
+      else sendval = func & 0x01;	// EIN   AUS
+   	  send_value(1,pinno,sendval);
   }
 }
 
@@ -333,7 +348,7 @@ void write_value_req(void)		// Objekt-Wert setzen gemäß empfangenem EIS  Telegra
  //   				if (objno>7&&objno<16){ // zum Bsp Langzeitobjekte		
  //   					write_obj_value(objno,telegramm[7]&0x0F);
  //   				}
-    				if (objno>15){		//16-23 Sperrobjekte
+    				else{		//16-23 Sperrobjekte
     					tmp=telegramm[7]& 0x01;
     					if (read_obj_value(objno)^tmp) {
 	    					while(!write_obj_value(objno,tmp));
@@ -360,12 +375,10 @@ void write_value_req(void)		// Objekt-Wert setzen gemäß empfangenem EIS  Telegra
 
 void sperren (unsigned char obj,unsigned char freigabe)
 {	
-
 	bit objval=0;
 	bit sending ;
 	sending=1;
 	obj=obj & 0x07;
-
 	switch ((eeprom[0xCE+(obj>>1)] >> ((obj & 0x01)*4)) & 0x0F){// Funtion des zugehörigen Eingangs
 	case 0x01:// funktion Schalten sperren
 		switch ((eeprom[0xD5+(obj*4)]>>((freigabe^0x01)*2))&0x0C){
@@ -387,16 +400,16 @@ void sperren (unsigned char obj,unsigned char freigabe)
 			default:
 			sending=0;
 		}
-		if (sending) send_value(1,obj,objval);//nicht speichern BUG !! weil um nicht funzt dann
+		if (sending) send_value(1,obj,objval);
 	break;	
 	case 0x02:// funktion Dimmer-sperren
 		objval = read_obj_value(obj);
 		if (freigabe){		// Ende Sperre  
-			if (eeprom[0xD5+(obj*4)]&0x80) objval=0;// send_value(1,obj,0);
+			if (eeprom[0xD5+(obj*4)]&0x80) objval=0;
 			else sending=0;
 		}
 		else{				// Beginn Sperre
-			switch (eeprom[0xD6+(obj*4)]& 0xC0) {//Bedienkonzept angucken
+			switch (eeprom[0xD5+(obj*4)+1]& 0xC0) {//Bedienkonzept angucken
 			case 0x40:	// zweiflaechen ein
 				objval=1;
 				break;
@@ -458,7 +471,7 @@ void read_value_req(void)
 		
 		objflags=read_objflags(objno);		// Objekt Flags lesen
 		// Objekt lesen, nur wenn read enable gesetzt (Bit3) und Kommunikation zulaessig (Bit2)
-		if((objflags&0x0C)==0x0C) send_value(48,objno,objvalue);
+		if((objflags&0x0C)==0x0C) send_value(48,objno,objvalue);//eistype 1, nosafe, nosleftele
     }
 }
 
@@ -498,8 +511,8 @@ void send_value(unsigned char type, unsigned char objno, int sval)	// sucht Grup
     
     if(objtype<6) {					// Objekttyp, 1-6 Bit
     	telegramm[5]=0xE1;
-    	telegramm[7]+=sval & (0x03F);// auf 4 bit beschränken
-    }
+    	telegramm[7]+=sval & (0x03F);// auf 6 bit beschränken
+    }//beschraänkung ändern im Aufruf!!s. oben!!
     
     if(objtype>=6 && objtype<=7) {	// Objekttyp, 7-8 Bit
     	telegramm[5]=0xE2;
@@ -568,7 +581,8 @@ void restart_app(void)		// Alle Applikations-Parameter zurücksetzen
 		{
 		case 0x01:// schalten
 		case 0x03:// Jalousie
-			switch(eeprom[0xD5+(n*4)]&0xCE){
+	//  case 0x04:// Wertgeber(lichtszene)		
+			switch(eeprom[0xD5+(n*4)]&0xC0){
 			case 0x40:
 				objval=1;
 				senden=1;
@@ -588,7 +602,6 @@ void restart_app(void)		// Alle Applikations-Parameter zurücksetzen
 				objval=0;
 				senden=1;
 				}
-		case 0x04:	//Wertgeber+Dimmer eintele
 			if(eeprom[0xD8+(n*4)]&0x80){
 				objval=1;
 				senden=1;
@@ -596,7 +609,7 @@ void restart_app(void)		// Alle Applikations-Parameter zurücksetzen
 			}
   		}
 	if (senden)send_value(17,n,objval);// eis1, kein selftele, speichern ja
-	blocked=blocked | ((read_obj_value(n+16)& 0x01)<<n);
+	if(eeprom[0xD5+(n*4)]& 0x03) blocked=blocked | ((read_obj_value(n+16)& 0x01)<<n);
   }
   
   
