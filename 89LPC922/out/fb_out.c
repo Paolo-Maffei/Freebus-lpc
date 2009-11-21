@@ -61,6 +61,7 @@
 * 	3.19	Relais bekamen manchmal keinen Vollstrom -> behoben
 * 			Interrupts bei progmode flashen in der main() aus
 *   3.20	port_schalten() wird jetzt zentral von der main aufgerufen
+*   3.30	umgestellt auf statemachine library
 * 
 * @todo:
 	- Prio beim Senden implementieren \n
@@ -70,9 +71,8 @@
 
 
 #include <P89LPC922.h>
-#include "../com/fb_hal_lpc.h"
-#include "../com/fb_prot.h"
-#include "../com/fb_delay.h"
+#include "../lib_lpc922/fb_hal_lpc_sm.h"
+#include "../lib_lpc922/fb_prot_sm.h"
 #include "fb_app_out.h"
 
 
@@ -99,12 +99,14 @@ void main(void)
 	
 	restart_prot();							// Protokoll-relevante Parameter zuruecksetzen
 	restart_app();							// Anwendungsspezifische Einstellungen zuruecksetzen
+	bus_return();							// Aktionen bei Busspannungswiederkehr
+
 
 	do  {
 		if(RTCCON>=0x80) delay_timer();	// Realtime clock Ueberlauf
 
-		if(TF0&& TMOD==0x11) {			// Vollstrom für Relais ausschalten und wieder PWM ein
-			TMOD=0x12;		// Timer 0 als PWM, Timer 1 als 16-Bit Timer
+		if(TF0 && (TMOD & 0x0F)==0x01) {			// Vollstrom für Relais ausschalten und wieder PWM ein
+			TMOD=(TMOD & 0xF0) + 2;		// Timer 0 als PWM
 			TAMOD=0x01;
 			TH0=DUTY;
 			TF0=0;
@@ -112,9 +114,17 @@ void main(void)
 			PWM=1;			// PWM Pin muss auf 1 gesetzt werden, damit PWM geht !!!
 			TR0=1;
 		}
+
 		if (portchanged) port_schalten(portbuffer);				// Ausgänge schalten
   
-		
+		if (tel_arrived) {
+			tel_arrived=0;
+			process_tel();
+		}
+		else {
+		    owntele=0;
+		    respondpattern=0;
+		}
 		
 		
 		TASTER=1;				// Pin als Eingang schalten um Taster abzufragen

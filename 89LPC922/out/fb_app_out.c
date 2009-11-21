@@ -27,18 +27,19 @@
  * 			- Rückmeldung bei Busspannungswiederkehr funktioniert jetzt
  * 
  * 13.02.09	- owntele ist ein zähler, wie oft ein gesendetes telegramm intern erneut verarbeitet wurde
+ *
+ * 12.11.09 - umgestellt auf statemachine-library
  */
 
 
 
 #include <P89LPC922.h>
-#include "../com/fb_hal_lpc.h"
-#include "../com/fb_prot.h"
-#include "../com/fb_delay.h"
+#include "../lib_lpc922/fb_hal_lpc_sm.h"
+#include "../lib_lpc922/fb_prot_sm.h"
 #include "fb_app_out.h"
 
 
-
+unsigned char delrec[32];
 unsigned char Tval;
 unsigned char portbuffer;	// Zwischenspeicherung der Portzustände
 unsigned char zfstate;		// Zustand der Objekte 8-11 = Zusatzfunktionen 1-4
@@ -52,19 +53,37 @@ bit portchanged;
 
 
 
+void write_delay_record(unsigned char objno, unsigned char delay_state, long delay_target)
+{
+	delrec[objno*4]=delay_state;
+	delrec[objno*4+1]=delay_target>>16;
+	delrec[objno*4+2]=delay_target>>8;
+	delrec[objno*4+3]=delay_target;
+}
+
+
+void clear_delay_record(unsigned char objno)
+{
+	delrec[objno*4]=0;
+	delrec[objno*4+1]=0;
+	delrec[objno*4+2]=0;
+	delrec[objno*4+3]=0;
+}
+
+
+
+
 void write_value_req(void)				// Ausgänge schalten gemäß EIS 1 Protokoll (an/aus)
 {
   unsigned char objno,objflags,gapos,atp,assno,n,gaposh,zfout,zftyp;
-  unsigned char blockstart,blockend;
+  unsigned char blockstart, blockend, block_polarity;
+  unsigned char obj_bitpattern, zf_bitpattern;
  
     gaposh=0;
 
     gapos=gapos_in_gat(telegramm[3],telegramm[4]);	// Position der Gruppenadresse in der Adresstabelle
     if (gapos!=0xFF)					// =0xFF falls nicht vorhanden
     {
-	  if ((telegramm[1] != eeprom[ADDRTAB+1]) || (telegramm[2] != eeprom[ADDRTAB+2])) {
-		  send_ack();
-	  }
 	  atp=eeprom[ASSOCTABPTR];			// Start Association Table
       assno=eeprom[atp];				// Erster Eintrag = Anzahl Einträge
  
@@ -75,13 +94,14 @@ void write_value_req(void)				// Ausgänge schalten gemäß EIS 1 Protokoll (an/aus
         {
           objno=eeprom[atp+2+(n*2)];				// Objektnummer
           objflags=read_objflags(objno);			// Objekt Flags lesen
+          obj_bitpattern=0x01<<(objno-8);
           
           if (objno<8) object_schalten(objno,telegramm[7]&0x01);	// Objektnummer 0-7 entspricht den Ausgängen 1-8
 
           if (objno>7 && objno<12)	// Objektnummer 8-11 entspricht den Zusatzfunktionen 1-4
           {
-            if (telegramm[7]==0x80) zfstate=zfstate & (0x0F-(0x01<<(objno-8)));
-            if (telegramm[7]==0x81) zfstate=zfstate | (0x01<<(objno-8));
+            if (telegramm[7]==0x80) zfstate=zfstate & (0x0F-obj_bitpattern);
+            if (telegramm[7]==0x81) zfstate=zfstate | obj_bitpattern;
             zfout=0;
             blockstart=0;
             blockend=0;
@@ -108,6 +128,7 @@ void write_value_req(void)				// Ausgänge schalten gemäß EIS 1 Protokoll (an/aus
                 blockend=(eeprom[BLOCKACT+1]>>6)&0x03;		// Verhalten bei Ende der Sperrung
             }
             zftyp=((eeprom[FUNCTYP])>>((objno-8)*2)) & 0x03;	// Typ der Zusatzfunktion
+            zf_bitpattern=0x01<<(zfout-1);
            
             switch (zftyp)
             {
@@ -115,29 +136,30 @@ void write_value_req(void)				// Ausgänge schalten gemäß EIS 1 Protokoll (an/aus
                 switch (telegramm[7])
                 {
                   case 0x80:
-                    logicstate=logicstate&(0xFF-(0x01<<(zfout-1)));
+                    logicstate=logicstate&(0xFF-zf_bitpattern);
                   break;
                   case 0x81:
-                    logicstate=logicstate|(0x01<<(zfout-1));
+                    logicstate=logicstate|zf_bitpattern;
                 }
                 object_schalten(zfout-1, telegramm[7]&0x01);
               break;
               case 0x01:			// Sperren
-                if (((telegramm[7]==0x80) && ((eeprom[BLOCKPOL]&(1<<(objno-8)))==0)) ||	
-                	((telegramm[7]==0x81) && ((eeprom[BLOCKPOL]&(1<<(objno-8)))!=0)))
+            	block_polarity=eeprom[BLOCKPOL] & obj_bitpattern;
+                if (((telegramm[7]==0x80) && (block_polarity==0)) ||
+                	((telegramm[7]==0x81) && (block_polarity!=0)))
                 {	// Ende der Sperrung
-                    blocked=blocked&(0xFF-(0x01<<(zfout-1)));
-                    if (blockend==0x01) portbuffer=portbuffer&(0xFF-(0x01<<(zfout-1)));	// Bei Ende der Sperrung ausschalten
-                    if (blockend==0x02) portbuffer=portbuffer|(0x01<<(zfout-1));		// Bei Ende der Sperrung einschalten
+                    blocked=blocked&(0xFF-zf_bitpattern);
+                    if (blockend==0x01) portbuffer=portbuffer&(0xFF-zf_bitpattern);	// Bei Ende der Sperrung ausschalten
+                    if (blockend==0x02) portbuffer=portbuffer|zf_bitpattern;		// Bei Ende der Sperrung einschalten
                 }
                   
-                if (((telegramm[7]==0x81) && ((eeprom[BLOCKPOL]&(1<<(objno-8)))==0)) ||
-                	((telegramm[7]==0x80) && ((eeprom[BLOCKPOL]&(1<<(objno-8)))!=0)))
+                if (((telegramm[7]==0x81) && (block_polarity==0)) ||
+                	((telegramm[7]==0x80) && (block_polarity!=0)))
                 {	// Beginn der Sperrung
 
-                    blocked=blocked|(0x01<<(zfout-1));
-                    if (blockstart==0x01) portbuffer=portbuffer&(0xFF-(0x01<<(zfout-1)));	// Bei Beginn der Sperrung ausschalten
-                    if (blockstart==0x02) portbuffer=portbuffer|(0x01<<(zfout-1));		// Bei Beginn der Sperrung einschalten
+                    blocked=blocked|zf_bitpattern;
+                    if (blockstart==0x01) portbuffer=portbuffer&(0xFF-zf_bitpattern);	// Bei Beginn der Sperrung ausschalten
+                    if (blockstart==0x02) portbuffer=portbuffer|zf_bitpattern;		// Bei Beginn der Sperrung einschalten
                     delrec[(zfout-1)*4]=0;	// ggf. Eintrag für Schaltverzögerung löschen
                 }
               //port_schalten(portbuffer);
@@ -150,8 +172,8 @@ void write_value_req(void)				// Ausgänge schalten gemäß EIS 1 Protokoll (an/aus
       if (portbuffer != userram[0x29]) portchanged=1;//post für port_schalten hinterlegen
       //port_schalten(portbuffer);	//Port schalten wenn sich ein Pin geändert hat
     }
-    owntele=0;
-    respondpattern=0;
+    //owntele=0;
+    //respondpattern=0;
 }
 
 
@@ -169,7 +191,6 @@ void read_value_req(void)
 	
 	objno=find_first_objno(telegramm[3],telegramm[4]);	// erste Objektnummer zu empfangener GA finden
 	if(objno!=0xFF) {	// falls Gruppenadresse nicht gefunden
-		send_ack(); 
 		
 		objvalue=read_obj_value(objno);		// Objektwert aus USER-RAM lesen (Standard Einstellung)
 
@@ -186,6 +207,7 @@ void send_value(unsigned char type, unsigned char objno, unsigned int sval)	// s
   unsigned char objtype;
 
   ga=find_ga(objno);					// wenn keine Gruppenadresse hintrlegt nix tun
+  while(fb_state!=0);					// warten falls noch ACK gesendet wird
   if (ga!=0)
   {
     telegramm[0]=0xBC;
@@ -213,12 +235,8 @@ void send_value(unsigned char type, unsigned char objno, unsigned int sval)	// s
     	telegramm[5]=0xE3;  	
     	telegramm[8]=sval>>8;
     	telegramm[9]=sval;
-    }   
-    
-    EX1=0;
-    send_telegramm();
-    IE1=0;
-    EX1=1;
+    }
+     send_tel();
   }
 
 }  
@@ -335,9 +353,9 @@ void delay_timer(void)	// zählt alle 130ms die Variable Timer hoch und prüft Que
 						else {
 							portbuffer=portbuffer&~port_pattern;	// Einschalten (Öffnerbetrieb)
 						}
-						EX1=0;
+
 						respond(objno+12,0x81);			// ggf. Rückmeldung
-						EX1=1;
+
 						delrec[objno*4]=0;
 						delay_zeit=eeprom[0xEA];
 						delay_zeit=((delay_zeit>>objno)&0x01);
@@ -359,9 +377,9 @@ void delay_timer(void)	// zählt alle 130ms die Variable Timer hoch und prüft Que
 						else {
 							portbuffer=portbuffer|port_pattern;			// Ausschalten (Öffnerbetrieb)
 						}
-						EX1=0;
+
 						respond(objno+12,0x80);				// ggf. Rückmeldung
-						EX1=1;
+
 						delrec[objno*4]=0;
 					}
 				}
@@ -423,10 +441,10 @@ void delay_timer(void)	// zählt alle 130ms die Variable Timer hoch und prüft Que
 		  	if (ledport){
 		  		portbuffer^=ledport; // bei gedrückter Taste toggeln
 		  		portchanged=1;
-		  		EX1=0;
+		  		//EX1=0;
 		  		if (((eeprom[RELMODE]>>objno)&0x01)==0x00) respond(objno+12,((portbuffer&ledport)>>objno)+0x80);		//  (Schliesserbetrieb)
 		  		else respond(objno+12,0x81-((portbuffer&ledport)>>objno));	// (Öffnerbetrieb)
-		  		EX1=1;
+		  		//EX1=1;
 		  	}
 		  	Tval=Tasten;			//neue Tasten sichern
 		}
@@ -436,6 +454,7 @@ void delay_timer(void)	// zählt alle 130ms die Variable Timer hoch und prüft Que
 	RTCCON=0x61;		// RTC starten
 	delay_toggle=!delay_toggle;
 }
+
 
 
 void port_schalten(unsigned char ports)		// Schaltet die Ports mit PWM, DUTY ist Pulsverhältnis
@@ -453,16 +472,21 @@ void port_schalten(unsigned char ports)		// Schaltet die Ports mit PWM, DUTY ist
 		TF0=0;			// Timer 0 für Haltezeit Vollstrom verwenden
 		TH0=0x00;		// 16ms (10ms=6fff)
 		TL0=0x00;
-		TMOD=0x11;		// Timer 0 als 16-Bit Timer, Timer 1 als 16-Bit Timer
+		TMOD=(TMOD & 0xF0) +1;		// Timer 0 als 16-Bit Timer
 		TAMOD=0x00;
 		TR0=1;
 	}
 	else P0=ports;
-	
-  START_WRITECYCLE	
-  WRITE_BYTE(0x00,0x29,ports)
-  STOP_WRITECYCLE
-  portchanged=0;
+
+	//EA=0;
+	while (fb_state!=0);
+	do {
+		START_WRITECYCLE;
+		WRITE_BYTE(0x00,0x29,ports);
+		STOP_WRITECYCLE;
+	} while (FMCON & 0x01);
+	//EA=1;
+	portchanged=0;
 
 }
 
@@ -473,18 +497,18 @@ void respond(unsigned char objno, unsigned char rval)	// sucht Gruppenadresse fü
 	unsigned int ga;
 	unsigned char inv;
 
-	if ((owntele < 3) && ((respondpattern & (1<<(objno-12))) == 0)) {
+	if ((owntele < 9) && ((respondpattern & (1<<(objno-12))) == 0)) {
 		respondpattern |= (1<<(objno-12));
 		owntele++;
 		ga=find_ga(objno);					// wenn keine Gruppenadresse hinterlegt nix tun
 		if (ga!=0) {	  
-			//EX1=0;
+			while(fb_state!=0);					// warten falls noch ACK gesendet wird
 			telegramm[0]=0xBC;
 			telegramm[1]=eeprom[ADDRTAB+1];
 			telegramm[2]=eeprom[ADDRTAB+2];
 			telegramm[3]=ga>>8;
 			telegramm[4]=ga;
-			telegramm[5]=0xD1;
+			telegramm[5]=0xE1;
 			telegramm[6]=0x00;
 			objno=objno-12;
 			inv=eeprom[0xF3];
@@ -494,12 +518,30 @@ void respond(unsigned char objno, unsigned char rval)	// sucht Gruppenadresse fü
 				if (rval==0x80) telegramm[7]=0x81;
 				else telegramm[7]=0x80;
 			}  
-			send_telegramm();
-			//EX1=1;
-			write_value_req();
+			send_tel();
+
+			//write_value_req();
+			while(fb_state!=0);					// warten falls noch gesendet wird
+			tel_arrived=1;
 		}
 	}
 }  
+
+
+void bus_return(void)		// Aktionen bei Busspannungswiederkehr
+{
+	unsigned char n;
+
+	// Rückmeldung bei Busspannungswiederkehr
+	for (n=0;n<8;n++) {
+		owntele=1;
+		respond(n+12,((portbuffer>>n) & 0x01)+0x80);
+	}
+	owntele=0;
+	respondpattern=0;
+	tel_arrived=0;
+
+}
 
 
 void restart_app(void)		// Alle Applikations-Parameter zurücksetzen
@@ -516,12 +558,6 @@ void restart_app(void)		// Alle Applikations-Parameter zurücksetzen
 #ifdef MAX_PORTS_4
 	P0M2= 0x0F;
 #endif	
-	TMOD=0x12;		// Timer 0 als PWM, Timer 1 als 16-Bit Timer
-	TAMOD=0x01;
-	TH0=DUTY;		// Pulsverhältnis PWM
-	AUXR1|=0x10;	// PWM von Timer 0 auf Pin ausgeben, gleichzeitig low-powermode ein (da <8MHz)
-	ET0=0;			// Interrupt für Timer 0 sperren 
-	TR0=1;			// Timer 0 starten (PWM)
  
 	portbuffer=userram[0x29];	// Verhalten nach Busspannungs-Wiederkehr
 	bw=eeprom[0xF6];
@@ -549,15 +585,15 @@ void restart_app(void)		// Alle Applikations-Parameter zurücksetzen
 	//port_schalten(portbuffer);  
 	portchanged=1;// Post hinterlegen damit in delaytimer nach portschalten springt
 
-	EX1=0;							// Rückmeldung bei Busspannungswiederkehr
-	for (n=0;n<8;n++) {
-		owntele=1;
-		respond(n+12,((portbuffer>>n) & 0x01)+0x80);
-	}
-	EX1=1;
-	owntele=0;
-	respondpattern=0;
-  
+
+
+  	TMOD=(TMOD & 0xF0) + 2;		// Timer 0 als PWM
+	TAMOD=0x01;
+	TH0=DUTY;		// Pulsverhältnis PWM
+	AUXR1|=0x10;	// PWM von Timer 0 auf Pin ausgeben, gleichzeitig low-powermode ein (da <8MHz)
+	ET0=0;			// Interrupt für Timer 0 sperren
+	TR0=1;			// Timer 0 starten (PWM)
+
 	zfstate=0x00;		// Zustand der Zusatzfunktionen 1-4
 	blocked=0x00;		// Ausgänge nicht gesperrt
 	timer=0;			// Timer-Variable, wird alle 130ms inkrementiert

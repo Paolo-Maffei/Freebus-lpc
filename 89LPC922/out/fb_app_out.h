@@ -40,9 +40,15 @@
 #define REFRESH \
 		P0= userram[0x29];	// refresh des Portzustandes in der hal
 
-extern 	bit portchanged;// globale variable, sie ist 1 wenn sich portbuffer geändert hat
-extern unsigned char portbuffer;
 
+
+extern 	bit portchanged;// globale variable, sie ist 1 wenn sich portbuffer geändert hat
+extern unsigned char portbuffer, owntele, respondpattern;
+
+
+
+void write_delay_record(unsigned char objno, unsigned char delay_status, long delay_target);	// Schreibt die Schalt-Verzoegerungswerte ins Flash
+void clear_delay_record(unsigned char objno); // Loescht den Delay Eintrag
 void write_value_req(void);		// Hauptroutine für Ausgänge schalten gemäß EIS 1 Protokoll (an/aus)
 void read_value_req(void);
 void send_value(unsigned char type, unsigned char objno, unsigned int sval);
@@ -50,6 +56,8 @@ void delay_timer(void);		// zählt alle 130ms die Variable Timer hoch und prüft Q
 void respond(unsigned char objno, unsigned char rval);
 void port_schalten(unsigned char ports);	// Ausgänge schalten
 void object_schalten(unsigned char objno, bit objstate);	// Objekt schalten
+void bus_return(void);		// Aktionen bei Busspannungswiederkehr
+void restart_app(void);		// Alle Applikations-Parameter zurücksetzen
 
 
 #endif
