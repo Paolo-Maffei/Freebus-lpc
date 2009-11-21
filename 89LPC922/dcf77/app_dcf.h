@@ -27,16 +27,19 @@
 #define RELMODE		0xF2	// Relaisbetrieb
 #define	DELAYTAB	0xF9	// Start der Tabelle für Verzögerungswerte (Basis)
 
-extern unsigned char minute, hour, day, dow, month, year;
+extern unsigned char second, minute, hour, day, dow, month, year;
+extern volatile unsigned char T0_count;
 
 
 void write_value_req(void);		// Hauptroutine für Ausgänge schalten gemäß EIS 1 Protokoll (an/aus)
 void read_value_req(void);
 void send_dt(unsigned char type, unsigned char objno);
-void delay_timer(void);		// zählt alle 130ms die Variable Timer hoch und prüft Queue
-void respond(unsigned char objno, unsigned char rval);
-void port_schalten(unsigned char ports);	// Ausgänge schalten
-void object_schalten(unsigned char objno, bit objstate);	// Objekt schalten
+void T0_int(void) interrupt 1;
+void restart_app(void);
+//void delay_timer(void);		// zählt alle 130ms die Variable Timer hoch und prüft Queue
+//void respond(unsigned char objno, unsigned char rval);
+//void port_schalten(unsigned char ports);	// Ausgänge schalten
+//void object_schalten(unsigned char objno, bit objstate);	// Objekt schalten
 
 
 #endif

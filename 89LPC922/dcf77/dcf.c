@@ -19,8 +19,8 @@
 
 
 #include <P89LPC922.h>
-#include "../com/fb_hal_lpc.h"
-#include "../com/fb_prot.h"
+#include "../lib_lpc922/fb_hal_lpc_sm.h"
+#include "../lib_lpc922/fb_prot_sm.h"
 #include "../com/fb_rs232.h"
 
 #include "app_dcf.h"
@@ -36,11 +36,12 @@
 */
 void main(void)
 { 
-	unsigned char n, count=0, old_minute=0, old_hour=0;
-	unsigned char old_day=0, old_dow=0;
-	unsigned char old_month=0, old_year=0;
+	unsigned char n, count=0, dcf_minute=0, dcf_hour=0;
+	unsigned char dcf_day=0, dcf_dow=0;
+	unsigned char dcf_month=0, dcf_year=0;
 	bit dcf_bit, old_P0_0=0, bitok=0, min_par=0, min_par_rx=0;
 	bit hr_par=0, hr_par_rx=0, dat_par=0, dat_par_rx=0;
+	bit time_sent=0, start_bit=0;
 
 	
 	restart_hw();							// Hardware zuruecksetzen
@@ -56,94 +57,132 @@ void main(void)
 	rs_init();
 
 	do  {
-		//if(RTCCON>=0x80) delay_timer();	// Realtime clock Ueberlauf
 
-  
-		//TASTER=!P0_0;
-		if(P0_0 && !old_P0_0) {	// steigende flanke
-			RTCCON=0x60;	// rtc stoppen
-			RTCH=0x21;		// rtc auf 150ms
-			RTCL=0xC0;
-			RTCCON=0x61;	// rtc starten
-			bitok=0;
-			old_P0_0=1;
-		}
-		if(RTCCON>=0x80 && old_P0_0) {	// 150ms nach steigender flanke das bit lesen
-			dcf_bit=P0_0;
-			bitok=1;
-			RTCCON=0x60;	// rtc stoppen
-			RTCH=0xCA;		// rtc auf 900ms
-			RTCL=0x7F;
-			RTCCON=0x61;	// rtc starten
-			switch (count) {
-			case 21: old_minute=minute; minute=dcf_bit; min_par=dcf_bit; break;
-			case 22: min_par^=dcf_bit; minute+=dcf_bit*2;  break;
-			case 23: min_par^=dcf_bit; minute+=dcf_bit*4;  break;
-			case 24: min_par^=dcf_bit; minute+=dcf_bit*8;  break;
-			case 25: min_par^=dcf_bit; minute+=dcf_bit*10; break;
-			case 26: min_par^=dcf_bit; minute+=dcf_bit*20; break;
-			case 27: min_par^=dcf_bit; minute+=dcf_bit*40; break;
-			case 28: min_par_rx=dcf_bit; break;
-			case 29: old_hour=hour; hour=dcf_bit; hr_par=dcf_bit; break;
-			case 30: hour+=dcf_bit*2;  hr_par^=dcf_bit; break;
-			case 31: hour+=dcf_bit*4;  hr_par^=dcf_bit; break;
-			case 32: hour+=dcf_bit*8;  hr_par^=dcf_bit; break;
-			case 33: hour+=dcf_bit*10; hr_par^=dcf_bit;	break;
-			case 34: hour+=dcf_bit*20; hr_par^=dcf_bit;	break;
-			case 35: hr_par_rx=dcf_bit; break;
-			case 36: old_day=day; day=dcf_bit; dat_par=dcf_bit; break;
-			case 37: day+=dcf_bit*2;  dat_par^=dcf_bit; break;
-			case 38: day+=dcf_bit*4;  dat_par^=dcf_bit; break;
-			case 39: day+=dcf_bit*8;  dat_par^=dcf_bit; break;
-			case 40: day+=dcf_bit*10; dat_par^=dcf_bit; break;
-			case 41: day+=dcf_bit*20; dat_par^=dcf_bit; break;
-			case 42: old_dow=dow; dow=dcf_bit; dat_par^=dcf_bit; break;
-			case 43: dow+=dcf_bit*2;  dat_par^=dcf_bit; break;
-			case 44: dow+=dcf_bit*4;  dat_par^=dcf_bit; break;
-			case 45: old_month=month; month=dcf_bit; dat_par^=dcf_bit; break;
-			case 46: month+=dcf_bit*2;  dat_par^=dcf_bit; break;
-			case 47: month+=dcf_bit*4;  dat_par^=dcf_bit; break;
-			case 48: month+=dcf_bit*8;  dat_par^=dcf_bit; break;
-			case 49: month+=dcf_bit*10; dat_par^=dcf_bit; break;
-			case 50: old_year=year; year=dcf_bit; dat_par^=dcf_bit; break;
-			case 51: year+=dcf_bit*2;  dat_par^=dcf_bit; break;
-			case 52: year+=dcf_bit*4;  dat_par^=dcf_bit; break;
-			case 53: year+=dcf_bit*8;  dat_par^=dcf_bit; break;
-			case 54: year+=dcf_bit*10;  dat_par^=dcf_bit; break;
-			case 55: year+=dcf_bit*20;  dat_par^=dcf_bit; break;
-			case 56: year+=dcf_bit*40;  dat_par^=dcf_bit; break;
-			case 57: year+=dcf_bit*80;  dat_par^=dcf_bit; break;
-			case 58: dat_par_rx=dcf_bit; break;
+		if (eeprom[0x0D] == 0xFF) {		// wenn im run-mode
 
-
-
+			if(P0_0 && !old_P0_0) {	// steigende flanke
+				T0_count=0;
+				TR0=1;
+				bitok=0;
+				old_P0_0=1;
+				P0_2=0;
 			}
-			count++;
-		}
-		if(!P0_0 && bitok) {		// Pin ist 0 und bit ausgewertet
-			old_P0_0=0;
-		}
-		if(!P0_0 && !old_P0_0 && RTCCON>=0x80) {	// lücke = sekunde 0
-			RTCCON=0x60;	// rtc stoppen
-			count=0;
-			if(hour>23 || hr_par!=hr_par_rx) hour=0;
-			rs_send(hour);
-			if(minute>59 || min_par!=min_par_rx) minute=0;
-			rs_send(minute);
-			if(dow>7 || dow<1 || dat_par!=dat_par_rx) dow=old_dow;
-			rs_send(dow);
-			if(day>31 || day<1 || dat_par!=dat_par_rx) day=old_day;
-			rs_send(day);
-			if(month>12 || month<1 || dat_par!=dat_par_rx) month=old_month;
-			rs_send(month);
-			if(dat_par!=dat_par_rx) year=old_year;
-			rs_send(year);
 
-			send_dt(1,0);	// time
-			send_dt(1,1);	// date
+			if (T0_count>10) P0_2=1;
+
+			if (T0_count>14 && old_P0_0 && !bitok) {
+				dcf_bit=P0_0;
+				bitok=1;
+				P0_2=1;
+
+				switch (count) {
+				case 20: start_bit=dcf_bit; break;
+				case 21: min_par=dcf_bit;	dcf_minute=dcf_bit;		break;
+				case 22: min_par^=dcf_bit;	dcf_minute+=dcf_bit*2;	break;
+				case 23: min_par^=dcf_bit;	dcf_minute+=dcf_bit*4;	break;
+				case 24: min_par^=dcf_bit;	dcf_minute+=dcf_bit*8;	break;
+				case 25: min_par^=dcf_bit;	dcf_minute+=dcf_bit*10;	break;
+				case 26: min_par^=dcf_bit;	dcf_minute+=dcf_bit*20;	break;
+				case 27: min_par^=dcf_bit;	dcf_minute+=dcf_bit*40;	break;
+				case 28: min_par_rx=dcf_bit; break;
+
+				case 29: dcf_hour=dcf_bit;		hr_par=dcf_bit;		break;
+				case 30: dcf_hour+=dcf_bit*2;	hr_par^=dcf_bit;	break;
+				case 31: dcf_hour+=dcf_bit*4;	hr_par^=dcf_bit;	break;
+				case 32: dcf_hour+=dcf_bit*8;	hr_par^=dcf_bit;	break;
+				case 33: dcf_hour+=dcf_bit*10;	hr_par^=dcf_bit;	break;
+				case 34: dcf_hour+=dcf_bit*20;	hr_par^=dcf_bit;	break;
+				case 35: hr_par_rx=dcf_bit; break;
+
+				case 36: dcf_day=dcf_bit;		dat_par=dcf_bit;	break;
+				case 37: dcf_day+=dcf_bit*2;	dat_par^=dcf_bit;	break;
+				case 38: dcf_day+=dcf_bit*4;	dat_par^=dcf_bit;	break;
+				case 39: dcf_day+=dcf_bit*8;	dat_par^=dcf_bit;	break;
+				case 40: dcf_day+=dcf_bit*10;	dat_par^=dcf_bit;	break;
+				case 41: dcf_day+=dcf_bit*20;	dat_par^=dcf_bit;	break;
+				case 42: dcf_dow=dcf_bit; 		dat_par^=dcf_bit;	break;
+				case 43: dcf_dow+=dcf_bit*2;	dat_par^=dcf_bit;	break;
+				case 44: dcf_dow+=dcf_bit*4;	dat_par^=dcf_bit;	break;
+				case 45: dcf_month=dcf_bit;		dat_par^=dcf_bit;	break;
+				case 46: dcf_month+=dcf_bit*2;  dat_par^=dcf_bit;	break;
+				case 47: dcf_month+=dcf_bit*4;  dat_par^=dcf_bit;	break;
+				case 48: dcf_month+=dcf_bit*8;  dat_par^=dcf_bit;	break;
+				case 49: dcf_month+=dcf_bit*10; dat_par^=dcf_bit;	break;
+				case 50: dcf_year=dcf_bit;		dat_par^=dcf_bit;	break;
+				case 51: dcf_year+=dcf_bit*2;	dat_par^=dcf_bit;	break;
+				case 52: dcf_year+=dcf_bit*4;	dat_par^=dcf_bit;	break;
+				case 53: dcf_year+=dcf_bit*8;	dat_par^=dcf_bit;	break;
+				case 54: dcf_year+=dcf_bit*10;	dat_par^=dcf_bit;	break;
+				case 55: dcf_year+=dcf_bit*20;	dat_par^=dcf_bit;	break;
+				case 56: dcf_year+=dcf_bit*40;	dat_par^=dcf_bit;	break;
+				case 57: dcf_year+=dcf_bit*80;	dat_par^=dcf_bit;	break;
+				case 58: dat_par_rx=dcf_bit; break;
+				}
+				count++;
+			}
+
+			if(!P0_0 && bitok) {		// Pin ist 0 und bit ausgewertet
+				old_P0_0=0;
+			}
+
+			if(!P0_0 && !old_P0_0 && T0_count>104) { //&& RTCCON>=0x80) {	// lücke = sekunde 0
+				//RTCCON=0x60;	// rtc stoppen
+				T0_count=0;
+				TR0=0;
+
+				count=0;
+
+				if (min_par==min_par_rx && hr_par==hr_par_rx && dat_par==dat_par_rx && start_bit==1) {
+					second=0;
+					minute=dcf_minute;
+					hour=dcf_hour;
+					dow=dcf_dow;
+					day=dcf_day;
+					month=dcf_month;
+					year=dcf_year;
+				}
+
+				start_bit=0;
+				min_par=!min_par_rx;
+				hr_par=!hr_par_rx;
+				dat_par=!dat_par_rx;
+			}
+
+
+			if (RTCCON&0x80) {
+				RTCCON&=0x7F;
+				second++;
+				if (second==60) {
+					second=0;
+					minute++;
+				}
+				if (minute==60) {
+					minute=0;
+					hour++;
+				}
+				if (hour==24) {
+					hour=0;
+					dow++;
+					day++;
+				}
+			}
+
+			if (second==0) {
+				if (!time_sent) {
+					send_dt(1,0);
+					send_dt(1,1);
+					time_sent=1;
+				}
+			}
+			else time_sent=0;
+
 
 		}
 
+		if (tel_arrived) {
+			tel_arrived=0;
+			process_tel();
+		}
 
 
 		

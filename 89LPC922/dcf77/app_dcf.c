@@ -17,12 +17,13 @@
 
 
 #include <P89LPC922.h>
-#include "../com/fb_hal_lpc.h"
-#include "../com/fb_prot.h"
+#include "../lib_lpc922/fb_hal_lpc_sm.h"
+#include "../lib_lpc922/fb_prot_sm.h"
 #include "app_dcf.h"
 
 
-unsigned char minute=0, hour=0, day=0, dow=0, month=0, year=0;
+unsigned char second=0, minute=0, hour=0, day=0, dow=0, month=0, year=0;
+volatile unsigned char T0_count;
 
 long timer;					// Timer für Schaltverzögerungen, wird alle 130us hochgezählt
 bit delay_toggle;			// um nur jedes 2. Mal die delay routine auszuführen
@@ -54,6 +55,7 @@ void send_dt(unsigned char type, unsigned char objno)	// sucht Gruppenadresse fü
   ga=find_ga(objno);					// wenn keine Gruppenadresse hintrlegt nix tun
   if (ga!=0)
   {
+	  while (fb_state!=0);
     telegramm[0]=0xBC;
     telegramm[1]=eeprom[ADDRTAB+1];
     telegramm[2]=eeprom[ADDRTAB+2];
@@ -69,7 +71,7 @@ void send_dt(unsigned char type, unsigned char objno)	// sucht Gruppenadresse fü
     	telegramm[5]=0xE4;
     	telegramm[8]=(dow<<5) + hour;
     	telegramm[9]=minute;
-    	telegramm[10]=0;
+    	telegramm[10]=second;
     }
     if(objno==1) {				// date
     	telegramm[5]=0xE4;
@@ -78,15 +80,25 @@ void send_dt(unsigned char type, unsigned char objno)	// sucht Gruppenadresse fü
     	telegramm[10]=year;
     }   
 
-    EX1=0;
-    send_telegramm();
-    IE1=0;
-    EX1=1;
+
+    send_tel();
+
   }
 
 }  
 
 
+void T0_int(void) interrupt 1
+{
+	unsigned int tval;
+
+	TR0=0;
+	tval=0x6FFF+TH0*256+TL0;
+	TH0=tval>>8;
+	TL0=tval;
+	TR0=1;
+	T0_count++;
+}
 
 
 
@@ -113,4 +125,15 @@ void restart_app(void)		// Alle Applikations-Parameter zurücksetzen
 	WRITE_BYTE(0x00,0x60,0x2E);	// system state: all layers active (run), not in prog mode
 	STOP_WRITECYCLE;
 	EA=1;						// Interrupts freigeben
+
+	RTCH=0xE1;		// rtc auf 1000ms
+	RTCL=0x00;
+	RTCCON=0x61;	// rtc starten
+
+	T0_count=0;
+	TH0=0x6F;
+	TL0=0xFF;
+	TR0=1;
+	TF0=0;
+	ET0=1;
 }
