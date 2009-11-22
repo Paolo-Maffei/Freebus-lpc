@@ -11,29 +11,20 @@
  *  it under the terms of the GNU General Public License version 2 as
  *  published by the Free Software Foundation.
  *
+ *	Zeitgeber, Anschluss des DCF Signals an IO1 bzw P0.0
  */
-/**
-* @file   dcf.c
-* @author Andreas Krebs <kubi@krebsworld.de>
-*/
 
 
 #include <P89LPC922.h>
 #include "../lib_lpc922/fb_hal_lpc_sm.h"
 #include "../lib_lpc922/fb_prot_sm.h"
-#include "../com/fb_rs232.h"
 
 #include "app_dcf.h"
 
 
 
 
-/** 
-* The start point of the program, init all libraries, start the bus interface, the application
-* and check the status of the program button.
-* 
-*
-*/
+
 void main(void)
 { 
 	unsigned char n, count=0, dcf_minute=0, dcf_hour=0;
@@ -54,7 +45,6 @@ void main(void)
 	restart_prot();							// Protokoll-relevante Parameter zuruecksetzen
 	restart_app();							// Anwendungsspezifische Einstellungen zuruecksetzen
 
-	rs_init();
 
 	do  {
 
@@ -125,8 +115,7 @@ void main(void)
 				old_P0_0=0;
 			}
 
-			if(!P0_0 && !old_P0_0 && T0_count>104) { //&& RTCCON>=0x80) {	// lücke = sekunde 0
-				//RTCCON=0x60;	// rtc stoppen
+			if(!P0_0 && !old_P0_0 && T0_count>104) {	// lücke = sekunde 0
 				T0_count=0;
 				TR0=0;
 
@@ -141,7 +130,8 @@ void main(void)
 					month=dcf_month;
 					year=dcf_year;
 				}
-
+				// alles kaputt machen, damit beim nächsten mal nur korrekt
+				// empfangenen Zeit-Telegramme verarbeitet werden
 				start_bit=0;
 				min_par=!min_par_rx;
 				hr_par=!hr_par_rx;
@@ -149,7 +139,7 @@ void main(void)
 			}
 
 
-			if (RTCCON&0x80) {
+			if (RTCCON&0x80) {		// eine sekunde der rtc ist abgelaufen
 				RTCCON&=0x7F;
 				second++;
 				if (second==60) {
@@ -165,16 +155,41 @@ void main(void)
 					dow++;
 					day++;
 				}
+				time_sent=0;
 			}
 
-			if (second==0) {
+
+			if (second==0 && eeprom[0xFE]==1) {	// jede Minute senden
 				if (!time_sent) {
 					send_dt(1,0);
 					send_dt(1,1);
 					time_sent=1;
 				}
 			}
-			else time_sent=0;
+
+			if (second==0 && minute==0 && eeprom[0xFE]==2) {	// jede Stunde senden
+				if (!time_sent) {
+					send_dt(1,0);
+					send_dt(1,1);
+					time_sent=1;
+				}
+			}
+
+			if (second==0 && minute==0 && hour==0 && eeprom[0xFE]==3) {	// um 00:00 senden
+				if (!time_sent) {
+					send_dt(1,0);
+					send_dt(1,1);
+					time_sent=1;
+				}
+			}
+
+			if (second==0 && minute==0 && hour==2 && eeprom[0xFE]==4) {	// um 02:00 senden
+				if (!time_sent) {
+					send_dt(1,0);
+					send_dt(1,1);
+					time_sent=1;
+				}
+			}
 
 
 		}

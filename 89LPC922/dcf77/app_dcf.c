@@ -22,7 +22,7 @@
 #include "app_dcf.h"
 
 
-unsigned char second=0, minute=0, hour=0, day=0, dow=0, month=0, year=0;
+unsigned char second=0, minute=0, hour=0, day=1, dow=0, month=1, year=0;
 volatile unsigned char T0_count;
 
 long timer;					// Timer für Schaltverzögerungen, wird alle 130us hochgezählt
@@ -30,70 +30,80 @@ bit delay_toggle;			// um nur jedes 2. Mal die delay routine auszuführen
 
 
 
-void write_value_req(void)				// Ausgänge schalten gemäß EIS 1 Protokoll (an/aus)
+void write_value_req(void)
 {
+	unsigned char objno;
+
+	objno=find_first_objno(telegramm[3],telegramm[4]);
+
+	if (objno==2) {	// nur Zeit/Datum senden Objekt
+		if (telegramm[7]==0x81) {
+			send_dt(1,0);
+			send_dt(1,1);
+		}
+	}
 }
 
 
-/** 
-* Objektwert lesen wurde angefordert, read_value_response Telegramm zurücksenden
-*
-* 
-* @return
-* 
-*/
 void read_value_req(void)
 {
+	unsigned char objno, objflags;
+
+	objno=find_first_objno(telegramm[3],telegramm[4]);	// erste Objektnummer zu empfangener GA finden
+	if(objno!=0xFF) {	// wenn Gruppenadresse gefunden
+		objflags=read_objflags(objno);		// Objekt Flags lesen
+
+		// Objekt lesen, nur wenn read enable gesetzt (Bit3) und Kommunikation zulaessig (Bit2)
+		if((objflags&0x0C)==0x0C) {
+			if (objno==0) send_dt(0,0);
+			if (objno==1) send_dt(0,1);
+		}
+	}
 }
 
 
 void send_dt(unsigned char type, unsigned char objno)	// sucht Gruppenadresse für das Objekt objno uns sendet ein EIS Telegramm
 {																	// mit dem Wert sval
-  unsigned int ga;
-  unsigned char objtype;
+	unsigned int ga;
 
-  ga=find_ga(objno);					// wenn keine Gruppenadresse hintrlegt nix tun
-  if (ga!=0)
-  {
-	  while (fb_state!=0);
-    telegramm[0]=0xBC;
-    telegramm[1]=eeprom[ADDRTAB+1];
-    telegramm[2]=eeprom[ADDRTAB+2];
-    telegramm[3]=ga>>8;
-    telegramm[4]=ga;
-    telegramm[6]=0x00;
-    if (type==0) telegramm[7]=0x40;		// read_value_response Telegramm (angefordert)
-    else telegramm[7]=0x80;				// write_value_request Telegramm (nicht angefordert)
-    
-    objtype=read_obj_type(objno);
+	ga=find_ga(objno);	// wenn keine Gruppenadresse hintrlegt nix tun
+	if (ga!=0)
+	{
+		while (fb_state!=0);
+		telegramm[0]=0xBC;
+		telegramm[1]=eeprom[ADDRTAB+1];
+		telegramm[2]=eeprom[ADDRTAB+2];
+		telegramm[3]=ga>>8;
+		telegramm[4]=ga;
+		telegramm[6]=0x00;
+		if (type==0) telegramm[7]=0x40;		// read_value_response Telegramm (angefordert)
+		else telegramm[7]=0x80;				// write_value_request Telegramm (nicht angefordert)
 
-    if(objno==0) {				// time
-    	telegramm[5]=0xE4;
-    	telegramm[8]=(dow<<5) + hour;
-    	telegramm[9]=minute;
-    	telegramm[10]=second;
-    }
-    if(objno==1) {				// date
-    	telegramm[5]=0xE4;
-    	telegramm[8]=day;
-    	telegramm[9]=month;
-    	telegramm[10]=year;
-    }   
-
-
-    send_tel();
-
-  }
-
+		if(objno==0) {				// time
+			telegramm[5]=0xE4;
+			telegramm[8]=(dow<<5) + hour;
+			telegramm[9]=minute;
+			telegramm[10]=second;
+		}
+		if(objno==1) {				// date
+			telegramm[5]=0xE4;
+			telegramm[8]=day;
+			telegramm[9]=month;
+			telegramm[10]=year;
+		}
+		send_tel();
+	}
 }  
 
 
 void T0_int(void) interrupt 1
 {
 	unsigned int tval;
+	signed char corr;
 
 	TR0=0;
-	tval=0x6FFF+TH0*256+TL0;
+	corr=eeprom[0xFD];
+	tval=0x6FFF+TH0*256+TL0+corr;
 	TH0=tval>>8;
 	TL0=tval;
 	TR0=1;
@@ -119,7 +129,7 @@ void restart_app(void)		// Alle Applikations-Parameter zurücksetzen
 	WRITE_BYTE(0x01,0x07,0x01)	// Versionnumber of application programm
 	WRITE_BYTE(0x01,0x0C,0x00)	// PORT A Direction Bit Setting
 	WRITE_BYTE(0x01,0x0D,0xFF)	// Run-Status (00=stop FF=run)
-	WRITE_BYTE(0x01,0x12,0x9A)	// COMMSTAB Pointer
+	WRITE_BYTE(0x01,0x12,0x3A)	// COMMSTAB Pointer
 	STOP_WRITECYCLE
 	START_WRITECYCLE;
 	WRITE_BYTE(0x00,0x60,0x2E);	// system state: all layers active (run), not in prog mode
