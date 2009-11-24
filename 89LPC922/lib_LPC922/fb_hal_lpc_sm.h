@@ -62,15 +62,15 @@
 // Konfiguriert den entsprechenden pin als input-only (high impedance, ohne pull-up R) 
 #define  SET_PORT_MODE_INPUT(pin) \
 	if (pin<8) { \
-		P0M1&=(1<<pin); \
-		P0M2|=(0xFF-(1<<pin)); \
+		P0M1|=(1<<pin); \
+		P0M2&=(0xFF-(1<<pin)); \
 	}
 
 // Konfiguriert den entsprechenden pin als ausgang mit open drain
 #define  SET_PORT_MODE_OPENDRAIN(pin) \
 	if (pin<8) { \
-		P0M1&=(1<<pin); \
-		P0M2&=(1<<pin); \
+		P0M1|=(1<<pin); \
+		P0M2|=(1<<pin); \
 	}
 
 #define START_WRITECYCLE \
