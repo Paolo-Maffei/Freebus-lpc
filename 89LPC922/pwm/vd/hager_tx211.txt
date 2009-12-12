@@ -1,0 +1,409 @@
+File created by kubi's vdTool 2.0
+---------------------------------
+
+Product Name ............ : TX211 3 sorties variation Easy
+Serial Number ........... : 9 // TX211
+Manufacturer ID ......... : 0x09
+Mask Version ............ : 0x0012
+User Ram Start .......... : 0x00CE
+User Ram End ............ : 0x00DF
+EEPROM Start ............ : 0x0100
+EEPROM End .............. : 0x01FE
+RUN Error Adress ........ : 0x010D
+Address Table Address ... : 0x0116
+Association Table Address : 0x0111
+Commstab Pointer Address  : 0x0112
+Device Type ............. : 0x2012
+Commstab Address ........ : 0x7A
+
+Application Program 23108  TL211A
+--------------------------------------------------
+0x01CA  Bit 0-7  Param-ID: 31669  Minuterie  Ausgang 1 Automatik / Szenen  
+  0  nicht benutzt
+  1  1 s
+  2  2 s
+  3  3 s
+  4  5 s
+  5  10 s
+  6  15 s
+  7  20 s
+  8  30 s
+  9  45 s
+  10  1 min
+  11  1 min 15 s
+  12  1 min 30 s
+  13  2 min
+  14  2 min 30 s
+  15  3 min
+  16  5 min
+  17  15 min
+  18  20 min
+  19  30 min
+  20  1 Stunde
+  21  2 Stunden
+  22  3 Stunden
+  23  5 Stunden
+  24  12 Stunden
+  25  24 Stunden
+
+0x01CB  Bit 0-7  Param-ID: 34136  Dur?e du pr?avis dextinction  Befehl f?r Zeitschalterbetrieb  Ausgang 1 Automatik / Szenen  
+  0  keine Vorwarnung
+  6  15 s
+  8  30 s
+  10  1 min
+
+0x01CC  Bit 0-7  Param-ID: 31665  Minuterie  Ausgang 2 Automatik / Szenen  
+  0  nicht benutzt
+  1  1 s
+  2  2 s
+  3  3 s
+  4  5 s
+  5  10 s
+  6  15 s
+  7  20 s
+  8  30 s
+  9  45 s
+  10  1 min
+  11  1 min 15 s
+  12  1 min 30 s
+  13  2 min
+  14  2 min 30 s
+  15  3 min
+  16  5 min
+  17  15 min
+  18  20 min
+  19  30 min
+  20  1 Stunde
+  21  2 Stunden
+  22  3 Stunden
+  23  5 Stunden
+  24  12 Stunden
+  25  24 Stunden
+
+0x01CD  Bit 0-7  Param-ID: 34116  Dur?e du pr?avis dextinction  Befehl f?r Zeitschalterbetrieb  Ausgang 2 Automatik / Szenen  
+  0  keine Vorwarnung
+  6  15 s
+  8  30 s
+  10  1 min
+
+0x01CE  Bit 0-7  Param-ID: 31673  Minuterie  Ausgang 3 Automatik / Szenen  
+  0  nicht benutzt
+  1  1 s
+  2  2 s
+  3  3 s
+  4  5 s
+  5  10 s
+  6  15 s
+  7  20 s
+  8  30 s
+  9  45 s
+  10  1 min
+  11  1 min 15 s
+  12  1 min 30 s
+  13  2 min
+  14  2 min 30 s
+  15  3 min
+  16  5 min
+  17  15 min
+  18  20 min
+  19  30 min
+  20  1 Stunde
+  21  2 Stunden
+  22  3 Stunden
+  23  5 Stunden
+  24  12 Stunden
+  25  24 Stunden
+
+0x01CF  Bit 0-7  Param-ID: 34156  Dur?e du pr?avis dextinction  Befehl f?r Zeitschalterbetrieb  Ausgang 3 Automatik / Szenen  
+  0  keine Vorwarnung
+  6  15 s
+  8  30 s
+  10  1 min
+
+0x01D0  Bit 1-1  Param-ID: 31676  Modification des limites de variation re\\lative  Ausg?nge 1-3  
+  0  gesperrt
+  1  freigegeben
+
+0x01D0  Bit 0-0  Param-ID: 31677  Autorisation du r?glage local  Ausg?nge 1-3  
+  0  gesperrt
+  1  freigegeben
+
+0x01D1  Bit 5-5  Param-ID: 31663  Etat apr?s t?l?chargement  Ausgang 1 Einstellungen  
+  0  aus
+  1  gespeicherter Wert
+
+0x01D1  Bit 1-1  Param-ID: 31668  Fonctionnement minuterie  Ausgang 1 Automatik / Szenen  
+  0  ein
+  1  aus
+
+0x01D1  Bit 0-0  Param-ID: 31670  Etat apr?s annulation for?age  Ausgang 1 Automatik / Szenen  
+  0  keine ?nderung
+  1  invertiert
+
+0x01D2  Bit 0-7  Param-ID: 31682  P?riode de variation  Ausgang 1 Einstellungen  
+  1  1 s
+  2  2 s
+  3  3 s
+  4  4 s
+  5  5 s
+  6  6 s
+  9  9 s
+  15  15 s
+  30  30 s
+  60  60 s
+
+0x01D3  Bit 4-7  Param-ID: 31684  P?riode de variation ? lextinction  Ausgang 1 Einstellungen  
+  0  anspringen
+  1  1 s
+  2  2 s
+  3  3 s
+  4  4 s
+  5  5 s
+  6  6 s
+  7  9 s
+  8  15 s
+  9  30 s
+  10  60 s
+  11  2 min
+  12  5 min
+  13  10 min
+  14  20 min
+  15  30 min
+
+0x01D3  Bit 0-3  Param-ID: 31683  P?riode de variation ? lallumage  Ausgang 1 Einstellungen  
+  0  anspringen
+  1  1 s
+  2  2 s
+  3  3 s
+  4  4 s
+  5  5 s
+  6  6 s
+  7  9 s
+  8  15 s
+  9  30 s
+  10  60 s
+  11  2 min
+  12  5 min
+  13  10 min
+  14  20 min
+  15  30 min
+
+0x01D4  Bit 0-7  Param-ID: 34152  Valeur d?clairement du sc?nario 1  Szenennummer  Ausgang 1 Automatik / Szenen  
+
+0x01D7  Bit 6-7  Param-ID: 34148  Valeur d?clairement du sc?nario 7  Szenennummer  Ausgang 1 Automatik / Szenen  
+  0  25%
+  1  50%
+  2  75%
+  3  100%
+
+0x01D7  Bit 4-5  Param-ID: 34146  Valeur d?clairement du sc?nario 6  Szenennummer  Ausgang 1 Automatik / Szenen  
+  0  25%
+  1  50%
+  2  75%
+  3  100%
+
+0x01D7  Bit 2-3  Param-ID: 34144  Valeur d?clairement du sc?nario 5  Szenennummer  Ausgang 1 Automatik / Szenen  
+  0  25%
+  1  50%
+  2  75%
+  3  100%
+
+0x01D7  Bit 0-1  Param-ID: 34142  Valeur d?clairement du sc?nario 4  Szenennummer  Ausgang 1 Automatik / Szenen  
+  0  25%
+  1  50%
+  2  75%
+  3  100%
+
+0x01D9  Bit 0-7  Param-ID: 34112  Valeur minimale de variation  ?berschreiben der Minimal- und Maximaldi\\mmwerte mit Download  Ausg?nge 1-3  
+
+0x01DA  Bit 0-7  Param-ID: 34114  Valeur maximale de variation  ?berschreiben der Minimal- und Maximaldi\\mmwerte mit Download  Ausg?nge 1-3  
+
+0x01DB  Bit 0-7  Param-ID: 31680  Luminosit? ? lallumage  Ausgang 1 Einstellungen  
+
+0x01DE  Bit 5-5  Param-ID: 31678  Etat apr?s t?l?chargement  Ausgang 2 Einstellungen  
+  0  aus
+  1  gespeicherter Wert
+
+0x01DE  Bit 1-1  Param-ID: 31664  Fonctionnement minuterie  Ausgang 2 Automatik / Szenen  
+  0  ein
+  1  aus
+
+0x01DE  Bit 0-0  Param-ID: 31666  Etat apr?s annulation for?age  Ausgang 2 Automatik / Szenen  
+  0  keine ?nderung
+  1  invertiert
+
+0x01DF  Bit 0-7  Param-ID: 31687  P?riode de variation  Ausgang 2 Einstellungen  
+  1  1 s
+  2  2 s
+  3  3 s
+  4  4 s
+  5  5 s
+  6  6 s
+  9  9 s
+  15  15 s
+  30  30 s
+  60  60 s
+
+0x01E0  Bit 4-7  Param-ID: 31689  P?riode de variation ? lextinction  Ausgang 2 Einstellungen  
+  0  anspringen
+  1  1 s
+  2  2 s
+  3  3 s
+  4  4 s
+  5  5 s
+  6  6 s
+  7  9 s
+  8  15 s
+  9  30 s
+  10  60 s
+  11  2 min
+  12  5 min
+  13  10 min
+  14  20 min
+  15  30 min
+
+0x01E0  Bit 0-3  Param-ID: 31688  P?riode de variation ? lallumage  Ausgang 2 Einstellungen  
+  0  anspringen
+  1  1 s
+  2  2 s
+  3  3 s
+  4  4 s
+  5  5 s
+  6  6 s
+  7  9 s
+  8  15 s
+  9  30 s
+  10  60 s
+  11  2 min
+  12  5 min
+  13  10 min
+  14  20 min
+  15  30 min
+
+0x01E1  Bit 0-7  Param-ID: 34118  Valeur d?clairement du sc?nario 1  Szenennummer  Ausgang 2 Automatik / Szenen  
+
+0x01E4  Bit 6-7  Param-ID: 34130  Valeur d?clairement du sc?nario 7  Szenennummer  Ausgang 2 Automatik / Szenen  
+  0  25%
+  1  50%
+  2  75%
+  3  100%
+
+0x01E4  Bit 4-5  Param-ID: 34128  Valeur d?clairement du sc?nario 6  Szenennummer  Ausgang 2 Automatik / Szenen  
+  0  25%
+  1  50%
+  2  75%
+  3  100%
+
+0x01E4  Bit 2-3  Param-ID: 34126  Valeur d?clairement du sc?nario 5  Szenennummer  Ausgang 2 Automatik / Szenen  
+  0  25%
+  1  50%
+  2  75%
+  3  100%
+
+0x01E4  Bit 0-1  Param-ID: 34124  Valeur d?clairement du sc?nario 4  Szenennummer  Ausgang 2 Automatik / Szenen  
+  0  25%
+  1  50%
+  2  75%
+  3  100%
+
+0x01E6  Bit 0-7  Param-ID: 34178  Valeur minimale de variation  ?berschreiben der Minimal- und Maximaldi\\mmwerte mit Download  Ausg?nge 1-3  
+
+0x01E7  Bit 0-7  Param-ID: 34176  Valeur maximale de variation  ?berschreiben der Minimal- und Maximaldi\\mmwerte mit Download  Ausg?nge 1-3  
+
+0x01E8  Bit 0-7  Param-ID: 31685  Luminosit? ? lallumage  Ausgang 2 Einstellungen  
+
+0x01EB  Bit 5-5  Param-ID: 31679  Etat apr?s t?l?chargement  Ausgang 3 Einstellungen  
+  0  aus
+  1  gespeicherter Wert
+
+0x01EB  Bit 1-1  Param-ID: 31672  Fonctionnement minuterie  Ausgang 3 Automatik / Szenen  
+  0  ein
+  1  aus
+
+0x01EB  Bit 0-0  Param-ID: 31674  Etat apr?s annulation for?age  Ausgang 3 Automatik / Szenen  
+  0  keine ?nderung
+  1  invertiert
+
+0x01EC  Bit 0-7  Param-ID: 31692  P?riode de variation  Ausgang 3 Einstellungen  
+  1  1 s
+  2  2 s
+  3  3 s
+  4  4 s
+  5  5 s
+  6  6 s
+  9  9 s
+  15  15 s
+  30  30 s
+  60  60 s
+
+0x01ED  Bit 4-7  Param-ID: 31694  P?riode de variation ? lextinction  Ausgang 3 Einstellungen  
+  0  anspringen
+  1  1 s
+  2  2 s
+  3  3 s
+  4  4 s
+  5  5 s
+  6  6 s
+  7  9 s
+  8  15 s
+  9  30 s
+  10  60 s
+  11  2 min
+  12  5 min
+  13  10 min
+  14  20 min
+  15  30 min
+
+0x01ED  Bit 0-3  Param-ID: 31693  P?riode de variation ? lallumage  Ausgang 3 Einstellungen  
+  0  anspringen
+  1  1 s
+  2  2 s
+  3  3 s
+  4  4 s
+  5  5 s
+  6  6 s
+  7  9 s
+  8  15 s
+  9  30 s
+  10  60 s
+  11  2 min
+  12  5 min
+  13  10 min
+  14  20 min
+  15  30 min
+
+0x01EE  Bit 0-7  Param-ID: 34172  Valeur d?clairement du sc?nario 1  Szenennummer  Ausgang 3 Automatik / Szenen  
+
+0x01F1  Bit 6-7  Param-ID: 34168  Valeur d?clairement du sc?nario 7  Szenennummer  Ausgang 3 Automatik / Szenen  
+  0  25%
+  1  50%
+  2  75%
+  3  100%
+
+0x01F1  Bit 4-5  Param-ID: 34166  Valeur d?clairement du sc?nario 6  Szenennummer  Ausgang 3 Automatik / Szenen  
+  0  25%
+  1  50%
+  2  75%
+  3  100%
+
+0x01F1  Bit 2-3  Param-ID: 34164  Valeur d?clairement du sc?nario 5  Szenennummer  Ausgang 3 Automatik / Szenen  
+  0  25%
+  1  50%
+  2  75%
+  3  100%
+
+0x01F1  Bit 0-1  Param-ID: 34162  Valeur d?clairement du sc?nario 4  Szenennummer  Ausgang 3 Automatik / Szenen  
+  0  25%
+  1  50%
+  2  75%
+  3  100%
+
+0x01F3  Bit 0-7  Param-ID: 34180  Valeur minimale de variation  ?berschreiben der Minimal- und Maximaldi\\mmwerte mit Download  Ausg?nge 1-3  
+
+0x01F4  Bit 0-7  Param-ID: 34182  Valeur maximale de variation  ?berschreiben der Minimal- und Maximaldi\\mmwerte mit Download  Ausg?nge 1-3  
+
+0x01F5  Bit 0-7  Param-ID: 31690  Luminosit? ? lallumage  Ausgang 3 Einstellungen  
+
+0x01F8  Bit 0-7  Param-ID: 31662  Type flag t?l?chargement effectu?  Initialisation  
+
+

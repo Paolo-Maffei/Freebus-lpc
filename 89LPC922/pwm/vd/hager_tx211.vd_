@@ -1,0 +1,10060 @@
+EX-IM
+N C:\PROGRA~1\ETS2V12\ets2.vd_
+K ETS2 Product Administration
+K 
+D 2004-09-15 10:46:07
+V 3.19
+H virtual_device
+-------------------------------------
+T 3 manufacturer
+C1 T3 1 4 N MANUFACTURER_ID
+C2 T3 3 50 Y MANUFACTURER_NAME
+C3 T3 1 4 Y ADDRESS_ID
+R 1 T 3 manufacturer
+9
+Hager Electro
+
+-------------------------------------
+T 4 functional_entity
+C1 T4 1 4 N FUNCTIONAL_ENTITY_ID
+C2 T4 1 4 Y MANUFACTURER_ID
+C3 T4 3 50 Y FUNCTIONAL_ENTITY_NAME
+C4 T4 3 20 Y FUNCTIONAL_ENTITY_NUMB
+C5 T4 3 80 Y FUNCTIONAL_ENTITY_DESCRIPTION
+C6 T4 1 4 Y FUN_FUNCTIONAL_ENTITY_ID
+C7 T4 3 255 Y HELP_FILE_NAME
+C8 T4 1 4 Y CONTEXT_ID
+R 1 T 4 functional_entity
+22799
+9
+Beleuchtung
+IL
+
+
+
+
+R 2 T 4 functional_entity
+22813
+9
+Dimmer
+DM
+
+22799
+
+
+-------------------------------------
+T 5 bcu_type
+C1 T5 2 2 N BCU_TYPE_NUMBER
+C2 T5 3 50 Y BCU_TYPE_NAME
+C3 T5 3 50 Y BCU_TYPE_CPU
+R 1 T 5 bcu_type
+1
+BCU 1
+68HCO5B6
+-------------------------------------
+T 6 symbol
+C1 T6 1 4 N SYMBOL_ID
+C2 T6 3 80 Y SYMBOL_FILENAME
+C3 T6 3 50 Y SYMBOL_NAME
+R 1 T 6 symbol
+11
+IDB_DIMMER
+Dimmer
+-------------------------------------
+T 7 hw_product
+C1 T7 1 4 N PRODUCT_ID
+C2 T7 1 4 N MANUFACTURER_ID
+C3 T7 1 4 Y SYMBOL_ID
+C4 T7 3 50 Y PRODUCT_NAME
+C5 T7 2 2 Y PRODUCT_VERSION_NUMBER
+C6 T7 2 2 Y COMPONENT_TYPE
+C7 T7 2 2 Y COMPONENT_ATTRIBUTES
+C8 T7 2 2 Y BUS_CURRENT
+C9 T7 3 30 Y PRODUCT_SERIAL_NUMBER
+C10 T7 2 2 Y COMPONENT_TYPE_NUMBER
+C11 T7 3 255 Y PRODUCT_PICTURE
+C12 T7 2 2 Y BCU_TYPE_NUMBER
+C13 T7 2 2 Y PRODUCT_HANDLING
+C14 T7 3 255 Y PRODUCT_DLL
+C15 T7 1 4 Y ORIGINAL_MANUFACTURER_ID
+R 1 T 7 hw_product
+22911
+9
+11
+TX211 3 sorties variation Easy
+1
+
+30
+
+9 // TX211
+
+
+1
+0
+
+
+-------------------------------------
+T 8 catalog_entry
+C1 T8 1 4 N CATALOG_ENTRY_ID
+C2 T8 1 4 N PRODUCT_ID
+C3 T8 1 4 N MANUFACTURER_ID
+C4 T8 1 4 Y SYMBOL_ID
+C5 T8 3 20 Y ORDER_NUMBER
+C6 T8 3 50 Y ENTRY_NAME
+C7 T8 3 20 Y ENTRY_COLOUR
+C8 T8 5 8 Y ENTRY_WIDTH_IN_MODULES
+C9 T8 5 8 Y ENTRY_WIDTH_IN_MILLIMETERS
+C10 T8 5 8 Y PRICE
+C11 T8 3 3 Y CURRENCY
+C12 T8 3 10 Y QUANTITY_UNIT
+C13 T8 5 8 Y MATERIAL_PRICE
+C14 T8 2 2 Y MOUNTING_HOURS
+C15 T8 2 2 Y MOUNTING_MINUTES
+C16 T8 2 2 Y MOUNTING_SECONDS
+C17 T8 2 2 Y DIN_FLAG
+C18 T8 3 20 Y SERIES
+C19 T8 3 50 Y CATALOG_NAME
+C20 T8 2 2 Y PAGE_NUMBER
+C21 T8 3 255 Y ENTRY_PICTURE
+C22 T8 3 1 Y DESIGNATION_TYPE
+C23 T8 3 2 Y DESIGNATION_FUNCTION
+C24 T8 3 255 Y HELP_FILE_NAME
+C25 T8 1 4 Y CONTEXT_ID
+C26 T8 1 4 Y RAM_SIZE
+C27 T8 1 4 Y REGISTRATION_NUMBER
+C28 T8 2 2 Y REGISTRATION_YEAR
+C29 T8 2 2 Y ENTRY_STATUS_CODE
+C30 T8 3 42 Y REGISTRATION_TS
+R 1 T 8 catalog_entry
+23002
+22911
+9
+11
+TX211
+Schalt/Dimmaktor 3-fach 1/10V
+
+
+
+
+
+
+
+
+
+
+0
+
+
+0
+
+A
+
+
+
+
+
+
+10
+2004-03-02 15:09:12.000
+-------------------------------------
+T 9 medium_type
+C1 T9 2 2 N MEDIUM_TYPE_NUMBER
+C2 T9 3 50 Y MEDIUM_TYPE_NAME
+C3 T9 3 20 Y MEDIUM_TYPE_SHORT_NAME
+R 1 T 9 medium_type
+0
+Twisted Pair
+TP
+-------------------------------------
+T 10 mask
+C1 T10 1 4 N MASK_ID
+C2 T10 1 4 Y MASK_VERSION
+C3 T10 1 4 Y USER_RAM_START
+C4 T10 1 4 Y USER_RAM_END
+C5 T10 1 4 Y USER_EEPROM_START
+C6 T10 1 4 Y USER_EEPROM_END
+C7 T10 1 4 Y RUN_ERROR_ADDRESS
+C8 T10 1 4 Y ADDRESS_TAB_ADDRESS
+C9 T10 1 4 Y ASSOCTABPTR_ADDRESS
+C10 T10 1 4 Y COMMSTABPTR_ADDRESS
+C11 T10 1 4 Y MANUFACTURER_DATA_ADDRESS
+C12 T10 1 4 Y MANUFACTURER_DATA_SIZE
+C13 T10 1 4 Y MANUFACTURER_ID_ADDRESS
+C14 T10 1 4 Y ROUTECNT_ADDRESS
+C15 T10 2 2 Y MANUFACTURER_ID_PROTECTED
+C16 T10 3 50 Y MASK_VERSION_NAME
+C17 T10 8 32767 Y MASK_EEPROM_DATA
+C18 T10 1 4 Y MASK_DATA_LENGTH
+C19 T10 1 4 Y ADDRESS_TAB_LCS
+C20 T10 1 4 Y ASSOC_TAB_LCS
+C21 T10 1 4 Y APPLICATION_PROGRAM_LCS
+C22 T10 1 4 Y PEI_PROGRAM_LCS
+C23 T10 1 4 Y LOAD_CONTROL_ADDRESS
+C24 T10 1 4 Y RUN_CONTROL_ADDRESS
+C25 T10 1 4 Y EXTERNAL_MEMORY_START
+C26 T10 1 4 Y EXTERNAL_MEMORY_END
+C27 T10 1 4 Y APPLICATION_PROGRAM_RCS
+C28 T10 1 4 Y PEI_PROGRAM_RCS
+C29 T10 1 4 Y PORT_A_DDR
+C30 T10 2 2 Y PORT_ADDRESS_PROTECTED
+R 1 T 10 mask
+20006
+18
+206
+223
+256
+510
+269
+278
+273
+274
+257
+3
+260
+270
+1
+1.2
+ff00000000000000ff14ff0000ff6063eeffffffffff000000000000000000000000000000000000
+\\00000000000000000000000000000000000000000000000000000000000000000000000000000000
+\\00000000000000000000000000000000000000000000000000000000000000000000000000000000
+\\00000000000000000000000000000000000000000000000000000000000000000000000000000000
+\\00000000000000000000000000000000000000000000000000000000000000000000000000000000
+\\00000000000000000000000000000000000000000000000000000000000000000000000000000000
+\\00000000000000000000000000000000
+256
+
+
+
+
+
+
+
+
+
+
+
+1
+-------------------------------------
+T 11 assembler
+C1 T11 1 4 N ASSEMBLER_ID
+C2 T11 3 50 Y ASSEMBLER_NAME
+C3 T11 2 2 Y ASSEMBLER_TYPE
+R 1 T 11 assembler
+3
+AD
+3
+-------------------------------------
+T 12 application_program
+C1 T12 1 4 N PROGRAM_ID
+C2 T12 1 4 Y SYMBOL_ID
+C3 T12 1 4 Y MASK_ID
+C4 T12 3 50 Y PROGRAM_NAME
+C5 T12 3 5 Y PROGRAM_VERSION
+C6 T12 2 2 Y PROGRAM_VERSION_NUMBER
+C7 T12 2 2 Y LINKABLE
+C8 T12 1 4 Y DEVICE_TYPE
+C9 T12 2 2 Y PEI_TYPE
+C10 T12 1 4 Y ADDRESS_TAB_SIZE
+C11 T12 1 4 Y ASSOCTAB_ADDRESS
+C12 T12 1 4 Y ASSOCTAB_SIZE
+C13 T12 1 4 Y COMMSTAB_ADDRESS
+C14 T12 1 4 Y COMMSTAB_SIZE
+C15 T12 3 20 Y PROGRAM_SERIAL_NUMBER
+C16 T12 1 4 Y MANUFACTURER_ID
+C17 T12 8 32767 Y EEPROM_DATA
+C18 T12 1 4 Y DATA_LENGTH
+C19 T12 3 255 Y S19_FILE
+C20 T12 3 255 Y MAP_FILE
+C21 T12 1 4 Y ASSEMBLER_ID
+C22 T12 3 255 Y HELP_FILE_NAME
+C23 T12 1 4 Y CONTEXT_ID
+C24 T12 2 2 Y DYNAMIC_MANAGEMENT
+C25 T12 2 2 Y PROGRAM_TYPE
+C26 T12 1 4 Y RAM_SIZE
+C27 T12 1 4 Y ORIGINAL_MANUFACTURER_ID
+C28 T12 1 4 Y API_VERSION
+C29 T12 2 2 Y PROGRAM_STYLE
+C30 T12 2 2 Y IS_POLLING_MASTER
+C31 T12 2 2 Y NUMBER_OF_POLLING_GROUPS
+R 1 T 12 application_program
+23108
+11
+20006
+TL211A
+32
+
+0
+8210
+17
+51
+329
+49
+378
+74
+
+9
+ffffffff092012ffc911006794ff606368497a0000000102ff000000000000000000000000000000
+\\00000000000000000000000000000000000000000000000000000000000000000000000000000000
+\\00000000000000000000000000000000000000000000000000000000000000000000000000000000
+\\00001a6f829f00839f03849f07859f00869f01879f0788cf0089cf078a9f008b9f038c9f078d9f00
+\\8e9f018f9f0790cf0091cf07929f00939f03949f07959f00969f01979f0798cf0099cf079adf009b
+\\df070f000f000f0001200300646464e4640164656564200300646464e46401646565642003006464
+\\64e46401646565640100000000000000
+256
+E:\\WORKSP~1\\DOSSIE~1\\LIVRAI~1\\TX21Y\
+\\\INTERF~1\\TX211.S19
+
+3
+
+
+1
+0
+
+
+
+0
+0
+
+-------------------------------------
+T 13 virtual_device
+C1 T13 1 4 N VIRTUAL_DEVICE_ID
+C2 T13 1 4 Y SYMBOL_ID
+C3 T13 1 4 N CATALOG_ENTRY_ID
+C4 T13 1 4 Y PROGRAM_ID
+C5 T13 3 50 Y VIRTUAL_DEVICE_NAME
+C6 T13 3 80 Y VIRTUAL_DEVICE_DESCRIPTION
+C7 T13 1 4 Y FUNCTIONAL_ENTITY_ID
+C8 T13 1 4 Y PRODUCT_TYPE_ID
+C9 T13 3 255 Y HELP_FILE_NAME
+C10 T13 1 4 Y CONTEXT_ID
+C11 T13 1 4 Y PEI_PROGRAM_ID
+C12 T13 2 2 Y VIRTUAL_DEVICE_NUMBER
+C13 T13 3 255 Y MEDIUM_TYPES
+R 1 T 13 virtual_device
+23279
+11
+23002
+23108
+Schalt/Dimmaktor 3-fach 1/10V
+TX211
+22813
+22813
+
+
+
+1
+TP
+-------------------------------------
+T 14 mask_entry
+C1 T14 1 4 N MASK_ENTRY_ID
+C2 T14 1 4 Y MASK_ID
+C3 T14 3 50 Y MASK_ENTRY_NAME
+C4 T14 2 2 Y MASK_ENTRY_ADDRESS
+R 1 T 14 mask_entry
+20281
+20006
+AllocBuf
+4478
+R 2 T 14 mask_entry
+20282
+20006
+PopBuf
+4544
+R 3 T 14 mask_entry
+20283
+20006
+FreeBuf
+4512
+R 4 T 14 mask_entry
+20284
+20006
+rolA1
+2804
+R 5 T 14 mask_entry
+20285
+20006
+rolA2
+2802
+R 6 T 14 mask_entry
+20286
+20006
+rolA3
+2800
+R 7 T 14 mask_entry
+20287
+20006
+rolA4
+2798
+R 8 T 14 mask_entry
+20288
+20006
+rolA7
+2796
+R 9 T 14 mask_entry
+20289
+20006
+shlA4
+2985
+R 10 T 14 mask_entry
+20290
+20006
+shlA5
+2984
+R 11 T 14 mask_entry
+20291
+20006
+shlA6
+2983
+R 12 T 14 mask_entry
+20292
+20006
+shlA7
+2982
+R 13 T 14 mask_entry
+20293
+20006
+shrA4
+3049
+R 14 T 14 mask_entry
+20294
+20006
+shrA5
+3048
+R 15 T 14 mask_entry
+20295
+20006
+shrA6
+3047
+R 16 T 14 mask_entry
+20312
+20006
+shrA7
+3046
+R 17 T 14 mask_entry
+20313
+20006
+divDE_BC
+2827
+R 18 T 14 mask_entry
+20314
+20006
+multDE_FG
+2891
+R 19 T 14 mask_entry
+20315
+20006
+TM_GetFlg
+3657
+R 20 T 14 mask_entry
+20316
+20006
+TM_Load
+3627
+R 21 T 14 mask_entry
+20317
+20006
+EEsetChecksum
+3176
+R 22 T 14 mask_entry
+20318
+20006
+EEwrite
+3128
+R 23 T 14 mask_entry
+20319
+20006
+S_AstShift
+4375
+R 24 T 14 mask_entry
+20320
+20006
+S_LAstShift
+4373
+R 25 T 14 mask_entry
+20321
+20006
+U_SerialShift
+3216
+R 26 T 14 mask_entry
+20322
+20006
+U_deb10
+3187
+R 27 T 14 mask_entry
+20323
+20006
+U_deb30
+3183
+R 28 T 14 mask_entry
+20324
+20006
+U_debounce
+3189
+R 29 T 14 mask_entry
+20325
+20006
+U_Delay
+3578
+R 30 T 14 mask_entry
+20326
+20006
+U_delMsgs
+3219
+R 31 T 14 mask_entry
+20327
+20006
+U_flagsGet
+3229
+R 32 T 14 mask_entry
+20328
+20006
+U_flagsSet
+3251
+R 33 T 14 mask_entry
+20329
+20006
+U_GetTM
+3441
+R 34 T 14 mask_entry
+20330
+20006
+U_GetTMx
+3436
+R 35 T 14 mask_entry
+20331
+20006
+U_ioAST
+3535
+R 36 T 14 mask_entry
+20332
+20006
+U_map
+3258
+R 37 T 14 mask_entry
+20333
+20006
+U_readAD
+3412
+R 38 T 14 mask_entry
+20334
+20006
+U_SetTM
+3507
+R 39 T 14 mask_entry
+20335
+20006
+U_SetTMx
+3503
+R 40 T 14 mask_entry
+20336
+20006
+U_GetBit
+3596
+R 41 T 14 mask_entry
+20337
+20006
+U_SetBit
+3608
+R 42 T 14 mask_entry
+20338
+20006
+U_testObj
+3237
+R 43 T 14 mask_entry
+20339
+20006
+U_transRequest
+3513
+-------------------------------------
+T 17 device_info
+C1 T17 1 4 N DEVICE_INFO_ID
+C2 T17 1 4 N MASK_ID
+C3 T17 1 4 Y DEV_DEVICE_INFO_ID
+C4 T17 3 50 Y DEVICE_INFO_NAME
+C5 T17 2 2 Y FUNCTION_NUMBER
+C6 T17 2 2 Y DEVICE_INFO_TYPE
+C7 T17 2 2 Y BIT_POSITION
+C8 T17 2 2 Y DEVICE_INFO_VISIBLE
+R 1 T 17 device_info
+20420
+20006
+
+BCU 1
+
+
+
+2
+-------------------------------------
+T 18 ete_language
+C1 T18 1 4 N LANGUAGE_ID
+C2 T18 3 50 Y LANGUAGE_NAME
+C3 T18 2 2 Y DATABASE_LANGUAGE
+R 1 T 18 ete_language
+1031
+German
+1
+R 2 T 18 ete_language
+1033
+English
+0
+R 3 T 18 ete_language
+1034
+Spanish
+0
+R 4 T 18 ete_language
+1036
+French
+0
+R 5 T 18 ete_language
+1040
+Italian
+0
+R 6 T 18 ete_language
+1044
+Norwegian
+0
+R 7 T 18 ete_language
+1053
+Swedish
+0
+-------------------------------------
+T 19 device_info_value
+C1 T19 1 4 N DEVICE_INFO_VALUE_ID
+C2 T19 1 4 N DEVICE_INFO_ID
+C3 T19 1 4 Y BITMAP_ID
+C4 T19 1 4 Y MINIMUM_VALUE
+C5 T19 1 4 Y MAXIMUM_VALUE
+C6 T19 3 50 Y DISPLAYED_VALUE
+R 1 T 19 device_info_value
+21082
+20420
+5507
+
+
+
+-------------------------------------
+T 20 parameter_atomic_type
+C1 T20 2 2 N ATOMIC_TYPE_NUMBER
+C2 T20 3 50 Y ATOMIC_TYPE_NAME
+C3 T20 3 1 Y DISPATTR
+R 1 T 20 parameter_atomic_type
+0
+none
+ 
+R 2 T 20 parameter_atomic_type
+1
+unsigned
++
+R 3 T 20 parameter_atomic_type
+3
+string
+$
+R 4 T 20 parameter_atomic_type
+4
+enum
+Y
+-------------------------------------
+T 21 parameter_type
+C1 T21 1 4 N PARAMETER_TYPE_ID
+C2 T21 2 2 Y ATOMIC_TYPE_NUMBER
+C3 T21 1 4 Y PROGRAM_ID
+C4 T21 3 50 Y PARAMETER_TYPE_NAME
+C5 T21 1 4 Y PARAMETER_MINIMUM_VALUE
+C6 T21 1 4 Y PARAMETER_MAXIMUM_VALUE
+C7 T21 3 80 Y PARAMETER_TYPE_DESCRIPTION
+C8 T21 2 2 Y PARAMETER_TYPE_LOW_ACCESS
+C9 T21 2 2 Y PARAMETER_TYPE_HIGH_ACCESS
+C10 T21 2 2 Y PARAMETER_TYPE_SIZE
+C11 T21 5 8 Y PARAMETER_MINIMUM_DOUBLE_VALUE
+C12 T21 5 8 Y PARAMETER_MAXIMUM_DOUBLE_VALUE
+R 1 T 21 parameter_type
+24223
+3
+23108
+Type_Version
+
+
+
+2
+2
+160
+
+
+R 2 T 21 parameter_type
+24224
+1
+23108
+DPT_TimePeriodSec
+0
+65535
+2 byte unsigned value
+
+
+16
+
+
+R 3 T 21 parameter_type
+24225
+4
+23108
+PART_Timed_Delay
+
+
+
+2
+2
+8
+
+
+R 4 T 21 parameter_type
+24226
+4
+23108
+PART_Prewarning_Duration
+
+
+
+2
+2
+8
+
+
+R 5 T 21 parameter_type
+24227
+4
+23108
+PRIV_Forced_Mode
+
+
+
+2
+2
+1
+
+
+R 6 T 21 parameter_type
+24228
+4
+23108
+PRIV_Timed_Mode
+
+
+
+2
+2
+1
+
+
+R 7 T 21 parameter_type
+24229
+4
+23108
+PRIV_Periode_Variation_Relative
+
+
+
+2
+2
+8
+
+
+R 8 T 21 parameter_type
+24230
+1
+23108
+PRIV_Intensite_Lumineuse
+0
+100
+
+2
+2
+8
+
+
+R 9 T 21 parameter_type
+24231
+1
+23108
+PRIV_Val_Min
+1
+50
+
+2
+2
+8
+
+
+R 10 T 21 parameter_type
+24232
+1
+23108
+PRIV_Val_Max
+51
+100
+
+2
+2
+8
+
+
+R 11 T 21 parameter_type
+24233
+1
+23108
+PRIV_Luminosite_Initialisation
+0
+101
+
+2
+2
+8
+
+
+R 12 T 21 parameter_type
+24234
+4
+23108
+PRIV_Luminosite_Telechargement
+
+
+
+2
+2
+1
+
+
+R 13 T 21 parameter_type
+24323
+1
+23108
+Type onglets
+0
+0
+Utilisé pour déclarer des onglets
+0
+0
+8
+
+
+R 14 T 21 parameter_type
+24324
+4
+23108
+PRIV_Periode_Variation_Absolue
+
+
+
+2
+2
+4
+
+
+R 15 T 21 parameter_type
+24325
+1
+23108
+PRIV_Flag_Telechargement
+0
+255
+
+0
+0
+8
+
+
+R 16 T 21 parameter_type
+24326
+4
+23108
+PRIV_Scene_Num
+
+
+
+2
+2
+8
+
+
+R 17 T 21 parameter_type
+24327
+4
+23108
+PRIV_Scene_Action
+
+
+
+2
+2
+2
+
+
+R 18 T 21 parameter_type
+24328
+4
+23108
+PRIV_Type_Variation
+
+
+
+2
+2
+2
+
+
+R 19 T 21 parameter_type
+24329
+4
+23108
+PRIV_Reglage_Local
+
+
+
+2
+2
+1
+
+
+R 20 T 21 parameter_type
+24330
+4
+23108
+PRIV_Modification_Limites_ETS
+
+
+
+2
+2
+1
+
+
+R 21 T 21 parameter_type
+24331
+4
+23108
+PRIV_Numero_Sortie
+
+
+
+0
+2
+2
+
+
+R 22 T 21 parameter_type
+24332
+0
+23108
+Type_Onglet
+
+
+
+0
+0
+0
+
+
+-------------------------------------
+T 22 parameter_list_of_values
+C1 T22 1 4 N PARAMETER_TYPE_ID
+C2 T22 1 4 Y REAL_VALUE
+C3 T22 3 50 Y DISPLAYED_VALUE
+C4 T22 2 2 Y DISPLAY_ORDER
+C5 T22 1 4 N PARAMETER_VALUE_ID
+C6 T22 8 32767 Y BINARY_VALUE
+C7 T22 1 4 Y BINARY_VALUE_LENGTH
+C8 T22 5 8 Y DOUBLE_VALUE
+R 1 T 22 parameter_list_of_values
+24225
+7
+20 s
+7
+25369
+
+0
+
+R 2 T 22 parameter_list_of_values
+24225
+8
+30 s
+8
+25375
+
+0
+
+R 3 T 22 parameter_list_of_values
+24225
+9
+45 s
+9
+25381
+
+0
+
+R 4 T 22 parameter_list_of_values
+24225
+10
+1 min
+10
+25387
+
+0
+
+R 5 T 22 parameter_list_of_values
+24225
+11
+1 min 15 s
+11
+25393
+
+0
+
+R 6 T 22 parameter_list_of_values
+24225
+12
+1 min 30 s
+12
+25399
+
+0
+
+R 7 T 22 parameter_list_of_values
+24225
+13
+2 min
+13
+25405
+
+0
+
+R 8 T 22 parameter_list_of_values
+24225
+14
+2 min 30 s
+14
+25411
+
+0
+
+R 9 T 22 parameter_list_of_values
+24225
+15
+3 min
+15
+25417
+
+0
+
+R 10 T 22 parameter_list_of_values
+24225
+16
+5 min
+16
+25423
+
+0
+
+R 11 T 22 parameter_list_of_values
+24225
+17
+15 min
+17
+25429
+
+0
+
+R 12 T 22 parameter_list_of_values
+24225
+18
+20 min
+18
+25435
+
+0
+
+R 13 T 22 parameter_list_of_values
+24225
+19
+30 min
+19
+25441
+
+0
+
+R 14 T 22 parameter_list_of_values
+24225
+20
+1 Stunde
+20
+25447
+
+0
+
+R 15 T 22 parameter_list_of_values
+24225
+21
+2 Stunden
+21
+25453
+
+0
+
+R 16 T 22 parameter_list_of_values
+24225
+22
+3 Stunden
+22
+25459
+
+0
+
+R 17 T 22 parameter_list_of_values
+24225
+23
+5 Stunden
+23
+25465
+
+0
+
+R 18 T 22 parameter_list_of_values
+24225
+24
+12 Stunden
+24
+25471
+
+0
+
+R 19 T 22 parameter_list_of_values
+24225
+25
+24 Stunden
+25
+25477
+
+0
+
+R 20 T 22 parameter_list_of_values
+24225
+0
+nicht benutzt
+0
+25480
+
+0
+
+R 21 T 22 parameter_list_of_values
+24225
+1
+1 s
+1
+25483
+
+0
+
+R 22 T 22 parameter_list_of_values
+24225
+2
+2 s
+2
+25486
+
+0
+
+R 23 T 22 parameter_list_of_values
+24225
+3
+3 s
+3
+25489
+
+0
+
+R 24 T 22 parameter_list_of_values
+24225
+4
+5 s
+4
+25492
+
+0
+
+R 25 T 22 parameter_list_of_values
+24225
+5
+10 s
+5
+25495
+
+0
+
+R 26 T 22 parameter_list_of_values
+24225
+6
+15 s
+6
+25498
+
+0
+
+R 27 T 22 parameter_list_of_values
+24226
+0
+keine Vorwarnung
+0
+25501
+
+0
+
+R 28 T 22 parameter_list_of_values
+24226
+6
+15 s
+1
+25504
+
+0
+
+R 29 T 22 parameter_list_of_values
+24226
+8
+30 s
+2
+25507
+
+0
+
+R 30 T 22 parameter_list_of_values
+24226
+10
+1 min
+3
+25510
+
+0
+
+R 31 T 22 parameter_list_of_values
+24227
+0
+keine Änderung
+0
+25513
+
+0
+
+R 32 T 22 parameter_list_of_values
+24227
+1
+invertiert
+1
+25516
+
+0
+
+R 33 T 22 parameter_list_of_values
+24228
+0
+ein
+0
+25519
+
+0
+
+R 34 T 22 parameter_list_of_values
+24228
+1
+aus
+1
+25522
+
+0
+
+R 35 T 22 parameter_list_of_values
+24229
+1
+1 s
+0
+25525
+
+0
+
+R 36 T 22 parameter_list_of_values
+24229
+2
+2 s
+1
+25528
+
+0
+
+R 37 T 22 parameter_list_of_values
+24229
+3
+3 s
+2
+25531
+
+0
+
+R 38 T 22 parameter_list_of_values
+24229
+4
+4 s
+3
+25534
+
+0
+
+R 39 T 22 parameter_list_of_values
+24229
+5
+5 s
+4
+25537
+
+0
+
+R 40 T 22 parameter_list_of_values
+24229
+6
+6 s
+5
+25540
+
+0
+
+R 41 T 22 parameter_list_of_values
+24229
+9
+9 s
+6
+25543
+
+0
+
+R 42 T 22 parameter_list_of_values
+24229
+15
+15 s
+7
+25546
+
+0
+
+R 43 T 22 parameter_list_of_values
+24229
+30
+30 s
+8
+25549
+
+0
+
+R 44 T 22 parameter_list_of_values
+24229
+60
+60 s
+9
+25552
+
+0
+
+R 45 T 22 parameter_list_of_values
+24234
+0
+aus
+0
+25555
+
+0
+
+R 46 T 22 parameter_list_of_values
+24234
+1
+gespeicherter Wert
+1
+25558
+
+0
+
+R 47 T 22 parameter_list_of_values
+24324
+0
+anspringen
+0
+25561
+
+0
+
+R 48 T 22 parameter_list_of_values
+24324
+1
+1 s
+1
+25564
+
+0
+
+R 49 T 22 parameter_list_of_values
+24324
+2
+2 s
+2
+25567
+
+0
+
+R 50 T 22 parameter_list_of_values
+24324
+3
+3 s
+3
+25570
+
+0
+
+R 51 T 22 parameter_list_of_values
+24324
+4
+4 s
+4
+25573
+
+0
+
+R 52 T 22 parameter_list_of_values
+24324
+5
+5 s
+5
+25576
+
+0
+
+R 53 T 22 parameter_list_of_values
+24324
+6
+6 s
+6
+25579
+
+0
+
+R 54 T 22 parameter_list_of_values
+24324
+7
+9 s
+7
+25582
+
+0
+
+R 55 T 22 parameter_list_of_values
+24324
+8
+15 s
+8
+25585
+
+0
+
+R 56 T 22 parameter_list_of_values
+24324
+9
+30 s
+9
+25588
+
+0
+
+R 57 T 22 parameter_list_of_values
+24324
+10
+60 s
+10
+25591
+
+0
+
+R 58 T 22 parameter_list_of_values
+24324
+11
+2 min
+11
+25594
+
+0
+
+R 59 T 22 parameter_list_of_values
+24324
+12
+5 min
+12
+25597
+
+0
+
+R 60 T 22 parameter_list_of_values
+24324
+13
+10 min
+13
+25600
+
+0
+
+R 61 T 22 parameter_list_of_values
+24324
+14
+20 min
+14
+25603
+
+0
+
+R 62 T 22 parameter_list_of_values
+24324
+15
+30 min
+15
+25606
+
+0
+
+R 63 T 22 parameter_list_of_values
+24326
+1
+1
+0
+25609
+
+0
+
+R 64 T 22 parameter_list_of_values
+24326
+2
+2
+1
+25612
+
+0
+
+R 65 T 22 parameter_list_of_values
+24326
+3
+3
+3
+25615
+
+0
+
+R 66 T 22 parameter_list_of_values
+24326
+4
+4
+4
+25618
+
+0
+
+R 67 T 22 parameter_list_of_values
+24326
+5
+5
+5
+25621
+
+0
+
+R 68 T 22 parameter_list_of_values
+24326
+6
+6
+6
+25624
+
+0
+
+R 69 T 22 parameter_list_of_values
+24326
+7
+7
+7
+25627
+
+0
+
+R 70 T 22 parameter_list_of_values
+24326
+8
+8
+8
+25630
+
+0
+
+R 71 T 22 parameter_list_of_values
+24327
+0
+25%
+0
+25633
+
+0
+
+R 72 T 22 parameter_list_of_values
+24327
+1
+50%
+1
+25636
+
+0
+
+R 73 T 22 parameter_list_of_values
+24327
+2
+75%
+2
+25639
+
+0
+
+R 74 T 22 parameter_list_of_values
+24327
+3
+100%
+3
+25642
+
+0
+
+R 75 T 22 parameter_list_of_values
+24328
+0
+une variation relative
+0
+25645
+
+0
+
+R 76 T 22 parameter_list_of_values
+24328
+1
+une variation absolue lors d\'un allumag
+\\e
+1
+25648
+
+0
+
+R 77 T 22 parameter_list_of_values
+24328
+2
+une variation absolue lors d\'une extinc
+\\tion
+2
+25651
+
+0
+
+R 78 T 22 parameter_list_of_values
+24329
+0
+gesperrt
+0
+25654
+
+0
+
+R 79 T 22 parameter_list_of_values
+24329
+1
+freigegeben
+1
+25657
+
+0
+
+R 80 T 22 parameter_list_of_values
+24330
+0
+gesperrt
+0
+25660
+
+0
+
+R 81 T 22 parameter_list_of_values
+24330
+1
+freigegeben
+1
+25663
+
+0
+
+R 82 T 22 parameter_list_of_values
+24331
+0
+1
+0
+25666
+
+0
+
+R 83 T 22 parameter_list_of_values
+24331
+1
+2
+1
+25669
+
+0
+
+R 84 T 22 parameter_list_of_values
+24331
+2
+3
+2
+25672
+
+0
+
+-------------------------------------
+T 23 parameter
+C1 T23 1 4 N PROGRAM_ID
+C2 T23 1 4 Y PARAMETER_TYPE_ID
+C3 T23 2 2 Y PARAMETER_NUMBER
+C4 T23 3 50 Y PARAMETER_NAME
+C5 T23 2 2 Y PARAMETER_LOW_ACCESS
+C6 T23 2 2 Y PARAMETER_HIGH_ACCESS
+C7 T23 1 4 Y PARENT_PARM_VALUE
+C8 T23 2 2 Y PARAMETER_SIZE
+C9 T23 3 30 Y PARAMETER_FUNCTION
+C10 T23 2 2 Y PARAMETER_DISPLAY_ORDER
+C11 T23 1 4 Y PARAMETER_ADDRESS
+C12 T23 2 2 Y PARAMETER_BITOFFSET
+C13 T23 3 80 Y PARAMETER_DESCRIPTION
+C14 T23 1 4 N PARAMETER_ID
+C15 T23 1 4 Y PAR_PARAMETER_ID
+C16 T23 3 30 Y PARAMETER_LABEL
+C17 T23 1 4 Y PARAMETER_DEFAULT_LONG
+C18 T23 3 255 Y PARAMETER_DEFAULT_STRING
+C19 T23 1 4 Y CONTEXT_ID
+C20 T23 5 8 Y PARAMETER_DEFAULT_DOUBLE
+C21 T23 2 2 Y PATCH_ALWAYS
+R 1 T 23 parameter
+23108
+24323
+1
+Initialisation
+0
+0
+
+8
+
+1
+
+0
+Initialisation
+29552
+
+
+
+
+
+
+0
+R 2 T 23 parameter
+23108
+24323
+10
+Sorties 1-3
+2
+2
+
+8
+
+10
+
+0
+Ausgänge 1-3
+29554
+
+
+
+
+
+
+0
+R 3 T 23 parameter
+23108
+24323
+19
+Sortie 2 Automatismes
+2
+2
+
+8
+
+200
+
+0
+Ausgang 2 Automatik / Szenen
+29556
+
+
+
+
+
+
+0
+R 4 T 23 parameter
+23108
+24323
+215
+Sortie 1 Automatismes
+2
+2
+
+8
+
+100
+
+0
+Ausgang 1 Automatik / Szenen
+29558
+
+
+
+
+
+
+0
+R 5 T 23 parameter
+23108
+24323
+236
+Sortie 3 Automatismes
+2
+2
+
+8
+
+300
+
+0
+Ausgang 3 Automatik / Szenen
+29560
+
+
+
+
+
+
+0
+R 6 T 23 parameter
+23108
+24323
+268
+Sortie 1 Réglages
+2
+2
+
+8
+
+150
+
+0
+Ausgang 1 Einstellungen
+29562
+
+
+
+
+
+
+0
+R 7 T 23 parameter
+23108
+24323
+298
+Sortie 2 Réglages
+2
+2
+
+8
+
+250
+
+0
+Ausgang 2 Einstellungen
+29564
+
+
+
+
+
+
+0
+R 8 T 23 parameter
+23108
+24323
+317
+Sortie 3 Réglages
+2
+2
+
+8
+
+350
+
+0
+Ausgang 3 Einstellungen
+29566
+
+
+
+
+
+
+0
+R 9 T 23 parameter
+23108
+24332
+170
+Onglet_Information
+2
+2
+
+0
+
+1000
+
+0
+Information
+29568
+
+
+
+
+
+
+0
+R 10 T 23 parameter
+23108
+24224
+354
+Sortie 1 CalculatedDelayTime
+0
+0
+
+16
+
+1101
+0
+
+DelayTime for BinaryActuatorWithStaircas
+\\\r\neFunction
+29570
+
+
+180
+
+
+
+0
+R 11 T 23 parameter
+23108
+24224
+355
+Sortie 2 CalculatedDelayTime
+0
+0
+
+16
+
+1102
+0
+
+DelayTime for BinaryActuatorWithStaircas
+\\\r\neFunction
+29572
+
+
+180
+
+
+
+0
+R 12 T 23 parameter
+23108
+24224
+356
+Sortie 3 CalculatedDelayTime
+0
+0
+
+16
+
+1103
+0
+
+DelayTime for BinaryActuatorWithStaircas
+\\\r\neFunction
+29574
+
+
+180
+
+
+
+0
+R 13 T 23 parameter
+23108
+24325
+24
+Type flag téléchargement effectué
+0
+0
+
+8
+
+2
+504
+0
+Type flag téléchargement effectué
+31662
+29552
+
+0
+
+
+
+1
+R 14 T 23 parameter
+23108
+24234
+9
+Etat après téléchargement
+2
+2
+
+1
+
+175
+465
+2
+Zustand nach download
+31663
+29562
+
+1
+
+
+
+0
+R 15 T 23 parameter
+23108
+24228
+22
+Fonctionnement minuterie
+2
+2
+
+1
+
+210
+478
+6
+Befehl für Zeitschalterbetrieb
+31664
+29556
+
+0
+
+
+
+0
+R 16 T 23 parameter
+23108
+24225
+20
+Minuterie
+2
+2
+
+8
+
+215
+460
+0
+Zeitschalterbetrieb
+31665
+29556
+
+15
+
+
+
+0
+R 17 T 23 parameter
+23108
+24227
+23
+Etat après annulation forçage
+2
+2
+
+1
+
+220
+478
+7
+Ausgangszustand nach Zwangssteuerung
+31666
+29556
+
+0
+
+
+
+0
+R 18 T 23 parameter
+23108
+24326
+212
+Numéro de scénario
+2
+2
+
+8
+
+230
+0
+0
+Szenennummer
+31667
+29556
+
+1
+
+
+
+0
+R 19 T 23 parameter
+23108
+24228
+216
+Fonctionnement minuterie
+2
+2
+
+1
+
+110
+465
+6
+Befehl für Zeitschalterbetrieb
+31668
+29558
+
+0
+
+
+
+0
+R 20 T 23 parameter
+23108
+24225
+219
+Minuterie
+2
+2
+
+8
+
+115
+458
+0
+Zeitschalterbetrieb
+31669
+29558
+
+15
+
+
+
+0
+R 21 T 23 parameter
+23108
+24227
+220
+Etat après annulation forçage
+2
+2
+
+1
+
+120
+465
+7
+Ausgangszustand nach Zwangssteuerung
+31670
+29558
+
+0
+
+
+
+0
+R 22 T 23 parameter
+23108
+24326
+227
+Numéro de scénario
+2
+2
+
+8
+
+130
+0
+0
+Szenennummer
+31671
+29558
+
+1
+
+
+
+0
+R 23 T 23 parameter
+23108
+24228
+237
+Fonctionnement minuterie
+2
+2
+
+1
+
+310
+491
+6
+Befehl für Zeitschalterbetrieb
+31672
+29560
+
+0
+
+
+
+0
+R 24 T 23 parameter
+23108
+24225
+240
+Minuterie
+2
+2
+
+8
+
+315
+462
+0
+Zeitschalterbetrieb
+31673
+29560
+
+15
+
+
+
+0
+R 25 T 23 parameter
+23108
+24227
+241
+Etat après annulation forçage
+2
+2
+
+1
+
+320
+491
+7
+Ausgangszustand nach Zwangssteuerung
+31674
+29560
+
+0
+
+
+
+0
+R 26 T 23 parameter
+23108
+24326
+248
+Numéro de scénario
+2
+2
+
+8
+
+330
+0
+0
+Szenennummer
+31675
+29560
+
+1
+
+
+
+0
+R 27 T 23 parameter
+23108
+24330
+258
+Modification des limites de variation re
+\\lative
+2
+2
+
+1
+
+20
+464
+6
+Überschreiben der Minimal- und Maximaldi
+\\mmwerte mit Download
+31676
+29554
+
+0
+
+
+
+0
+R 28 T 23 parameter
+23108
+24329
+265
+Autorisation du réglage local
+2
+2
+
+1
+
+11
+464
+7
+lokale Einstellung der Minimal-und Maxim
+\\aldimmwerte:
+31677
+29554
+
+1
+
+
+
+0
+R 29 T 23 parameter
+23108
+24234
+266
+Etat après téléchargement
+2
+2
+
+1
+
+275
+478
+2
+Zustand nach download
+31678
+29564
+
+1
+
+
+
+0
+R 30 T 23 parameter
+23108
+24234
+267
+Etat après téléchargement
+2
+2
+
+1
+
+375
+491
+2
+Zustand nach download
+31679
+29566
+
+1
+
+
+
+0
+R 31 T 23 parameter
+23108
+24233
+270
+Luminosité à l\'allumage
+2
+2
+
+8
+
+160
+475
+0
+Helligkeit beim Einschalten in % Bereich
+\\ 1..100, 101 = gespeicherter Wert
+31680
+29562
+
+101
+
+
+
+0
+R 32 T 23 parameter
+23108
+24233
+281
+Luminosité après coupure bus
+2
+2
+
+8
+
+165
+476
+0
+Helligkeit nach Busspgs.wiederkehr in % 
+\\Bereich 1..100, 101 = gespeicherter Wert
+31681
+29562
+
+101
+
+
+
+0
+R 33 T 23 parameter
+23108
+24229
+283
+Période de variation
+2
+2
+
+8
+
+152
+466
+0
+Dimmzeit (beim kontinuierlichen Dimmen)
+31682
+29562
+
+3
+
+
+
+0
+R 34 T 23 parameter
+23108
+24324
+284
+Période de variation à l\'allumage
+2
+2
+
+4
+
+153
+467
+4
+Andimmzeit
+31683
+29562
+
+0
+
+
+
+0
+R 35 T 23 parameter
+23108
+24324
+285
+Période de variation à l\'extinction
+2
+2
+
+4
+
+154
+467
+0
+Ausdimmzeit
+31684
+29562
+
+0
+
+
+
+0
+R 36 T 23 parameter
+23108
+24233
+304
+Luminosité à l\'allumage
+2
+2
+
+8
+
+260
+488
+0
+Helligkeit beim Einschalten in % Bereich
+\\ 1..100, 101 = gespeicherter Wert
+31685
+29564
+
+101
+
+
+
+0
+R 37 T 23 parameter
+23108
+24233
+305
+Luminosité après coupure bus
+2
+2
+
+8
+
+265
+489
+0
+Helligkeit nach Busspgs.wiederkehr in % 
+\\Bereich 1..100, 101 = gespeicherter Wert
+31686
+29564
+
+101
+
+
+
+0
+R 38 T 23 parameter
+23108
+24229
+307
+Période de variation
+2
+2
+
+8
+
+252
+479
+0
+Dimmzeit (beim kontinuierlichen Dimmen)
+31687
+29564
+
+3
+
+
+
+0
+R 39 T 23 parameter
+23108
+24324
+308
+Période de variation à l\'allumage
+2
+2
+
+4
+
+253
+480
+4
+Andimmzeit
+31688
+29564
+
+0
+
+
+
+0
+R 40 T 23 parameter
+23108
+24324
+309
+Période de variation à l\'extinction
+2
+2
+
+4
+
+254
+480
+0
+Ausdimmzeit
+31689
+29564
+
+0
+
+
+
+0
+R 41 T 23 parameter
+23108
+24233
+323
+Luminosité à l\'allumage
+2
+2
+
+8
+
+360
+501
+0
+Helligkeit beim Einschalten in % Bereich
+\\ 1..100, 101 = gespeicherter Wert
+31690
+29566
+
+101
+
+
+
+0
+R 42 T 23 parameter
+23108
+24233
+324
+Luminosité après coupure bus
+2
+2
+
+8
+
+365
+502
+0
+Helligkeit nach Busspgs.wiederkehr in % 
+\\Bereich 1..100, 101 = gespeicherter Wert
+31691
+29566
+
+101
+
+
+
+0
+R 43 T 23 parameter
+23108
+24229
+326
+Période de variation
+2
+2
+
+8
+
+352
+492
+0
+Dimmzeit (beim kontinuierlichen Dimmen)
+31692
+29566
+
+3
+
+
+
+0
+R 44 T 23 parameter
+23108
+24324
+327
+Période de variation à l\'allumage
+2
+2
+
+4
+
+353
+493
+4
+Andimmzeit
+31693
+29566
+
+0
+
+
+
+0
+R 45 T 23 parameter
+23108
+24324
+328
+Période de variation à l\'extinction
+2
+2
+
+4
+
+354
+493
+0
+Ausdimmzeit
+31694
+29566
+
+0
+
+
+
+0
+R 46 T 23 parameter
+23108
+24223
+171
+Par_Version
+1
+1
+
+160
+
+1100
+0
+0
+Programmversion
+31695
+29568
+
+
+2.0.0
+
+
+0
+R 47 T 23 parameter
+23108
+24231
+352
+Valeur minimale de variation
+2
+2
+1
+8
+
+190
+473
+0
+unterer Dimmwert in % Bereich 1...50
+34112
+31676
+
+1
+
+
+
+0
+R 48 T 23 parameter
+23108
+24232
+353
+Valeur maximale de variation
+2
+2
+1
+8
+
+191
+474
+0
+oberer Dimmwert in % Bereich 51...100
+34114
+31676
+
+100
+
+
+
+0
+R 49 T 23 parameter
+23108
+24226
+21
+Durée du préavis d\'extinction
+1
+1
+1
+8
+
+212
+461
+0
+Vorwarndauer
+34116
+31664
+
+0
+
+
+
+0
+R 50 T 23 parameter
+23108
+24230
+162
+Valeur d\'éclairement du scénario 1
+2
+2
+1
+8
+
+231
+481
+0
+Helligkeit Szene 1 (%)
+34118
+31667
+
+100
+
+
+
+1
+R 51 T 23 parameter
+23108
+24230
+163
+Valeur d\'éclairement du scénario 2
+2
+2
+2
+8
+
+232
+482
+0
+Helligkeit Szene 2 (%)
+34120
+31667
+
+100
+
+
+
+1
+R 52 T 23 parameter
+23108
+24230
+164
+Valeur d\'éclairement du scénario 3
+2
+2
+3
+8
+
+233
+483
+0
+Helligkeit Szene 3 (%)
+34122
+31667
+
+100
+
+
+
+1
+R 53 T 23 parameter
+23108
+24327
+165
+Valeur d\'éclairement du scénario 4
+2
+2
+4
+2
+
+234
+484
+6
+Helligkeit Szene 4 (%)
+34124
+31667
+
+0
+
+
+
+1
+R 54 T 23 parameter
+23108
+24327
+166
+Valeur d\'éclairement du scénario 5
+2
+2
+5
+2
+
+235
+484
+4
+Helligkeit Szene 5 (%)
+34126
+31667
+
+1
+
+
+
+1
+R 55 T 23 parameter
+23108
+24327
+167
+Valeur d\'éclairement du scénario 6
+2
+2
+6
+2
+
+236
+484
+2
+Helligkeit Szene 6 (%)
+34128
+31667
+
+2
+
+
+
+1
+R 56 T 23 parameter
+23108
+24327
+168
+Valeur d\'éclairement du scénario 7
+2
+2
+7
+2
+
+237
+484
+0
+Helligkeit Szene 7 (%)
+34130
+31667
+
+3
+
+
+
+1
+R 57 T 23 parameter
+23108
+24230
+169
+Valeur d\'éclairement du scénario 8
+1
+1
+8
+8
+
+238
+0
+0
+Helligkeit Szene 8 (%)
+34132
+31667
+
+0
+
+
+
+0
+R 58 T 23 parameter
+23108
+24226
+214
+Durée du préavis d\'extinction
+2
+2
+0
+8
+
+211
+461
+0
+Vorwarndauer
+34134
+31664
+
+0
+
+
+
+0
+R 59 T 23 parameter
+23108
+24226
+217
+Durée du préavis d\'extinction
+1
+1
+1
+8
+
+112
+459
+0
+Vorwarndauer
+34136
+31668
+
+0
+
+
+
+0
+R 60 T 23 parameter
+23108
+24226
+218
+Durée du préavis d\'extinction
+2
+2
+0
+8
+
+111
+459
+0
+Vorwarndauer
+34138
+31668
+
+0
+
+
+
+0
+R 61 T 23 parameter
+23108
+24230
+228
+Valeur d\'éclairement du scénario 3
+2
+2
+3
+8
+
+133
+470
+0
+Helligkeit Szene 3 (%)
+34140
+31671
+
+100
+
+
+
+1
+R 62 T 23 parameter
+23108
+24327
+229
+Valeur d\'éclairement du scénario 4
+2
+2
+4
+2
+
+134
+471
+6
+Helligkeit Szene 4 (%)
+34142
+31671
+
+0
+
+
+
+1
+R 63 T 23 parameter
+23108
+24327
+230
+Valeur d\'éclairement du scénario 5
+2
+2
+5
+2
+
+135
+471
+4
+Helligkeit Szene 5 (%)
+34144
+31671
+
+1
+
+
+
+1
+R 64 T 23 parameter
+23108
+24327
+231
+Valeur d\'éclairement du scénario 6
+2
+2
+6
+2
+
+136
+471
+2
+Helligkeit Szene 6 (%)
+34146
+31671
+
+2
+
+
+
+1
+R 65 T 23 parameter
+23108
+24327
+232
+Valeur d\'éclairement du scénario 7
+2
+2
+7
+2
+
+137
+471
+0
+Helligkeit Szene 7 (%)
+34148
+31671
+
+3
+
+
+
+1
+R 66 T 23 parameter
+23108
+24230
+233
+Valeur d\'éclairement du scénario 8
+1
+1
+8
+8
+
+138
+0
+0
+Helligkeit Szene 8 (%)
+34150
+31671
+
+0
+
+
+
+0
+R 67 T 23 parameter
+23108
+24230
+234
+Valeur d\'éclairement du scénario 1
+2
+2
+1
+8
+
+131
+468
+0
+Helligkeit Szene 1 (%)
+34152
+31671
+
+100
+
+
+
+1
+R 68 T 23 parameter
+23108
+24230
+235
+Valeur d\'éclairement du scénario 2
+2
+2
+2
+8
+
+132
+469
+0
+Helligkeit Szene 2 (%)
+34154
+31671
+
+100
+
+
+
+1
+R 69 T 23 parameter
+23108
+24226
+238
+Durée du préavis d\'extinction
+1
+1
+1
+8
+
+312
+463
+0
+Vorwarndauer
+34156
+31672
+
+0
+
+
+
+0
+R 70 T 23 parameter
+23108
+24226
+239
+Durée du préavis d\'extinction
+2
+2
+0
+8
+
+311
+463
+0
+Vorwarndauer
+34158
+31672
+
+0
+
+
+
+0
+R 71 T 23 parameter
+23108
+24230
+249
+Valeur d\'éclairement du scénario 3
+2
+2
+3
+8
+
+333
+496
+0
+Helligkeit Szene 3 (%)
+34160
+31675
+
+100
+
+
+
+1
+R 72 T 23 parameter
+23108
+24327
+250
+Valeur d\'éclairement du scénario 4
+2
+2
+4
+2
+
+334
+497
+6
+Helligkeit Szene 4 (%)
+34162
+31675
+
+0
+
+
+
+1
+R 73 T 23 parameter
+23108
+24327
+251
+Valeur d\'éclairement du scénario 5
+2
+2
+5
+2
+
+335
+497
+4
+Helligkeit Szene 5 (%)
+34164
+31675
+
+1
+
+
+
+1
+R 74 T 23 parameter
+23108
+24327
+252
+Valeur d\'éclairement du scénario 6
+2
+2
+6
+2
+
+336
+497
+2
+Helligkeit Szene 6 (%)
+34166
+31675
+
+2
+
+
+
+1
+R 75 T 23 parameter
+23108
+24327
+253
+Valeur d\'éclairement du scénario 7
+2
+2
+7
+2
+
+337
+497
+0
+Helligkeit Szene 7 (%)
+34168
+31675
+
+3
+
+
+
+1
+R 76 T 23 parameter
+23108
+24230
+254
+Valeur d\'éclairement du scénario 8
+1
+1
+8
+8
+
+338
+0
+0
+Helligkeit Szene 8 (%)
+34170
+31675
+
+0
+
+
+
+0
+R 77 T 23 parameter
+23108
+24230
+255
+Valeur d\'éclairement du scénario 1
+2
+2
+1
+8
+
+331
+494
+0
+Helligkeit Szene 1 (%)
+34172
+31675
+
+100
+
+
+
+1
+R 78 T 23 parameter
+23108
+24230
+256
+Valeur d\'éclairement du scénario 2
+2
+2
+2
+8
+
+332
+495
+0
+Helligkeit Szene 2 (%)
+34174
+31675
+
+100
+
+
+
+1
+R 79 T 23 parameter
+23108
+24232
+294
+Valeur maximale de variation
+2
+2
+1
+8
+
+291
+487
+0
+oberer Dimmwert in % Bereich 51...100
+34176
+31676
+
+100
+
+
+
+0
+R 80 T 23 parameter
+23108
+24231
+295
+Valeur minimale de variation
+2
+2
+1
+8
+
+290
+486
+0
+unterer Dimmwert in % Bereich 1...50
+34178
+31676
+
+1
+
+
+
+0
+R 81 T 23 parameter
+23108
+24231
+342
+Valeur minimale de variation
+2
+2
+1
+8
+
+390
+499
+0
+unterer Dimmwert in % Bereich 1...50
+34180
+31676
+
+1
+
+
+
+0
+R 82 T 23 parameter
+23108
+24232
+343
+Valeur maximale de variation
+2
+2
+1
+8
+
+391
+500
+0
+oberer Dimmwert in % Bereich 51...100
+34182
+31676
+
+100
+
+
+
+0
+-------------------------------------
+T 24 object_type
+C1 T24 2 2 N OBJECT_TYPE_CODE
+C2 T24 3 50 Y OBJECT_TYPE_NAME
+R 1 T 24 object_type
+0
+1 Bit
+R 2 T 24 object_type
+1
+2 Bit
+R 3 T 24 object_type
+3
+4 Bit
+R 4 T 24 object_type
+7
+1 Byte
+-------------------------------------
+T 25 object_priority
+C1 T25 2 2 N OBJECT_PRIORITY_CODE
+C2 T25 3 50 Y OBJECT_PRIORITY_NAME
+R 1 T 25 object_priority
+3
+Low
+-------------------------------------
+T 26 communication_object
+C1 T26 1 4 Y PROGRAM_ID
+C2 T26 3 50 Y OBJECT_NAME
+C3 T26 3 30 Y OBJECT_FUNCTION
+C4 T26 2 2 Y OBJECT_READENABLED
+C5 T26 2 2 Y OBJECT_WRITEENABLED
+C6 T26 2 2 Y OBJECT_COMMENABLED
+C7 T26 2 2 Y OBJECT_TRANSENABLED
+C8 T26 1 4 Y OBJECT_DISPLAY_ORDER
+C9 T26 1 4 Y PARENT_PARAMETER_VALUE
+C10 T26 1 4 N OBJECT_ID
+C11 T26 1 4 Y PARAMETER_ID
+C12 T26 2 2 Y OBJECT_NUMBER
+C13 T26 3 80 Y OBJECT_DESCRIPTION
+C14 T26 2 2 Y OBJECT_TYPE
+C15 T26 2 2 Y OBJECT_PRIORITY
+C16 T26 2 2 Y OBJECT_UPDATEENABLED
+C17 T26 2 2 Y OBJECT_UNIQUE_NUMBER
+R 1 T 26 communication_object
+23108
+Zwangssteuerung
+Ausgang 3
+1
+1
+1
+0
+20
+
+40960
+29560
+20
+
+1
+3
+0
+21
+R 2 T 26 communication_object
+23108
+Szene
+Ausgang 3
+1
+1
+1
+0
+21
+
+40964
+29560
+21
+
+7
+3
+0
+22
+R 3 T 26 communication_object
+23108
+Zustand Ausgang
+Ausgang 3
+1
+0
+1
+1
+22
+
+40968
+29560
+22
+
+0
+3
+0
+23
+R 4 T 26 communication_object
+23108
+Zustand Dimmwert
+Ausgang 3
+1
+0
+1
+1
+23
+
+40972
+29560
+23
+
+7
+3
+0
+24
+R 5 T 26 communication_object
+23108
+Ein / Aus
+Ausgang 1
+1
+1
+1
+0
+0
+
+40880
+29558
+0
+
+0
+3
+0
+1
+R 6 T 26 communication_object
+23108
+Dimmen
+Ausgang 1
+1
+1
+1
+0
+1
+
+40884
+29558
+1
+
+3
+3
+0
+2
+R 7 T 26 communication_object
+23108
+Dimmwert
+Ausgang 1
+1
+1
+1
+0
+2
+
+40888
+29558
+2
+
+7
+3
+0
+3
+R 8 T 26 communication_object
+23108
+Zeitschalterbetrieb
+Ausgang 1
+1
+1
+1
+0
+3
+
+40892
+29558
+3
+
+0
+3
+0
+4
+R 9 T 26 communication_object
+23108
+Zwangssteuerung
+Ausgang 1
+1
+1
+1
+0
+4
+
+40896
+29558
+4
+
+1
+3
+0
+5
+R 10 T 26 communication_object
+23108
+Szene
+Ausgang 1
+1
+1
+1
+0
+5
+
+40900
+29558
+5
+
+7
+3
+0
+6
+R 11 T 26 communication_object
+23108
+Zustand Ausgang
+Ausgang 1
+1
+0
+1
+1
+6
+
+40904
+29558
+6
+
+0
+3
+0
+7
+R 12 T 26 communication_object
+23108
+Zustand Dimmwert
+Ausgang 1
+1
+0
+1
+1
+7
+
+40908
+29558
+7
+
+7
+3
+0
+8
+R 13 T 26 communication_object
+23108
+Ein / Aus
+Ausgang 2
+1
+1
+1
+0
+8
+
+40912
+29556
+8
+
+0
+3
+0
+9
+R 14 T 26 communication_object
+23108
+Dimmen
+Ausgang 2
+1
+1
+1
+0
+9
+
+40916
+29556
+9
+
+3
+3
+0
+10
+R 15 T 26 communication_object
+23108
+Dimmwert
+Ausgang 2
+1
+1
+1
+0
+10
+
+40920
+29556
+10
+
+7
+3
+0
+11
+R 16 T 26 communication_object
+23108
+Zeitschalterbetrieb
+Ausgang 2
+1
+1
+1
+0
+11
+
+40924
+29556
+11
+
+0
+3
+0
+12
+R 17 T 26 communication_object
+23108
+Zwangssteuerung
+Ausgang 2
+1
+1
+1
+0
+12
+
+40928
+29556
+12
+
+1
+3
+0
+13
+R 18 T 26 communication_object
+23108
+Szene
+Ausgang 2
+1
+1
+1
+0
+13
+
+40932
+29556
+13
+
+7
+3
+0
+14
+R 19 T 26 communication_object
+23108
+Zustand Ausgang
+Ausgang 2
+1
+0
+1
+1
+14
+
+40936
+29556
+14
+
+0
+3
+0
+15
+R 20 T 26 communication_object
+23108
+Zustand Dimmwert
+Ausgang 2
+1
+0
+1
+1
+15
+
+40940
+29556
+15
+
+7
+3
+0
+16
+R 21 T 26 communication_object
+23108
+Ein / Aus
+Ausgang 3
+1
+1
+1
+0
+16
+
+40944
+29560
+16
+
+0
+3
+0
+17
+R 22 T 26 communication_object
+23108
+Dimmen
+Ausgang 3
+1
+1
+1
+0
+17
+
+40948
+29560
+17
+
+3
+3
+0
+18
+R 23 T 26 communication_object
+23108
+Dimmwert
+Ausgang 3
+1
+1
+1
+0
+18
+
+40952
+29560
+18
+
+7
+3
+0
+19
+R 24 T 26 communication_object
+23108
+Zeitschalterbetrieb
+Ausgang 3
+1
+1
+1
+0
+19
+
+40956
+29560
+19
+
+0
+3
+0
+20
+-------------------------------------
+T 30 text_attribute
+C1 T30 1 4 N TEXT_ATTRIBUTE_ID
+C2 T30 1 4 N LANGUAGE_ID
+C3 T30 1 4 N COLUMN_ID
+C4 T30 1 4 N ENTITY_ID
+C5 T30 3 80 Y TEXT_ATTRIBUTE_TEXT
+R 1 T 30 text_attribute
+120834
+1033
+10
+31682
+
+R 2 T 30 text_attribute
+51205
+1033
+11
+25498
+
+R 3 T 30 text_attribute
+59397
+1033
+22
+40880
+
+R 4 T 30 text_attribute
+49162
+1033
+11
+25417
+
+R 5 T 30 text_attribute
+122892
+1033
+10
+31677
+
+R 6 T 30 text_attribute
+43024
+1033
+10
+34136
+
+R 7 T 30 text_attribute
+77848
+1031
+21
+40880
+
+R 8 T 30 text_attribute
+73752
+1053
+30
+22799
+Belysning
+R 9 T 30 text_attribute
+69657
+1033
+11
+25630
+
+R 10 T 30 text_attribute
+59418
+1033
+10
+31678
+
+R 11 T 30 text_attribute
+114720
+1031
+10
+34120
+Helligkeit Szene 2 (%)
+R 12 T 30 text_attribute
+129058
+1033
+11
+25495
+
+R 13 T 30 text_attribute
+88098
+1033
+11
+25633
+
+R 14 T 30 text_attribute
+94242
+1031
+10
+34112
+unterer Dimmwert in % Bereich 1...50
+R 15 T 30 text_attribute
+65573
+1033
+10
+34178
+
+R 16 T 30 text_attribute
+43049
+1036
+22
+40928
+Sortie 2
+R 17 T 30 text_attribute
+88115
+1033
+10
+34138
+
+R 18 T 30 text_attribute
+49210
+1033
+11
+25603
+
+R 19 T 30 text_attribute
+112702
+1033
+10
+31693
+
+R 20 T 30 text_attribute
+45120
+1033
+10
+31692
+
+R 21 T 30 text_attribute
+69699
+1036
+21
+40904
+
+R 22 T 30 text_attribute
+65607
+1031
+11
+25375
+30 s
+R 23 T 30 text_attribute
+116810
+1036
+11
+25612
+2
+R 24 T 30 text_attribute
+67661
+1033
+11
+25507
+
+R 25 T 30 text_attribute
+77902
+1040
+31
+22799
+
+R 26 T 30 text_attribute
+118868
+1033
+11
+25636
+
+R 27 T 30 text_attribute
+141397
+1036
+21
+40928
+
+R 28 T 30 text_attribute
+127062
+1033
+10
+31664
+
+R 29 T 30 text_attribute
+79959
+1033
+11
+25423
+
+R 30 T 30 text_attribute
+139351
+1031
+11
+25639
+75%
+R 31 T 30 text_attribute
+88154
+1036
+10
+29564
+Sortie 2 Réglages
+R 32 T 30 text_attribute
+108634
+1031
+10
+31686
+Helligkeit nach Busspgs.wiederkehr in % 
+\\Bereich 1..100, 101 = gespeicherter Wert
+R 33 T 30 text_attribute
+92251
+1031
+22
+40908
+Ausgang 1
+R 34 T 30 text_attribute
+131168
+1036
+11
+25528
+2 sec
+R 35 T 30 text_attribute
+108644
+1033
+10
+34142
+
+R 36 T 30 text_attribute
+86118
+1036
+10
+34150
+Valeur d\'éclairement du scénario 8 (%)
+R 37 T 30 text_attribute
+45160
+1031
+11
+25513
+keine Änderung
+R 38 T 30 text_attribute
+53352
+1031
+31
+22799
+
+R 39 T 30 text_attribute
+45161
+1036
+11
+25651
+une variation absolue lors d\'une extinc
+\\tion
+R 40 T 30 text_attribute
+51311
+1036
+11
+25621
+5
+R 41 T 30 text_attribute
+110703
+1033
+10
+34180
+
+R 42 T 30 text_attribute
+84080
+1031
+11
+25519
+ein
+R 43 T 30 text_attribute
+137328
+1031
+20
+40928
+Zwangssteuerung
+R 44 T 30 text_attribute
+84082
+1031
+11
+25642
+100%
+R 45 T 30 text_attribute
+67699
+1033
+21
+40924
+
+R 46 T 30 text_attribute
+73845
+1031
+21
+40960
+
+R 47 T 30 text_attribute
+92280
+1033
+10
+34170
+
+R 48 T 30 text_attribute
+104575
+1033
+10
+34182
+
+R 49 T 30 text_attribute
+53376
+1036
+10
+34142
+Valeur d\'éclairement du scénario 4 (%)
+R 50 T 30 text_attribute
+73858
+1031
+11
+25447
+1 Stunde
+R 51 T 30 text_attribute
+82054
+1033
+22
+40952
+
+R 52 T 30 text_attribute
+141447
+1036
+21
+40960
+
+R 53 T 30 text_attribute
+127112
+1031
+10
+34180
+unterer Dimmwert in % Bereich 1...50
+R 54 T 30 text_attribute
+90249
+1036
+41
+23279
+TX211
+R 55 T 30 text_attribute
+120973
+1031
+1
+23002
+Schalt/Dimmaktor 3-fach 1/10V
+R 56 T 30 text_attribute
+141458
+1036
+11
+25417
+3 min
+R 57 T 30 text_attribute
+55445
+1036
+20
+40884
+Variation
+R 58 T 30 text_attribute
+45207
+1031
+11
+25600
+10 min
+R 59 T 30 text_attribute
+125079
+1036
+21
+40920
+
+R 60 T 30 text_attribute
+125080
+1033
+20
+40936
+
+R 61 T 30 text_attribute
+133275
+1036
+11
+25657
+Autorisé
+R 62 T 30 text_attribute
+61597
+1031
+20
+40880
+Ein / Aus
+R 63 T 30 text_attribute
+61598
+1031
+21
+40900
+
+R 64 T 30 text_attribute
+67748
+1033
+22
+40956
+
+R 65 T 30 text_attribute
+106665
+1036
+11
+25471
+12 h
+R 66 T 30 text_attribute
+65709
+1036
+11
+25609
+1
+R 67 T 30 text_attribute
+75950
+1031
+21
+40916
+
+R 68 T 30 text_attribute
+131255
+1036
+22
+40892
+Sortie 1
+R 69 T 30 text_attribute
+90300
+1033
+11
+25624
+
+R 70 T 30 text_attribute
+92349
+1033
+21
+40896
+
+R 71 T 30 text_attribute
+100542
+1031
+11
+25429
+15 min
+R 72 T 30 text_attribute
+131267
+1033
+11
+25369
+
+R 73 T 30 text_attribute
+141508
+1031
+11
+25435
+20 min
+R 74 T 30 text_attribute
+80073
+1031
+10
+31679
+Zustand nach download
+R 75 T 30 text_attribute
+45258
+1031
+11
+25531
+3 s
+R 76 T 30 text_attribute
+135379
+1031
+3
+23002
+
+R 77 T 30 text_attribute
+96467
+1031
+21
+40908
+
+R 78 T 30 text_attribute
+71897
+1031
+20
+40904
+Zustand Ausgang
+R 79 T 30 text_attribute
+75995
+1036
+20
+40912
+Marche / Arrêt
+R 80 T 30 text_attribute
+127199
+1031
+11
+25597
+5 min
+R 81 T 30 text_attribute
+108773
+1036
+11
+25513
+Maintien
+R 82 T 30 text_attribute
+57573
+1033
+10
+31675
+
+R 83 T 30 text_attribute
+73959
+1033
+11
+25441
+
+R 84 T 30 text_attribute
+71911
+1033
+11
+25606
+
+R 85 T 30 text_attribute
+90347
+1036
+11
+25492
+5 s
+R 86 T 30 text_attribute
+65772
+1036
+10
+31662
+Type flag téléchargement effectué
+R 87 T 30 text_attribute
+100589
+1031
+11
+25594
+2 min
+R 88 T 30 text_attribute
+43247
+1036
+22
+40900
+Sortie 1
+R 89 T 30 text_attribute
+82160
+1036
+11
+25666
+1
+R 90 T 30 text_attribute
+137456
+1031
+10
+34134
+Vorwarndauer
+R 91 T 30 text_attribute
+102640
+1036
+21
+40908
+
+R 92 T 30 text_attribute
+65777
+1036
+10
+34130
+Valeur d\'éclairement du scénario 7 (%)
+R 93 T 30 text_attribute
+45297
+1033
+20
+40884
+
+R 94 T 30 text_attribute
+131318
+1036
+11
+25507
+30 s
+R 95 T 30 text_attribute
+141558
+1033
+11
+25639
+
+R 96 T 30 text_attribute
+51446
+1033
+21
+40952
+
+R 97 T 30 text_attribute
+102648
+1031
+11
+25660
+gesperrt
+R 98 T 30 text_attribute
+92408
+1036
+11
+25669
+2
+R 99 T 30 text_attribute
+114939
+1033
+22
+40928
+
+R 100 T 30 text_attribute
+114940
+1033
+20
+40948
+
+R 101 T 30 text_attribute
+53502
+1036
+30
+22799
+Eclairage
+R 102 T 30 text_attribute
+121087
+1033
+10
+34124
+
+R 103 T 30 text_attribute
+121088
+1031
+10
+34152
+Helligkeit Szene 1 (%)
+R 104 T 30 text_attribute
+82177
+1036
+10
+31673
+Minuterie
+R 105 T 30 text_attribute
+82178
+1036
+10
+31685
+Luminosité à l\'allumage\r\nValeur (1, 1
+\\01) (Mémorisation : 101)
+R 106 T 30 text_attribute
+106755
+1036
+20
+40892
+Minuterie
+R 107 T 30 text_attribute
+63747
+1031
+20
+40952
+Dimmwert
+R 108 T 30 text_attribute
+96521
+1036
+11
+25552
+60 sec
+R 109 T 30 text_attribute
+59658
+1036
+11
+25573
+4 sec
+R 110 T 30 text_attribute
+47371
+1036
+10
+31670
+Etat après annulation forçage
+R 111 T 30 text_attribute
+133387
+1031
+10
+31685
+Helligkeit beim Einschalten in % Bereich
+\\ 1..100, 101 = gespeicherter Wert
+R 112 T 30 text_attribute
+63758
+1031
+11
+25423
+5 min
+R 113 T 30 text_attribute
+119055
+1033
+20
+40908
+
+R 114 T 30 text_attribute
+119056
+1031
+21
+40944
+
+R 115 T 30 text_attribute
+71954
+1031
+11
+25480
+nicht benutzt
+R 116 T 30 text_attribute
+96533
+1033
+10
+31676
+
+R 117 T 30 text_attribute
+86303
+1033
+10
+31673
+
+R 118 T 30 text_attribute
+98591
+1036
+10
+31688
+Période de variation à l\'allumage
+R 119 T 30 text_attribute
+43295
+1033
+21
+40944
+
+R 120 T 30 text_attribute
+63776
+1031
+10
+34150
+Helligkeit Szene 8 (%)
+R 121 T 30 text_attribute
+102688
+1033
+21
+40968
+
+R 122 T 30 text_attribute
+67877
+1031
+10
+34170
+Helligkeit Szene 8 (%)
+R 123 T 30 text_attribute
+51494
+1033
+20
+40932
+
+R 124 T 30 text_attribute
+125225
+1036
+22
+40880
+Sortie 1
+R 125 T 30 text_attribute
+114986
+1033
+22
+40896
+
+R 126 T 30 text_attribute
+45355
+1031
+11
+25411
+2 min 30 s
+R 127 T 30 text_attribute
+131371
+1031
+10
+29556
+Ausgang 2 Automatik / Szenen
+R 128 T 30 text_attribute
+43309
+1033
+11
+25504
+
+R 129 T 30 text_attribute
+123181
+1033
+11
+25573
+
+R 130 T 30 text_attribute
+100653
+1033
+10
+34130
+
+R 131 T 30 text_attribute
+100654
+1033
+10
+34176
+
+R 132 T 30 text_attribute
+47407
+1033
+11
+25543
+
+R 133 T 30 text_attribute
+106805
+1031
+22
+40892
+Ausgang 1
+R 134 T 30 text_attribute
+135478
+1031
+11
+25663
+freigegeben
+R 135 T 30 text_attribute
+117046
+1036
+22
+40940
+Sortie 2
+R 136 T 30 text_attribute
+125239
+1033
+11
+25612
+
+R 137 T 30 text_attribute
+106811
+1033
+2
+23002
+
+R 138 T 30 text_attribute
+84285
+1036
+10
+31679
+Etat après téléchargement
+R 139 T 30 text_attribute
+117054
+1031
+11
+25633
+25%
+R 140 T 30 text_attribute
+98628
+1036
+11
+25435
+20 min
+R 141 T 30 text_attribute
+80197
+1031
+20
+40964
+Szene
+R 142 T 30 text_attribute
+127303
+1033
+10
+29562
+
+R 143 T 30 text_attribute
+90439
+1033
+21
+40892
+
+R 144 T 30 text_attribute
+78160
+1033
+11
+25567
+
+R 145 T 30 text_attribute
+59728
+1033
+10
+34140
+
+R 146 T 30 text_attribute
+100689
+1031
+11
+25465
+5 Stunden
+R 147 T 30 text_attribute
+80209
+1031
+11
+25510
+1 min
+R 148 T 30 text_attribute
+94551
+1036
+21
+40896
+
+R 149 T 30 text_attribute
+76126
+1033
+10
+31687
+
+R 150 T 30 text_attribute
+82270
+1033
+10
+31690
+
+R 151 T 30 text_attribute
+96611
+1031
+20
+40924
+Zeitschalterbetrieb
+R 152 T 30 text_attribute
+86372
+1031
+21
+40892
+
+R 153 T 30 text_attribute
+115045
+1033
+11
+25483
+
+R 154 T 30 text_attribute
+92521
+1031
+10
+34182
+oberer Dimmwert in % Bereich 51...100
+R 155 T 30 text_attribute
+59755
+1031
+11
+25504
+15 s
+R 156 T 30 text_attribute
+49521
+1033
+10
+31679
+
+R 157 T 30 text_attribute
+108916
+1031
+31
+22813
+
+R 158 T 30 text_attribute
+88438
+1036
+11
+25477
+24 h
+R 159 T 30 text_attribute
+108919
+1036
+11
+25558
+Mémo
+R 160 T 30 text_attribute
+80248
+1036
+20
+40908
+Indication valeur d\'éclairement
+R 161 T 30 text_attribute
+76156
+1036
+11
+25627
+7
+R 162 T 30 text_attribute
+121219
+1031
+11
+25564
+1 s
+R 163 T 30 text_attribute
+100742
+1033
+10
+29574
+
+R 164 T 30 text_attribute
+84360
+1031
+20
+40900
+Szene
+R 165 T 30 text_attribute
+74122
+1031
+10
+31690
+Helligkeit beim Einschalten in % Bereich
+\\ 1..100, 101 = gespeicherter Wert
+R 166 T 30 text_attribute
+76176
+1031
+10
+31671
+Szenennummer
+R 167 T 30 text_attribute
+96657
+1031
+20
+40888
+Dimmwert
+R 168 T 30 text_attribute
+82323
+1036
+10
+34146
+Valeur d\'éclairement du scénario 6 (%)
+R 169 T 30 text_attribute
+133528
+1036
+10
+29554
+Sorties 1-3
+R 170 T 30 text_attribute
+123294
+1036
+10
+34174
+Valeur d\'éclairement du scénario 2 (%)
+R 171 T 30 text_attribute
+47523
+1033
+10
+34148
+
+R 172 T 30 text_attribute
+65960
+1033
+11
+25672
+
+R 173 T 30 text_attribute
+121256
+1033
+21
+40920
+
+R 174 T 30 text_attribute
+70058
+1033
+11
+25546
+
+R 175 T 30 text_attribute
+74158
+1031
+11
+25549
+30 s
+R 176 T 30 text_attribute
+80306
+1033
+11
+25516
+
+R 177 T 30 text_attribute
+84405
+1033
+22
+40944
+
+R 178 T 30 text_attribute
+102845
+1033
+11
+25609
+
+R 179 T 30 text_attribute
+117185
+1036
+21
+40900
+
+R 180 T 30 text_attribute
+94660
+1031
+11
+25483
+1 s
+R 181 T 30 text_attribute
+86468
+1036
+21
+40916
+
+R 182 T 30 text_attribute
+115142
+1036
+11
+25459
+3 h
+R 183 T 30 text_attribute
+92620
+1036
+10
+34124
+Valeur d\'éclairement du scénario 4 (%)
+R 184 T 30 text_attribute
+84430
+1031
+10
+31673
+Zeitschalterbetrieb
+R 185 T 30 text_attribute
+127438
+1031
+30
+22813
+Dimmer
+R 186 T 30 text_attribute
+86480
+1033
+11
+25381
+
+R 187 T 30 text_attribute
+106962
+1033
+11
+25519
+
+R 188 T 30 text_attribute
+53720
+1036
+10
+31672
+Fonctionnement minuterie
+R 189 T 30 text_attribute
+109017
+1036
+2
+23002
+
+R 190 T 30 text_attribute
+53725
+1031
+10
+34142
+Helligkeit Szene 4 (%)
+R 191 T 30 text_attribute
+90590
+1034
+31
+22799
+
+R 192 T 30 text_attribute
+137698
+1031
+10
+31680
+Helligkeit beim Einschalten in % Bereich
+\\ 1..100, 101 = gespeicherter Wert
+R 193 T 30 text_attribute
+141796
+1036
+21
+40924
+
+R 194 T 30 text_attribute
+111090
+1036
+10
+34180
+Valeur minimale de variation\r\nValeur (
+\\1, 50%)
+R 195 T 30 text_attribute
+92660
+1033
+10
+31671
+
+R 196 T 30 text_attribute
+86516
+1031
+21
+40972
+
+R 197 T 30 text_attribute
+113147
+1033
+10
+34134
+
+R 198 T 30 text_attribute
+102907
+1033
+10
+34160
+
+R 199 T 30 text_attribute
+117246
+1034
+30
+22813
+Variadores
+R 200 T 30 text_attribute
+107008
+1033
+11
+25387
+
+R 201 T 30 text_attribute
+86528
+1036
+11
+25654
+Interdit
+R 202 T 30 text_attribute
+109057
+1031
+21
+40932
+
+R 203 T 30 text_attribute
+117252
+1036
+11
+25630
+8
+R 204 T 30 text_attribute
+74246
+1036
+21
+40892
+
+R 205 T 30 text_attribute
+66058
+1036
+11
+25375
+30 s
+R 206 T 30 text_attribute
+88586
+1036
+11
+25537
+5 sec
+R 207 T 30 text_attribute
+68106
+1033
+11
+25666
+
+R 208 T 30 text_attribute
+100874
+1036
+21
+40932
+
+R 209 T 30 text_attribute
+82445
+1036
+4
+23002
+
+R 210 T 30 text_attribute
+72208
+1033
+11
+25489
+
+R 211 T 30 text_attribute
+139792
+1031
+11
+25555
+aus
+R 212 T 30 text_attribute
+139793
+1031
+11
+25648
+
+R 213 T 30 text_attribute
+121362
+1031
+30
+22799
+Beleuchtung
+R 214 T 30 text_attribute
+109075
+1036
+10
+29556
+Sortie 2 Automatismes
+R 215 T 30 text_attribute
+131607
+1036
+11
+25660
+Non modifiées
+R 216 T 30 text_attribute
+121368
+1033
+11
+25513
+
+R 217 T 30 text_attribute
+68120
+1033
+10
+31662
+
+R 218 T 30 text_attribute
+92700
+1036
+11
+25429
+15 min
+R 219 T 30 text_attribute
+94751
+1033
+22
+40932
+
+R 220 T 30 text_attribute
+84512
+1036
+11
+25618
+4
+R 221 T 30 text_attribute
+57903
+1036
+11
+25369
+20 s
+R 222 T 30 text_attribute
+107059
+1036
+11
+25447
+1 h
+R 223 T 30 text_attribute
+107060
+1036
+11
+25567
+2 sec
+R 224 T 30 text_attribute
+53814
+1033
+10
+29568
+
+R 225 T 30 text_attribute
+80440
+1031
+22
+40972
+Ausgang 3
+R 226 T 30 text_attribute
+111164
+1036
+22
+40912
+Sortie 2
+R 227 T 30 text_attribute
+57918
+1033
+10
+31681
+
+R 228 T 30 text_attribute
+109124
+1036
+10
+31694
+Période de variation à l\'extinction
+R 229 T 30 text_attribute
+121418
+1033
+11
+25471
+
+R 230 T 30 text_attribute
+94798
+1036
+22
+40908
+Sortie 1
+R 231 T 30 text_attribute
+57944
+1031
+22
+40968
+Ausgang 3
+R 232 T 30 text_attribute
+49752
+1040
+31
+22813
+
+R 233 T 30 text_attribute
+139884
+1044
+31
+22799
+
+R 234 T 30 text_attribute
+55917
+1033
+10
+31665
+
+R 235 T 30 text_attribute
+68207
+1036
+11
+25540
+6 sec
+R 236 T 30 text_attribute
+70255
+1033
+11
+25597
+
+R 237 T 30 text_attribute
+86641
+1031
+10
+34164
+Helligkeit Szene 5 (%)
+R 238 T 30 text_attribute
+74354
+1033
+4
+23002
+
+R 239 T 30 text_attribute
+88691
+1033
+10
+31666
+
+R 240 T 30 text_attribute
+100980
+1031
+11
+25573
+4 s
+R 241 T 30 text_attribute
+100981
+1031
+11
+25621
+5
+R 242 T 30 text_attribute
+98938
+1036
+10
+34128
+Valeur d\'éclairement du scénario 6 (%)
+R 243 T 30 text_attribute
+113276
+1036
+31
+22813
+
+R 244 T 30 text_attribute
+123523
+1036
+11
+25519
+Marche
+R 245 T 30 text_attribute
+113283
+1036
+11
+25579
+6 sec
+R 246 T 30 text_attribute
+129668
+1031
+10
+34176
+oberer Dimmwert in % Bereich 51...100
+R 247 T 30 text_attribute
+74377
+1033
+10
+34128
+
+R 248 T 30 text_attribute
+107147
+1031
+20
+40940
+Zustand Dimmwert
+R 249 T 30 text_attribute
+96915
+1033
+11
+25570
+
+R 250 T 30 text_attribute
+119456
+1033
+11
+25594
+
+R 251 T 30 text_attribute
+74407
+1036
+11
+25510
+1 min
+R 252 T 30 text_attribute
+131755
+1033
+11
+25393
+
+R 253 T 30 text_attribute
+131756
+1033
+11
+25411
+
+R 254 T 30 text_attribute
+82606
+1031
+10
+31674
+Ausgangszustand nach Zwangssteuerung
+R 255 T 30 text_attribute
+84656
+1033
+11
+25660
+
+R 256 T 30 text_attribute
+80560
+1036
+10
+31671
+Numéro du scénario
+R 257 T 30 text_attribute
+129714
+1033
+10
+34162
+
+R 258 T 30 text_attribute
+72374
+1031
+10
+34156
+Vorwarndauer
+R 259 T 30 text_attribute
+45756
+1033
+11
+25576
+
+R 260 T 30 text_attribute
+60092
+1033
+20
+40900
+
+R 261 T 30 text_attribute
+60093
+1036
+22
+40924
+Sortie 2
+R 262 T 30 text_attribute
+113344
+1033
+10
+31680
+
+R 263 T 30 text_attribute
+96962
+1031
+11
+25399
+1 min 30 s
+R 264 T 30 text_attribute
+113348
+1031
+10
+34146
+Helligkeit Szene 6 (%)
+R 265 T 30 text_attribute
+66246
+1031
+20
+40892
+Zeitschalterbetrieb
+R 266 T 30 text_attribute
+123593
+1036
+10
+34156
+Durée du préavis d\'extinction
+R 267 T 30 text_attribute
+117450
+1031
+11
+25453
+2 Stunden
+R 268 T 30 text_attribute
+86733
+1031
+10
+31670
+Ausgangszustand nach Zwangssteuerung
+R 269 T 30 text_attribute
+129742
+1036
+40
+23279
+3 sorties variation 1/10V
+R 270 T 30 text_attribute
+60114
+1031
+10
+29570
+
+R 271 T 30 text_attribute
+137941
+1031
+10
+31668
+Befehl für Zeitschalterbetrieb
+R 272 T 30 text_attribute
+103128
+1036
+21
+40964
+
+R 273 T 30 text_attribute
+76507
+1036
+11
+25465
+5 h
+R 274 T 30 text_attribute
+80608
+1031
+10
+31688
+Andimmzeit
+R 275 T 30 text_attribute
+94944
+1036
+20
+40928
+Forçage
+R 276 T 30 text_attribute
+135909
+1031
+20
+40896
+Zwangssteuerung
+R 277 T 30 text_attribute
+43757
+1033
+11
+25435
+
+R 278 T 30 text_attribute
+131823
+1036
+10
+34166
+Valeur d\'éclairement du scénario 6 (%)
+R 279 T 30 text_attribute
+125680
+1031
+11
+25654
+gesperrt
+R 280 T 30 text_attribute
+117488
+1033
+22
+40892
+
+R 281 T 30 text_attribute
+103153
+1033
+10
+34156
+
+R 282 T 30 text_attribute
+99060
+1031
+20
+40884
+Dimmen
+R 283 T 30 text_attribute
+105208
+1036
+10
+31675
+Numéro du scénario
+R 284 T 30 text_attribute
+125691
+1036
+10
+29566
+Sortie 3 Réglages
+R 285 T 30 text_attribute
+129787
+1036
+22
+40920
+Sortie 2
+R 286 T 30 text_attribute
+88832
+1031
+11
+25672
+3
+R 287 T 30 text_attribute
+137984
+1033
+10
+29554
+
+R 288 T 30 text_attribute
+131844
+1036
+20
+40904
+Indication d\'état
+R 289 T 30 text_attribute
+78597
+1031
+20
+40972
+Zustand Dimmwert
+R 290 T 30 text_attribute
+127752
+1036
+10
+31666
+Etat après annulation forçage
+R 291 T 30 text_attribute
+60169
+1036
+10
+31665
+Minuterie
+R 292 T 30 text_attribute
+111372
+1036
+11
+25381
+45 s
+R 293 T 30 text_attribute
+82703
+1031
+10
+34154
+Helligkeit Szene 2 (%)
+R 294 T 30 text_attribute
+119572
+1031
+10
+34162
+Helligkeit Szene 4 (%)
+R 295 T 30 text_attribute
+43796
+1036
+22
+40916
+Sortie 2
+R 296 T 30 text_attribute
+142101
+1031
+22
+40940
+Ausgang 2
+R 297 T 30 text_attribute
+76567
+1036
+10
+31690
+Luminosité à l\'allumage\r\nValeur (1, 1
+\\01) (Mémorisation : 101)
+R 298 T 30 text_attribute
+45848
+1036
+21
+40948
+
+R 299 T 30 text_attribute
+86811
+1033
+21
+40900
+
+R 300 T 30 text_attribute
+95007
+1031
+11
+25540
+6 s
+R 301 T 30 text_attribute
+43807
+1033
+11
+25564
+
+R 302 T 30 text_attribute
+142116
+1031
+10
+29568
+Information
+R 303 T 30 text_attribute
+82725
+1036
+21
+40912
+
+R 304 T 30 text_attribute
+54058
+1036
+11
+25405
+2 min
+R 305 T 30 text_attribute
+56107
+1036
+11
+25480
+Inactive
+R 306 T 30 text_attribute
+64301
+1044
+30
+22799
+
+R 307 T 30 text_attribute
+49966
+1033
+10
+31683
+
+R 308 T 30 text_attribute
+140079
+1031
+21
+40936
+
+R 309 T 30 text_attribute
+125747
+1033
+10
+34172
+
+R 310 T 30 text_attribute
+84788
+1033
+21
+40928
+
+R 311 T 30 text_attribute
+129845
+1031
+11
+25477
+24 Stunden
+R 312 T 30 text_attribute
+129846
+1036
+11
+25543
+9 sec
+R 313 T 30 text_attribute
+135991
+1036
+10
+34154
+Valeur d\'éclairement du scénario 2 (%)
+R 314 T 30 text_attribute
+90936
+1033
+11
+25540
+
+R 315 T 30 text_attribute
+109373
+1036
+10
+31687
+Période de variation
+R 316 T 30 text_attribute
+78658
+1036
+11
+25564
+1 sec
+R 317 T 30 text_attribute
+52044
+1036
+20
+40880
+Marche / Arrêt
+R 318 T 30 text_attribute
+93006
+1036
+10
+31676
+Modification des limites de variation\r\
+\\nrelative lors d\'un téléchargement
+R 319 T 30 text_attribute
+138065
+1031
+21
+40912
+
+R 320 T 30 text_attribute
+93010
+1036
+10
+34118
+Valeur d\'éclairement du scénario 1 (%)
+R 321 T 30 text_attribute
+54098
+1033
+20
+40904
+
+R 322 T 30 text_attribute
+136019
+1031
+11
+25618
+4
+R 323 T 30 text_attribute
+78678
+1033
+10
+34122
+
+R 324 T 30 text_attribute
+123736
+1036
+10
+34176
+Valeur maximale de variation\r\nValeur (
+\\51, 100%)
+R 325 T 30 text_attribute
+107353
+1033
+11
+25663
+
+R 326 T 30 text_attribute
+109402
+1031
+21
+40920
+
+R 327 T 30 text_attribute
+138079
+1031
+11
+25471
+12 Stunden
+R 328 T 30 text_attribute
+60259
+1033
+10
+29564
+
+R 329 T 30 text_attribute
+72548
+1031
+21
+40928
+
+R 330 T 30 text_attribute
+68452
+1033
+31
+22799
+
+R 331 T 30 text_attribute
+109414
+1033
+11
+25627
+
+R 332 T 30 text_attribute
+95090
+1036
+21
+40888
+
+R 333 T 30 text_attribute
+93043
+1033
+11
+25591
+
+R 334 T 30 text_attribute
+80760
+1031
+10
+34136
+Vorwarndauer
+R 335 T 30 text_attribute
+140152
+1036
+10
+34144
+Valeur d\'éclairement du scénario 5 (%)
+R 336 T 30 text_attribute
+78717
+1031
+10
+31676
+Überschreiben der Minimal- und Maximaldi
+\\mmwerte mit Download
+R 337 T 30 text_attribute
+115584
+1031
+11
+25489
+3 s
+R 338 T 30 text_attribute
+43904
+1031
+11
+25591
+60 s
+R 339 T 30 text_attribute
+95104
+1033
+11
+25669
+
+R 340 T 30 text_attribute
+93058
+1036
+10
+34168
+Valeur d\'éclairement du scénario 7 (%)
+R 341 T 30 text_attribute
+54147
+1036
+21
+40880
+
+R 342 T 30 text_attribute
+45957
+1036
+11
+25549
+30 sec
+R 343 T 30 text_attribute
+138118
+1036
+20
+40964
+Scène
+R 344 T 30 text_attribute
+58248
+1031
+21
+40904
+
+R 345 T 30 text_attribute
+62348
+1036
+22
+40948
+Sortie 3
+R 346 T 30 text_attribute
+56207
+1033
+11
+25375
+
+R 347 T 30 text_attribute
+60306
+1036
+11
+25561
+Allumage direct
+R 348 T 30 text_attribute
+109460
+1031
+11
+25588
+30 s
+R 349 T 30 text_attribute
+109462
+1031
+11
+25630
+8
+R 350 T 30 text_attribute
+138140
+1036
+10
+31669
+Minuterie
+R 351 T 30 text_attribute
+54175
+1036
+10
+34136
+Durée du préavis d\'extinction
+R 352 T 30 text_attribute
+99232
+1031
+10
+31689
+Ausdimmzeit
+R 353 T 30 text_attribute
+95141
+1036
+22
+40932
+Sortie 2
+R 354 T 30 text_attribute
+50093
+1031
+22
+40936
+Ausgang 2
+R 355 T 30 text_attribute
+125874
+1036
+11
+25546
+15 sec
+R 356 T 30 text_attribute
+107443
+1031
+20
+40968
+Zustand Ausgang
+R 357 T 30 text_attribute
+115637
+1036
+11
+25516
+Inversion
+R 358 T 30 text_attribute
+58295
+1031
+22
+40904
+Ausgang 1
+R 359 T 30 text_attribute
+48056
+1036
+11
+25615
+3
+R 360 T 30 text_attribute
+117691
+1033
+11
+25429
+
+R 361 T 30 text_attribute
+56252
+1040
+30
+22813
+Variatore
+R 362 T 30 text_attribute
+54206
+1036
+11
+25600
+10 min
+R 363 T 30 text_attribute
+105406
+1031
+10
+31683
+Andimmzeit
+R 364 T 30 text_attribute
+140224
+1031
+22
+40944
+Ausgang 3
+R 365 T 30 text_attribute
+84934
+1033
+21
+40888
+
+R 366 T 30 text_attribute
+56264
+1036
+10
+29558
+Sortie 1 Automatismes
+R 367 T 30 text_attribute
+107464
+1031
+10
+31664
+Befehl für Zeitschalterbetrieb
+R 368 T 30 text_attribute
+111566
+1031
+11
+25567
+2 s
+R 369 T 30 text_attribute
+121808
+1036
+11
+25489
+3 s
+R 370 T 30 text_attribute
+132049
+1033
+11
+25561
+
+R 371 T 30 text_attribute
+134099
+1033
+20
+40924
+
+R 372 T 30 text_attribute
+103383
+1031
+11
+25441
+30 min
+R 373 T 30 text_attribute
+125913
+1033
+21
+40880
+
+R 374 T 30 text_attribute
+97247
+1033
+22
+40924
+
+R 375 T 30 text_attribute
+48108
+1036
+11
+25582
+9 sec
+R 376 T 30 text_attribute
+68595
+1036
+22
+40904
+Sortie 1
+R 377 T 30 text_attribute
+48117
+1031
+10
+31675
+Szenennummer
+R 378 T 30 text_attribute
+138232
+1031
+10
+29554
+Ausgänge 1-3
+R 379 T 30 text_attribute
+87033
+1036
+10
+34114
+Valeur maximale de variation\r\nValeur (
+\\51, 100%)
+R 380 T 30 text_attribute
+99331
+1031
+10
+34158
+Vorwarndauer
+R 381 T 30 text_attribute
+130054
+1031
+10
+31662
+
+R 382 T 30 text_attribute
+115718
+1033
+20
+40944
+
+R 383 T 30 text_attribute
+125963
+1033
+21
+40964
+
+R 384 T 30 text_attribute
+68621
+1031
+10
+34166
+Helligkeit Szene 6 (%)
+R 385 T 30 text_attribute
+101391
+1036
+10
+34132
+Valeur d\'éclairement du scénario 8 (%)
+R 386 T 30 text_attribute
+50205
+1033
+11
+25477
+
+R 387 T 30 text_attribute
+68643
+1031
+22
+40884
+Ausgang 1
+R 388 T 30 text_attribute
+130083
+1033
+20
+40940
+
+R 389 T 30 text_attribute
+119846
+1031
+11
+25498
+15 s
+R 390 T 30 text_attribute
+115750
+1036
+10
+34140
+Valeur d\'éclairement du scénario 3 (%)
+R 391 T 30 text_attribute
+48167
+1031
+10
+31666
+Ausgangszustand nach Zwangssteuerung
+R 392 T 30 text_attribute
+72744
+1031
+22
+40888
+Ausgang 1
+R 393 T 30 text_attribute
+82985
+1031
+10
+29562
+Ausgang 1 Einstellungen
+R 394 T 30 text_attribute
+76843
+1031
+20
+40936
+Zustand Ausgang
+R 395 T 30 text_attribute
+76844
+1036
+20
+40968
+Indication d\'état
+R 396 T 30 text_attribute
+56366
+1036
+10
+31674
+Etat après annulation forçage
+R 397 T 30 text_attribute
+109618
+1036
+10
+31668
+Fonctionnement minuterie
+R 398 T 30 text_attribute
+111667
+1033
+11
+25501
+
+R 399 T 30 text_attribute
+132148
+1036
+11
+25648
+une variation absolue lors d\'un allumag
+\\e
+R 400 T 30 text_attribute
+74807
+1033
+11
+25651
+
+R 401 T 30 text_attribute
+58424
+1036
+10
+34182
+Valeur maximale de variation\r\nValeur (
+\\51, 100%)
+R 402 T 30 text_attribute
+109627
+1036
+10
+34112
+Valeur minimale de variation\r\nValeur (
+\\1, 50%)
+R 403 T 30 text_attribute
+101437
+1031
+10
+31677
+lokale Einstellung der Minimal-und Maxim
+\\aldimmwerte:
+R 404 T 30 text_attribute
+142406
+1033
+80
+23108
+
+R 405 T 30 text_attribute
+62547
+1036
+20
+40932
+Scène
+R 406 T 30 text_attribute
+140374
+1033
+31
+22813
+
+R 407 T 30 text_attribute
+56415
+1031
+10
+31678
+Zustand nach download
+R 408 T 30 text_attribute
+48223
+1031
+10
+34122
+Helligkeit Szene 3 (%)
+R 409 T 30 text_attribute
+56416
+1036
+10
+31689
+Période de variation à l\'extinction
+R 410 T 30 text_attribute
+78946
+1033
+21
+40912
+
+R 411 T 30 text_attribute
+68708
+1036
+11
+25504
+15 s
+R 412 T 30 text_attribute
+70763
+1036
+10
+29572
+DelayTime for BinaryActuatorWithStaircas
+\\\r\neFunction
+R 413 T 30 text_attribute
+76910
+1033
+11
+25579
+
+R 414 T 30 text_attribute
+91247
+1031
+10
+34118
+Helligkeit Szene 1 (%)
+R 415 T 30 text_attribute
+103539
+1036
+10
+29562
+Sortie 1 Réglages
+R 416 T 30 text_attribute
+136311
+1036
+11
+25603
+20 min
+R 417 T 30 text_attribute
+142460
+1033
+11
+25486
+
+R 418 T 30 text_attribute
+48252
+1053
+31
+22813
+
+R 419 T 30 text_attribute
+117886
+1031
+11
+25546
+15 s
+R 420 T 30 text_attribute
+58495
+1036
+21
+40952
+
+R 421 T 30 text_attribute
+66695
+1033
+20
+40916
+
+R 422 T 30 text_attribute
+136330
+1031
+10
+34138
+Vorwarndauer
+R 423 T 30 text_attribute
+101522
+1033
+11
+25558
+
+R 424 T 30 text_attribute
+115867
+1033
+22
+40888
+
+R 425 T 30 text_attribute
+76958
+1031
+11
+25657
+freigegeben
+R 426 T 30 text_attribute
+68768
+1031
+10
+31691
+Helligkeit nach Busspgs.wiederkehr in % 
+\\Bereich 1..100, 101 = gespeicherter Wert
+R 427 T 30 text_attribute
+68771
+1033
+10
+34144
+
+R 428 T 30 text_attribute
+70819
+1036
+10
+34158
+Durée du préavis d\'extinction
+R 429 T 30 text_attribute
+97446
+1036
+22
+40936
+Sortie 2
+R 430 T 30 text_attribute
+136362
+1036
+11
+25645
+une variation relative
+R 431 T 30 text_attribute
+89261
+1033
+22
+40940
+
+R 432 T 30 text_attribute
+44208
+1036
+11
+25483
+1 s
+R 433 T 30 text_attribute
+60596
+1031
+22
+40960
+Ausgang 3
+R 434 T 30 text_attribute
+66743
+1036
+22
+40960
+Sortie 3
+R 435 T 30 text_attribute
+42169
+1036
+10
+29560
+Sortie 3 Automatismes
+R 436 T 30 text_attribute
+109754
+1031
+11
+25612
+2
+R 437 T 30 text_attribute
+107706
+1031
+10
+29552
+
+R 438 T 30 text_attribute
+56508
+1036
+11
+25663
+Modifiées
+R 439 T 30 text_attribute
+91325
+1040
+30
+22799
+Luminosita
+R 440 T 30 text_attribute
+60606
+1033
+11
+25645
+
+R 441 T 30 text_attribute
+140478
+1031
+11
+25666
+1
+R 442 T 30 text_attribute
+128191
+1033
+10
+31674
+
+R 443 T 30 text_attribute
+64705
+1033
+11
+25537
+
+R 444 T 30 text_attribute
+64706
+1031
+11
+25615
+3
+R 445 T 30 text_attribute
+113860
+1033
+22
+40884
+
+R 446 T 30 text_attribute
+70852
+1053
+30
+22813
+Dimmer
+R 447 T 30 text_attribute
+99525
+1031
+10
+31663
+Zustand nach download
+R 448 T 30 text_attribute
+103628
+1031
+11
+25537
+5 s
+R 449 T 30 text_attribute
+81102
+1031
+10
+34172
+Helligkeit Szene 1 (%)
+R 450 T 30 text_attribute
+95439
+1036
+20
+40896
+Forçage
+R 451 T 30 text_attribute
+79059
+1036
+11
+25633
+25%
+R 452 T 30 text_attribute
+111829
+1033
+10
+31691
+
+R 453 T 30 text_attribute
+83158
+1031
+20
+40932
+Szene
+R 454 T 30 text_attribute
+126167
+1031
+80
+23108
+TL211A
+R 455 T 30 text_attribute
+97495
+1031
+20
+40948
+Dimmen
+R 456 T 30 text_attribute
+115929
+1031
+11
+25486
+2 s
+R 457 T 30 text_attribute
+52444
+1031
+21
+40948
+
+R 458 T 30 text_attribute
+97501
+1031
+2
+23002
+
+R 459 T 30 text_attribute
+54496
+1036
+20
+40924
+Minuterie
+R 460 T 30 text_attribute
+138466
+1031
+11
+25543
+9 s
+R 461 T 30 text_attribute
+97506
+1033
+11
+25600
+
+R 462 T 30 text_attribute
+109794
+1036
+22
+40896
+Sortie 1
+R 463 T 30 text_attribute
+128227
+1031
+11
+25609
+1
+R 464 T 30 text_attribute
+85219
+1036
+22
+40888
+Sortie 1
+R 465 T 30 text_attribute
+54507
+1031
+11
+25579
+6 s
+R 466 T 30 text_attribute
+120044
+1036
+11
+25642
+100%
+R 467 T 30 text_attribute
+132333
+1031
+20
+40916
+Dimmen
+R 468 T 30 text_attribute
+81137
+1033
+11
+25480
+
+R 469 T 30 text_attribute
+126193
+1036
+10
+34164
+Valeur d\'éclairement du scénario 5 (%)
+R 470 T 30 text_attribute
+70905
+1036
+3
+23002
+
+R 471 T 30 text_attribute
+46344
+1033
+20
+40928
+
+R 472 T 30 text_attribute
+103689
+1033
+10
+29552
+
+R 473 T 30 text_attribute
+44297
+1036
+20
+40944
+Marche / Arrêt
+R 474 T 30 text_attribute
+118025
+1033
+20
+40952
+
+R 475 T 30 text_attribute
+118026
+1033
+22
+40972
+
+R 476 T 30 text_attribute
+107793
+1036
+11
+25594
+2 min
+R 477 T 30 text_attribute
+113937
+1031
+10
+34168
+Helligkeit Szene 7 (%)
+R 478 T 30 text_attribute
+79123
+1033
+10
+34152
+
+R 479 T 30 text_attribute
+138517
+1036
+11
+25576
+5 sec
+R 480 T 30 text_attribute
+115993
+1031
+10
+31695
+Programmversion
+R 481 T 30 text_attribute
+58649
+1033
+20
+40972
+
+R 482 T 30 text_attribute
+109850
+1031
+11
+25645
+
+R 483 T 30 text_attribute
+140571
+1033
+3
+23002
+
+R 484 T 30 text_attribute
+52507
+1031
+11
+25624
+6
+R 485 T 30 text_attribute
+89372
+1031
+11
+25495
+10 s
+R 486 T 30 text_attribute
+81186
+1031
+11
+25651
+
+R 487 T 30 text_attribute
+44324
+1033
+10
+34114
+
+R 488 T 30 text_attribute
+70948
+1031
+20
+40912
+Ein / Aus
+R 489 T 30 text_attribute
+64809
+1033
+11
+25492
+
+R 490 T 30 text_attribute
+60720
+1033
+10
+34164
+
+R 491 T 30 text_attribute
+77105
+1031
+11
+25459
+3 Stunden
+R 492 T 30 text_attribute
+134450
+1031
+11
+25606
+30 min
+R 493 T 30 text_attribute
+122164
+1036
+10
+31682
+Période de variation
+R 494 T 30 text_attribute
+107831
+1036
+22
+40884
+Sortie 1
+R 495 T 30 text_attribute
+105785
+1031
+11
+25405
+2 min
+R 496 T 30 text_attribute
+75068
+1033
+10
+31684
+
+R 497 T 30 text_attribute
+46407
+1036
+11
+25486
+2 s
+R 498 T 30 text_attribute
+101705
+1036
+20
+40940
+Indication valeur d\'éclairement
+R 499 T 30 text_attribute
+42316
+1033
+10
+29558
+
+R 500 T 30 text_attribute
+44364
+1031
+10
+29560
+Ausgang 3 Automatik / Szenen
+R 501 T 30 text_attribute
+83280
+1033
+10
+34116
+
+R 502 T 30 text_attribute
+122192
+1036
+20
+40916
+Variation
+R 503 T 30 text_attribute
+138579
+1036
+10
+31681
+Luminosité après coupure bus\r\nValeur (
+\\1, 101) (Mémorisation : 101)
+R 504 T 30 text_attribute
+68947
+1033
+20
+40968
+
+R 505 T 30 text_attribute
+111959
+1031
+11
+25522
+aus
+R 506 T 30 text_attribute
+52573
+1033
+10
+34150
+
+R 507 T 30 text_attribute
+130398
+1036
+10
+31677
+Autorisation du réglage local\r\ndes lim
+\\ites de variation relative
+R 508 T 30 text_attribute
+136548
+1033
+22
+40968
+
+R 509 T 30 text_attribute
+77157
+1031
+11
+25570
+3 s
+R 510 T 30 text_attribute
+68965
+1033
+10
+29556
+
+R 511 T 30 text_attribute
+73062
+1036
+11
+25636
+50%
+R 512 T 30 text_attribute
+120166
+1033
+10
+34112
+
+R 513 T 30 text_attribute
+101735
+1031
+10
+34130
+Helligkeit Szene 7 (%)
+R 514 T 30 text_attribute
+44396
+1033
+21
+40956
+
+R 515 T 30 text_attribute
+128365
+1031
+22
+40896
+Ausgang 1
+R 516 T 30 text_attribute
+79217
+1036
+10
+31678
+Etat après téléchargement
+R 517 T 30 text_attribute
+140659
+1036
+20
+40920
+Valeur d\'éclairement
+R 518 T 30 text_attribute
+58744
+1036
+20
+40936
+Indication d\'état
+R 519 T 30 text_attribute
+120184
+1036
+22
+40968
+Sortie 3
+R 520 T 30 text_attribute
+58746
+1033
+22
+40964
+
+R 521 T 30 text_attribute
+42363
+1031
+10
+29566
+Ausgang 3 Einstellungen
+R 522 T 30 text_attribute
+107908
+1036
+10
+34126
+Valeur d\'éclairement du scénario 5 (%)
+R 523 T 30 text_attribute
+46471
+1036
+10
+31664
+Fonctionnement minuterie
+R 524 T 30 text_attribute
+91531
+1031
+10
+29558
+Ausgang 1 Automatik / Szenen
+R 525 T 30 text_attribute
+66956
+1036
+11
+25387
+1 min
+R 526 T 30 text_attribute
+89485
+1031
+10
+34160
+Helligkeit Szene 3 (%)
+R 527 T 30 text_attribute
+109966
+1033
+10
+31688
+
+R 528 T 30 text_attribute
+73104
+1031
+4
+23002
+
+R 529 T 30 text_attribute
+73105
+1033
+1
+23002
+
+R 530 T 30 text_attribute
+83350
+1033
+21
+40908
+
+R 531 T 30 text_attribute
+112023
+1036
+10
+31692
+Période de variation
+R 532 T 30 text_attribute
+87448
+1033
+21
+40884
+
+R 533 T 30 text_attribute
+142746
+1031
+21
+40924
+
+R 534 T 30 text_attribute
+128413
+1031
+22
+40924
+Ausgang 2
+R 535 T 30 text_attribute
+60843
+1036
+20
+40948
+Variation
+R 536 T 30 text_attribute
+62894
+1033
+21
+40936
+
+R 537 T 30 text_attribute
+89519
+1031
+11
+25669
+2
+R 538 T 30 text_attribute
+50608
+1036
+11
+25624
+6
+R 539 T 30 text_attribute
+85426
+1036
+11
+25501
+Pas de préavis
+R 540 T 30 text_attribute
+112050
+1033
+22
+40912
+
+R 541 T 30 text_attribute
+128435
+1031
+10
+31684
+Ausdimmzeit
+R 542 T 30 text_attribute
+81334
+1033
+11
+25615
+
+R 543 T 30 text_attribute
+91575
+1033
+11
+25465
+
+R 544 T 30 text_attribute
+91576
+1033
+11
+25510
+
+R 545 T 30 text_attribute
+134587
+1036
+20
+40952
+Valeur d\'éclairement
+R 546 T 30 text_attribute
+67004
+1033
+11
+25642
+
+R 547 T 30 text_attribute
+93628
+1034
+31
+22813
+
+R 548 T 30 text_attribute
+60861
+1033
+11
+25459
+
+R 549 T 30 text_attribute
+101828
+1033
+10
+31663
+
+R 550 T 30 text_attribute
+136645
+1031
+21
+40956
+
+R 551 T 30 text_attribute
+75207
+1033
+11
+25555
+
+R 552 T 30 text_attribute
+67015
+1033
+10
+29572
+
+R 553 T 30 text_attribute
+97736
+1036
+21
+40972
+
+R 554 T 30 text_attribute
+105930
+1036
+80
+23108
+TL211A
+R 555 T 30 text_attribute
+89555
+1031
+21
+40940
+
+R 556 T 30 text_attribute
+142807
+1033
+11
+25534
+
+R 557 T 30 text_attribute
+81371
+1033
+22
+40904
+
+R 558 T 30 text_attribute
+52699
+1033
+21
+40940
+
+R 559 T 30 text_attribute
+42460
+1031
+11
+25516
+invertiert
+R 560 T 30 text_attribute
+56798
+1031
+22
+40920
+Ausgang 2
+R 561 T 30 text_attribute
+48609
+1033
+11
+25552
+
+R 562 T 30 text_attribute
+130530
+1033
+11
+25453
+
+R 563 T 30 text_attribute
+108004
+1036
+10
+31663
+Etat après téléchargement
+R 564 T 30 text_attribute
+118244
+1036
+10
+31684
+Période de variation à l\'extinction
+R 565 T 30 text_attribute
+142820
+1033
+10
+31686
+
+R 566 T 30 text_attribute
+54757
+1031
+11
+25525
+1 s
+R 567 T 30 text_attribute
+101863
+1033
+11
+25447
+
+R 568 T 30 text_attribute
+58857
+1036
+11
+25423
+5 min
+R 569 T 30 text_attribute
+48617
+1031
+10
+29564
+Ausgang 2 Einstellungen
+R 570 T 30 text_attribute
+50666
+1036
+10
+29574
+DelayTime for BinaryActuatorWithStaircas
+\\\r\neFunction
+R 571 T 30 text_attribute
+60909
+1033
+11
+25621
+
+R 572 T 30 text_attribute
+56819
+1033
+10
+31672
+
+R 573 T 30 text_attribute
+124405
+1036
+11
+25531
+3 sec
+R 574 T 30 text_attribute
+97785
+1031
+21
+40952
+
+R 575 T 30 text_attribute
+75258
+1036
+11
+25591
+60 sec
+R 576 T 30 text_attribute
+62973
+1033
+10
+34158
+
+R 577 T 30 text_attribute
+108032
+1031
+21
+40884
+
+R 578 T 30 text_attribute
+71170
+1031
+10
+31694
+Ausdimmzeit
+R 579 T 30 text_attribute
+108037
+1033
+5
+23002
+
+R 580 T 30 text_attribute
+48647
+1031
+21
+40968
+
+R 581 T 30 text_attribute
+52747
+1033
+21
+40932
+
+R 582 T 30 text_attribute
+54797
+1033
+20
+40896
+
+R 583 T 30 text_attribute
+130577
+1033
+11
+25618
+
+R 584 T 30 text_attribute
+83473
+1033
+10
+31668
+
+R 585 T 30 text_attribute
+112149
+1033
+20
+40956
+
+R 586 T 30 text_attribute
+81430
+1036
+11
+25639
+75%
+R 587 T 30 text_attribute
+67096
+1031
+22
+40952
+Ausgang 3
+R 588 T 30 text_attribute
+56858
+1033
+11
+25657
+
+R 589 T 30 text_attribute
+71198
+1036
+21
+40956
+
+R 590 T 30 text_attribute
+110112
+1033
+10
+31685
+
+R 591 T 30 text_attribute
+116263
+1033
+22
+40908
+
+R 592 T 30 text_attribute
+56873
+1031
+10
+34114
+oberer Dimmwert in % Bereich 51...100
+R 593 T 30 text_attribute
+91691
+1036
+10
+34120
+Valeur d\'éclairement du scénario 2 (%)
+R 594 T 30 text_attribute
+136750
+1033
+11
+25522
+
+R 595 T 30 text_attribute
+77359
+1036
+11
+25441
+30 min
+R 596 T 30 text_attribute
+69167
+1033
+10
+29560
+
+R 597 T 30 text_attribute
+60975
+1036
+10
+34162
+Valeur d\'éclairement du scénario 4 (%)
+R 598 T 30 text_attribute
+44591
+1033
+20
+40912
+
+R 599 T 30 text_attribute
+106032
+1036
+11
+25597
+5 min
+R 600 T 30 text_attribute
+138800
+1033
+22
+40916
+
+R 601 T 30 text_attribute
+44592
+1036
+21
+40944
+
+R 602 T 30 text_attribute
+124473
+1033
+10
+34118
+
+R 603 T 30 text_attribute
+140860
+1031
+21
+40888
+
+R 604 T 30 text_attribute
+44605
+1036
+1
+23002
+3 sorties variation 1/10V
+R 605 T 30 text_attribute
+83521
+1033
+10
+34132
+
+R 606 T 30 text_attribute
+89666
+1033
+11
+25405
+
+R 607 T 30 text_attribute
+83522
+1031
+10
+34174
+Helligkeit Szene 2 (%)
+R 608 T 30 text_attribute
+112196
+1031
+22
+40964
+Ausgang 3
+R 609 T 30 text_attribute
+112201
+1033
+11
+25531
+
+R 610 T 30 text_attribute
+108108
+1031
+10
+34148
+Helligkeit Szene 7 (%)
+R 611 T 30 text_attribute
+93772
+1031
+22
+40956
+Ausgang 3
+R 612 T 30 text_attribute
+63056
+1033
+11
+25399
+
+R 613 T 30 text_attribute
+130644
+1036
+10
+34172
+Valeur d\'éclairement du scénario 1 (%)
+R 614 T 30 text_attribute
+67159
+1036
+11
+25399
+1 min 30 s
+R 615 T 30 text_attribute
+110167
+1036
+10
+34160
+Valeur d\'éclairement du scénario 3 (%)
+R 616 T 30 text_attribute
+128605
+1031
+21
+40896
+
+R 617 T 30 text_attribute
+106078
+1031
+11
+25417
+3 min
+R 618 T 30 text_attribute
+79456
+1036
+11
+25495
+10 s
+R 619 T 30 text_attribute
+116321
+1031
+11
+25561
+anspringen
+R 620 T 30 text_attribute
+58977
+1033
+10
+34174
+
+R 621 T 30 text_attribute
+73318
+1031
+10
+31682
+Dimmzeit (beim kontinuierlichen Dimmen)
+R 622 T 30 text_attribute
+99943
+1033
+22
+40920
+
+R 623 T 30 text_attribute
+46695
+1036
+22
+40972
+Sortie 3
+R 624 T 30 text_attribute
+114280
+1031
+10
+34126
+Helligkeit Szene 5 (%)
+R 625 T 30 text_attribute
+97898
+1031
+11
+25492
+5 s
+R 626 T 30 text_attribute
+95850
+1031
+10
+29574
+
+R 627 T 30 text_attribute
+128619
+1036
+11
+25525
+1 sec
+R 628 T 30 text_attribute
+50797
+1033
+21
+40948
+
+R 629 T 30 text_attribute
+140911
+1036
+20
+40900
+Scène
+R 630 T 30 text_attribute
+116337
+1036
+10
+34170
+Valeur d\'éclairement du scénario 8 (%)
+R 631 T 30 text_attribute
+99956
+1033
+11
+25549
+
+R 632 T 30 text_attribute
+102007
+1036
+30
+22813
+Variateurs
+R 633 T 30 text_attribute
+48760
+1036
+11
+25522
+Arrêt
+R 634 T 30 text_attribute
+128637
+1031
+10
+34178
+unterer Dimmwert in % Bereich 1...50
+R 635 T 30 text_attribute
+65151
+1033
+22
+40960
+
+R 636 T 30 text_attribute
+46723
+1031
+10
+34144
+Helligkeit Szene 5 (%)
+R 637 T 30 text_attribute
+93828
+1031
+11
+25636
+50%
+R 638 T 30 text_attribute
+104072
+1031
+11
+25558
+gespeicherter Wert
+R 639 T 30 text_attribute
+67208
+1031
+11
+25576
+5 s
+R 640 T 30 text_attribute
+59024
+1036
+10
+34138
+Durée du préavis d\'extinction
+R 641 T 30 text_attribute
+126609
+1031
+11
+25507
+30 s
+R 642 T 30 text_attribute
+99992
+1031
+22
+40928
+Ausgang 2
+R 643 T 30 text_attribute
+136860
+1033
+10
+31689
+
+R 644 T 30 text_attribute
+56993
+1036
+21
+40940
+
+R 645 T 30 text_attribute
+102054
+1033
+20
+40960
+
+R 646 T 30 text_attribute
+122542
+1033
+11
+25582
+
+R 647 T 30 text_attribute
+52910
+1031
+11
+25585
+15 s
+R 648 T 30 text_attribute
+54958
+1036
+11
+25606
+30 min
+R 649 T 30 text_attribute
+104112
+1031
+21
+40964
+
+R 650 T 30 text_attribute
+71345
+1036
+22
+40964
+Sortie 3
+R 651 T 30 text_attribute
+52920
+1031
+10
+31692
+Dimmzeit (beim kontinuierlichen Dimmen)
+R 652 T 30 text_attribute
+112314
+1031
+10
+31667
+Szenennummer
+R 653 T 30 text_attribute
+134843
+1033
+11
+25654
+
+R 654 T 30 text_attribute
+132796
+1033
+10
+34166
+
+R 655 T 30 text_attribute
+83646
+1031
+40
+23279
+Schalt/Dimmaktor 3-fach 1/10V
+R 656 T 30 text_attribute
+71359
+1036
+11
+25588
+30 sec
+R 657 T 30 text_attribute
+67264
+1036
+10
+29570
+DelayTime for BinaryActuatorWithStaircas
+\\\r\neFunction
+R 658 T 30 text_attribute
+46795
+1033
+20
+40888
+
+R 659 T 30 text_attribute
+22222
+1033
+90
+20420
+BCU 1
+R 660 T 30 text_attribute
+120526
+1033
+22
+40900
+
+R 661 T 30 text_attribute
+22223
+1031
+90
+20420
+BCU 1
+R 662 T 30 text_attribute
+136915
+1033
+10
+34126
+
+R 663 T 30 text_attribute
+130773
+1036
+11
+25570
+3 sec
+R 664 T 30 text_attribute
+108245
+1036
+10
+29568
+Informations
+R 665 T 30 text_attribute
+79574
+1031
+10
+34140
+Helligkeit Szene 3 (%)
+R 666 T 30 text_attribute
+55009
+1031
+11
+25627
+7
+R 667 T 30 text_attribute
+59107
+1033
+11
+25525
+
+R 668 T 30 text_attribute
+75502
+1036
+31
+22799
+
+R 669 T 30 text_attribute
+85748
+1036
+20
+40888
+Valeur d\'éclairement
+R 670 T 30 text_attribute
+104181
+1031
+10
+31693
+Andimmzeit
+R 671 T 30 text_attribute
+139007
+1031
+11
+25387
+1 min
+R 672 T 30 text_attribute
+81664
+1033
+22
+40948
+
+R 673 T 30 text_attribute
+112387
+1036
+22
+40956
+Sortie 3
+R 674 T 30 text_attribute
+91909
+1033
+20
+40880
+
+R 675 T 30 text_attribute
+132871
+1036
+20
+40956
+Minuterie
+R 676 T 30 text_attribute
+141066
+1031
+11
+25603
+20 min
+R 677 T 30 text_attribute
+81677
+1036
+11
+25672
+3
+R 678 T 30 text_attribute
+102158
+1031
+11
+25552
+60 s
+R 679 T 30 text_attribute
+132883
+1031
+11
+25534
+4 s
+R 680 T 30 text_attribute
+71444
+1036
+21
+40884
+
+R 681 T 30 text_attribute
+42773
+1033
+10
+31695
+
+R 682 T 30 text_attribute
+114455
+1031
+11
+25393
+1 min 15 s
+R 683 T 30 text_attribute
+96026
+1033
+22
+40936
+
+R 684 T 30 text_attribute
+55071
+1033
+10
+31667
+
+R 685 T 30 text_attribute
+108321
+1031
+22
+40880
+Ausgang 1
+R 686 T 30 text_attribute
+143145
+1031
+20
+40908
+Zustand Dimmwert
+R 687 T 30 text_attribute
+116529
+1031
+10
+34124
+Helligkeit Szene 4 (%)
+R 688 T 30 text_attribute
+79672
+1031
+10
+34116
+Vorwarndauer
+R 689 T 30 text_attribute
+48955
+1036
+11
+25498
+15 s
+R 690 T 30 text_attribute
+139067
+1036
+10
+31680
+Luminosité à l\'allumage\r\nValeur (1, 1
+\\01) (Mémorisation : 101)
+R 691 T 30 text_attribute
+61244
+1036
+22
+40952
+Sortie 3
+R 692 T 30 text_attribute
+85827
+1031
+10
+34132
+Helligkeit Szene 8 (%)
+R 693 T 30 text_attribute
+126793
+1031
+20
+40944
+Ein / Aus
+R 694 T 30 text_attribute
+51020
+1031
+10
+31669
+Zeitschalterbetrieb
+R 695 T 30 text_attribute
+55121
+1036
+10
+31695
+Version du logiciel d\'application
+R 696 T 30 text_attribute
+53074
+1033
+10
+34120
+
+R 697 T 30 text_attribute
+71509
+1036
+11
+25453
+2 h
+R 698 T 30 text_attribute
+75607
+1031
+11
+25528
+2 s
+R 699 T 30 text_attribute
+139095
+1036
+21
+40936
+
+R 700 T 30 text_attribute
+128855
+1036
+20
+40972
+Indication valeur d\'éclairement
+R 701 T 30 text_attribute
+108380
+1031
+11
+25501
+keine Vorwarnung
+R 702 T 30 text_attribute
+65373
+1036
+10
+34148
+Valeur d\'éclairement du scénario 7 (%)
+R 703 T 30 text_attribute
+118629
+1036
+10
+29552
+Initialisation
+R 704 T 30 text_attribute
+55146
+1036
+22
+40944
+Sortie 3
+R 705 T 30 text_attribute
+63344
+1036
+20
+40960
+Forçage
+R 706 T 30 text_attribute
+55152
+1034
+30
+22799
+Iluminación
+R 707 T 30 text_attribute
+94069
+1053
+31
+22799
+
+R 708 T 30 text_attribute
+49014
+1031
+10
+29572
+
+R 709 T 30 text_attribute
+120694
+1036
+10
+34134
+Durée du préavis d\'extinction
+R 710 T 30 text_attribute
+42872
+1031
+10
+34128
+Helligkeit Szene 6 (%)
+R 711 T 30 text_attribute
+73597
+1031
+22
+40912
+Ausgang 2
+R 712 T 30 text_attribute
+75645
+1031
+22
+40932
+Ausgang 2
+R 713 T 30 text_attribute
+77695
+1031
+22
+40916
+Ausgang 2
+R 714 T 30 text_attribute
+69508
+1033
+11
+25588
+
+R 715 T 30 text_attribute
+94084
+1033
+10
+29566
+
+R 716 T 30 text_attribute
+128903
+1033
+21
+40960
+
+R 717 T 30 text_attribute
+61324
+1033
+10
+34168
+
+R 718 T 30 text_attribute
+69525
+1036
+10
+34178
+Valeur minimale de variation\r\nValeur (
+\\1, 50%)
+R 719 T 30 text_attribute
+110486
+1031
+5
+23002
+
+R 720 T 30 text_attribute
+92058
+1033
+20
+40964
+
+R 721 T 30 text_attribute
+102303
+1031
+11
+25582
+9 s
+R 722 T 30 text_attribute
+42912
+1036
+11
+25393
+1 min 15 s
+R 723 T 30 text_attribute
+139169
+1036
+10
+34116
+Durée du préavis d\'extinction
+R 724 T 30 text_attribute
+104353
+1033
+21
+40916
+
+R 725 T 30 text_attribute
+47010
+1033
+11
+25648
+
+R 726 T 30 text_attribute
+110499
+1036
+10
+31686
+Luminosité après coupure bus\r\nValeur (
+\\1, 101) (Mémorisation : 101)
+R 727 T 30 text_attribute
+65447
+1036
+21
+40968
+
+R 728 T 30 text_attribute
+77742
+1031
+22
+40948
+Ausgang 3
+R 729 T 30 text_attribute
+137137
+1031
+20
+40956
+Zeitschalterbetrieb
+R 730 T 30 text_attribute
+59320
+1036
+10
+31667
+Numéro du scénario
+R 731 T 30 text_attribute
+75707
+1036
+11
+25411
+2 min 30  s
+R 732 T 30 text_attribute
+79804
+1036
+5
+23002
+
+R 733 T 30 text_attribute
+83900
+1033
+10
+31670
+
+R 734 T 30 text_attribute
+83901
+1031
+10
+31681
+Helligkeit nach Busspgs.wiederkehr in % 
+\\Bereich 1..100, 101 = gespeicherter Wert
+R 735 T 30 text_attribute
+131010
+1031
+20
+40920
+Dimmwert
+R 736 T 30 text_attribute
+90051
+1033
+30
+22799
+Lighting
+R 737 T 30 text_attribute
+73668
+1031
+10
+31672
+Befehl für Zeitschalterbetrieb
+R 738 T 30 text_attribute
+106436
+1036
+10
+31683
+Période de variation à l\'allumage
+R 739 T 30 text_attribute
+106437
+1031
+10
+31687
+Dimmzeit (beim kontinuierlichen Dimmen)
+R 740 T 30 text_attribute
+102343
+1031
+22
+40900
+Ausgang 1
+R 741 T 30 text_attribute
+53198
+1033
+20
+40892
+
+R 742 T 30 text_attribute
+49109
+1033
+11
+25585
+
+R 743 T 30 text_attribute
+42968
+1033
+10
+29570
+
+R 744 T 30 text_attribute
+131032
+1036
+10
+34122
+Valeur d\'éclairement du scénario 3 (%)
+R 745 T 30 text_attribute
+49119
+1036
+10
+31693
+Période de variation à l\'allumage
+R 746 T 30 text_attribute
+135137
+1031
+11
+25369
+20 s
+R 747 T 30 text_attribute
+75746
+1031
+20
+40960
+Zwangssteuerung
+R 748 T 30 text_attribute
+79844
+1033
+20
+40920
+
+R 749 T 30 text_attribute
+106469
+1036
+11
+25585
+15 sec
+R 750 T 30 text_attribute
+53221
+1033
+10
+31669
+
+R 751 T 30 text_attribute
+85992
+1033
+21
+40972
+
+R 752 T 30 text_attribute
+124905
+1031
+10
+31665
+Zeitschalterbetrieb
+R 753 T 30 text_attribute
+51177
+1036
+10
+34152
+Valeur d\'éclairement du scénario 1 (%)
+R 754 T 30 text_attribute
+73706
+1036
+11
+25534
+4 sec
+R 755 T 30 text_attribute
+126955
+1036
+11
+25555
+Sortie éteinte
+R 756 T 30 text_attribute
+135147
+1033
+10
+31694
+
+R 757 T 30 text_attribute
+108524
+1033
+30
+22813
+Dimmer
+R 758 T 30 text_attribute
+63469
+1036
+10
+31691
+Luminosité après coupure bus\r\nValeur (
+\\1, 101) (Mémorisation : 101)
+R 759 T 30 text_attribute
+124910
+1033
+10
+34154
+
+R 760 T 30 text_attribute
+114672
+1033
+10
+34146
+
+R 761 T 30 text_attribute
+129011
+1031
+11
+25381
+45 s
+R 762 T 30 text_attribute
+86003
+1033
+11
+25528
+
+R 763 T 30 text_attribute
+47099
+1033
+21
+40904
+
+-------------------------------------
+T 33 help_file
+C1 T33 1 4 N HELP_FILE_ID
+C2 T33 1 4 N LANGUAGE_ID
+C3 T33 1 4 N ENTITY_ID
+C4 T33 3 255 Y HELP_FILE_NAME
+R 1 T 33 help_file
+143655
+1036
+23108
+
+R 2 T 33 help_file
+143656
+1036
+23279
+
+R 3 T 33 help_file
+143657
+1036
+23002
+
+R 4 T 33 help_file
+143918
+1053
+22813
+
+R 5 T 33 help_file
+144167
+1031
+22799
+
+R 6 T 33 help_file
+144168
+1031
+22813
+
+R 7 T 33 help_file
+144169
+1036
+22813
+
+R 8 T 33 help_file
+144170
+1036
+22799
+
+R 9 T 33 help_file
+144171
+1033
+22799
+
+R 10 T 33 help_file
+144172
+1040
+22799
+
+R 11 T 33 help_file
+144181
+1033
+22813
+
+R 12 T 33 help_file
+144182
+1040
+22813
+
+R 13 T 33 help_file
+144404
+1034
+22813
+
+R 14 T 33 help_file
+144405
+1034
+22799
+
+-------------------------------------
+T 36 product_to_program
+C1 T36 1 4 N PROD2PROG_ID
+C2 T36 1 4 Y PRODUCT_ID
+C3 T36 1 4 Y PROGRAM_ID
+C4 T36 3 40 Y PROD2PROG_STATUS
+C5 T36 1 4 Y PEI_PROGRAM_ID
+C6 T36 2 2 Y PROD2PROG_STATUS_CODE
+C7 T36 1 4 Y REGISTRATION_NUMBER
+C8 T36 2 2 Y REGISTRATION_YEAR
+C9 T36 1 4 Y ORIGINAL_REGISTRATION_NUMBER
+C10 T36 2 2 Y ORIGINAL_REGISTRATION_YEAR
+C11 T36 3 42 Y EXPIRATION_DATE
+C12 T36 3 42 Y REGISTRATION_TS
+R 1 T 36 product_to_program
+144814
+22911
+23108
+
+
+10
+6453
+104
+
+
+
+2004-03-02 15:09:12.000
+R 2 T 36 product_to_program
+144815
+22911
+
+
+
+5
+
+
+
+
+
+2004-03-02 15:09:12.000
+-------------------------------------
+T 37 product_to_program_to_mt
+C1 T37 1 4 N PROD2PROG2MT_ID
+C2 T37 1 4 N PROD2PROG_ID
+C3 T37 2 2 N MEDIUM_TYPE_NUMBER
+R 1 T 37 product_to_program_to_mt
+145024
+144814
+0
+R 2 T 37 product_to_program_to_mt
+145025
+144815
+0
+-------------------------------------
+T 38 program_description
+C1 T38 1 4 N PROGRAM_DESCRIPTION_ID
+C2 T38 1 4 Y PROGRAM_ID
+C3 T38 3 1000 Y TEXT
+C4 T38 2 2 Y DISPLAY_ORDER
+C5 T38 1 4 Y LANGUAGE_ID
+R 1 T 38 program_description
+145588
+23108
+
+1
+1031
+R 2 T 38 program_description
+145589
+23108
+
+1
+1036
+R 3 T 38 program_description
+145590
+23108
+
+1
+1033
+-------------------------------------
+T 43 device_parameter
+C1 T43 1 4 N DEVICE_ID
+C2 T43 1 4 N DEVICE_PARAMETER_ID
+C3 T43 1 4 Y PARAMETER_ID
+C4 T43 2 2 Y DEVICE_PARAMETER_NUMBER
+C5 T43 2 2 Y DEVICE_PARAMETER_VISIBLE
+C6 T43 1 4 Y PARAMETER_VALUE_LONG
+C7 T43 3 255 Y PARAMETER_VALUE_STRING
+C8 T43 2 2 Y PROGRAM_TYPE
+C9 T43 5 8 Y PARAMETER_VALUE_DOUBLE
+R 1 T 43 device_parameter
+23279
+157701
+34164
+251
+0
+1
+
+0
+
+R 2 T 43 device_parameter
+23279
+157707
+34166
+252
+0
+2
+
+0
+
+R 3 T 43 device_parameter
+23279
+157725
+34168
+253
+0
+3
+
+0
+
+R 4 T 43 device_parameter
+23279
+157731
+34170
+254
+0
+0
+
+0
+
+R 5 T 43 device_parameter
+23279
+157761
+34172
+255
+1
+100
+
+0
+
+R 6 T 43 device_parameter
+23279
+157785
+34174
+256
+0
+100
+
+0
+
+R 7 T 43 device_parameter
+23279
+157791
+29562
+268
+1
+
+
+0
+
+R 8 T 43 device_parameter
+23279
+146183
+31663
+9
+1
+1
+
+0
+
+R 9 T 43 device_parameter
+23279
+146195
+31680
+270
+1
+101
+
+0
+
+R 10 T 43 device_parameter
+23279
+146207
+31681
+281
+1
+101
+
+0
+
+R 11 T 43 device_parameter
+23279
+146213
+31682
+283
+1
+3
+
+0
+
+R 12 T 43 device_parameter
+23279
+146231
+31683
+284
+1
+0
+
+0
+
+R 13 T 43 device_parameter
+23279
+146237
+31684
+285
+1
+0
+
+0
+
+R 14 T 43 device_parameter
+23279
+146249
+29564
+298
+1
+
+
+0
+
+R 15 T 43 device_parameter
+23279
+146279
+31678
+266
+1
+1
+
+0
+
+R 16 T 43 device_parameter
+23279
+146285
+31685
+304
+1
+101
+
+0
+
+R 17 T 43 device_parameter
+23279
+146303
+31686
+305
+1
+101
+
+0
+
+R 18 T 43 device_parameter
+23279
+146309
+31687
+307
+1
+3
+
+0
+
+R 19 T 43 device_parameter
+23279
+146327
+31688
+308
+1
+0
+
+0
+
+R 20 T 43 device_parameter
+23279
+146333
+31689
+309
+1
+0
+
+0
+
+R 21 T 43 device_parameter
+23279
+146345
+29566
+317
+1
+
+
+0
+
+R 22 T 43 device_parameter
+23279
+146357
+31679
+267
+1
+1
+
+0
+
+R 23 T 43 device_parameter
+23279
+146375
+31690
+323
+1
+101
+
+0
+
+R 24 T 43 device_parameter
+23279
+146399
+31691
+324
+1
+101
+
+0
+
+R 25 T 43 device_parameter
+23279
+146405
+31692
+326
+1
+3
+
+0
+
+R 26 T 43 device_parameter
+23279
+146423
+31693
+327
+1
+0
+
+0
+
+R 27 T 43 device_parameter
+23279
+146435
+31694
+328
+1
+0
+
+0
+
+R 28 T 43 device_parameter
+23279
+146441
+29568
+170
+1
+
+
+0
+
+R 29 T 43 device_parameter
+23279
+146459
+31695
+171
+1
+
+2.0.0
+0
+
+R 30 T 43 device_parameter
+23279
+146471
+29570
+354
+1
+180
+
+0
+
+R 31 T 43 device_parameter
+23279
+146477
+29572
+355
+1
+180
+
+0
+
+R 32 T 43 device_parameter
+23279
+146495
+29574
+356
+1
+180
+
+0
+
+R 33 T 43 device_parameter
+23279
+156969
+29552
+1
+1
+
+
+0
+
+R 34 T 43 device_parameter
+23279
+156981
+31662
+24
+1
+0
+
+0
+
+R 35 T 43 device_parameter
+23279
+156993
+29554
+10
+1
+
+
+0
+
+R 36 T 43 device_parameter
+23279
+157017
+31676
+258
+1
+0
+
+0
+
+R 37 T 43 device_parameter
+23279
+157041
+34112
+352
+0
+1
+
+0
+
+R 38 T 43 device_parameter
+23279
+157065
+34114
+353
+0
+100
+
+0
+
+R 39 T 43 device_parameter
+23279
+157089
+34176
+294
+0
+100
+
+0
+
+R 40 T 43 device_parameter
+23279
+157095
+34178
+295
+0
+1
+
+0
+
+R 41 T 43 device_parameter
+23279
+157113
+34180
+342
+0
+1
+
+0
+
+R 42 T 43 device_parameter
+23279
+157125
+34182
+343
+0
+100
+
+0
+
+R 43 T 43 device_parameter
+23279
+157131
+31677
+265
+1
+1
+
+0
+
+R 44 T 43 device_parameter
+23279
+157149
+29556
+19
+1
+
+
+0
+
+R 45 T 43 device_parameter
+23279
+157173
+31664
+22
+1
+0
+
+0
+
+R 46 T 43 device_parameter
+23279
+157179
+34116
+21
+0
+0
+
+0
+
+R 47 T 43 device_parameter
+23279
+157197
+34134
+214
+1
+0
+
+0
+
+R 48 T 43 device_parameter
+23279
+157203
+31665
+20
+1
+15
+
+0
+
+R 49 T 43 device_parameter
+23279
+157233
+31666
+23
+1
+0
+
+0
+
+R 50 T 43 device_parameter
+23279
+157245
+31667
+212
+1
+1
+
+0
+
+R 51 T 43 device_parameter
+23279
+157251
+34118
+162
+1
+100
+
+0
+
+R 52 T 43 device_parameter
+23279
+157263
+34120
+163
+0
+100
+
+0
+
+R 53 T 43 device_parameter
+23279
+157281
+34122
+164
+0
+100
+
+0
+
+R 54 T 43 device_parameter
+23279
+157293
+34124
+165
+0
+0
+
+0
+
+R 55 T 43 device_parameter
+23279
+157299
+34126
+166
+0
+1
+
+0
+
+R 56 T 43 device_parameter
+23279
+157317
+34128
+167
+0
+2
+
+0
+
+R 57 T 43 device_parameter
+23279
+157323
+34130
+168
+0
+3
+
+0
+
+R 58 T 43 device_parameter
+23279
+157347
+34132
+169
+0
+0
+
+0
+
+R 59 T 43 device_parameter
+23279
+157365
+29558
+215
+1
+
+
+0
+
+R 60 T 43 device_parameter
+23279
+157389
+31668
+216
+1
+0
+
+0
+
+R 61 T 43 device_parameter
+23279
+157395
+34136
+217
+0
+0
+
+0
+
+R 62 T 43 device_parameter
+23279
+157413
+34138
+218
+1
+0
+
+0
+
+R 63 T 43 device_parameter
+23279
+157419
+31669
+219
+1
+15
+
+0
+
+R 64 T 43 device_parameter
+23279
+157437
+31670
+220
+1
+0
+
+0
+
+R 65 T 43 device_parameter
+23279
+157443
+31671
+227
+1
+1
+
+0
+
+R 66 T 43 device_parameter
+23279
+157461
+34140
+228
+0
+100
+
+0
+
+R 67 T 43 device_parameter
+23279
+157473
+34142
+229
+0
+0
+
+0
+
+R 68 T 43 device_parameter
+23279
+157497
+34144
+230
+0
+1
+
+0
+
+R 69 T 43 device_parameter
+23279
+157509
+34146
+231
+0
+2
+
+0
+
+R 70 T 43 device_parameter
+23279
+157521
+34148
+232
+0
+3
+
+0
+
+R 71 T 43 device_parameter
+23279
+157527
+34150
+233
+0
+0
+
+0
+
+R 72 T 43 device_parameter
+23279
+157545
+34152
+234
+1
+100
+
+0
+
+R 73 T 43 device_parameter
+23279
+157557
+34154
+235
+0
+100
+
+0
+
+R 74 T 43 device_parameter
+23279
+157563
+29560
+236
+1
+
+
+0
+
+R 75 T 43 device_parameter
+23279
+157587
+31672
+237
+1
+0
+
+0
+
+R 76 T 43 device_parameter
+23279
+157605
+34156
+238
+0
+0
+
+0
+
+R 77 T 43 device_parameter
+23279
+157617
+34158
+239
+1
+0
+
+0
+
+R 78 T 43 device_parameter
+23279
+157635
+31673
+240
+1
+15
+
+0
+
+R 79 T 43 device_parameter
+23279
+157653
+31674
+241
+1
+0
+
+0
+
+R 80 T 43 device_parameter
+23279
+157659
+31675
+248
+1
+1
+
+0
+
+R 81 T 43 device_parameter
+23279
+157677
+34160
+249
+0
+100
+
+0
+
+R 82 T 43 device_parameter
+23279
+157689
+34162
+250
+0
+0
+
+0
+
+-------------------------------------
+T 44 device_object
+C1 T44 1 4 Y DEVICE_ID
+C2 T44 2 2 Y OBJECT_PRIO
+C3 T44 2 2 Y OBJECT_READ
+C4 T44 2 2 Y OBJECT_WRITE
+C5 T44 2 2 Y OBJECT_COMM
+C6 T44 2 2 Y OBJECT_TRANS
+C7 T44 3 255 Y OBJECT_SUBGROUPS_TEXT
+C8 T44 1 4 N DEVICE_OBJECT_ID
+C9 T44 1 4 Y OBJECT_ID
+C10 T44 2 2 Y DEVICE_OBJECT_NUMBER
+C11 T44 3 255 Y OBJECT_SUBGROUPS_TEXT2
+C12 T44 2 2 Y DEVICE_OBJECT_VISIBLE
+C13 T44 3 50 Y DEVICE_OBJECT_UNIQUE_NAME
+C14 T44 2 2 Y OBJECT_UPDATE
+C15 T44 2 2 Y DEVICE_OBJECT_UNIQUE_NUMBER
+C16 T44 2 2 Y DEVICE_OBJECT_TYPE
+R 1 T 44 device_object
+23279
+3
+1
+1
+1
+0
+
+161854
+40912
+8
+
+1
+
+0
+9
+0
+R 2 T 44 device_object
+23279
+3
+1
+1
+1
+0
+
+161858
+40916
+9
+
+1
+
+0
+10
+3
+R 3 T 44 device_object
+23279
+3
+1
+1
+1
+0
+
+161862
+40920
+10
+
+1
+
+0
+11
+7
+R 4 T 44 device_object
+23279
+3
+1
+1
+1
+0
+
+161864
+40924
+11
+
+1
+
+0
+12
+0
+R 5 T 44 device_object
+23279
+3
+1
+1
+1
+0
+
+161868
+40928
+12
+
+1
+
+0
+13
+1
+R 6 T 44 device_object
+23279
+3
+1
+1
+1
+0
+
+161872
+40932
+13
+
+1
+
+0
+14
+7
+R 7 T 44 device_object
+23279
+3
+1
+0
+1
+1
+
+161876
+40936
+14
+
+1
+
+0
+15
+0
+R 8 T 44 device_object
+23279
+3
+1
+0
+1
+1
+
+161880
+40940
+15
+
+1
+
+0
+16
+7
+R 9 T 44 device_object
+23279
+3
+1
+1
+1
+0
+
+161910
+40880
+0
+
+1
+
+0
+1
+0
+R 10 T 44 device_object
+23279
+3
+1
+1
+1
+0
+
+161914
+40884
+1
+
+1
+
+0
+2
+3
+R 11 T 44 device_object
+23279
+3
+1
+1
+1
+0
+
+161918
+40888
+2
+
+1
+
+0
+3
+7
+R 12 T 44 device_object
+23279
+3
+1
+1
+1
+0
+
+161922
+40892
+3
+
+1
+
+0
+4
+0
+R 13 T 44 device_object
+23279
+3
+1
+1
+1
+0
+
+161926
+40896
+4
+
+1
+
+0
+5
+1
+R 14 T 44 device_object
+23279
+3
+1
+1
+1
+0
+
+161930
+40900
+5
+
+1
+
+0
+6
+7
+R 15 T 44 device_object
+23279
+3
+1
+0
+1
+1
+
+161934
+40904
+6
+
+1
+
+0
+7
+0
+R 16 T 44 device_object
+23279
+3
+1
+0
+1
+1
+
+161936
+40908
+7
+
+1
+
+0
+8
+7
+R 17 T 44 device_object
+23279
+3
+1
+1
+1
+0
+
+161968
+40944
+16
+
+1
+
+0
+17
+0
+R 18 T 44 device_object
+23279
+3
+1
+1
+1
+0
+
+161972
+40948
+17
+
+1
+
+0
+18
+3
+R 19 T 44 device_object
+23279
+3
+1
+1
+1
+0
+
+161974
+40952
+18
+
+1
+
+0
+19
+7
+R 20 T 44 device_object
+23279
+3
+1
+1
+1
+0
+
+161978
+40956
+19
+
+1
+
+0
+20
+0
+R 21 T 44 device_object
+23279
+3
+1
+1
+1
+0
+
+161982
+40960
+20
+
+1
+
+0
+21
+1
+R 22 T 44 device_object
+23279
+3
+1
+1
+1
+0
+
+161986
+40964
+21
+
+1
+
+0
+22
+7
+R 23 T 44 device_object
+23279
+3
+1
+0
+1
+1
+
+161990
+40968
+22
+
+1
+
+0
+23
+0
+R 24 T 44 device_object
+23279
+3
+1
+0
+1
+1
+
+161994
+40972
+23
+
+1
+
+0
+24
+7
+XXX
