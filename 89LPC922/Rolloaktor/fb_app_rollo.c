@@ -14,11 +14,7 @@
  *  published by the Free Software Foundation.
  *
  * 
- * 09.11.08	- delay_timer geht nicht mehr über flash sondern über globale variable delrec
- * 			- delay_timer auf 24bit reduziert statt 32bit
- * 			- port_schalten nur noch eimal pro telegramm für alle pins
- * 			- interrupt-steuerung bei respond() rausgenommen
- * 			- globale variablen pah, pal, rmstate entfernt
+ 
  * 			- write_obj_value aufrufe rausgenommen
  * 
  * 23.11.08 - Soft PWM während der Vollstromphase
@@ -27,8 +23,8 @@
  * 01.01.09	- Soft PWM rausgenommen
  * 			- write_obj_value wieder reingenommen mit Überprüfung ob INT unterbrochen hat
  * 			- Rückmeldung bei Busspannungswiederkehr funktioniert jetzt
- * 
- * 13.02.09	- owntele ist ein zähler, wie oft ein gesendetes telegramm intern erneut verarbeitet wurde
+ * 12.12.09 - Überprüfung auf Zuordnung der Sicherheitsfunktion in Applistart
+ * 			- Appli Start: Empfang beim flashen gesperrt.
  */
 
 
@@ -321,7 +317,7 @@ void object_schalten(unsigned char objno, bit objstate)	// Schaltet einen Kanal 
 		if (objstate) write_obj_value(objno & 0x07,1);		// Objektwert im userram speichern
 		else write_obj_value(objno & 0x07,0);
 		objflags=read_objflags(objno&0x07);			// Objekt Flags lesen
-		port_pattern=0x01<<(objno&0x0F);
+		port_pattern=0x01<<(objno&0x07);//port_pattern=0x01<<(objno&0x0F)
 //		zfno=0;
 //		logicfunc=0;
 		if((port_pattern & blocked)==0 && (objflags&0x14)==0x14 ||(objno >=8)) {	// Objekt ist nicht gesperrt und Kommunikation zulässig (Bit 2 = communication enable) und Schreiben zulässig (Bit 4 = write enable)
@@ -755,6 +751,9 @@ void restart_app(void)		// Alle Applikations-Parameter zurücksetzen
 	blocked=userram[0x2A];		// Ausgänge gesperrt?
 	timer=0;			// Timer-Variable, wird alle 8 ms inkrementiert
 	for (n=0;n<=3;n++){
+		if(((eeprom[0xF1]>>n)&0x11)==0 ){// wenn keine Sperrfunktion zugewiesen
+			blocked &= ~(0x11<<n);  // dann blocked löschen, damit nach umpara
+		}							// nicht stehen bleibt.
 		switch(eeprom[0xD9]& 0xC0){
 		case 0x40:
 			object_schalten(n+12,0);
@@ -768,6 +767,8 @@ void restart_app(void)		// Alle Applikations-Parameter zurücksetzen
 //	logicstate=0;
 //	delay_toggle=0;
   
+	EA=0;
+  
 	START_WRITECYCLE
 	WRITE_BYTE(0x01,0x03,0x00);	// Herstellercode 0x0004 = Jung
 	WRITE_BYTE(0x01,0x04,0x04);
@@ -779,7 +780,7 @@ void restart_app(void)		// Alle Applikations-Parameter zurücksetzen
 	WRITE_BYTE(0x01,0x0D,0xFF);	// Run-Status (00=stop FF=run)
 	WRITE_BYTE(0x01,0x12,0x9A);	// COMMSTAB Pointer
 	STOP_WRITECYCLE
-
+	EA=1;
 	set_entriegeln(9);
 	set_entriegeln(10);
 
