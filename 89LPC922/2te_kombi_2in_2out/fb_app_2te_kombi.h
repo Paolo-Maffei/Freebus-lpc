@@ -5,7 +5,8 @@
  *   / __/ / _, _/ /___/ /___/ /_/ / /_/ /___/ / 
  *  /_/   /_/ |_/_____/_____/_____/\____//____/  
  *                                      
- *  Copyright (c) 2009
+ *  Copyright (c) 2009	Andreas Krebs <kubi@krebsworld.de>
+ *                      Jan Wegner
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License version 2 as
@@ -30,6 +31,7 @@ extern unsigned char button_buffer;	// puffer fuer taster werte
 void port_changed(unsigned char portval);		// ein Taster wurde gedrueckt oder losgelassen
 void button_changed(unsigned char buttonno, bit buttonval);	// Taster Aktion abarbeiten
 
+extern bit wait_bus_return;		//bit ist 1 bei aktiver Verzögerung bei Buswiederkehr
 
 
 // Das REFRESH Makro wird unmittelbar nach Auslösen des Empfangs-Interrupts ausgeführt, falls
@@ -45,6 +47,8 @@ void delay_timer(void);			// zählt alle 130ms die Variable Timer hoch und prüft 
 void respond(unsigned char objno, unsigned char rval);
 void port_schalten(unsigned char ports);	// Ausgänge schalten
 void object_schalten(unsigned char objno, bit objstate);	// Objekt schalten
+void delay(int w);
+void bus_return(void);
 
 
 /*****************
@@ -63,6 +67,10 @@ extern 	bit portchanged;// globale variable, sie ist 1 wenn sich portbuffer geän
 extern unsigned char portbuffer;
 extern bit direktbetrieb;
 
+
+extern unsigned char objektwerte[12];
+void schreibe_objektwerte(unsigned char objno, unsigned char objvalue);
+unsigned char lese_objektwerte(unsigned char objno);
 
 
 #endif

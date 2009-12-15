@@ -5,7 +5,8 @@
  *   / __/ / _, _/ /___/ /___/ /_/ / /_/ /___/ / 
  *  /_/   /_/ |_/_____/_____/_____/\____//____/  
  *                                      
- *  Copyright (c) 2009
+ *  Copyright (c) 2009	Andreas Krebs <kubi@krebsworld.de>
+ *                      Jan Wegner
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License version 2 as
@@ -20,11 +21,10 @@
 
 
 #include <P89LPC922.h>
-#include "../com/fb_hal_lpc.h"
-#include "../com/fb_prot.h"
-#include "../com/fb_delay.h"
+#include "fb_hal_lpc.h"
+#include "2te_prot.h"
+#include "2te_delay.h"
 #include "fb_app_2te_kombi.h"
-//#include "../com/fb_rs232.h"
 
 /******
  * Ein
@@ -34,19 +34,21 @@ unsigned char button_buffer; 	// Puffer fuer Taster Werte
 bit portchanged;
 bit direktbetrieb;
 
+bit wait_bus_return;			//bit ist 1 bei aktiver Verzögerung bei Buswiederkehr
 
 /*****
  * Aus
  *****/
 
 unsigned char portbuffer;		// Zwischenspeicherung der Portzustände
-// ???????? unsigned char zfstate;			// Zustand der Objekte 8-11 = Zusatzfunktionen 1-4
-unsigned char blocked;			// Sperrung der 8 Ausgänge (1=gesperrt)
+unsigned char blocked;			// Sperrung der Ausgänge und Eingänge (1=gesperrt)
 unsigned char logicstate;		// Zustand der Verknüpfungen pro Ausgang
 long timer;						// Timer für Schaltverzögerungen, wird alle 130us hochgezählt
 bit delay_toggle;				// um nur jedes 2. Mal die delay routine auszuführen
 unsigned char owntele;			// Anzahl der internen Verarbeitungen eines gesendeten Telegrammes (Rückmeldung)
 unsigned char respondpattern;	// bit wird auf 1 gesetzt wenn objekt eine rückmeldung ausgelöst hat
+
+unsigned char objektwerte[12];
 
 
 /*****************
@@ -61,21 +63,20 @@ unsigned char respondpattern;	// bit wird auf 1 gesetzt wenn objekt eine rückmel
 */
 void port_changed(unsigned char portval)
 {
-	unsigned char n, buttonpattern;
+	unsigned char n, buttonpattern, debtime;
 
-//	set_timer0(50000);			// Entprellzeit
-//	while (!TF0);				// warten auf Timer 0
+		debtime=eeprom[0xD2];			// Entprellzeit in 0,5ms Schritten
+			for(n=0;n<debtime;n++) delay(110);
 
-	for(n=0;n<100;n++) {}
-
-	if ((PORT & 0x03) == portval) {
-		for (n=0; n<=1; n++) {	// alle 2 Eingänge einzeln pruefen (koennten ja mehrere gleichzeitig gedrueckt worden sein)
-			buttonpattern=1<<n;
-			if ((portval & buttonpattern) && !(button_buffer & buttonpattern)) button_changed(n,0);	// Taster losgelassen
-			if (!(portval & buttonpattern) && (button_buffer & buttonpattern)) button_changed(n,1);	// Taster gedrueckt
+			if ((PORT & 0x0C) == portval) {
+			for (n=0; n<=1; n++) {	// alle 2 Eingänge einzeln pruefen (koennten ja mehrere gleichzeitig gedrueckt worden sein)
+				buttonpattern=4<<n;
+				if ((portval & buttonpattern) && !(button_buffer & buttonpattern)) button_changed(n,1);	// Taster losgelassen
+				if (!(portval & buttonpattern) && (button_buffer & buttonpattern)) button_changed(n,0);	// Taster gedrueckt
+			}
+			button_buffer=portval;	// aktuellen port wert in buffer fuer naechsten Vergleich uebernehmen
 		}
-		button_buffer=portval;	// aktuellen port wert in buffer fuer naechsten Vergleich uebernehmen
-	}
+
 }
 
 
@@ -92,80 +93,44 @@ void button_changed(unsigned char buttonno, bit buttonval)
 	unsigned char command,command_help;
 	bit objval=0;
 
+	unsigned char n,m;
+
 	if (((eeprom[FUNCTION] >> (buttonno*4))&0x03) == 1)		// Funktion des Tasters
 	{
 
 		command_help=eeprom[COMMAND+(buttonno*4)];
 
-		/****************
-		 * erstes Objekt
-		 ***************/
-		if (buttonval) command = ((command_help >> 2) & 0x03);	// Befehl beim druecken
-		else command = (command_help & 0x03);				// Befehl beim loslassen
-
-		switch (command) {	// Befehl des Tasters
-		case 1:		// EIN
-			objval=1;
-			break;
-		case 2:		// AUS
-			objval=0;
-			break;
-		case 3:		// UM
-			if (direktbetrieb)
-			{
-				objval = read_obj_value(buttonno);
-			}
-			else
-			{
-				objval = read_obj_value(buttonno+2);
-			}
-			objval = !objval;
-			break;
-		}
-
-		if (command) {	// nur wenn EIN, UM oder AUS (0=keine Funktion)
-			if (direktbetrieb)
-			{
-				object_schalten(buttonno,objval);
-			}
-			else
-			{
-				write_obj_value((buttonno + 2),objval);
-				send_value(1,(buttonno + 2),objval);
-//				write_value_req();
-			}
-		}
-
-
-		if (!direktbetrieb)
+		for (n=0;n<=1-direktbetrieb;n++)	// Auswahl Objekt X.1 bzw X.2 aber nicht bei Direktbetrieb
 		{
-			/******************
-			 *  zweites Objekt
-			 ******************/
-			if (buttonval) command = ((command_help >> 6) & 0x03);	// Befehl beim druecken
-			else command = ((command_help >> 4) & 0x03);				// Befehl beim loslassen
-
-			switch (command) {	// Befehl des Tasters
-			case 1:		// EIN
-				objval=1;
-				break;
-			case 2:		// AUS
-				objval=0;
-				break;
-			case 3:		// UM
-				objval = read_obj_value(buttonno + 10);
-				objval = !objval;
-				break;
+			command = ((command_help >> (2*buttonval+4*n)) & 0x03);
+			objval=command&0x01;
+			if (command==3)
+			{
+				objval=!(lese_objektwerte(buttonno+(2+8*n)*(!direktbetrieb)));
 			}
+			if (command)
+			{
+				if (direktbetrieb)
+				{
+					object_schalten(buttonno,objval);	// bei Direktbetrieb kein Tele sonder direkt schalten
+				}
+				else
+				{
+					if ((blocked&((buttonno+1)<<2))==0)
+					{
+						send_value(1,(buttonno + 2+8*n),objval);
 
-			if (command) {	// nur wenn EIN, UM oder AUS (0=keine Funktion)
-				write_obj_value((buttonno + 10),objval);
-				send_value(1,(buttonno + 10),objval);
-//				write_value_req();
+						m=8+4*(2*buttonno+n);
+
+						if (delrec[m]&0x80) delrec[m]&=0x7F;	// zyklisch Senden wieder starten (nötig bei "keine Reaktion" nach Sperrung
+					}
+
+				}
 			}
-
 		}
+
 	}
+
 }
 
 
@@ -175,8 +140,15 @@ void button_changed(unsigned char buttonno, bit buttonval)
  * Ausgänge
  ******************/
 
-
-void object_schalten(unsigned char objno, bit objstate)	// Schaltet einen Ausgang gemäß objstate und den zugörigen Parametern
+/**
+* Schaltet einen Ausgang gemäß objstate und den zugörigen Parametern
+*
+* \param  objno <Beschreibung>
+* \param  objstate <Beschreibung>
+*
+* @return void
+*/
+void object_schalten(unsigned char objno, bit objstate)
 {
 
 	unsigned char port_pattern,objflags,delay_base,delay_state,delay_zeit,logicfunc,zfno;
@@ -185,8 +157,6 @@ void object_schalten(unsigned char objno, bit objstate)	// Schaltet einen Ausgan
 
 	objlogicstate=((logicstate>>objno)&0x01);
 
-//	delay_zeit=eeprom[0xE9];  //ZeitSCHALTfunktion angepasst
-//	delay_zeit=((delay_zeit>>objno)&0x01);
 	delay_zeit=((eeprom[0xE9]>>objno)&0x01);
 
 	off_disable=((eeprom[OFFDISABLE]>>objno)&0x01);	// nur ausschalten wenn AUS-Tele nicht ignoriert werden soll
@@ -194,37 +164,22 @@ void object_schalten(unsigned char objno, bit objstate)	// Schaltet einen Ausgan
 	off_disable=off_disable & delay_zeit; // in OFFDISABLE stehen nur die Werte wenn Zeitschaltfunktion an
 
 	if ((!objstate && !off_disable) || objstate) {
-		if (objstate) write_obj_value(objno,1);	// Objektwert im userram speichern
-		else write_obj_value(objno,0);	// Objektwert im userram speichern
 
+		schreibe_objektwerte(objno,objstate);
 
 		objflags=read_objflags(objno);			// Objekt Flags lesen
 		port_pattern=0x01<<objno;
 
 		zfno=0;
 		logicfunc=0;
-//		if((eeprom[FUNCASS]&0x0F)==(objno+1)) zfno=1;
-//		if(((eeprom[FUNCASS]&0xF0)>>4)==(objno+1)) zfno=2;
-//		if((eeprom[FUNCASS+1]&0x0F)==(objno+1)) zfno=3;
-//		if(((eeprom[FUNCASS+1]&0xF0)>>4)==(objno+1)) zfno=4;
-//		if(zfno) {
-//			if(((eeprom[FUNCTYP]>>((zfno-1)*2))&0x03)==0x00) logicfunc=((eeprom[LOGICTYP]>>((zfno-1)*2))&0x03);
-//		}
 
 		if (((eeprom[FUNCTYP]>>objno*2)&0x03)==0x00) logicfunc=(eeprom[LOGICTYP]>>objno*2)&0x03;
 
 
-		if((port_pattern & blocked)==0 && (objflags&0x14)==0x14) {	// Objekt ist nicht gesperrt und Kommunikation zulässig (Bit 2 = communication enable) und Schreiben zulässig (Bit 4 = write enable)
-
-//			delay_base=eeprom[(((objno+1)>>1)+DELAYTAB)];  //DELAYTAB angepasst
-//			if((objno&0x01)==0x01) delay_base&=0x0F;
-//			else delay_base=(delay_base&0xF0)>>4;
+		if((port_pattern & (blocked&0x03))==0 && (objflags&0x14)==0x14) {	// Objekt ist nicht gesperrt und Kommunikation zulässig (Bit 2 = communication enable) und Schreiben zulässig (Bit 4 = write enable)
 
 			if (objno==1) delay_base=eeprom[0xF7]& 0x0F;
 			else delay_base=(eeprom[0xF6]>>4) & 0x0F;
-
-//			delay_base=(eeprom[0xF6+((objno+1)>>1)] >> (4*((objno)^0x01)))&0x0F;
-
 
 			delay_target=0;
 			delay_onoff=0;
@@ -242,7 +197,6 @@ void object_schalten(unsigned char objno, bit objstate)	// Schaltet einen Ausgan
 			delay_onoff=((eeprom[objno+0xE7]) & 0x7F);  //Zeitfaktor Auschaltverzögerung angepasst (bit 0-6)
 
 				if(delay_onoff==0x00 || delay_zeit==0x01) {		// sofort ausschalten
-//					if (((eeprom[RELMODE]>>objno)&0x01)==0x00) portbuffer=portbuffer&~port_pattern;	// Schliesserbetrieb RELMODE angepasst
 					if (!rel_mode) portbuffer=portbuffer&~port_pattern;	// Schliesserbetrieb RELMODE angepasst
 					else portbuffer=portbuffer|port_pattern;						// Öffnerbetrieb
 
@@ -265,7 +219,6 @@ void object_schalten(unsigned char objno, bit objstate)	// Schaltet einen Ausgan
 						delay_state=0x80;
 						delay_onoff=((eeprom[objno+0xE7]) & 0x7F);  //Zeitfaktor Auschaltverzögerung angepasst (bit 0-6)
 					}
-//					if (((eeprom[RELMODE]>>objno)&0x01)==0x00) portbuffer=portbuffer|port_pattern;	// sofort einschalten (Schliesserbetrieb) RELMODE angepasst
 					if (!rel_mode) portbuffer=portbuffer|port_pattern;	// sofort einschalten (Schliesserbetrieb) RELMODE angepasst
 					else portbuffer=portbuffer&~port_pattern;					// sofort einschalten (Öffnerbetrieb)
 
@@ -284,15 +237,22 @@ void object_schalten(unsigned char objno, bit objstate)	// Schaltet einen Ausgan
 	}
 }
 
-
-void delay_timer(void)	// zählt alle 130ms die Variable Timer hoch und prüft Queue
+/**
+* zählt alle 130ms die Variable Timer hoch und prüft Queue
+*	Zeitfunktionen für Ausgänge
+*	Zyklisch senden
+*	Wartezeit Busspannungswiederkehr
+*
+* \param  void
+*
+* @return void
+*/
+void delay_timer(void)
 {
-	unsigned char objno,delay_state,port_pattern,delay_zeit,delay_onoff,delay_base;
-	unsigned long delval,delay_target;
+	unsigned char objno,delay_state,port_pattern,delay_zeit,delay_onoff,delay_base,m,o,zyk_basis,zyk_faktor,p;
+	unsigned long delval,delay_target,zyk_val;
 
-	bit rel_mode;
-
-//	bit portchanged; (nicht mehr lokal...)
+	bit rel_mode,objval;
 
 	RTCCON=0x60;		// RTC anhalten und Flag löschen
 	RTCH=0x0E;			// reload Real Time Clock
@@ -302,84 +262,119 @@ void delay_timer(void)	// zählt alle 130ms die Variable Timer hoch und prüft Que
 	if (delay_toggle) {	// RTC läuft auf 65ms, daher nur jedes 2. mal timer erhöhen
 		timer++;
 		if (timer==0x01000000) timer=0;	// nur 3 Byte aktiv
-		for(objno=0;objno<=1;objno++) {  //nur zwei Objekte Relais angepasst
+		for(objno=0;objno<=6;objno++) {  //nur zwei Objekte Relais angepasst
 			delay_state=delrec[objno*4];
 			if(delay_state!=0x00) {			// 0x00 = delay Eintrag ist leer
 				delval=delrec[objno*4+1];
 				delval=(delval<<8)+delrec[objno*4+2];
 				delval=(delval<<8)+delrec[objno*4+3];
 				if(delval==timer) {
-					portchanged=1;
-					port_pattern=0x01<<objno;
 
-					rel_mode=(eeprom[RELMODE]>>objno)&0x01;
+					if (objno<=1)	// Zeitfunktionen Ausgänge
+					{
+						portchanged=1;
+						port_pattern=0x01<<objno;
 
-					if(delay_state==0x81) {	// einschalten
-//						if (((eeprom[RELMODE]>>objno)&0x01)==0x00) { //RELMODE angepasst
-						if (!rel_mode) { //RELMODE angepasst
-							portbuffer=portbuffer|port_pattern;		// Einschalten (Schliesserbetrieb)
-						}
-						else {
-							portbuffer=portbuffer&~port_pattern;	// Einschalten (Öffnerbetrieb)
-						}
-						EX1=0;
-						respond(objno,0x01);			// ggf. Rückmeldung angepasst
-						EX1=1;
-						delrec[objno*4]=0;
-//						delay_zeit=eeprom[0xE9];  //Zeitschaltfunktion angepasst
-//						delay_zeit=((delay_zeit>>objno)&0x01);
+						rel_mode=(eeprom[RELMODE]>>objno)&0x01;
 
-						delay_zeit=((eeprom[0xE9]>>objno)&0x01);
+						if(delay_state==0x81) {	// einschalten
+							if (!rel_mode) { //RELMODE angepasst
+								portbuffer=portbuffer|port_pattern;		// Einschalten (Schliesserbetrieb)
+							}
+							else {
+								portbuffer=portbuffer&~port_pattern;	// Einschalten (Öffnerbetrieb)
+							}
+							respond(objno,0x01);			// ggf. Rückmeldung angepasst
+							delrec[objno*4]=0;
+							delay_zeit=((eeprom[0xE9]>>objno)&0x01);
 
-						if(delay_zeit==0x01) {
-//							delay_base=eeprom[(((objno+1)>>1)+0xF6)];  //Zeitbasis angepasst
-//							if((objno&0x01)==0x01) delay_base&=0x0F;
-//							else delay_base=(delay_base&0xF0)>>4;
+							if(delay_zeit==0x01) {
 
-							if (objno==1) delay_base=eeprom[0xF7]& 0x0F;
-							else delay_base=(eeprom[0xF6]>>4) & 0x0F;
+								if (objno==1) delay_base=eeprom[0xF7]& 0x0F;
+								else delay_base=(eeprom[0xF6]>>4) & 0x0F;
 
-							delay_onoff=eeprom[objno+0xE7];  //Ausschaltverzögerung angepasst
-							if (delay_onoff!=0x00 && delay_zeit!=0x00) {
-								delay_target=(delay_onoff<<delay_base)+timer;
-								write_delay_record(objno,0x80,delay_target);		// Schaltverzögerung in Flash schreiben
+								delay_onoff=eeprom[objno+0xE7];  //Ausschaltverzögerung angepasst
+								if (delay_onoff!=0x00 && delay_zeit!=0x00) {
+									delay_target=(delay_onoff<<delay_base)+timer;
+									write_delay_record(objno,0x80,delay_target);		// Schaltverzögerung in Flash schreiben
+								}
 							}
 						}
-					}
-					else {	// ausschalten
-//						if (((eeprom[RELMODE]>>objno)&0x01)==0x00) {  //RELMODE angepasst
-						if (!rel_mode) {  //RELMODE angepasst
-							portbuffer=portbuffer&~port_pattern;		// Ausschalten (Schliesserbetrieb)
+						else {	// ausschalten
+							if (!rel_mode) {  //RELMODE angepasst
+								portbuffer=portbuffer&~port_pattern;		// Ausschalten (Schliesserbetrieb)
+							}
+							else {
+								portbuffer=portbuffer|port_pattern;			// Ausschalten (Öffnerbetrieb)
+							}
+							respond(objno,0x00);				// ggf. Rückmeldung angepasst
+							delrec[objno*4]=0;
 						}
-						else {
-							portbuffer=portbuffer|port_pattern;			// Ausschalten (Öffnerbetrieb)
-						}
-						EX1=0;
-						respond(objno,0x00);				// ggf. Rückmeldung angepasst
-						EX1=1;
-						delrec[objno*4]=0;
+
 					}
+					else if (objno<=5)	// Zyklisch Senden Eingänge
+					{
+						m=(objno&0x04)>>2;
+						o=objno&0x01;
+						p=objno+7*o-m;
+
+						zyk_faktor=eeprom[0xDE+4*m]&0x7F;
+						zyk_basis=((eeprom[0xF7+m+4*o])>>(2*(objno&0x02))&0x0F);
+
+						zyk_val=(zyk_faktor<<zyk_basis);
+
+						zyk_val=zyk_val+timer;
+
+						delrec[objno*4+1]=zyk_val>>16;
+						delrec[objno*4+2]=zyk_val>>8;
+						delrec[objno*4+3]=zyk_val;
+
+						objval=lese_objektwerte(p);
+
+						if ((delrec[4*objno]&0x80)==0)	// prüfen ob Eingang gesperrt ist, dann kein senden
+						{
+							if (((delrec[4*objno]&0x7F)>>!objval)&0x01)
+							{
+								send_value(2,p,objval);
+							}
+
+						}
+
+					}
+
+					else	// Wartezeit Busspannungswiederkehr
+					{
+						delrec[6*4]=0;
+
+					}
+
 				}
 			}
 		}
+
 	}
 
-//	if (portchanged) port_schalten(portbuffer);				// Ausgänge schalten
 	RTCCON=0x61;		// RTC starten
 	delay_toggle=!delay_toggle;
 }
 
 
-
-void port_schalten(unsigned char ports)		// Schaltet die Ports mit PWM, DUTY ist Pulsverhältnis
+/**
+* Schaltet die Ports mit PWM, DUTY ist Pulsverhältnis
+*
+* \param  ports
+*
+* @return void
+*/
+void port_schalten(unsigned char ports)		//
 {
 	if(ports & ~userram[0x29]) {	// Vollstrom nur wenn ein relais eingeschaltet wird
 		TR0=0;
 		AUXR1&=0xE9;	// PWM von Timer 0 nicht mehr auf Pin ausgeben
-		PWM=1;			// Vollstrom an
+		PWM=0;			// Vollstrom an
 
-		P0_2=(ports & 0x01);
-		P0_3=((ports >> 1) & 0x01);
+		P0_0=(ports & 0x01);
+		P0_1=((ports >> 1) & 0x01);
 
 		TF0=0;			// Timer 0 für Haltezeit Vollstrom verwenden
 		TH0=0x00;		// 16ms (10ms=6fff)
@@ -390,8 +385,8 @@ void port_schalten(unsigned char ports)		// Schaltet die Ports mit PWM, DUTY ist
 	}
 	else
 	{
-		P0_2=(ports & 0x01);
-		P0_3=((ports >> 1) & 0x01);
+		P0_0=(ports & 0x01);
+		P0_1=((ports >> 1) & 0x01);
 	}
 
 	START_WRITECYCLE
@@ -403,35 +398,42 @@ void port_schalten(unsigned char ports)		// Schaltet die Ports mit PWM, DUTY ist
 
 
 
-
-void respond(unsigned char objno, unsigned char rval)	// sucht Gruppenadresse für das Objekt objno uns sendet ein EIS 1 Telegramm
+/**
+* sucht Gruppenadresse für das Objekt objno uns sendet ein EIS 1 Telegramm
+*
+* \param  objno
+* \param  rval
+*
+* @return void
+*/
+void respond(unsigned char objno, unsigned char rval)
 {							// mit dem Wert rval (0x80 oder 0x81) für Rückmeldeobjekte
-//	unsigned int ga;
+	unsigned int ga;
 //	unsigned char inv;
 
 	if ((owntele < 3) && ((respondpattern & (1<<(objno))) == 0)) {  //Objektnummer angepasst
 		respondpattern |= (1<<(objno)); //Objektnummern angepasst
 		owntele++;
 
-/*
+
 		ga=find_ga(objno+16);					// wenn keine Gruppenadresse hinterlegt nix tun
 		if (ga!=0) {
-			//EX1=0;
+			EX1=0;
 			telegramm[0]=0xBC;
 			telegramm[1]=eeprom[ADDRTAB+1];
 			telegramm[2]=eeprom[ADDRTAB+2];
 			telegramm[3]=ga>>8;
 			telegramm[4]=ga;
-			telegramm[5]=0xD1;
+			telegramm[5]=0xE1;
 			telegramm[6]=0x00;
 //			objno=objno-16;  //Objektnummer angepasst
 
 //			inv=eeprom[0xF1];  //Verhalten Rückmeldung angepasst
-			inv=(eeprom[0xF1]>>objno)&0x01;
+//			inv=(eeprom[0xF1]>>objno)&0x01;
 
-			objno=objno+16;
+//			objno=objno+16;
 
-			if (inv==0) {
+/*			if (inv==0) {
 				telegramm[7]=rval;
 				write_obj_value(objno,rval);
 			}
@@ -447,35 +449,47 @@ void respond(unsigned char objno, unsigned char rval)	// sucht Gruppenadresse fü
 					write_obj_value(objno,0);	// Rückmeldeobjektwert setzen
 				}
 			}
-			send_telegramm();
-			//EX1=1;
 */
+/*			inv=eeprom[0xF1];
+			inv=(inv>>objno)&0x01;
+			if (inv==0) telegramm[7]=0x80+rval;
+			if (inv==1) {
+				if (rval==0) telegramm[7]=0x81;
+				else telegramm[7]=0x80;
+			}
+*/
+//			telegramm[7]=0x80+(rval^((eeprom[0xF1]>>objno)&0x01));
 
 
+			rval^=((eeprom[0xF1]>>objno)&0x01);
+//			write_obj_value(objno,rval);
 
-//			inv=(eeprom[0xF1]>>objno)&0x01;
-			objno=objno+16;
-//			rval=rval&0x01;
-//			rval=rval^inv;
+			schreibe_objektwerte(objno+16,rval);
 
-			rval=(rval)^((eeprom[0xF1]>>objno)&0x01);
+			telegramm[7]=0x80+rval;
 
-			write_obj_value(objno,rval);
-			send_value(1,objno,rval);
 
-//			write_value_req();
+			send_telegramm();
+			EX1=1;
+			write_value_req();
+
 		}
-//	}
-
+	}
 }
 
 
-
-void write_value_req(void)	// Empfangenes write_value_request Telegramm verarbeiten
+/**
+* Empfangenes write_value_request Telegramm verarbeiten
+*
+* \param  void
+*
+* @return void
+*/
+void write_value_req(void)	//
 {
-	  unsigned char objno,objflags,gapos,atp,assno,n,gaposh,zfout,zftyp,objno_help;
-	  unsigned char blockstart,blockend,blockpol_help,blockact_help, ohs;
-
+	  unsigned char objno,gapos,atp,assno,n,gaposh,zftyp,objno_help;
+	  unsigned char blockstart,blockend,blockpol_help,blockact_help, ohs,m;
+	  bit objval;
 
 	    gaposh=0;
 
@@ -494,115 +508,199 @@ void write_value_req(void)	// Empfangenes write_value_request Telegramm verarbei
 	        if(gapos==gaposh)					// Wenn Positionsnummer übereinstimmt
 	        {
 	          objno=eeprom[atp+2+(n*2)];				// Objektnummer
-//	          objflags=read_objflags(objno);			// Objekt Flags lesen
 
-	          if (objno<2) object_schalten(objno,telegramm[7]&0x01);	// Objektnummer 0-1 entspricht den Ausgängen 1-2 angepasst
+	          /***************************
+	           * Ausgänge
+	           ***************************/
 
-
-	          /******************
-	           * Zusatzfunktionen
-	           ******************/
-
-	          if (objno==8 || objno==9)	// Objektnummer 8 und 9 entspricht den Zusatzfunktionen 1 (Ausgang1)und 2 (Ausgang2)
+	          if (objno<=1)
 	          {
-// ?????        if (telegramm[7]==0x80) zfstate=zfstate & (0x0F-(0x01<<(objno-8)));
-// ?????        if (telegramm[7]==0x81) zfstate=zfstate | (0x01<<(objno-8));
-//	            zfout=0;
-	            blockstart=0;
-	            blockend=0;
-/*	            switch (objno-8)			// Zugeordneten Ausgang zu Zusatzfunktionsnr. in zfout speichern (1-8)
-	            {
-	              case 0x00:
-	                zfout=eeprom[FUNCASS]&0x0F;
-	                blockstart=eeprom[BLOCKACT]&0x03;		// Verhalten bei Beginn der Sperrung
-	                blockend=(eeprom[BLOCKACT]>>2)&0x03;	// Verhalten bei Ende der Sperrung
-	              break;
-	              case 0x01:
-	                zfout=(eeprom[FUNCASS]&0xF0)>>4;
-	                blockstart=(eeprom[BLOCKACT]>>4)&0x03;	// Verhalten bei Beginn der Sperrung
-	                blockend=(eeprom[BLOCKACT]>>6)&0x03;	// Verhalten bei Ende der Sperrung
-	            }
-*/
-//	            zfout=objno-7;
-	            objno_help=objno-8;
-	            ohs=(0x01<<objno_help);
-
-	            blockact_help=eeprom[BLOCKACT]>>(objno_help)*4;
-
-	            blockstart=blockact_help&0x03;
-	            blockend=(blockact_help>>2)&0x03;
-
-//	            zftyp=((eeprom[FUNCTYP])>>((objno-8)*2)) & 0x03;	// Typ der Zusatzfunktion
-
-	            zftyp=(eeprom[FUNCTYP]>>(objno_help)*2)& 0x03;
-
-
-	            switch (zftyp)
-	            {
-	              case 0x00:			// Verknüpfung
-	                switch (telegramm[7])
-	                {
-	                  case 0x80:
-	                    logicstate=logicstate&(0xFF-ohs);
-	                  break;
-	                  case 0x81:
-	                    logicstate=logicstate|ohs;
-	                }
-	                object_schalten(objno_help, telegramm[7]&0x01);
-	              break;
-
-
-
-	              case 0x01:			// Sperren
-
-	            	  blockpol_help=eeprom[BLOCKPOL]&ohs;
-
-	            	if (((telegramm[7]==0x80) && (blockpol_help==0)) ||
-	                	((telegramm[7]==0x81) && (blockpol_help!=0)))
-	                {	// Ende der Sperrung
-	                    blocked=blocked&(0xFF-ohs);
-	                    if (blockend==0x01) portbuffer=portbuffer&(0xFF-ohs);	// Bei Ende der Sperrung ausschalten
-	                    if (blockend==0x02) portbuffer=portbuffer|ohs;		// Bei Ende der Sperrung einschalten
-	                }
-
-	                if (((telegramm[7]==0x81) && (blockpol_help==0)) ||
-	                	((telegramm[7]==0x80) && (blockpol_help!=0)))
-	                {	// Beginn der Sperrung
-
-	                    blocked=blocked|(0x01<<objno_help);
-	                    if (blockstart==0x01) portbuffer=portbuffer&(0xFF-ohs);	// Bei Beginn der Sperrung ausschalten
-	                    if (blockstart==0x02) portbuffer=portbuffer|ohs;		// Bei Beginn der Sperrung einschalten
-	                    delrec[objno_help*4]=0;	// ggf. Eintrag für Schaltverzögerung löschen
-	                }
-	              //port_schalten(portbuffer);
-	              break;
-	              //case 0x02:			// Zwangsstellung
-
-
-	            }
+	        	  object_schalten(objno,telegramm[7]&0x01);	// Objektnummer 0-1 entspricht den Ausgängen 1-2 angepasst
 	          }
 
 
-	          /****************
-	           * Ende
-	           ***************/
+	          /***************************
+	           * Eingänge 1.Objekt
+	           ***************************/
+
+	          else if (objno<=3)
+	          {
+	        	  schreibe_objektwerte(objno,telegramm[7]&0x01);
+	          }
 
 
+	          /***************************
+	           * Zusatzfunktionen Ausgänge zftyp 00=Verküpfung 01=Sperren 02=Zwangsstellung
+	           ***************************/
+
+	          else if (objno<=9)	// Objektnummer 8 und 9 entspricht den Zusatzfunktionen 1 (Ausgang1)und 2 (Ausgang2)
+	          {
+
+	        	  schreibe_objektwerte(objno,telegramm[7]&0x01);
+
+	        	  blockstart=0;
+	        	  blockend=0;
+
+	        	  objno_help=objno-8;
+	        	  ohs=(0x01<<objno_help);
+
+	        	  blockact_help=eeprom[BLOCKACT]>>(objno_help)*4;
+
+	        	  blockstart=blockact_help&0x03;
+	        	  blockend=(blockact_help>>2)&0x03;
+
+	        	  zftyp=(eeprom[FUNCTYP]>>(objno_help)*2)& 0x03;
+
+	        	  switch (zftyp)
+	        	  {
+						case 0x00:			// Verknüpfung
+							if (telegramm[7]==0x80)
+							{
+								logicstate=logicstate&(0xFF-ohs);
+							}
+							if (telegramm[7]==0x81)
+							{
+								logicstate=logicstate|ohs;
+							}
+							object_schalten(objno_help, telegramm[7]&0x01);
+							break;
+
+						case 0x01:			// Sperren
+							blockpol_help=eeprom[BLOCKPOL]&ohs;
+
+							if (((telegramm[7]==0x80) && (blockpol_help==0)) || ((telegramm[7]==0x81) && (blockpol_help!=0)))
+							{	// Ende der Sperrung
+								blocked=blocked&(0xFF-ohs);
+								if (blockend==0x01) portbuffer=portbuffer&(0xFF-ohs);	// Bei Ende der Sperrung ausschalten
+								if (blockend==0x02) portbuffer=portbuffer|ohs;		// Bei Ende der Sperrung einschalten
+							}
+
+							if (((telegramm[7]==0x81) && (blockpol_help==0)) || ((telegramm[7]==0x80) && (blockpol_help!=0)))
+							{	// Beginn der Sperrung
+								blocked=blocked|(ohs);
+								if (blockstart==0x01) portbuffer=portbuffer&(0xFF-ohs);	// Bei Beginn der Sperrung ausschalten
+								if (blockstart==0x02) portbuffer=portbuffer|ohs;		// Bei Beginn der Sperrung einschalten
+								delrec[objno_help*4]=0;	// ggf. Eintrag für Schaltverzögerung löschen
+							}
+							break;
+
+					//case 0x02:			// Zwangsstellung
+
+	        	  }
+	          }
+
+
+	          /***************************
+	           * Eingänge 2.Objekt
+	           ***************************/
+
+	          else if (objno<=11)
+	          {
+	        	  schreibe_objektwerte(objno,telegramm[7]&0x01);
+	          }
+
+
+	          /***************************
+	           * Rückmeldung
+	           ***************************/
+
+	          else if (objno<=17)	// kann nicht geschrieben werden, nur wegen else if Auswertung
+	          {
+
+	          }
+
+	          /***************************
+	           * Zusatzfunktionen Eingänge Sperren
+	           ***************************/
+
+	          else
+	          {
+
+	        	  schreibe_objektwerte(objno,telegramm[7]&0x01);
+
+
+	        	  objno_help=objno-18;
+		          ohs=(0x04<<objno_help);
+
+		          blockstart=(eeprom[0xDD+objno_help*4]>>4)&0x03;
+		          blockend=eeprom[0xE0+objno_help*4]&0x03;
+
+            	  blockpol_help=eeprom[0xDD+objno_help*4]&0x03;
+
+            	  if ((telegramm[7]-0x7f)==blockpol_help)
+            	  {	// Ende der Sperrung
+
+            		  blocked=blocked&(0xFF-ohs);  // Bit 3 und 4 für die Eingänge Objekt 3 und 4
+
+            		  if (blockend)
+            		  {
+                		  if (blockend==3)	// aktuellen Wert der Eingänge
+                		  {
+                			  port_changed(PORT & ohs);
+                			  button_buffer=!PORT & ohs;
+                		  }
+                		  else	// EIN oder AUS
+                		  {
+                			  for(m=2;m<=10;m=m+8)
+                			  {
+                				  send_value(1,(objno_help + m),(blockend & 0x01));
+                			  }
+                		  }
+
+                		  m=8+8*objno_help;
+    	                  if (delrec[m]&0x80) delrec[m]&=0x7F;
+    	                  m=m+4;
+    	                  if (delrec[m]&0x80) delrec[m]&=0x7F;
+
+            		  }
+            	  }
+
+            	  else
+            	  {	// Beginn der Sperrung
+
+	                  blocked=blocked|(ohs);  // Bit 3 und 4 für die Eingänge Objekt 3 und 4
+
+	                  if (blockstart)
+	                  {
+	                	  for(m=2;m<=10;m=m+8)
+	                	  {
+	                		  if (blockstart==3)	// UM
+	                		  {
+	                			  objval = lese_objektwerte(objno_help + m);
+			                	  objval = !objval;
+	                		  }
+	                		  else	// EIN oder AUS
+	                		  {
+	                			  objval=blockstart & 0x01;
+	                		  }
+							  send_value(1,objno_help + m,objval);
+	                	  }
+	                  }
+	                  //zyk senden löschen aber merken
+	                  m=8+8*objno_help;
+	                  if (delrec[m]) delrec[m]|=0x80;
+	                  m=m+4;
+	                  if (delrec[m]) delrec[m]|=0x80;
+            	  }
+	          }// Ende Zusatzfunktionen Eingänge
 	        }
 	      }
 	      if (portbuffer != userram[0x29]) portchanged=1;//post für port_schalten hinterlegen
-	      //port_schalten(portbuffer);	//Port schalten wenn sich ein Pin geändert hat
-
-
-	  }
+	    }
 	    owntele=0;
 	    respondpattern=0;
 
 }
 
 
-
-void read_value_req(void)	// Empfangenes read_value_request Telegramm verarbeiten
+/**
+* Empfangenes read_value_request Telegramm verarbeiten
+*
+* \param  void
+*
+* @return void
+*/
+void read_value_req(void)
 {
 	unsigned char objno, objflags;
 	unsigned int objvalue;
@@ -611,7 +709,8 @@ void read_value_req(void)	// Empfangenes read_value_request Telegramm verarbeite
 	if(objno!=0xFF) {	// falls Gruppenadresse nicht gefunden
 		send_ack();
 
-		objvalue=read_obj_value(objno);		// Objektwert aus USER-RAM lesen (Standard Einstellung)
+//		objvalue=read_obj_value(objno);		// Objektwert aus USER-RAM lesen (Standard Einstellung)
+		objvalue=lese_objektwerte(objno);
 
 		objflags=read_objflags(objno);		// Objekt Flags lesen
 		// Objekt lesen, nur wenn read enable gesetzt (Bit3) und Kommunikation zulaessig (Bit2)
@@ -620,10 +719,20 @@ void read_value_req(void)	// Empfangenes read_value_request Telegramm verarbeite
 
 }
 
-void send_value(unsigned char type, unsigned char objno, unsigned int sval)	// sucht Gruppenadresse für das Objekt objno uns sendet ein EIS Telegramm
-{																	// mit dem Wert sval
+
+/**
+* sucht Gruppenadresse für das Objekt objno uns sendet ein EIS Telegramm
+*
+* \param  type
+* \param  objno
+* \param  sval
+*
+* @return void
+*/
+void send_value(unsigned char type, unsigned char objno, unsigned int sval)
+{
   unsigned int ga;
-  unsigned char objtype;
+//  unsigned char objtype;
 
   ga=find_ga(objno);					// wenn keine Gruppenadresse hintrlegt nix tun
   if (ga!=0)
@@ -634,8 +743,12 @@ void send_value(unsigned char type, unsigned char objno, unsigned int sval)	// s
     telegramm[3]=ga>>8;
     telegramm[4]=ga;
     telegramm[6]=0x00;
-    if (type==0) telegramm[7]=0x40;		// read_value_response Telegramm (angefordert)
-    else telegramm[7]=0x80;				// write_value_request Telegramm (nicht angefordert)
+//    if (type==0) telegramm[7]=0x40;		// read_value_response Telegramm (angefordert)
+//    else telegramm[7]=0x80;				// write_value_request Telegramm (nicht angefordert)
+
+    telegramm[7]=0x80;
+    if (type==0) telegramm[7]=0x40;
+
 
 //    objtype=read_obj_type(objno);
 
@@ -661,7 +774,19 @@ void send_value(unsigned char type, unsigned char objno, unsigned int sval)	// s
     IE1=0;
     EX1=1;
 
-    if (type!=0) write_value_req();
+    if (type==1)
+    {
+//    	write_obj_value(objno,sval);
+    	schreibe_objektwerte(objno,sval);
+
+    	EA=0;
+    	START_WRITECYCLE
+    	WRITE_BYTE(0x00,objno,sval)
+    	STOP_WRITECYCLE
+    	EA=1;
+
+    	write_value_req();
+    }
 
   }
 
@@ -669,67 +794,95 @@ void send_value(unsigned char type, unsigned char objno, unsigned int sval)	// s
 
 }
 
+/**
+* schreibt die Objektwerte in eine Variable
+*
+*
+* \param  objno
+* \param  objvalue
+*
+* @return void
+*/
+void schreibe_objektwerte(unsigned char objno, unsigned char objvalue)
+{
+	unsigned char objekt_pos;
 
-void restart_app(void)		// Alle Applikations-Parameter zurücksetzen
+	objekt_pos=((objno>>1)&0xFE)+(objno&0x03);	// Anpassung Objektnummer an Variablenindex
+
+	objektwerte[objekt_pos]=objvalue;
+}
+
+
+/**
+* schreibt die Objektwerte in eine Variable
+*
+* \param  objno
+*
+* @return objvalue
+*/
+unsigned char lese_objektwerte(unsigned char objno)
+{
+	unsigned char objekt_pos;
+
+	objekt_pos=((objno>>1)&0xFE)+(objno&0x03);	// Anpassung Objektnummer an Variablenindex
+
+	return(objektwerte[objekt_pos]&0x01);
+}
+
+
+
+/**
+* delay ca. 4,5µs * w
+*
+* \param  w
+*
+* @return void
+*/
+void delay(int w)	//
+{
+	int n;
+	for(n=w;n>0;n--) {}
+}
+
+
+
+/**
+* Verhalten bei Busspannungswiederkehr Ein und Ausgänge
+*
+* \param  void
+*
+* @return void
+*/
+void bus_return(void)
 {
 
-	
-	// ***************************************
-	//  hier Port und Sonstiges konfigurieren
-	// ***************************************	
-	unsigned char bw,bwh,n,m;
-	bit write_ok=0;
-
-	// Pin 0-1 fuer Taster
-//	for (n=0;n<2;n++) {
-//		SET_PORT_MODE_BIDIRECTIONAL(n)
-//	}
-
-	SET_PORT_MODE_BIDIRECTIONAL(0)
-	SET_PORT_MODE_BIDIRECTIONAL(1)
-
-
-	// Pin 2-3 fuer Ausgänge
-//	for (n=2;n<4;n++) {
-//		SET_PORT_MODE_PUSHPULL(n)
-//	}
-
-	SET_PORT_MODE_PUSHPULL(2)
-	SET_PORT_MODE_PUSHPULL(3)
-
-
-	PORT=0x03;							// Taster auf high, Ausgänge zunächst aus
-	button_buffer=0x03;	// Variable für letzten abgearbeiteten Taster Status
+	unsigned char n,m, bw, bwe;
 
 	/**************************
 	 * Verhalten bei Busspannungswiederkehr Ausgänge
 	 *************************/
 
+	TMOD=0x12;		// Timer 0 als PWM, Timer 1 als 16-Bit Timer
+	TAMOD=0x01;
+	TH0=0x50;		// Pulsverhältnis PWM
+	AUXR1|=0x10;	// PWM von Timer 0 auf Pin ausgeben, gleichzeitig low-powermode ein (da <8MHz)
+	ET0=0;			// Interrupt für Timer 0 sperren
+	TR0=1;			// Timer 0 starten (PWM)
+
+
 	portbuffer=userram[0x29];
-/*	for(n=0;n<=1;n++) {			// Ausgänge 1 und 2
-		bwh=((eeprom[0xF3])>>(2*n))&0x03;  // Busspannungswiederkehr angepasst
-		if(bwh==0x01)  portbuffer=portbuffer & (0xFF-(0x01<<n));
-		if(bwh==0x02)  portbuffer=portbuffer | (0x01<<n);
-	}
-*/
-
-	bwh=(eeprom[0xF3])&0x03;
-	if(bwh==0x01)  portbuffer=portbuffer & (0xFE);
-	if(bwh==0x02)  portbuffer=portbuffer | (0x01);
-
-	bwh=((eeprom[0xF3])>>2)&0x03;
-	if(bwh==0x01)  portbuffer=portbuffer & (0xFD);
-	if(bwh==0x02)  portbuffer=portbuffer | (0x02);
 
 
+	bw=(eeprom[0xF3])&0x03;
+	if(bw==0x01)  portbuffer=portbuffer & (0xFE);
+	if(bw==0x02)  portbuffer=portbuffer | (0x01);
 
+	bw=((eeprom[0xF3])>>2)&0x03;
+	if(bw==0x01)  portbuffer=portbuffer & (0xFD);
+	if(bw==0x02)  portbuffer=portbuffer | (0x02);
 
 	portchanged=1;
 
-//	for (n=0;n<=1;n++) {
-//		owntele=1;
-//		respond(n,((portbuffer>>n) & 0x01)+0x80);
-//	}
 
 	owntele=1;
 	respond(0,(portbuffer & 0x01));
@@ -737,9 +890,6 @@ void restart_app(void)		// Alle Applikations-Parameter zurücksetzen
 	respond(1,((portbuffer>>1) & 0x01));
 
 
-
-	owntele=0;
-	respondpattern=0;
 
 
 	/**************************
@@ -752,39 +902,95 @@ void restart_app(void)		// Alle Applikations-Parameter zurücksetzen
 		for(n=0;n<=1;n++) {			// Eingänge 1 und 2
 
 			bw=(((eeprom[(0xDD + (4 * n))])& 0xC0)>>6);
+			bwe=PORT & (0x04<<n);
 
 			if (bw!=0)
 			{
 				if (bw==3)
 				{
-					port_changed(PORT & 0x03);
-					button_buffer=!PORT & 0x03;
+					button_changed(n,bwe>>(2+n));
 				}
 				else
 				{
 					for(m=2;m<=10;m=m+8)
 					{
-						write_obj_value(n + m,(bw & 0x01));
+//						write_obj_value(n + m,(bw & 0x01));
 						send_value(1,(n + m),(bw & 0x01));
 					}
 				}
 			}
 		}
+		button_buffer=PORT & 0x0C;
+
 	}
 
+	wait_bus_return=0;
+
+}
 
 
 
+/**
+* Alle Applikations-Parameter zurücksetzen
+*
+* \param  void
+*
+* @return void
+*/
+void restart_app(void)
+{
+
+	unsigned long delay_target;
+	unsigned char zyk_basis, n, m, o,zyk_funk;
+
+	bit write_ok=0;
+
+	P0M1=0x0C;
+	P0M2=0x03;
+
+	PORT=0x0C;				// Taster auf high, Ausgänge zunächst aus
+	button_buffer=0x0C;		// Variable für letzten abgearbeiteten Taster Status
+
+
+	// zurücklesen der Objektwerte der Eingänge
+	objektwerte[2]=userram[2];
+	objektwerte[3]=userram[3];
+	objektwerte[6]=userram[10];
+	objektwerte[7]=userram[11];
 
 
 
+	// Zeit für Busspannungswiederkehr ins delrec schreiben
+	delay_target=((eeprom[0xD4]&0x7F)<<((eeprom[0xFE]>>4)&0x0F));
+	write_delay_record(6,1,delay_target);
 
-	stop_rtc();
-	start_rtc(8);		// RTC neu mit 8ms starten
-	timer=0;			// Timer-Variable, wird alle 8ms inkrementiert
+	wait_bus_return=1;
+
+
+	// Bedingungen für zyklisch senden ins delrec schreiben
+	for (n=2;n<=5;n++)
+	{
+		m=n>>2;
+		o=n&0x01;
+
+		zyk_funk=(eeprom[0xDD+4*m]>>2)&0x03;
+
+		zyk_basis=((eeprom[0xF7+m+4*o])>>(4*(n&0x02))&0x0F);
+
+		if (o==1 && zyk_basis==0x0F)
+		{
+			zyk_funk=0;
+		}
+
+		delrec[n*4]=zyk_funk;
+		delrec[n*4+3]=0x0F;
+	}
+
+	owntele=0;
+	respondpattern=0;
+	blocked=0;
+
 	
-	
-
 	// Beispiel für die Applikations-spezifischen Einträge im eeprom
 	EA=0;						// Interrupts sperren, damit flashen nicht unterbrochen wird
 	START_WRITECYCLE
@@ -798,16 +1004,12 @@ void restart_app(void)		// Alle Applikations-Parameter zurücksetzen
 	WRITE_BYTE(0x01,0x12,0x84)	// COMMSTAB Pointer
 	STOP_WRITECYCLE
 
-/*
-	START_WRITECYCLE;
-	WRITE_BYTE(0x00,0x29,0x00);
-	STOP_WRITECYCLE;
-*/
-
 	START_WRITECYCLE;
 	WRITE_BYTE(0x00,0x60,0x2E);	// system state: all layers active (run), not in prog mode
 	STOP_WRITECYCLE;
 	EA=1;						// Interrupts freigeben
+
+	timer=0;			// Timer-Variable, wird alle 130ms inkrementiert
 
 
 }
