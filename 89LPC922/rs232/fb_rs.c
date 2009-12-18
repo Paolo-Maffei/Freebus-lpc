@@ -28,12 +28,13 @@
 *						mit fbdump wird die interne Tabelle ausgegeben
 */
 
-
+#include "_divuint.c"
 #include <P89LPC922.h>
 #include "../com/fb_hal_lpc.h"
 #include "miniprot.h"
 #include "../com/fb_rs232.h"
 #include "fb_app_rs.h"
+
 
 
 
@@ -46,7 +47,7 @@
 void main(void)
 {
   unsigned char n,rsinpos,pah,pal;
-  unsigned char rsin[20];		// seriell empfangener string
+  unsigned char rsin[30];		// seriell empfangener string
   bit cr_received, crlf_received;
   unsigned int groupadr;
   unsigned int value;
@@ -61,6 +62,7 @@ void main(void)
   rsinpos=0;
   cr_received=0;
   crlf_received=0;
+
 
   rs_send_s("kubi's rs-interface ready.");
   rs_send(13);
@@ -80,7 +82,7 @@ void main(void)
         default:
           rsin[rsinpos]=SBUF;			// empfangenes Byte ablegen
           rsinpos++;
-          if(rsinpos>20) rsinpos=20;	// Überlauf des Puffers vermeiden
+          if(rsinpos>30) rsinpos=30;	// Überlauf des Puffers vermeiden
           cr_received=0;
           crlf_received=0;
       }
@@ -114,7 +116,66 @@ void main(void)
           rs_send_ok();
           save_ga(groupadr,value);
         }
-        if(rsin[2]=='s' && rsin[3]=='0' && rsin[4]=='6' && rsin[5]=='/' && rsin[8]=='/' && rsin[10]=='/' && rsin[14]=='=')	// EIS 6 senden
+
+
+        if(rsin[2]=='s' && rsin[3]=='0' && rsin[4]=='5' && rsin[5]=='/' && rsin[8]=='/' && rsin[10]=='/' && rsin[14]=='=')	// EIS 5 senden Wert
+              {
+				int eis5temp, d, exp;
+				unsigned long temp;
+                groupadr=((rsin[6]-48)*10) + (rsin[7]-48);
+                groupadr=groupadr*8;
+                groupadr=groupadr + (rsin[9]-48);
+                groupadr=groupadr*256;
+                groupadr=groupadr+((rsin[11]-48)*100) + ((rsin[12]-48)*10) + (rsin[13]-48);
+                telegramm[0]=0xBC;
+                telegramm[1]=eeprom[ADDRTAB+1];
+                telegramm[2]=eeprom[ADDRTAB+2];
+                telegramm[3]=groupadr>>8;
+                telegramm[4]=groupadr;
+                telegramm[5]=0xE3;
+                telegramm[6]=0x00;
+                telegramm[7]=0x80;
+                if(rsin[15]<48 || rsin[15]>57)d=16; else d=15;
+         						//ascii Zeichen in Int wandeln, Anfang:
+
+                temp=0;
+                while (d<rsinpos && rsin[d]!=0x2E && rsin[d]!=0x2C)
+                {
+                	temp=temp*10;
+                 	temp=temp+(rsin[d]-48);
+                 	d++;
+                }
+                d++;
+                temp=temp*10;
+                if(d<rsinpos)temp=temp+(rsin[d]-48);//erste Stelle nach dem Komma
+                d++;
+                temp=temp*10;
+                if(d<rsinpos)temp=temp+(rsin[d]-48);//zweite Stelle nach dem Komma gen
+                	//ascii Zeichen in Int wandeln, Ende
+			   exp=(0x0000);
+               while(temp > 0x07FF)
+               {
+            	   temp=temp>>1;
+            	   exp=exp + (0x800);
+               }
+               if (rsin[15]=='-')
+                {
+                temp=(0x7FF-temp)+1;
+                eis5temp=temp+exp;
+                eis5temp+=0x8000;
+                }else
+                {
+                	eis5temp=temp+exp;
+                }
+                telegramm[8]=eis5temp>>8;
+                telegramm[9]=eis5temp;
+                EX1=0;
+                send_telegramm();
+                EX1=1;
+                rs_send_ok();
+
+              }
+      if(rsin[2]=='s' && rsin[3]=='0' && rsin[4]=='6' && rsin[5]=='/' && rsin[8]=='/' && rsin[10]=='/' && rsin[14]=='=')	// EIS 6 senden
         {
           groupadr=((rsin[6]-48)*10) + (rsin[7]-48);
           groupadr=groupadr*8;
@@ -137,6 +198,44 @@ void main(void)
           rs_send_ok();
           save_ga(groupadr,value);
         }
+
+        if(rsin[2]=='s' && rsin[3]=='1' && rsin[4]=='5' && rsin[5]=='/' && rsin[8]=='/' && rsin[10]=='/' && rsin[14]=='=')	// EIS 15 senden, wird nicht im Speicher abgelegt
+               {
+				 unsigned char d;
+                 groupadr=((rsin[6]-48)*10) + (rsin[7]-48);
+                 groupadr=groupadr*8;
+                 groupadr=groupadr + (rsin[9]-48);
+                 groupadr=groupadr*256;
+                 groupadr=groupadr+((rsin[11]-48)*100) + ((rsin[12]-48)*10) + (rsin[13]-48);
+                 telegramm[0]=0x9C;
+                 telegramm[1]=eeprom[ADDRTAB+1];
+                 telegramm[2]=eeprom[ADDRTAB+2];
+                 telegramm[3]=groupadr>>8;
+                 telegramm[4]=groupadr;
+                 telegramm[5]=0xEF;//Länge der Nutzinformationen
+                 telegramm[6]=0x00;
+                 telegramm[7]=0x80;
+                 d=8;
+                 while(rsin[d+7]!=0x0D)
+                 {
+                	 telegramm[d]=rsin[d+7];
+                	 d++;
+                	 if(d==21)
+                	 {
+                		 break;
+                	 }
+
+                 }
+                 while(d!=21)
+                 {
+                	 telegramm[d]=0x00;
+                 }
+                 EX1=0;
+                 send_telegramm();
+                 EX1=1;
+                 rs_send_ok();
+               }
+
         if(rsin[2]=='r' && rsin[3]=='p' && rsin[4]=='a')	// physikalische Adresse des Adaptrs lesen (fbrpa)
         {
           rs_send_dec(eeprom[ADDRTAB+1]>>4);
