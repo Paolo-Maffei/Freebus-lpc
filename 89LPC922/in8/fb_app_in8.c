@@ -27,7 +27,7 @@ unsigned int objstate;		// Zwischenspeicher der Objektzustände x.1 (Bit 0-7) und
 unsigned char blocked;			//zwischenspeicherung der Sperren
 long timer;			// Timer für Schaltverzögerungen, wird alle 130ms hochgezählt
 //unsigned char value[16];		
-
+//__code unsigned char __at 0x1C00 userram[]={......
 
 void pin_changed(unsigned char pinno)
 {
@@ -35,6 +35,8 @@ void pin_changed(unsigned char pinno)
 	unsigned char timebase=0;
 	unsigned char para_value=0;
 	unsigned char tmp;
+	unsigned char objoffset=8;
+	unsigned char typ=0;
 	unsigned char n;
 	bit objval=0,jobj=0;
 	bit st_Flanke=0;
@@ -168,17 +170,21 @@ void pin_changed(unsigned char pinno)
         
         case 0x04:// Dimmwertgeber
         	para_value=0xFF;
+        	typ=0x01;
+        	objoffset=0;//läuft absichtlich in den nächsten case
         case 0x07:// Temperaturwertgeber
+         	para_value=para_value |0x1F;
+         	typ=typ|0x02;//kein objoffset zugewiesen,d.h. 8,da mit 8 initialisiert
         case 0x08:// Helligkeitswertgeber,
         	para_value=para_value |0x1F;
-        	//rs_send_hex(para_value);
+        	typ=typ|0x04;//kein objoffset zugewiesen,d.h. 8,da mit 8 initialisiert
         	n=0xD5+(pinno*4);
-        	tmp=(((eeprom[n]&0x04)>>2)|(eeprom[n+1]&0x80)>>6);
-			if (st_Flanke){// Taster gedrueckt
-				if(tmp&0x01) send_value(54, pinno, eeprom[n+2]& para_value);	//Dimmwert senden
+        	tmp=(((eeprom[n]&0x04)>>2)|(eeprom[n+1]&0x80)>>6);//in tmp steigend fallend reaktion
+			if (st_Flanke){// Taster gedrueckt       in tmp bit0 steigend, bit1 fallend
+				if(tmp&0x01) send_value(49, pinno+objoffset, eis5conversion((eeprom[n+2]& para_value),typ));	//wert senden
             }//ende steigende Flanke
     		else {	// Taster losgelassen dimmwert senden
-  			if (tmp>=0x02) send_value(54, pinno, eeprom[n+tmp]& para_value);
+  			if (tmp>=0x02) send_value(49, pinno+objoffset, eis5conversion(eeprom[n+tmp]& para_value,typ));
     		}
          break;
  
@@ -190,10 +196,10 @@ void pin_changed(unsigned char pinno)
         	 para_value=eeprom[n] & 0x0C;
         	 
 		if (st_Flanke){// Taster gedrueckt -> schauen wie lange gehalten
-			if(para_value!=0x04) send_value(54, pinno,eeprom[n+2]&0x7F );	// Lichtszenennummer sanden
+			if(para_value!=0x04) send_value(49, pinno,eeprom[n+2]&0x7F );	// Lichtszenennummer senden
 		}
 		else{
-			if(para_value>=0x04) send_value(54, pinno,eeprom[n+3]&0x7F );	// Lichtszenennummer sanden
+			if(para_value>=0x04) send_value(49, pinno,eeprom[n+3]&0x7F );	// Lichtszenennummer senden
 		}
  	
         break;    
@@ -203,6 +209,30 @@ void pin_changed(unsigned char pinno)
   EX1=1;	// externen Interrupt 1 wieder freigeben
 }
              
+int eis5conversion(int zahl,unsigned char Typ)
+{
+	unsigned char exp=0;
+	unsigned int wert=0;
+
+	if (Typ==4){// Helligkeitwert
+		exp=3;// Da kleinster wert 50 lux*100=5000 ==> 5000/8 (exp=3) 
+	 	wert=zahl*625;//= 625
+	}
+	if (Typ==6){// Temperaturwert kleinster wert =1 größter 31
+		
+		wert=zahl*100;// Hier reicht uns eine 16bit int var
+	}
+	if (Typ==7){// wenn Dimmwert ( EIS2, also keine Fließkomma)
+		wert=zahl;
+	}
+	else{// fließkomma EIS5 berechnen
+	 		while (wert > 2047){//solange Mantisse größer 11 Bit
+	 			wert=wert>>1;// Mantisse /2
+	 			exp++;// und exponent um 1 erhöhen (ist ein 2^exp)
+	 		}
+	}
+ 	return (wert+(exp<<11));// exponent dazu, geht auch bei EIS2 da EXP hier 0 ist.
+}
 
 
 void send_cyclic(unsigned char pinno)
@@ -550,6 +580,7 @@ void delay(int w)	// delay ca. 4,5µs * w
 void restart_app(void)		// Alle Applikations-Parameter zurücksetzen
 {
 	unsigned char n;
+	unsigned int base;
 	bit objval=0,senden;
 	
   P0M1=0xFF;	//P0 auf input only (high impedance!)
@@ -573,7 +604,12 @@ void restart_app(void)		// Alle Applikations-Parameter zurücksetzen
   WRITE_BYTE(0x01,0x12,0x84);	// COMMSTAB Pointer
   STOP_WRITECYCLE
   EA=1;
-  
+  // Verzögerung Busspannungswiederkehr	
+  for(base=0;base<=(eeprom[0xD4]<<(eeprom[0xFE]>>4)) ;base++){//faktor startverz hohlen und um basis nach links schieben
+	  start_rtc(130);		// rtc auf 130ms
+	  while (RTCCON<=0x7F) ;	// Realtime clock ueberlauf abwarten
+	  stop_rtc;
+  }
   //  ++++++++++++    Startverhalten bei Buswiederkehr ++++++++++
   for (n=0;n<8;n++){
 	  senden=0;

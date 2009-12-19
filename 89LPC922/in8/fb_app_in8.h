@@ -30,6 +30,7 @@ unsigned char debounce(unsigned char pinno);		// Entprellzeit abwarten und prüfe
 void send_cyclic(unsigned char pinno);
 unsigned char operation(unsigned char pinno);
 unsigned char switch_dim(unsigned char pinno);
+int eis5conversion(int zahl,unsigned char typ);
 void delay(int w);
 void delay_timer(void);
 void write_value_req(void);	
