@@ -36,9 +36,13 @@
 #define RECEIVE_INT_ENABLE	EX1		// Interrupt enable Flag fuer Empfang
 
 
+#define RUNSTATE		0x0D	// run-state (0x00=stop, 0xFF=run)
 #define ASSOCTABPTR 	0x11	// Adresse des Pointers auf die Assoziations-Tabelle
 #define COMMSTABPTR 	0x12	// Adresse des Pointers auf die Kommunikationsobjekt-Tabelle
 #define ADDRTAB			0x16	// Startadresse der Adresstabelle
+
+
+
 
 
 
@@ -86,13 +90,21 @@
 
 
 // Globale Variablen
+extern unsigned char conh, conl;		// bei bestehender Verbindung phys. Adresse des Kommunikationspartners
+extern unsigned char pcount;			// Paketzaehler, Gruppenadresszaehler
+extern unsigned char mem_length;		// Länge bei memory_read_request
 extern unsigned char telegramm[23];
-extern unsigned char telpos;		// Zeiger auf naechste Position im Array Telegramm
-extern __code unsigned char __at 0x1C00 userram[255];	// Bereich im Flash fuer User-RAM
-extern __code unsigned char __at 0x1D00 eeprom[255];	// Bereich im Flash fuer EEPROM
+extern unsigned char tx_buffer[8];
+extern unsigned char telpos;			// Zeiger auf naechste Position im Array Telegramm
 extern volatile bit interrupted;		// wird durch interrupt-routine gesetzt. so kann eine andere routine pruefen, ob sie unterbrochen wurde
 extern volatile unsigned char fb_state;
 extern bit ack, nack, tel_arrived, auto_ack;
+extern bit connected;					// Verbindung aufgebaut
+extern unsigned char timeout_count, tx_nextwrite, tx_nextsend, status60;
+
+extern __code unsigned char __at 0x1C00 userram[255];	// Bereich im Flash fuer User-RAM
+extern __code unsigned char __at 0x1D00 eeprom[255];	// Bereich im Flash fuer EEPROM
+
 
 
 // Funktionen
@@ -103,13 +115,29 @@ void init_tx(void);
 void init_repeat_tx(void);
 void send_tel(void);
 unsigned char gapos_in_gat(unsigned char gah, unsigned char gal);
+bit build_mctel(unsigned char objno);
+unsigned int find_ga(unsigned char objno);	// Gruppenadresse ueber Assoziationstabelle finden (erster Eintrag, falls mehrere)
+unsigned char read_obj_type(unsigned char objno);	// gibt den Typ eines Objektes zurueck
+void send_obj_value(unsigned char objno);
+
 void set_timer0(unsigned int deltime);
-void start_rtc(unsigned char base);	// RTC starten, base in ms
+void start_rtc(unsigned char base);		// RTC starten, base in ms
 void stop_rtc(void);
 void restart_hw(void);
-void send_tel(void);
 
-// Funktionen in prot
-extern void process_tel(void);
+void process_tel(void);		// Interrupt von Timer 1, 370us keine Busaktivitaet seit letztem Byte,										//	 d.h. Telegramm wurde komplett uebertragen
+void write_memory(void);		// write_memory_request - empfangene Daten in Speicher schreiben
+void set_pa(void);				// neue phys. Adresse programmieren
+unsigned char read_objflags(unsigned char objno);	// Objektflags lesen
+unsigned char find_first_objno(unsigned char gah, unsigned char gal);
+
+
+// Funktionen in APP
+extern void write_value_req(void);		// Routine zur Verarbeitung eingegegangener Telegramme zum Schreiben eines Objektwertes
+extern void read_value_req(void);		// Objektwerte lesen angefordert
+extern unsigned int read_obj_value(unsigned char objno);	// gibt den Wert eines Objektes zurueck
+extern void write_obj_value(unsigned char objno,unsigned int objvalue);	// schreibt den aktuellen Wert eines Objektes ins 'USERRAM'
+extern void restart_app(void);			// Alle Applikations-Parameter zuruecksetzen
+
 
 #endif
