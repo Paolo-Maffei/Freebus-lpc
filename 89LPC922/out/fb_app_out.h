@@ -20,15 +20,20 @@
 #define HAND				// Handsteuerung aktiv (auskommentieren wenn nicht gewünscht)
 #define MAX_PORTS_8			// Anzahl Ausgänge (nur 4 oder 8 erlaubt)
 
-
+// Parameter-Adressen im EEPROM
 #define FUNCASS		0xD8	// Startadresse der Zuordnung der Zusatzfunktionen (2 Byte)
 #define OFFDISABLE	0xEB	// Aus-Telegramm ignorieren
 #define FUNCTYP		0xED	// Typ der Zusatzfunktion
 #define LOGICTYP	0xEE	// Verknüpfungs Typ 0=keine 1=ODER 2=UND 3=UND mir Rückführung
 #define BLOCKACT	0xEF	// Verhalten beim Sperren
 #define BLOCKPOL	0xF1	// Polarität der Sperrobjekte
-#define RELMODE		0xF2	// Relaisbetrieb
+#define RELMODE		0xF2	// Relaisbetrieb (Öffner/Schließer)
+#define RMINV		0xF3	// Rückmeldung invertiert oder normal
 #define	DELAYTAB	0xF9	// Start der Tabelle für Verzögerungswerte (Basis)
+
+// Adressen zum speichern von Applikations Daten
+#define PORTSAVE	0x99	// Portzustände
+
 
 #ifdef GS1
 	#define DUTY	0xC0	// 0xFF=immer low 0x00=immer high
@@ -38,12 +43,12 @@
 #endif
 
 #define REFRESH \
-		P0= userram[0x29];	// refresh des Portzustandes in der hal
+		P0= oldportbuffer;	// refresh des Portzustandes in der hal
 
 
 
 extern 	bit portchanged;// globale variable, sie ist 1 wenn sich portbuffer geändert hat
-extern unsigned char portbuffer, owntele, respondpattern;
+extern unsigned char portbuffer;
 
 
 
@@ -51,13 +56,15 @@ void write_delay_record(unsigned char objno, unsigned char delay_status, long de
 void clear_delay_record(unsigned char objno); // Loescht den Delay Eintrag
 void write_value_req(void);		// Hauptroutine für Ausgänge schalten gemäß EIS 1 Protokoll (an/aus)
 void read_value_req(void);
-void send_value(unsigned char type, unsigned char objno, unsigned int sval);
 void delay_timer(void);		// zählt alle 130ms die Variable Timer hoch und prüft Queue
-void respond(unsigned char objno, unsigned char rval);
-void port_schalten(unsigned char ports);	// Ausgänge schalten
+void port_schalten(void);	// Ausgänge schalten
 void object_schalten(unsigned char objno, bit objstate);	// Objekt schalten
 void bus_return(void);		// Aktionen bei Busspannungswiederkehr
 void restart_app(void);		// Alle Applikations-Parameter zurücksetzen
+
+unsigned int read_obj_value(unsigned char objno);	// gibt den Wert eines Objektes zurueck
+void write_obj_value(unsigned char objno,unsigned int objvalue);	// schreibt den aktuellen Wert eines Objektes ins 'USERRAM'
+
 
 
 #endif

@@ -29,28 +29,31 @@
  * 13.02.09	- owntele ist ein zähler, wie oft ein gesendetes telegramm intern erneut verarbeitet wurde
  *
  * 12.11.09 - umgestellt auf statemachine-library
+ *
+ * 18.12.09 - read_obj_value und write_obj_value aus der lib entfernt und in app implementiert
+ * 			  kompletter Verzicht auf userram -> alle Stati in globalen Variablen
  */
 
 
 
 #include <P89LPC922.h>
-#include "../lib_lpc922/fb_hal_lpc_sm.h"
-#include "../lib_lpc922/fb_prot_sm.h"
+#include "../lib_lpc922/fb_lpc922.h"
 #include "fb_app_out.h"
 
 
-unsigned char delrec[32];
+
 unsigned char Tval;
+unsigned char out_state;	// Werte der Objekte 0-7 (Ausgängsobjekte)
+unsigned char rm_state;		// Werte der Objekte 12-19 (Rückmeldeobjekte)
+unsigned char zf_state;		// Werte der Objekte 8-11 (Zusatzfunktionen 1-4)
 unsigned char portbuffer;	// Zwischenspeicherung der Portzustände
-unsigned char zfstate;		// Zustand der Objekte 8-11 = Zusatzfunktionen 1-4
+unsigned char oldportbuffer;// Wert von portbuffer vor Änderung (war früher ...0x29)
 unsigned char blocked;		// Sperrung der 8 Ausgänge (1=gesperrt)
 unsigned char logicstate;	// Zustand der Verknüpfungen pro Ausgang
 long timer;					// Timer für Schaltverzögerungen, wird alle 130us hochgezählt
 bit delay_toggle;			// um nur jedes 2. Mal die delay routine auszuführen
-unsigned char owntele;		// Anzahl der internen Verarbeitungen eines gesendeten Telegrammes (Rückmeldung)
-unsigned char respondpattern;	// bit wird auf 1 gesetzt wenn objekt eine rückmeldung ausgelöst hat
 bit portchanged;
-
+unsigned char delrec[32];
 
 
 void write_delay_record(unsigned char objno, unsigned char delay_state, long delay_target)
@@ -94,14 +97,14 @@ void write_value_req(void)				// Ausgänge schalten gemäß EIS 1 Protokoll (an/aus
         {
           objno=eeprom[atp+2+(n*2)];				// Objektnummer
           objflags=read_objflags(objno);			// Objekt Flags lesen
+//obj_bitpattern prüfen !!!
           obj_bitpattern=0x01<<(objno-8);
           
           if (objno<8) object_schalten(objno,telegramm[7]&0x01);	// Objektnummer 0-7 entspricht den Ausgängen 1-8
 
           if (objno>7 && objno<12)	// Objektnummer 8-11 entspricht den Zusatzfunktionen 1-4
           {
-            if (telegramm[7]==0x80) zfstate=zfstate & (0x0F-obj_bitpattern);
-            if (telegramm[7]==0x81) zfstate=zfstate | obj_bitpattern;
+            write_obj_value(objno, telegramm[7]&0x01);
             zfout=0;
             blockstart=0;
             blockend=0;
@@ -169,7 +172,7 @@ void write_value_req(void)				// Ausgänge schalten gemäß EIS 1 Protokoll (an/aus
           }
         }
       }
-      if (portbuffer != userram[0x29]) portchanged=1;//post für port_schalten hinterlegen
+      if (portbuffer != oldportbuffer) portchanged=1;//post für port_schalten hinterlegen
       //port_schalten(portbuffer);	//Port schalten wenn sich ein Pin geändert hat
     }
     //owntele=0;
@@ -196,50 +199,47 @@ void read_value_req(void)
 
 		objflags=read_objflags(objno);		// Objekt Flags lesen
 		// Objekt lesen, nur wenn read enable gesetzt (Bit3) und Kommunikation zulaessig (Bit2)
-		if((objflags&0x0C)==0x0C) send_value(0,objno,objvalue);
+		if((objflags&0x0C)==0x0C) send_obj_value(objno+64); //send_value(0,objno,objvalue);
     }
 }
 
 
-void send_value(unsigned char type, unsigned char objno, unsigned int sval)	// sucht Gruppenadresse für das Objekt objno uns sendet ein EIS Telegramm
-{																	// mit dem Wert sval
-  unsigned int ga;
-  unsigned char objtype;
+unsigned int read_obj_value(unsigned char objno)	// gibt den Wert eines Objektes zurueck
+{
+	int ret_val=0;
 
-  ga=find_ga(objno);					// wenn keine Gruppenadresse hintrlegt nix tun
-  while(fb_state!=0);					// warten falls noch ACK gesendet wird
-  if (ga!=0)
-  {
-    telegramm[0]=0xBC;
-    telegramm[1]=eeprom[ADDRTAB+1];
-    telegramm[2]=eeprom[ADDRTAB+2];
-    telegramm[3]=ga>>8;
-    telegramm[4]=ga;
-    telegramm[6]=0x00;
-    if (type==0) telegramm[7]=0x40;		// read_value_response Telegramm (angefordert)
-    else telegramm[7]=0x80;				// write_value_request Telegramm (nicht angefordert)
-    
-    objtype=read_obj_type(objno);
-    
-    if(objtype<6) {					// Objekttyp, 1-6 Bit
-    	telegramm[5]=0xE1;
-    	telegramm[7]+=sval;
-    }
-    
-    if(objtype>=6 && objtype<=7) {	// Objekttyp, 7-8 Bit
-    	telegramm[5]=0xE2;
-    	telegramm[8]=sval;
-    }
-    
-     if(objtype==8) {				// Objekttyp, 16 Bit
-    	telegramm[5]=0xE3;  	
-    	telegramm[8]=sval>>8;
-    	telegramm[9]=sval;
-    }
-     send_tel();
-  }
+	if(objno<8) {
+		if(out_state&(1<<objno)) ret_val=1;
+	}
+	if(objno>=8 && objno<12) {
+		if(zf_state&(1<<(objno-8))) ret_val=1;
+	}
+	if(objno>=12) {
+		if(rm_state&(1<<(objno-12))) ret_val=1;
+	}
+	return(ret_val);
+}
 
-}  
+
+void write_obj_value(unsigned char objno,unsigned int objvalue)	// schreibt den aktuellen Wert eines Objektes ins 'USERRAM'
+{
+	if(objno<8) {
+		if(objvalue==0) out_state&=0xFF-(1<<objno);
+		else out_state|=1<<objno;
+	}
+	if(objno>=8 && objno<12) {
+		if(objvalue==0) zf_state&=0x0F-(1<<(objno-8));
+		else zf_state|=1<<(objno-8);
+	}
+	if(objno>=12) {
+		if(objvalue==0) rm_state&=0xFF-(1<<(objno-12));
+		else rm_state|=1<<(objno-12);
+	}
+}
+
+
+
+
 
 
 void object_schalten(unsigned char objno, bit objstate)	// Schaltet einen Ausgang gemäß objstate und den zugörigen Parametern
@@ -253,8 +253,7 @@ void object_schalten(unsigned char objno, bit objstate)	// Schaltet einen Ausgan
 	
 	off_disable=((eeprom[OFFDISABLE]>>objno)&0x01);	// nur ausschalten wenn AUS-Tete nicht ignoriert werden soll
 	if ((!objstate && !off_disable) || objstate) {
-		if (objstate) write_obj_value(objno,1);		// Objektwert im userram speichern
-		else write_obj_value(objno,0);
+		write_obj_value(objno,objstate);		// Objektwert speichern
 		objflags=read_objflags(objno);			// Objekt Flags lesen
 		port_pattern=0x01<<objno;
 		zfno=0;
@@ -284,7 +283,6 @@ void object_schalten(unsigned char objno, bit objstate)	// Schaltet einen Ausgan
 				if(delay_onoff==0x00 || delay_zeit==0x01) {		// sofort ausschalten
 					if (((eeprom[RELMODE]>>objno)&0x01)==0x00) portbuffer=portbuffer&~port_pattern;	// Schliesserbetrieb
 					else portbuffer=portbuffer|port_pattern;						// Öffnerbetrieb
-					respond(objno+12,0x80);
 				}
 				else delay_state=0x80;				// verzögert ausschalten
 			}
@@ -301,7 +299,6 @@ void object_schalten(unsigned char objno, bit objstate)	// Schaltet einen Ausgan
 					} 
 					if (((eeprom[RELMODE]>>objno)&0x01)==0x00) portbuffer=portbuffer|port_pattern;	// sofort einschalten (Schliesserbetrieb)
 					else portbuffer=portbuffer&~port_pattern;					// sofort einschalten (Öffnerbetrieb)
-					respond(objno+12,0x81);
 				}
 				else delay_state=0x81;				// verzögert einschalten
 			}
@@ -353,9 +350,6 @@ void delay_timer(void)	// zählt alle 130ms die Variable Timer hoch und prüft Que
 						else {
 							portbuffer=portbuffer&~port_pattern;	// Einschalten (Öffnerbetrieb)
 						}
-
-						respond(objno+12,0x81);			// ggf. Rückmeldung
-
 						delrec[objno*4]=0;
 						delay_zeit=eeprom[0xEA];
 						delay_zeit=((delay_zeit>>objno)&0x01);
@@ -377,9 +371,6 @@ void delay_timer(void)	// zählt alle 130ms die Variable Timer hoch und prüft Que
 						else {
 							portbuffer=portbuffer|port_pattern;			// Ausschalten (Öffnerbetrieb)
 						}
-
-						respond(objno+12,0x80);				// ggf. Rückmeldung
-
 						delrec[objno*4]=0;
 					}
 				}
@@ -389,16 +380,19 @@ void delay_timer(void)	// zählt alle 130ms die Variable Timer hoch und prüft Que
 		
 #ifdef HAND		//+++++++   Handbetätigung  ++++++++++
 
-	if(TMOD==0x12){
+	if((TMOD&0x0F)==0x02 && fb_state==0) {
+		ET1=0;
 	#ifdef GS1
-		while( TMOD==0x12 && (PWM || (TL0>0x72)));// PWM scannen um "Hand"-Tasten abzufragen
+		while( TMOD&0x0F==0x02 && (PWM || (TL0>0x72)));// PWM scannen um "Hand"-Tasten abzufragen
 	#endif
 	#ifdef GS2
 		#ifdef MAX_PORTS_8
-		while( TMOD==0x12 && (!PWM || (TL0>0x72)));// PWM scannen um "Hand"-Tasten abzufragen
+
+		while(  (!PWM || (TL0>0x72)));// PWM scannen um "Hand"-Tasten abzufragen
+
 		#endif
 		#ifdef MAX_PORTS_4
-		while( TMOD==0x12 && ( TL0>0x72));// PWM scannen um "Hand"-Tasten abzufragen
+		while( (TMOD&0x0F)==0x02 && ( TL0>0x72));// PWM scannen um "Hand"-Tasten abzufragen
 		#endif
 	#endif
 		interrupted=0;	  
@@ -432,22 +426,19 @@ void delay_timer(void)	// zählt alle 130ms die Variable Timer hoch und prüft Que
 		} 
 	#endif
 		
-		if (interrupted==1) Tasten=Tval;  // wenn unterbrochen wurde verwerfen wir die Taste
-		REFRESH //P0=userram[0x29]; 
+		//if (interrupted==1) Tasten=Tval;  // wenn unterbrochen wurde verwerfen wir die Taste
+		REFRESH;
 		//	Tasten = Tval; // ##############  <----- Hier wird Handbetätigung quasi mit ausgeschaltet !! #########################
 		if (Tasten != Tval)  {
-			portbuffer=userram[0x29];
+			portbuffer=oldportbuffer;
 		  	ledport=Tasten&~Tval; // ledport ist hier die Hilfsvariable für steigende Flanke
 		  	if (ledport){
 		  		portbuffer^=ledport; // bei gedrückter Taste toggeln
 		  		portchanged=1;
-		  		//EX1=0;
-		  		if (((eeprom[RELMODE]>>objno)&0x01)==0x00) respond(objno+12,((portbuffer&ledport)>>objno)+0x80);		//  (Schliesserbetrieb)
-		  		else respond(objno+12,0x81-((portbuffer&ledport)>>objno));	// (Öffnerbetrieb)
-		  		//EX1=1;
 		  	}
 		  	Tval=Tasten;			//neue Tasten sichern
 		}
+		ET1=1;
 	}
 #endif
 //	if (portchanged) port_schalten(portbuffer);				// Ausgänge schalten
@@ -457,9 +448,14 @@ void delay_timer(void)	// zählt alle 130ms die Variable Timer hoch und prüft Que
 
 
 
-void port_schalten(unsigned char ports)		// Schaltet die Ports mit PWM, DUTY ist Pulsverhältnis
+
+
+
+void port_schalten(void)		// Schaltet die Ports mit PWM, DUTY ist Pulsverhältnis
 {
-	if(ports & ~userram[0x29]) {	// Vollstrom nur wenn ein relais eingeschaltet wird
+	unsigned char n, pattern;
+
+	if(portbuffer & ~oldportbuffer) {	// Vollstrom nur wenn ein relais eingeschaltet wird
 		TR0=0;
 		AUXR1&=0xE9;	// PWM von Timer 0 nicht mehr auf Pin ausgeben
 #ifdef GS1
@@ -468,7 +464,7 @@ void port_schalten(unsigned char ports)		// Schaltet die Ports mit PWM, DUTY ist
 #ifdef GS2
 		PWM=0;			// Vollstrom an
 #endif
-		P0=ports;		// Ports schalten
+		P0=portbuffer;		// Ports schalten
 		TF0=0;			// Timer 0 für Haltezeit Vollstrom verwenden
 		TH0=0x00;		// 16ms (10ms=6fff)
 		TL0=0x00;
@@ -476,56 +472,20 @@ void port_schalten(unsigned char ports)		// Schaltet die Ports mit PWM, DUTY ist
 		TAMOD=0x00;
 		TR0=1;
 	}
-	else P0=ports;
+	else P0=portbuffer;
 
-	//EA=0;
-	while (fb_state!=0);
-	do {
-		START_WRITECYCLE;
-		WRITE_BYTE(0x00,0x29,ports);
-		STOP_WRITECYCLE;
-	} while (FMCON & 0x01);
-	//EA=1;
+	rm_state=portbuffer ^ eeprom[RMINV];	// Rückmeldeobjekte setzen
+	for (n=0;n<8;n++) {	// Rückmeldung wenn ein Ausgag sich geändert hat
+		pattern=1<<n;
+		if((portbuffer&pattern)!=(oldportbuffer&pattern)) send_obj_value(n+12);
+	}
+
+	oldportbuffer=portbuffer;
 	portchanged=0;
 
 }
 
 
-
-void respond(unsigned char objno, unsigned char rval)	// sucht Gruppenadresse für das Objekt objno uns sendet ein EIS 1 Telegramm
-{							// mit dem Wert rval (0x80 oder 0x81) für Rückmeldeobjekte	
-	unsigned int ga;
-	unsigned char inv;
-
-	if ((owntele < 9) && ((respondpattern & (1<<(objno-12))) == 0)) {
-		respondpattern |= (1<<(objno-12));
-		owntele++;
-		ga=find_ga(objno);					// wenn keine Gruppenadresse hinterlegt nix tun
-		if (ga!=0) {	  
-			while(fb_state!=0);					// warten falls noch ACK gesendet wird
-			telegramm[0]=0xBC;
-			telegramm[1]=eeprom[ADDRTAB+1];
-			telegramm[2]=eeprom[ADDRTAB+2];
-			telegramm[3]=ga>>8;
-			telegramm[4]=ga;
-			telegramm[5]=0xE1;
-			telegramm[6]=0x00;
-			objno=objno-12;
-			inv=eeprom[0xF3];
-			inv=(inv>>objno)&0x01;
-			if (inv==0) telegramm[7]=rval;
-			if (inv==1) {
-				if (rval==0x80) telegramm[7]=0x81;
-				else telegramm[7]=0x80;
-			}  
-			send_tel();
-
-			//write_value_req();
-			while(fb_state!=0);					// warten falls noch gesendet wird
-			tel_arrived=1;
-		}
-	}
-}  
 
 
 void bus_return(void)		// Aktionen bei Busspannungswiederkehr
@@ -533,14 +493,9 @@ void bus_return(void)		// Aktionen bei Busspannungswiederkehr
 	unsigned char n;
 
 	// Rückmeldung bei Busspannungswiederkehr
-	for (n=0;n<8;n++) {
-		owntele=1;
-		respond(n+12,((portbuffer>>n) & 0x01)+0x80);
+	for (n=12;n<20;n++) {
+		send_obj_value(n);
 	}
-	owntele=0;
-	respondpattern=0;
-	tel_arrived=0;
-
 }
 
 
@@ -559,7 +514,8 @@ void restart_app(void)		// Alle Applikations-Parameter zurücksetzen
 	P0M2= 0x0F;
 #endif	
  
-	portbuffer=userram[0x29];	// Verhalten nach Busspannungs-Wiederkehr
+	portbuffer=eeprom[PORTSAVE];	// Verhalten nach Busspannungs-Wiederkehr
+
 	bw=eeprom[0xF6];
 	for(n=0;n<=3;n++) {			// Ausgänge 1-4
 		bwh=(bw>>(2*n))&0x03; 
@@ -576,16 +532,11 @@ void restart_app(void)		// Alle Applikations-Parameter zurücksetzen
 	}
 #endif
 	
-	// 0x29 auf 0 setzen, da sonst kein Vollstrom aktiviert wird	
-	EA=0;
-	START_WRITECYCLE;
-	WRITE_BYTE(0x00,0x29,0x00);		
-	STOP_WRITECYCLE;
-	EA=1;
-	//port_schalten(portbuffer);  
-	portchanged=1;// Post hinterlegen damit in delaytimer nach portschalten springt
+	oldportbuffer=0; 	// auf 0 setzen, da sonst kein Vollstrom aktiviert wird
+	portchanged=1;		// Post hinterlegen damit in delaytimer nach portschalten springt
 
 
+	rm_state=portbuffer ^ eeprom[RMINV];	// Rückmeldeobjekte setzen
 
   	TMOD=(TMOD & 0xF0) + 2;		// Timer 0 als PWM
 	TAMOD=0x01;
@@ -594,7 +545,7 @@ void restart_app(void)		// Alle Applikations-Parameter zurücksetzen
 	ET0=0;			// Interrupt für Timer 0 sperren
 	TR0=1;			// Timer 0 starten (PWM)
 
-	zfstate=0x00;		// Zustand der Zusatzfunktionen 1-4
+	zf_state=0x00;		// Zustand der Zusatzfunktionen 1-4
 	blocked=0x00;		// Ausgänge nicht gesperrt
 	timer=0;			// Timer-Variable, wird alle 130ms inkrementiert
   
@@ -618,8 +569,5 @@ void restart_app(void)		// Alle Applikations-Parameter zurücksetzen
 	WRITE_BYTE(0x01,0x0D,0xFF)	// Run-Status (00=stop FF=run)
 	WRITE_BYTE(0x01,0x12,0x9A)	// COMMSTAB Pointer
 	STOP_WRITECYCLE
-	START_WRITECYCLE;
-	WRITE_BYTE(0x00,0x60,0x2E);	// system state: all layers active (run), not in prog mode
-	STOP_WRITECYCLE;
 	EA=1;						// Interrupts freigeben
 }

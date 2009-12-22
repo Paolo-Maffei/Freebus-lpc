@@ -2,7 +2,7 @@
  *      __________  ________________  __  _______
  *     / ____/ __ \/ ____/ ____/ __ )/ / / / ___/
  *    / /_  / /_/ / __/ / __/ / __  / / / /\__ \ 
- *   / __/ / _, _/ /___/ /___/ /_/ / /_/ /___/ / 
+ *   / __/ / _, _/ /___/ /___/ /_/ / /_/ /___/ /
  *  /_/   /_/ |_/_____/_____/_____/\____//____/  
  *                                      
  *  Copyright (c) 2008, 2009 Andreas Krebs <kubi@krebsworld.de>
@@ -71,8 +71,7 @@
 
 
 #include <P89LPC922.h>
-#include "../lib_lpc922/fb_hal_lpc_sm.h"
-#include "../lib_lpc922/fb_prot_sm.h"
+#include "../lib_lpc922/fb_lpc922.h"
 #include "fb_app_out.h"
 
 
@@ -97,47 +96,53 @@ void main(void)
 		while(!TF0);
 	}
 	
-	restart_prot();							// Protokoll-relevante Parameter zuruecksetzen
 	restart_app();							// Anwendungsspezifische Einstellungen zuruecksetzen
 	bus_return();							// Aktionen bei Busspannungswiederkehr
 
 
 	do  {
-		if(RTCCON>=0x80) delay_timer();	// Realtime clock Ueberlauf
+		if(eeprom[RUNSTATE]==0xFF) {	// nur wenn run-mode gesetzt
 
-		if(TF0 && (TMOD & 0x0F)==0x01) {			// Vollstrom für Relais ausschalten und wieder PWM ein
-			TMOD=(TMOD & 0xF0) + 2;		// Timer 0 als PWM
-			TAMOD=0x01;
-			TH0=DUTY;
-			TF0=0;
-			AUXR1|=0x10;	// PWM von Timer 0 auf Pin ausgeben
-			PWM=1;			// PWM Pin muss auf 1 gesetzt werden, damit PWM geht !!!
-			TR0=1;
+			if(RTCCON>=0x80) delay_timer();	// Realtime clock Ueberlauf
+
+			if(TF0 && (TMOD & 0x0F)==0x01) {			// Vollstrom für Relais ausschalten und wieder PWM ein
+				TMOD=(TMOD & 0xF0) + 2;		// Timer 0 als PWM
+				TAMOD=0x01;
+				TH0=DUTY;
+				TF0=0;
+				AUXR1|=0x10;	// PWM von Timer 0 auf Pin ausgeben
+				PWM=1;			// PWM Pin muss auf 1 gesetzt werden, damit PWM geht !!!
+				TR0=1;
+			}
+
+			if (portchanged) port_schalten();				// Ausgänge schalten
+
+			// portbuffer flashen, Abbruch durch ext-int wird akzeptiert und später neu probiert
+			// T1-int wird solange abgeschaltet, timeout_count wird ggf. um 4ms (flashzeit) reduziert
+			if (fb_state==0 && portbuffer!=eeprom[PORTSAVE]) {
+				ET1=0;
+				START_WRITECYCLE;
+				WRITE_BYTE(0x01,PORTSAVE,portbuffer);
+				STOP_WRITECYCLE;
+				if (timeout_count>120) timeout_count-=120; else timeout_count=0;
+				ET1=1;
+			}
+
 		}
-
-		if (portchanged) port_schalten(portbuffer);				// Ausgänge schalten
-  
 		if (tel_arrived) {
 			tel_arrived=0;
 			process_tel();
 		}
-		else {
-		    owntele=0;
-		    respondpattern=0;
-		}
+
 		
 		
 		TASTER=1;				// Pin als Eingang schalten um Taster abzufragen
 		if(!TASTER) {				// Taster gedrückt
 			for(n=0;n<100;n++) {}	// Entprell-Zeit
 			while(!TASTER);			// warten bis Taster losgelassen
-			EA=0;
-			START_WRITECYCLE;
-			WRITE_BYTE(0x00,0x60,userram[0x60] ^ 0x81);	// Prog-Bit und Parity-Bit im system_state toggeln
-			STOP_WRITECYCLE;
-			EA=1;
+			status60^=0x81;	// Prog-Bit und Parity-Bit im system_state toggeln
 		}
-		TASTER=!(userram[0x060] & 0x01);	// LED entsprechend Prog-Bit schalten (low=LED an)
+		TASTER=!(status60 & 0x01);	// LED entsprechend Prog-Bit schalten (low=LED an)
 		for(n=0;n<100;n++) {}	// falls Hauptroutine keine Zeit verbraucht, der LED etwas Zeit geben, damit sie auch leuchten kann
   } while(1);
 }
