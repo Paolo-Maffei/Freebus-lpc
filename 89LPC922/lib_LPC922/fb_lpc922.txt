@@ -178,3 +178,19 @@ einmal mehr als 8 Telegramme gesendet werden, kan man über tx_nextwrite und tx_n
 Sendeverhalten überwachen.
 
 
+Zeitverhalten der Library:
+--------------------------
+
+Alle Funktionen werden per Interrupt aufgerufen. Die App muß also damit umgehen können, daß
+in der Regel alle 35µs eine kurze Unterbrechung erfolgt, die im Bereich einiger µs liegt. In
+zwei Fällen wird ins Flash geschrieben und der Controller wird für 4ms in den Idle-Zustand
+vesetzt: 
+- bei memory_write Operationen, z.B. beim Programmieren der Parameter und Gruppenadressen
+  durch ETS
+- beim Schreiben der physikalischen Adresse durch ETS 
+Diese langen Unterbrechungen erfolgen also nur beim Programmieren, im Normalbetrieb ist
+kommt das nicht vor.
+
+
+
+==> comments to kubi, thx!
