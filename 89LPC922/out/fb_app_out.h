@@ -33,6 +33,7 @@
 
 // Adressen zum speichern von Applikations Daten
 #define PORTSAVE	0x99	// Portzustände
+#define TIMERANZ	0x08	// timeranzahl
 
 
 #ifdef GS1

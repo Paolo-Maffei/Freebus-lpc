@@ -38,8 +38,11 @@
 
 #include <P89LPC922.h>
 #include "../lib_lpc922/fb_lpc922.h"
-#include "fb_app_out.h"
+#include  "fb_app_out.h"
 
+unsigned char timerbase[TIMERANZ];// Speicherplatz für die Zeitbasis und 4 status bits
+unsigned char timercnt[TIMERANZ];// speicherplatz für den timercounter und 1 status bit
+unsigned int timer;		// Timer für Schaltverzögerungen, wird alle 130us hochgezählt
 
 
 unsigned char Tval;
@@ -50,12 +53,10 @@ unsigned char portbuffer;	// Zwischenspeicherung der Portzustände
 unsigned char oldportbuffer;// Wert von portbuffer vor Änderung (war früher ...0x29)
 unsigned char blocked;		// Sperrung der 8 Ausgänge (1=gesperrt)
 unsigned char logicstate;	// Zustand der Verknüpfungen pro Ausgang
-long timer;					// Timer für Schaltverzögerungen, wird alle 130us hochgezählt
 bit delay_toggle;			// um nur jedes 2. Mal die delay routine auszuführen
 bit portchanged;
-unsigned char delrec[32];
 
-
+/*
 void write_delay_record(unsigned char objno, unsigned char delay_state, long delay_target)
 {
 	delrec[objno*4]=delay_state;
@@ -72,7 +73,7 @@ void clear_delay_record(unsigned char objno)
 	delrec[objno*4+2]=0;
 	delrec[objno*4+3]=0;
 }
-
+*/
 
 
 
@@ -163,7 +164,7 @@ void write_value_req(void)				// Ausgänge schalten gemäß EIS 1 Protokoll (an/aus
                     blocked=blocked|zf_bitpattern;
                     if (blockstart==0x01) portbuffer=portbuffer&(0xFF-zf_bitpattern);	// Bei Beginn der Sperrung ausschalten
                     if (blockstart==0x02) portbuffer=portbuffer|zf_bitpattern;		// Bei Beginn der Sperrung einschalten
-                    delrec[(zfout-1)*4]=0;	// ggf. Eintrag für Schaltverzögerung löschen
+                    timercnt[zfout-1]=0;//delrec[(zfout-1)*4]=0;	// ggf. Eintrag für Schaltverzögerung löschen
                 }
               //port_schalten(portbuffer);
               break;
@@ -246,7 +247,7 @@ void object_schalten(unsigned char objno, bit objstate)	// Schaltet einen Ausgan
 {
 	
 	unsigned char port_pattern,objflags,delay_base,delay_state,delay_zeit,logicfunc,zfno;
-	unsigned long delay_target,delay_onoff;
+	unsigned char delay_onoff;
 	bit off_disable;
     
 
@@ -270,7 +271,7 @@ void object_schalten(unsigned char objno, bit objstate)	// Schaltet einen Ausgan
 			delay_base=eeprom[(((objno+1)>>1)+DELAYTAB)];   
 			if((objno&0x01)==0x01) delay_base&=0x0F;
 			else delay_base=(delay_base&0xF0)>>4;
-			delay_target=0;
+			//delay_target=0;
 			delay_onoff=0;
 			delay_state=0;
 			delay_zeit=eeprom[0xEA];
@@ -284,7 +285,7 @@ void object_schalten(unsigned char objno, bit objstate)	// Schaltet einen Ausgan
 					if (((eeprom[RELMODE]>>objno)&0x01)==0x00) portbuffer=portbuffer&~port_pattern;	// Schliesserbetrieb
 					else portbuffer=portbuffer|port_pattern;						// Öffnerbetrieb
 				}
-				else delay_state=0x80;				// verzögert ausschalten
+				else delay_state=0x01;				// verzögert ausschalten
 			}
                     
           			// Einschalten
@@ -300,14 +301,14 @@ void object_schalten(unsigned char objno, bit objstate)	// Schaltet einen Ausgan
 					if (((eeprom[RELMODE]>>objno)&0x01)==0x00) portbuffer=portbuffer|port_pattern;	// sofort einschalten (Schliesserbetrieb)
 					else portbuffer=portbuffer&~port_pattern;					// sofort einschalten (Öffnerbetrieb)
 				}
-				else delay_state=0x81;				// verzögert einschalten
+				else delay_state=0x11;				// verzögert einschalten
 			}
 
 			if(delay_state!=0) {				// wenn Verzögerung, dann timer-Wert ins Flash schreiben  
-				delay_target=(delay_onoff<<delay_base)+timer;				
-				write_delay_record(objno,delay_state,delay_target);
+				timercnt[objno]=delay_onoff|0x80;//delay_target=(delay_onoff<<delay_base)+timer;
+				timerbase[objno]=delay_base|(delay_state & 0xF0);//write_delay_record(objno,delay_state,delay_target);
 			}
-			else clear_delay_record(objno);    
+			else timercnt[objno]= 0;//clear_delay_record(objno);    
 		}
 	}
 }
@@ -316,12 +317,11 @@ void object_schalten(unsigned char objno, bit objstate)	// Schaltet einen Ausgan
 
 void delay_timer(void)	// zählt alle 130ms die Variable Timer hoch und prüft Queue
 {
-	unsigned char objno,delay_state,port_pattern,delay_zeit,delay_onoff,delay_base;
-	unsigned long delval,delay_target;
-//	bit portchanged; (nicht mehr lokal...)
+	unsigned char objno,port_pattern,delay_zeit,delay_onoff,delay_base,n,m;
+	unsigned int timerflags;
 	
 #ifdef HAND		// für Handbetätigung
-	unsigned char n;
+//	unsigned char n;
 	unsigned char ledport;
 	unsigned char Tasten=0;
 #endif
@@ -331,26 +331,42 @@ void delay_timer(void)	// zählt alle 130ms die Variable Timer hoch und prüft Que
 	RTCL=0xA0;
 	objno=0;
 
-	if (delay_toggle) {	// RTC läuft auf 65ms, daher nur jedes 2. mal timer erhöhen
 		timer++;
-		if (timer==0x01000000) timer=0;	// nur 3 Byte aktiv
+		timerflags = timer&(~(timer-1));
+		for(n=0;n<16;n++){
+			if(timerflags & 0x0001){// positive flags erzeugen und schieben
+				for(m=0;m<TIMERANZ;m++){// die timer der reihe nach checken und dec wenn laufen
+					if ((timerbase[m]& 0x0F)==n){// wenn die base mit der gespeicherten base übereinstimmt
+						if (timercnt[m]>0x80){// wenn der counter läuft...
+							timercnt[m]=timercnt[m]-1;// den timer [m]decrementieren
+						}// end if (timercnt...
+					}//end if(timerbase...
+				}// end  for(m..
+			}// end if timer...
+			timerflags = timerflags>>1;
+		}//end for (n=...
+		
+		// ab Hier die aktion...
+		
 		for(objno=0;objno<=7;objno++) {
-			delay_state=delrec[objno*4];
-			if(delay_state!=0x00) {			// 0x00 = delay Eintrag ist leer   
-				delval=delrec[objno*4+1];
-				delval=(delval<<8)+delrec[objno*4+2];
-				delval=(delval<<8)+delrec[objno*4+3];
-				if(delval==timer) { 
+//			delay_state=delrec[objno*4];
+//			if(delay_state!=0x00) {			// 0x00 = delay Eintrag ist leer   
+//				delval=delrec[objno*4+1];
+//				delval=(delval<<8)+delrec[objno*4+2];
+//				delval=(delval<<8)+delrec[objno*4+3];
+				if(timercnt[objno]==0x80) {			// 0x00 = delay Eintrag ist leer   
+//				if(delval==timer) { 
 					portchanged=1;
 					port_pattern=0x01<<objno;
-					if(delay_state==0x81) {	// einschalten
+					if(timerbase[objno]&0x10) { //if(delay_state==0x81) {	// einschalten
 						if (((eeprom[RELMODE]>>objno)&0x01)==0x00) {				
 							portbuffer=portbuffer|port_pattern;		// Einschalten (Schliesserbetrieb)
 						}
 						else {
 							portbuffer=portbuffer&~port_pattern;	// Einschalten (Öffnerbetrieb)
 						}
-						delrec[objno*4]=0;
+					timercnt[objno]=0;//delrec[objno*4]=0;
+//						delrec[objno*4]=0;
 						delay_zeit=eeprom[0xEA];
 						delay_zeit=((delay_zeit>>objno)&0x01);
 						if(delay_zeit==0x01) {
@@ -359,8 +375,10 @@ void delay_timer(void)	// zählt alle 130ms die Variable Timer hoch und prüft Que
 							else delay_base=(delay_base&0xF0)>>4;
 							delay_onoff=eeprom[objno+0xE2];
 							if (delay_onoff!=0x00 && delay_zeit!=0x00) {  
-								delay_target=(delay_onoff<<delay_base)+timer;
-								write_delay_record(objno,0x80,delay_target);		// Schaltverzögerung in Flash schreiben
+								timercnt[objno]=delay_onoff|0x80;//delay_target=(delay_onoff<<delay_base)+timer;
+								timerbase[objno]=delay_base;//write_delay_record(objno,0x80,delay_target);		// Schaltverzögerung in Flash schreiben
+//								delay_target=(delay_onoff<<delay_base)+timer;
+//								write_delay_record(objno,0x80,delay_target);		// Schaltverzögerung in Flash schreiben
 							}
 						}
 					}
@@ -371,12 +389,12 @@ void delay_timer(void)	// zählt alle 130ms die Variable Timer hoch und prüft Que
 						else {
 							portbuffer=portbuffer|port_pattern;			// Ausschalten (Öffnerbetrieb)
 						}
-						delrec[objno*4]=0;
+						timercnt[objno]=0;//delrec[objno*4]=0;
 					}
-				}
+				//}
 			}   
 		}
-	}
+	//}
 		
 #ifdef HAND		//+++++++   Handbetätigung  ++++++++++
 
@@ -443,7 +461,7 @@ void delay_timer(void)	// zählt alle 130ms die Variable Timer hoch und prüft Que
 #endif
 //	if (portchanged) port_schalten(portbuffer);				// Ausgänge schalten
 	RTCCON=0x61;		// RTC starten
-	delay_toggle=!delay_toggle;
+//	delay_toggle=!delay_toggle;
 }
 
 
