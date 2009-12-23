@@ -28,7 +28,7 @@
 *						mit fbdump wird die interne Tabelle ausgegeben
 */
 
-#include "_divuint.c"
+
 #include <P89LPC922.h>
 #include "../com/fb_hal_lpc.h"
 #include "miniprot.h"
@@ -62,7 +62,6 @@ void main(void)
   rsinpos=0;
   cr_received=0;
   crlf_received=0;
-
 
   rs_send_s("kubi's rs-interface ready.");
   rs_send(13);
@@ -175,7 +174,7 @@ void main(void)
                 rs_send_ok();
 
               }
-      if(rsin[2]=='s' && rsin[3]=='0' && rsin[4]=='6' && rsin[5]=='/' && rsin[8]=='/' && rsin[10]=='/' && rsin[14]=='=')	// EIS 6 senden
+   /*   if(rsin[2]=='s' && rsin[3]=='0' && rsin[4]=='6' && rsin[5]=='/' && rsin[8]=='/' && rsin[10]=='/' && rsin[14]=='=')	// EIS 6 senden
         {
           groupadr=((rsin[6]-48)*10) + (rsin[7]-48);
           groupadr=groupadr*8;
@@ -198,7 +197,7 @@ void main(void)
           rs_send_ok();
           save_ga(groupadr,value);
         }
-
+*/
         if(rsin[2]=='s' && rsin[3]=='1' && rsin[4]=='5' && rsin[5]=='/' && rsin[8]=='/' && rsin[10]=='/' && rsin[14]=='=')	// EIS 15 senden, wird nicht im Speicher abgelegt
                {
 				 unsigned char d;
@@ -216,19 +215,20 @@ void main(void)
                  telegramm[6]=0x00;
                  telegramm[7]=0x80;
                  d=8;
-                 while(rsin[d+7]!=0x0D)
+                 while(rsin[(d+7)] != 0x0D)
                  {
-                	 telegramm[d]=rsin[d+7];
-                	 d++;
+                	 telegramm[d]=rsin[(d+7)];
                 	 if(d==21)
                 	 {
                 		 break;
                 	 }
+                	 d++;
 
                  }
-                 while(d!=21)
+                 while(d<22)
                  {
                 	 telegramm[d]=0x00;
+                	 d++;
                  }
                  EX1=0;
                  send_telegramm();
