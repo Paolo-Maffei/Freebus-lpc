@@ -14,18 +14,34 @@
  */
 
 #include <P89LPC922.h>
-#include "../lib_lpc922/fb_hal_lpc_sm.h"
+#include "../lib_lpc922/fb_lpc922.h"
 #include "fb_app_mon.h"
 
 
-
-void process_tel(void)		// Telegramm abarbeiten (entfällt hier)
-{
-}
 
 
 void restart_app(void)		// Applikations-Parameter zurücksetzen
 {
 	P0M1=0x00;
 	P0M2=0x00;
+}
+
+void write_value_req(void)	// entfällt
+{
+}
+
+void read_value_req(void)	// entfällt
+{
+}
+
+unsigned int read_obj_value(unsigned char objno)	// entfällt
+{
+	objno;
+	return(0);
+}
+
+void write_obj_value(unsigned char objno, unsigned int val)			// entfällt
+{
+	objno;
+	val;
 }

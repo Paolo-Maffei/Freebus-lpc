@@ -14,6 +14,7 @@
  *
  *  Versionen:	1.00	erste Version Busmonitor
  *  			2.00	umgestellt auf statemachine library
+ *  			2.01	auf neue lib portiert
  *
  */
 
@@ -21,7 +22,7 @@
 	
 
 #include <P89LPC922.h>						// Controller-Typ
-#include "../lib_lpc922/fb_hal_lpc_sm.h"	// Hardware-Layer der Library
+#include "../lib_lpc922/fb_lpc922.h"		// Freebus Library
 #include "../com/fb_rs232.h"				// RS232 Funktionen
 #include "fb_app_mon.h"
 

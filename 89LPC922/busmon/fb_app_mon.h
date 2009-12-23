@@ -17,6 +17,9 @@
 #define FB_APP_BM
 
 void restart_app(void);		// Alle Applikations-Parameter zurücksetzen
-void process_tel(void);		// Telegramm abarbeiten
+void write_value_req(void);	// entfällt
+void read_value_req(void);	// entfällt
+unsigned int read_obj_value(unsigned char objno);	// entfällt
+void write_obj_value(unsigned char objno, unsigned int val);			// entfällt
 
 #endif
