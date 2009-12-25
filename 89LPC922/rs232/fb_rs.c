@@ -95,11 +95,7 @@ void main(void)
 
         if(rsin[2]=='s' && rsin[3]=='0' && rsin[4]=='1' && rsin[5]=='/' && rsin[8]=='/' && rsin[10]=='/' && rsin[14]=='=' && (rsin[15]=='0' || rsin[15]=='1'))	// EIS 1 senden
         {
-          groupadr=((rsin[6]-48)*10) + (rsin[7]-48);
-          groupadr=groupadr*8;
-          groupadr=groupadr + (rsin[9]-48);
-          groupadr=groupadr*256;
-          groupadr=groupadr+((rsin[11]-48)*100) + ((rsin[12]-48)*10) + (rsin[13]-48);
+        	groupadr=convert_ga(6);
           telegramm[0]=0xBC;
           telegramm[1]=eeprom[ADDRTAB+1];
           telegramm[2]=eeprom[ADDRTAB+2];
@@ -122,12 +118,8 @@ void main(void)
               {
 				int eis5temp, d, exp;
 				unsigned long temp;
-                groupadr=((rsin[6]-48)*10) + (rsin[7]-48);
-                groupadr=groupadr*8;
-                groupadr=groupadr + (rsin[9]-48);
-                groupadr=groupadr*256;
-                groupadr=groupadr+((rsin[11]-48)*100) + ((rsin[12]-48)*10) + (rsin[13]-48);
-                telegramm[0]=0xBC;
+				groupadr=convert_ga(6);
+				telegramm[0]=0xBC;
                 telegramm[1]=eeprom[ADDRTAB+1];
                 telegramm[2]=eeprom[ADDRTAB+2];
                 telegramm[3]=groupadr>>8;
@@ -203,12 +195,8 @@ void main(void)
                {
 				 int d;
 
-                 groupadr=((rsin[6]-48)*10) + (rsin[7]-48);
-                 groupadr=groupadr*8;
-                 groupadr=groupadr + (rsin[9]-48);
-                 groupadr=groupadr*256;
-                 groupadr=groupadr+((rsin[11]-48)*100) + ((rsin[12]-48)*10) + (rsin[13]-48);
-                 telegramm[0]=0x9C;
+				 groupadr=convert_ga(6);
+				 telegramm[0]=0x9C;
                  telegramm[1]=eeprom[ADDRTAB+1];
                  telegramm[2]=eeprom[ADDRTAB+2];
                  telegramm[3]=groupadr>>8;
@@ -265,11 +253,7 @@ void main(void)
       }
       if(rsin[2]=='r' && rsin[3]=='g' && rsin[4]=='a' && rsin[7]=='/' && rsin[9]=='/' && rsinpos==13)	// gespeicherten Wert einer Gruppen-Adresse lesen (fbrgaxx/x/xxx)
       {
-          groupadr=((rsin[5]-48)*10) + (rsin[6]-48);
-          groupadr=groupadr*8;
-          groupadr=groupadr + (rsin[8]-48);
-          groupadr=groupadr*256;
-          groupadr=groupadr+((rsin[10]-48)*100) + ((rsin[11]-48)*10) + (rsin[12]-48);
+    	  groupadr=convert_ga(5);
 			n=0;
 			value=0xFFFF;
 			do {								// Wert der GA aus Flash lesen

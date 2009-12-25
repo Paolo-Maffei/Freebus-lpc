@@ -28,6 +28,7 @@
 #include "../com/fb_rs232.h"
 
 
+unsigned char rsin[30];		// seriell empfangener string
 
 __code struct ga_record __at 0x1A00 ga_db[256];
 
@@ -78,7 +79,7 @@ void write_value_req(void)
 *
 * @return
 */
-void save_ga(int ga, int val)
+void save_ga(unsigned int ga, int val)
 {
 	unsigned char n;
 	bit write_ok;
@@ -112,12 +113,22 @@ void save_ga(int ga, int val)
 	}while (n>0);
 }
 
-/**
-* Alle Applikations-Parameter zurücksetzen
-*
-*
-* @return
-*/
+
+int convert_ga(unsigned char pos)
+{
+	unsigned int ga;
+
+    ga=((rsin[pos]-48)*10) + (rsin[pos+1]-48);
+    ga=ga*8;
+    ga=ga + (rsin[pos+3]-48);
+    ga=ga*256;
+    ga=ga+((rsin[pos+5]-48)*100) + ((rsin[pos+6]-48)*10) + (rsin[pos+7]-48);
+
+    return(ga);
+}
+
+
+
 void restart_app(void)
 {
 	unsigned char n;
