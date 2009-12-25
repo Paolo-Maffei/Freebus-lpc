@@ -114,6 +114,18 @@ void save_ga(unsigned int ga, unsigned int val)
 }
 
 
+void tel_header(unsigned int ga, unsigned char length)
+{
+    telegramm[0]=0xBC;
+    telegramm[1]=eeprom[0xFC];
+    telegramm[2]=eeprom[0xFD];
+    telegramm[3]=ga>>8;
+    telegramm[4]=ga;
+    telegramm[5]=0xE0 + length;
+    telegramm[6]=0x00;
+}
+
+
 // konvertiert die GA, die ab Position pos in rsin[] steht in eine int
 int convert_ga(unsigned char pos)
 {

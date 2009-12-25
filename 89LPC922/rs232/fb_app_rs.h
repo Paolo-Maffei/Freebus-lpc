@@ -45,6 +45,7 @@ extern __code struct ga_record __at 0x1A00 ga_db[256];
 
 void restart_app(void);		// Alle Applikations-Parameter zurücksetzen
 void save_ga(unsigned int ga, unsigned int val);
+void tel_header(unsigned int ga, unsigned char length);
 int convert_ga(unsigned char pos);
 void write_value_req(void);
 #endif
