@@ -92,6 +92,7 @@ void main(void)
     {
       if (rsin[0]=='f' && rsin[1]=='b')	// Magic-word 'fb' empfangen
       {
+
         if(rsin[2]=='s' && rsin[3]=='0' && rsin[4]=='1' && rsin[5]=='/' && rsin[8]=='/' && rsin[10]=='/' && rsin[14]=='=' && (rsin[15]=='0' || rsin[15]=='1'))	// EIS 1 senden
         {
           groupadr=((rsin[6]-48)*10) + (rsin[7]-48);
@@ -200,7 +201,8 @@ void main(void)
 */
         if(rsin[2]=='s' && rsin[3]=='1' && rsin[4]=='5' && rsin[5]=='/' && rsin[8]=='/' && rsin[10]=='/' && rsin[14]=='=')	// EIS 15 senden, wird nicht im Speicher abgelegt
                {
-				 unsigned char d;
+				 int d;
+
                  groupadr=((rsin[6]-48)*10) + (rsin[7]-48);
                  groupadr=groupadr*8;
                  groupadr=groupadr + (rsin[9]-48);
@@ -214,21 +216,16 @@ void main(void)
                  telegramm[5]=0xEF;//Länge der Nutzinformationen
                  telegramm[6]=0x00;
                  telegramm[7]=0x80;
-                 d=8;
-                 while(rsin[(d+7)] != 0x0D)
-                 {
-                	 telegramm[d]=rsin[(d+7)];
-                	 if(d==21)
-                	 {
-                		 break;
-                	 }
-                	 d++;
 
-                 }
-                 while(d<22)
+                 for(d=8;d<22;d++)
                  {
-                	 telegramm[d]=0x00;
-                	 d++;
+                	if((d+7)>=rsinpos)
+                	{
+                		telegramm[d]=0x00;
+                	}else
+                	{
+                		telegramm[d]=rsin[(d+7)];
+                	}
                  }
                  EX1=0;
                  send_telegramm();
