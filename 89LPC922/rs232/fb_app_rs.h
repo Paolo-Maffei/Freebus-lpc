@@ -35,8 +35,8 @@
 #define	DELAYTAB	0xF9	// Start der Tabelle für Verzögerungswerte (Basis)
 
 struct ga_record {
-	int ga;
-	int val;
+	unsigned int ga;
+	unsigned int val;
 };
 
 
@@ -44,7 +44,7 @@ extern unsigned char rsin[30];		// seriell empfangener string
 extern __code struct ga_record __at 0x1A00 ga_db[256];
 
 void restart_app(void);		// Alle Applikations-Parameter zurücksetzen
-void save_ga(unsigned int ga, int val);
+void save_ga(unsigned int ga, unsigned int val);
 int convert_ga(unsigned char pos);
 void write_value_req(void);
 #endif

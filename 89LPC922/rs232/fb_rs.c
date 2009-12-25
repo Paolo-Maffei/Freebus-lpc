@@ -38,24 +38,17 @@
 
 
 
-/**
-* The start point of the program, init all libraries, start the bus interface, the application
-* and check the status of the program button.
-*
-* @return
-*/
 void main(void)
 {
   unsigned char n,rsinpos,pah,pal;
-  unsigned char rsin[30];		// seriell empfangener string
   bit cr_received, crlf_received;
   unsigned int groupadr;
   unsigned int value;
   
 
-  restart_hw();				// Hardware zurï¿½cksetzen
-  restart_prot();			// Protokoll-relevante Parameter zurï¿½cksetzen
-  restart_app();			// Anwendungsspezifische Einstellungen zurï¿½cksetzen
+  restart_hw();				// Hardware zurücksetzen
+  restart_prot();			// Protokoll-relevante Parameter zurücksetzen
+  restart_app();			// Anwendungsspezifische Einstellungen zurücksetzen
   
 
   rs_init();				// serielle Schnittstelle initialisieren
@@ -97,8 +90,8 @@ void main(void)
         {
         	groupadr=convert_ga(6);
           telegramm[0]=0xBC;
-          telegramm[1]=eeprom[ADDRTAB+1];
-          telegramm[2]=eeprom[ADDRTAB+2];
+          telegramm[1]=eeprom[0xFC];
+          telegramm[2]=eeprom[0xFD];
           telegramm[3]=groupadr>>8;
           telegramm[4]=groupadr;
           telegramm[5]=0xE1;
@@ -120,8 +113,8 @@ void main(void)
 				unsigned long temp;
 				groupadr=convert_ga(6);
 				telegramm[0]=0xBC;
-                telegramm[1]=eeprom[ADDRTAB+1];
-                telegramm[2]=eeprom[ADDRTAB+2];
+                telegramm[1]=eeprom[0xFC];
+                telegramm[2]=eeprom[0xFD];
                 telegramm[3]=groupadr>>8;
                 telegramm[4]=groupadr;
                 telegramm[5]=0xE3;
@@ -167,16 +160,12 @@ void main(void)
                 rs_send_ok();
 
               }
-   /*   if(rsin[2]=='s' && rsin[3]=='0' && rsin[4]=='6' && rsin[5]=='/' && rsin[8]=='/' && rsin[10]=='/' && rsin[14]=='=')	// EIS 6 senden
+      if(rsin[2]=='s' && rsin[3]=='0' && rsin[4]=='6' && rsin[5]=='/' && rsin[8]=='/' && rsin[10]=='/' && rsin[14]=='=')	// EIS 6 senden
         {
-          groupadr=((rsin[6]-48)*10) + (rsin[7]-48);
-          groupadr=groupadr*8;
-          groupadr=groupadr + (rsin[9]-48);
-          groupadr=groupadr*256;
-          groupadr=groupadr+((rsin[11]-48)*100) + ((rsin[12]-48)*10) + (rsin[13]-48);
+          groupadr=convert_ga(6);
           telegramm[0]=0xBC;
-          telegramm[1]=eeprom[ADDRTAB+1];
-          telegramm[2]=eeprom[ADDRTAB+2];
+          telegramm[1]=eeprom[0xFC];
+          telegramm[2]=eeprom[0xFD];
           telegramm[3]=groupadr>>8;
           telegramm[4]=groupadr;
           telegramm[5]=0xE2;
@@ -190,15 +179,15 @@ void main(void)
           rs_send_ok();
           save_ga(groupadr,value);
         }
-*/
+
         if(rsin[2]=='s' && rsin[3]=='1' && rsin[4]=='5' && rsin[5]=='/' && rsin[8]=='/' && rsin[10]=='/' && rsin[14]=='=')	// EIS 15 senden, wird nicht im Speicher abgelegt
                {
 				 int d;
 
 				 groupadr=convert_ga(6);
-				 telegramm[0]=0x9C;
-                 telegramm[1]=eeprom[ADDRTAB+1];
-                 telegramm[2]=eeprom[ADDRTAB+2];
+				 telegramm[0]=0xBC;
+                 telegramm[1]=eeprom[0xFC];
+                 telegramm[2]=eeprom[0xFD];
                  telegramm[3]=groupadr>>8;
                  telegramm[4]=groupadr;
                  telegramm[5]=0xEF;//Länge der Nutzinformationen
@@ -223,15 +212,15 @@ void main(void)
 
         if(rsin[2]=='r' && rsin[3]=='p' && rsin[4]=='a')	// physikalische Adresse des Adaptrs lesen (fbrpa)
         {
-          rs_send_dec(eeprom[ADDRTAB+1]>>4);
+          rs_send_dec(eeprom[0xFC]>>4);
           SBUF='.';
           while(!TI);
           TI=0;
-          rs_send_dec(eeprom[ADDRTAB+1]&0x0F);
+          rs_send_dec(eeprom[0xFC]&0x0F);
           SBUF='.';
           while(!TI);
           TI=0;
-          rs_send_dec(eeprom[ADDRTAB+2]);
+          rs_send_dec(eeprom[0xFD]);
           SBUF=0x0D;
           while(!TI);
           TI=0;
@@ -239,18 +228,22 @@ void main(void)
           while(!TI);
           TI=0;
         }
+
         if(rsin[2]=='s' && rsin[3]=='p' && rsin[4]=='a' && rsin[7]=='.' && rsin[10]=='.' && rsinpos==14)	// phys. Adresse des Adapters setzen (fbspaxx.xx.xxx)
         {
 		  pah=(((rsin[5]-48)*10) + (rsin[6]-48))*16;
 		  pah=pah + (((rsin[8]-48)*10) + (rsin[9]-48));
 		  pal=(((rsin[11]-48)*100) + ((rsin[12]-48)*10) + (rsin[13]-48));
 		  START_WRITECYCLE
-		  WRITE_BYTE(0x01,ADDRTAB+1,pah)
-		  WRITE_BYTE(0x01,ADDRTAB+2,pal)
+			FMADRH = 0x1D;
+			FMADRL = 0xFC;
+			FMDATA = pah;
+			FMDATA = pal;
 		  STOP_WRITECYCLE
 		  rs_send_ok();
 		}
       }
+
       if(rsin[2]=='r' && rsin[3]=='g' && rsin[4]=='a' && rsin[7]=='/' && rsin[9]=='/' && rsinpos==13)	// gespeicherten Wert einer Gruppen-Adresse lesen (fbrgaxx/x/xxx)
       {
     	  groupadr=convert_ga(5);

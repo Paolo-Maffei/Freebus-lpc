@@ -41,8 +41,8 @@ __code struct ga_record __at 0x1A00 ga_db[256];
 void write_value_req(void)
 {
 	unsigned char length;
-	int ga;
-	int val=0;
+	unsigned int ga;
+	unsigned int val=0;
 
 	length=telegramm[5]&0x0F;
 	
@@ -79,7 +79,7 @@ void write_value_req(void)
 *
 * @return
 */
-void save_ga(unsigned int ga, int val)
+void save_ga(unsigned int ga, unsigned int val)
 {
 	unsigned char n;
 	bit write_ok;
@@ -107,23 +107,24 @@ void save_ga(unsigned int ga, int val)
 				STOP_WRITECYCLE
 				if(!(FMCON & 0x01)) write_ok=1;	// pruefen, ob erfolgreich geflasht
 			}				
-			n=255;	// Schleife abbrechen
+			n=254;	// Schleife abbrechen
 		}
 		n++;
-	}while (n>0);
+	}while (n<255);
 }
 
 
+// konvertiert die GA, die ab Position pos in rsin[] steht in eine int
 int convert_ga(unsigned char pos)
 {
 	unsigned int ga;
+	unsigned char gah, gal;
 
-    ga=((rsin[pos]-48)*10) + (rsin[pos+1]-48);
-    ga=ga*8;
-    ga=ga + (rsin[pos+3]-48);
-    ga=ga*256;
-    ga=ga+((rsin[pos+5]-48)*100) + ((rsin[pos+6]-48)*10) + (rsin[pos+7]-48);
-
+    gah=((rsin[pos]-48)*10) + (rsin[pos+1]-48);
+    gah=gah*8;
+    gah=gah + (rsin[pos+3]-48);
+    gal=((rsin[pos+5]-48)*100) + ((rsin[pos+6]-48)*10) + (rsin[pos+7]-48);
+    ga=256*gah+gal;
     return(ga);
 }
 
