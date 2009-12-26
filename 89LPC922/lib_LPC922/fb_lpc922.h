@@ -5,33 +5,25 @@
  *   / __/ / _, _/ /___/ /___/ /_/ / /_/ /___/ / 
  *  /_/   /_/ |_/_____/_____/_____/\____//____/  
  *                                      
- *  Copyright (c) 2008 Andreas Krebs <kubi@krebsworld.de>
+ *  Copyright (c) 2009 Andreas Krebs <kubi@krebsworld.de>
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License version 2 as
  *  published by the Free Software Foundation.
  *
  */
-/**
-* @file   fb_hal_lpc.h
-* @author Andreas Krebs <kubi@krebsworld.de>
-* @date    2008
-* 
-* @brief  Hier sind ausschliesslich die Hardware-spezifischen aber Applikations-unabhaengigen Routinen fuer den 89LPC922
-* 
-* 
-*/
+
 
 
 #ifndef FB_HAL
 #define FB_HAL
 
-#define FBOUTC		P1_6	/// Sendepin
-#define TASTER		P1_7	/// Pin fuer Programmiertaster
-#define FBINC		P1_4	/// Empfangspin
-#define PWM		P1_2	/// PWM-Pin
+#define FBOUTC	P1_6	// Sendepin
+#define TASTER	P1_7	// Pin fuer Programmiertaster
+#define FBINC	P1_4	// Empfangspin
+#define PWM		P1_2	// PWM-Pin
 
-#define PORT	P0		/// Port fuer 8-bit I/O
+#define PORT	P0		// Port fuer 8-bit I/O
 
 #define RECEIVE_INT_ENABLE	EX1		// Interrupt enable Flag fuer Empfang
 
@@ -90,20 +82,16 @@
 
 
 // Globale Variablen
-extern unsigned char conh, conl;		// bei bestehender Verbindung phys. Adresse des Kommunikationspartners
-extern unsigned char pcount;			// Paketzaehler, Gruppenadresszaehler
-extern unsigned char mem_length;		// Länge bei memory_read_request
 extern unsigned char telegramm[23];
 extern unsigned char tx_buffer[8];
 extern unsigned char telpos;			// Zeiger auf naechste Position im Array Telegramm
 extern volatile bit interrupted;		// wird durch interrupt-routine gesetzt. so kann eine andere routine pruefen, ob sie unterbrochen wurde
 extern volatile unsigned char fb_state;
 extern bit ack, nack, tel_arrived, auto_ack;
-extern bit connected;					// Verbindung aufgebaut
 extern unsigned char timeout_count, tx_nextwrite, tx_nextsend, status60;
 
-extern __code unsigned char __at 0x1C00 userram[255];	// Bereich im Flash fuer User-RAM
-extern __code unsigned char __at 0x1D00 eeprom[255];	// Bereich im Flash fuer EEPROM
+extern __code unsigned char __at 0x1C00 userram[256];	// Bereich im Flash fuer User-RAM
+extern __code unsigned char __at 0x1D00 eeprom[256];	// Bereich im Flash fuer EEPROM
 
 
 
@@ -113,9 +101,8 @@ void T1_int(void) interrupt 3;
 void init_rx(void);
 void init_tx(void);
 void init_repeat_tx(void);
-void send_tel(void);
 unsigned char gapos_in_gat(unsigned char gah, unsigned char gal);
-bit build_mctel(unsigned char objno);
+bit build_tel(unsigned char objno);
 unsigned int find_ga(unsigned char objno);	// Gruppenadresse ueber Assoziationstabelle finden (erster Eintrag, falls mehrere)
 unsigned char read_obj_type(unsigned char objno);	// gibt den Typ eines Objektes zurueck
 void send_obj_value(unsigned char objno);
@@ -135,8 +122,7 @@ unsigned char find_first_objno(unsigned char gah, unsigned char gal);
 // Funktionen in APP
 extern void write_value_req(void);		// Routine zur Verarbeitung eingegegangener Telegramme zum Schreiben eines Objektwertes
 extern void read_value_req(void);		// Objektwerte lesen angefordert
-extern unsigned int read_obj_value(unsigned char objno);	// gibt den Wert eines Objektes zurueck
-extern void write_obj_value(unsigned char objno,unsigned int objvalue);	// schreibt den aktuellen Wert eines Objektes ins 'USERRAM'
+extern unsigned long read_obj_value(unsigned char objno);	// gibt den Wert eines Objektes zurueck
 extern void restart_app(void);			// Alle Applikations-Parameter zuruecksetzen
 
 

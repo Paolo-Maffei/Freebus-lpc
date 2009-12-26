@@ -153,14 +153,9 @@ void read_value_req(void)
 						Aktion veranlassen, die dazu nötigen Daten lassen sich aus
 						telegramm[] entnehmen
 						
-unsigned int read_obj_value(unsigned char objno)
+unsigned long read_obj_value(unsigned char objno)
 						muss den Wert eines Objektes zurückgeben
 						
-void write_obj_value(unsigned char objno,unsigned int objvalue)
-						muss den übergebenen Wert (objvalue) eines Objektes (objno) 
-						apspeichern, so daß er später mit read_obj_value() wieder
-						gelesen werden kann
-
 void restart_app(void)	muß die Applikations Variablen zurücksetzen, wird zB. durch
 						ein restar_request Telegramm aufgerufen, was am Ende der Programmierung
 						von der ETS gesendet wird
