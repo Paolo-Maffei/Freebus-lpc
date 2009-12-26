@@ -11,14 +11,17 @@
  *  it under the terms of the GNU General Public License version 2 as
  *  published by the Free Software Foundation.
  *
- *	Zeitgeber, Anschluss des DCF Signals an IO1 bzw P0.0
+ *	Zeitgeber, Anschluss des DCF Signals an IO1 (=P0.0)
+ *
+ *	Ver.	1.00	erste Version
+ *			1.10	umgestellt auf library / statemachine
+ *
+ *
  */
 
 
 #include <P89LPC922.h>
-#include "../lib_lpc922/fb_hal_lpc_sm.h"
-#include "../lib_lpc922/fb_prot_sm.h"
-
+#include "../lib_lpc922/fb_lpc922.h"
 #include "app_dcf.h"
 
 
@@ -42,7 +45,6 @@ void main(void)
 		while(!TF0);
 	}
 	
-	restart_prot();							// Protokoll-relevante Parameter zuruecksetzen
 	restart_app();							// Anwendungsspezifische Einstellungen zuruecksetzen
 
 
@@ -161,32 +163,40 @@ void main(void)
 
 			if (second==0 && eeprom[0xFE]==1) {	// jede Minute senden
 				if (!time_sent) {
-					send_dt(1,0);
-					send_dt(1,1);
+					//send_dt(1,0);
+					//send_dt(1,1);
+					send_obj_value(0);
+					send_obj_value(1);
 					time_sent=1;
 				}
 			}
 
 			if (second==0 && minute==0 && eeprom[0xFE]==2) {	// jede Stunde senden
 				if (!time_sent) {
-					send_dt(1,0);
-					send_dt(1,1);
+					//send_dt(1,0);
+					//send_dt(1,1);
+					send_obj_value(0);
+					send_obj_value(1);
 					time_sent=1;
 				}
 			}
 
 			if (second==0 && minute==0 && hour==0 && eeprom[0xFE]==3) {	// um 00:00 senden
 				if (!time_sent) {
-					send_dt(1,0);
-					send_dt(1,1);
+					//send_dt(1,0);
+					//send_dt(1,1);
+					send_obj_value(0);
+					send_obj_value(1);
 					time_sent=1;
 				}
 			}
 
 			if (second==0 && minute==0 && hour==2 && eeprom[0xFE]==4) {	// um 02:00 senden
 				if (!time_sent) {
-					send_dt(1,0);
-					send_dt(1,1);
+					//send_dt(1,0);
+					//send_dt(1,1);
+					send_obj_value(0);
+					send_obj_value(1);
 					time_sent=1;
 				}
 			}
@@ -206,13 +216,9 @@ void main(void)
 		if(!TASTER) {				// Taster gedrückt
 			for(n=0;n<100;n++) {}	// Entprell-Zeit
 			while(!TASTER);			// warten bis Taster losgelassen
-			EA=0;
-			START_WRITECYCLE;
-			WRITE_BYTE(0x00,0x60,userram[0x60] ^ 0x81);	// Prog-Bit und Parity-Bit im system_state toggeln
-			STOP_WRITECYCLE;
-			EA=1;
+			status60^=0x81;	// Prog-Bit und Parity-Bit im system_state toggeln
 		}
-		TASTER=!(userram[0x060] & 0x01);	// LED entsprechend Prog-Bit schalten (low=LED an)
+		TASTER=!(status60 & 0x01);	// LED entsprechend Prog-Bit schalten (low=LED an)
 		for(n=0;n<100;n++) {}	// falls Hauptroutine keine Zeit verbraucht, der LED etwas Zeit geben, damit sie auch leuchten kann
 
   } while(1);

@@ -33,7 +33,8 @@ extern volatile unsigned char T0_count;
 
 void write_value_req(void);		// Hauptroutine für Ausgänge schalten gemäß EIS 1 Protokoll (an/aus)
 void read_value_req(void);
-void send_dt(unsigned char type, unsigned char objno);
+//void send_dt(unsigned char type, unsigned char objno);
+unsigned long read_obj_value(unsigned char objno);
 void T0_int(void) interrupt 1;
 void restart_app(void);
 //void delay_timer(void);		// zählt alle 130ms die Variable Timer hoch und prüft Queue
