@@ -43,17 +43,17 @@ void main(void)
 
 	do {
 
-		if (sendpos>0 && fb_state==0) {			// Telegramm komplett empfangen
-			sendpos=0;								// Sendezeiger zurücksetzen
-			telpos=0;								// Telegrammzeiger zurücksetzen
-			rs_send(0x0D);							// CR
-			rs_send(0x0A);							// LF
-		}
-
 		if (telpos>sendpos) {					// neues Byte im Buffer
 			rs_send_hex(telegramm[sendpos]);		// Hexadezimal ausgeben
 			rs_send(' ');							// Leerzeichen senden
 			sendpos++;								// Sendezeiger erhöhen
+		}
+
+		// Telegramm komplett empfangen, aber kein ack/nack rechtzeitig empfangen
+		if (sendpos>0 && fb_state==0 && timeout_count<100) {
+			sendpos=0;								// Sendezeiger zurücksetzen
+			rs_send(0x0D);							// CR
+			rs_send(0x0A);							// LF
 		}
 
 		if (ack) {								// ACK empfangen
@@ -61,6 +61,7 @@ void main(void)
 			rs_send(0x0D);							// CR
 			rs_send(0x0A);							// LF
 			ack=0;									// Flag zurücksetzen
+			sendpos=0;								// Sendezeiger zurücksetzen
 		}
 
 		if (nack) {								// NACK empfangen
@@ -68,6 +69,7 @@ void main(void)
 			rs_send(0x0D);							// CR
 			rs_send(0x0A);							// LF
 			nack=0;									// Flag zurücksetzen
+			sendpos=0;								// Sendezeiger zurücksetzen
 		}
 	} while(1);								// Endlos-Schleife
 }

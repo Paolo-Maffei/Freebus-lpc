@@ -34,7 +34,7 @@ void read_value_req(void)	// entfällt
 {
 }
 
-unsigned int read_obj_value(unsigned char objno)	// entfällt
+unsigned long read_obj_value(unsigned char objno)	// entfällt
 {
 	objno;
 	return(0);
