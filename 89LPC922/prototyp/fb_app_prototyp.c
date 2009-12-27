@@ -17,24 +17,38 @@
 
 
 #include <P89LPC922.h>
-#include "../com/fb_hal_lpc.h"
-#include "../com/fb_prot.h"
+#include "../lib_lpc922/fb_lpc922.h"
 #include "fb_app_prototyp.h"
 
 
 
 void write_value_req(void)	// Empfangenes write_value_request Telegramm verarbeiten
 {
-
+	/* Hier holt man sich die Bytes aus dem array telegramm[] und führt
+	 * die entsprechenden Aktionen aus, die das Gerät haben soll
+	 */
 }
 
 
 
 void read_value_req(void)	// Empfangenes read_value_request Telegramm verarbeiten
 {
-
+	/* Hier sicherstellen, dass der Objektwert, der durch read_obj_value() gelesen wird,
+	 * aktuell ist. Danach das Senden des Objektes anstossen.
+	 */
 }
 
+
+unsigned long read_obj_value(unsigned char objno)
+{
+	/* Hier muss der Wert eines Objektes zurückgegeben werden.
+	 * (und zwar so wie er gesendet werden soll !!! z.B. bereits als EIS5 codiert)
+	 */
+
+	// Dummy Code: (damit der compiler nicht meckert, weil es leer ist...)
+	objno;
+	return(1738);	// Beispiel return-Wert
+}
 
 
 void restart_app(void)		// Alle Applikations-Parameter zurücksetzen
@@ -46,8 +60,6 @@ void restart_app(void)		// Alle Applikations-Parameter zurücksetzen
 	// ***************************************	
 	
 	
-	// mögliche Bit-Variablen:
-	// transparency=1;	// Telegramme werden nicht vom Protokoll-Layer abgearbeitet, default 0
 
 	
 	// Beispiel für die Applikations-spezifischen Einträge im eeprom
@@ -62,8 +74,5 @@ void restart_app(void)		// Alle Applikations-Parameter zurücksetzen
 	WRITE_BYTE(0x01,0x0D,0xFF)	// Run-Status (00=stop FF=run)
 	WRITE_BYTE(0x01,0x12,0x9A)	// COMMSTAB Pointer
 	STOP_WRITECYCLE
-	START_WRITECYCLE;
-	WRITE_BYTE(0x00,0x60,0x2E);	// system state: all layers active (run), not in prog mode
-	STOP_WRITECYCLE;
 	EA=1;						// Interrupts freigeben
 }

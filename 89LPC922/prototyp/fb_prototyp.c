@@ -15,29 +15,27 @@
 
 
 #include <P89LPC922.h>
-#include "../com/fb_hal_lpc.h"
-#include "../com/fb_prot.h"
+#include "../lib_lpc922/fb_lpc922.h"
 #include "fb_app_prototyp.h"
 
 
 
 
 /** 
-* The start point of the program, init all libraries, start the bus interface, the application
-* and check the status of the program button.
+* Dies ist ein leeres Beispielprogramm zur Veranschaulichung was mindestens erfordelich ist,
+* damit das Programm mit der Library läuft.
 * 
-*
 */
+
 void main(void)
 { 
 	unsigned char n;
 
 	restart_hw();				// Hardware zuruecksetzen
 	for (n=0;n<50;n++) {
-		set_timer0(0xFFFF);		// Warten bis Bus stabil
+		set_timer0(0xFFFF);		// Warten bis Bus stabil, nach Busspannungswiederkehr
 		while(!TF0);
 	}
-	restart_prot();				// Protokoll-relevante Parameter zuruecksetzen
 	restart_app();				// Anwendungsspezifische Einstellungen zuruecksetzen
 
 	do  {
@@ -46,17 +44,22 @@ void main(void)
 		// Hier ist der Platz für wiederkehrende Abfragen, die nicht zeitkritisch sind
 		// ***************************************************************************
   
+
+		if(tel_arrived) {		// empfangenes Telegramm abarbeiten
+			tel_arrived=0;
+			process_tel();
+		}
+
+
 		// Abfrage Programmier-Taster
-		TASTER=1;					// Pin als Eingang schalten um Taster abzufragen
+		TASTER=1;				// Pin als Eingang schalten um Taster abzufragen
 		if(!TASTER) {				// Taster gedrückt
 			for(n=0;n<100;n++) {}	// Entprell-Zeit
-			while(!TASTER);			// warten bis Taster losgelassen	
-			START_WRITECYCLE;
-			WRITE_BYTE(0x00,0x60,userram[0x60] ^ 0x81);	// Prog-Bit und Parity-Bit im system_state toggeln
-			STOP_WRITECYCLE;
+			while(!TASTER);			// warten bis Taster losgelassen
+			status60^=0x81;	// Prog-Bit und Parity-Bit im system_state toggeln
 		}
-		TASTER=!(userram[0x060] & 0x01);	// LED entsprechend Prog-Bit schalten (low=LED an)
-		for(n=0;n<100;n++) {}		// falls Hauptroutine keine Zeit verbraucht, der LED etwas Zeit geben, damit sie auch leuchten kann
+		TASTER=!(status60 & 0x01);	// LED entsprechend Prog-Bit schalten (low=LED an)
+		for(n=0;n<100;n++) {}	// falls Hauptroutine keine Zeit verbraucht, der LED etwas Zeit geben, damit sie auch leuchten kann
   } while(1);
 }
 
