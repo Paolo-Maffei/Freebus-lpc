@@ -205,9 +205,9 @@ void read_value_req(void)
 }
 
 
-unsigned int read_obj_value(unsigned char objno)	// gibt den Wert eines Objektes zurueck
+unsigned long read_obj_value(unsigned char objno)	// gibt den Wert eines Objektes zurueck
 {
-	int ret_val=0;
+	unsigned char ret_val=0;
 
 	if(objno<8) {
 		if(out_state&(1<<objno)) ret_val=1;

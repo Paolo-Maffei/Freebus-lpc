@@ -63,7 +63,7 @@ void object_schalten(unsigned char objno, bit objstate);	// Objekt schalten
 void bus_return(void);		// Aktionen bei Busspannungswiederkehr
 void restart_app(void);		// Alle Applikations-Parameter zurücksetzen
 
-unsigned int read_obj_value(unsigned char objno);	// gibt den Wert eines Objektes zurueck
+unsigned long read_obj_value(unsigned char objno);	// gibt den Wert eines Objektes zurueck
 void write_obj_value(unsigned char objno,unsigned int objvalue);	// schreibt den aktuellen Wert eines Objektes ins 'USERRAM'
 
 

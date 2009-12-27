@@ -23,37 +23,37 @@
 * 		4 out Devicetype 0x2062 = Jung Aktor 2134.16 
 *
 * \par Changes:
-*	2.00	erstes Programm in C fï¿½r Hardware Ver. 2 \n
-*	2.01	Schaltverzoegerung hinzugefuegt \n
+*	2.00	erstes Programm in C für Hardware Ver. 2 \n
+*	2.01	Schaltverzögerung hinzugefügt \n
 *	2.02	Restart Fehler behoben \n
 *	2.03	Arrays korrigiert \n
 *	2.04	Bugs in bin_out behoben		\n
 *	3.01	auf 89LPC922 portiert und Bugs behoben		\n
-*	3.02	Verzoegerung ï¿½ber RTC		behobene Bugs: Verzoegerung geht nach einiger Zeit sehr langsam \n
-*	3.03	Timer 0 fï¿½r PWM		\n
+*	3.02	Verzögerung über RTC		behobene Bugs: Verzoegerung geht nach einiger Zeit sehr langsam \n
+*	3.03	Timer 0 für PWM		\n
 *	3.04	RX & TX Timing nochmals optimiert 	behobene Bugs: get_ack funktionierte nicht \n
 *	3.05	Zeitschaltfunktion hinzugefuegt \n
-*	3.06	ï¿½ffner-/Schliesserbetrieb und Verhalten nach Busspannungswiederkehr hinzugefuegt \n
-*	3.07	Rueckmeldeobjekte eingefuegt \n
+*	3.06	Öffner-/Schliesserbetrieb und Verhalten nach Busspannungswiederkehr hinzugefügt \n
+*	3.07	Rückmeldeobjekte eingefuegt \n
 *	3.08	gat Array entfernt und durch gapos_in_gat funktion ersetzt \n
-*	3.09	Sperrobjekte hinzugefuegt \n
+*	3.09	Sperrobjekte hinzugefügt \n
 *	3.10	Fehler in main() behoben (kein delay!)
 *	3.11	Fehler bei Zusatzfunktionstyp behoben,  \n
 *			Fehler bei Sperrobjekten behoben, \n
 *			Relais ziehen jetzt vollen Strom auch bei Busspannungswiederkehr \n
 *	3.12	Fehler bei Sperrobjekten und Rueckmeldung im out8 behoben,  \n
 *			ausserdem ziehen Relais jetzt auch bei Busspannungswiederkehr mit vollem Strom. \n
-*	3.13	Parametrierung fï¿½r alte/neue Relaisschaltung eingefuegt \n
-*			Parametrierung fï¿½r 4-port / 8-port hinzugefuegt, damit eine Soft fï¿½r out4 und out8 \n
-*			Parametrierung fï¿½r Handbetrieb zunaechst eingefuegt \n
+*	3.13	Parametrierung für alte/neue Relaisschaltung eingefügt \n
+*			Parametrierung für 4-port / 8-port hinzugefügt, damit eine Soft fï¿½r out4 und out8 \n
+*			Parametrierung für Handbetrieb zunaechst eingefügt \n
 *			read_value_request lief nicht korrekt, behoben \n
-*			Rueckmeldung bei Busspannungswiederkehr funktioniert jetzt \n
-*			Warteschleife bei Busspannungswiederkehr eingefuegt, wg. stabilitaet
+*			Rückmeldung bei Busspannungswiederkehr funktioniert jetzt \n
+*			Warteschleife bei Busspannungswiederkehr eingefügt, wg. stabilitaet
 *	3.14	Rückmelde-Telegramm löst intern jetzt max. zwei weitere Rückmeldungen aus
 * 	3.15	Fehler mit PWM für alte Relais-Schaltung behoben
 * 	3.16	Polarität der Sperrobjegte eingebaut
 * 	3.17	Bug bei Polarität der Sperrobjekte behoben
-* 	3.18	Progmode lässt sich per ets setzen
+* 	3.18	Progmode lässt sich jetzt per ets setzen
 * 			Interrupts beim retart aus, da sonst ggf. flashen unterbrochen wird wenn int
 * 			Ausführungszustand wird in Geräteinfo angezeigt
 * 			NACK wird bei fehlerhaft empfangenem Telegramm gesendet
@@ -66,7 +66,6 @@
 * @todo:
 	- Prio beim Senden implementieren \n
 	- Zwangsstellungsobjekte implementieren \n
-	- run-mode abfragen \n
 */
 
 
@@ -105,8 +104,8 @@ void main(void)
 
 			if(RTCCON>=0x80) delay_timer();	// Realtime clock Ueberlauf
 
-			if(TF0 && (TMOD & 0x0F)==0x01) {			// Vollstrom für Relais ausschalten und wieder PWM ein
-				TMOD=(TMOD & 0xF0) + 2;		// Timer 0 als PWM
+			if(TF0 && (TMOD & 0x0F)==0x01) {	// Vollstrom für Relais ausschalten und wieder PWM ein
+				TMOD=(TMOD & 0xF0) + 2;			// Timer 0 als PWM
 				TAMOD=0x01;
 				TH0=DUTY;
 				TF0=0;
