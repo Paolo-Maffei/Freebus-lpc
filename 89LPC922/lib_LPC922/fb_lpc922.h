@@ -90,8 +90,8 @@ extern volatile unsigned char fb_state;
 extern bit ack, nack, tel_arrived, auto_ack;
 extern unsigned char timeout_count, tx_nextwrite, tx_nextsend, status60;
 
-extern __code unsigned char __at 0x1C00 userram[256];	// Bereich im Flash fuer User-RAM
-extern __code unsigned char __at 0x1D00 eeprom[256];	// Bereich im Flash fuer EEPROM
+extern __code unsigned char __at 0x1C00 userram[255];	// Bereich im Flash fuer User-RAM
+extern __code unsigned char __at 0x1D00 eeprom[255];	// Bereich im Flash fuer EEPROM
 
 
 
