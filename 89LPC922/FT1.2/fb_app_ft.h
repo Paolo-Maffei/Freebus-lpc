@@ -53,4 +53,5 @@ void serial_int(void) interrupt 4 using 2;
 void restart_app(void);		// Alle Applikations-Parameter zurücksetzen
 void write_value_req(void);
 void read_value_req(void);
+unsigned long read_obj_value(unsigned char objno);
 #endif

@@ -14,9 +14,10 @@
  */
 
 #include <P89LPC922.h>
-#include "../com/fb_hal_lpc.h"
-#include "../com/fb_prot.h"
+#include "../lib_lpc922/fb_lpc922.h"
 #include "fb_app_ft.h"
+
+//#define ROUTERMODE		// 115200,n,8,1 (auskommentieren für 19200,e,8,1)
 
 
 unsigned char rsin[32];					// serieller Empfangspuffer
@@ -47,6 +48,15 @@ bit ft_ack;
 	rsin[5]=control;
 
 
+#ifdef ROUTERMODE
+
+#define FT_SEND_CHAR(sc) \
+	SBUF=sc; \
+	while(!TI); \
+	TI=0; \
+	for(n=0;n<10;n++) TI=0;
+
+#else
 
 //Routine mit even parity
 #define FT_SEND_CHAR(sc) \
@@ -59,15 +69,7 @@ bit ft_ack;
 	TI=0; \
 	for(n=0;n<10;n++) TI=0;
 
-
-/*
-// Routine ohne parity
-#define FT_SEND_CHAR(sc) \
-	SBUF=sc; \
-	while(!TI); \
-	TI=0; \
-	for(n=0;n<10;n++) TI=0;
-*/
+#endif
 
 
 
@@ -84,16 +86,20 @@ void ft_process_var_frame(void)
 			{
 			case 0x11:		// send a telegram on the bus
 				FT_SEND_CHAR(0xE5)				
-				EX1=0;
+				//EX1=0;
+				while(fb_state!=0);
 				for (n=3;n<(rsin[1]-2);n++) telegramm[n]=rsin[n+6];
 				telegramm[0]=0xB0 + (rsin[6] & 0x0F);
 				telegramm[1]=eeprom[ADDRTAB+1];	// PA high
 				telegramm[2]=eeprom[ADDRTAB+2];	// PA low	
-				FT_SEND_L_DATA_CONF				// send confirmation frame				
-				send_telegramm();
+				FT_SEND_L_DATA_CONF				// send confirmation frame
 
-				IE1=0;
-				EX1=1;				
+				while(timeout_count!=0);
+				init_tx();
+				//send_telegramm();
+
+				//IE1=0;
+				//EX1=1;
 				break;
 				
 			case 0xA9:		// PEI_switch_request	
@@ -204,11 +210,11 @@ void ft_process_var_frame(void)
 							//EX1=0;
 							write_ok=0;
 							while (!write_ok) {
-								START_WRITECYCLE
+								START_WRITECYCLE;
 								for (n=0;n<(rsin[13]&0x0F);n++) {
-									WRITE_BYTE(rsin[14],rsin[15]+n,rsin[16+n])
+									WRITE_BYTE(rsin[14],rsin[15]+n,rsin[16+n]);
 								}
-								STOP_WRITECYCLE
+								STOP_WRITECYCLE;
 								if(!(FMCON & 0x0F)) write_ok=1;	// prüfen, ob erfolgreich geflasht
 							}
 							EA=1;
@@ -280,18 +286,18 @@ void ft_send_Read_Memory_Res(unsigned char bytecount, unsigned char adrh, unsign
 void process_telegram(void)		// EIB telegram received
 {
 	unsigned char n;	
-	bit ack;
+	//bit ack;
 
 	if (switch_mode==0x05)		// busmonitor
 	{
-		ack=get_ack();
+		//ack=get_ack();
 		FT_SET_HEADER((telegramm[5]&0x0F)+13,0x2B)
 		rsin[6]=0x01;	// status
 		rsin[7]=0x22;	// timestamp
 		rsin[8]=0x33;	// timestamp
 		for (n=0;n<(rsin[1]-4);n++) rsin[n+9]=telegramm[n];	// -1
 		ft_send_frame();
-		last_tel=0;
+		//last_tel=0;
 		
 		if (ack) {
 			FT_SET_HEADER(0x06,0x2B)
@@ -301,22 +307,22 @@ void process_telegram(void)		// EIB telegram received
 			rsin[9]=0xCC;
 			ft_send_frame();
 		}
-		ET1=1;					// Interrupt für Timer 1 freigeben
-		IE1=0;					// Interrupt 0 request zurücksetzen
-		EX1=1;					// Interrupt 0 wieder freigeben
+		//ET1=1;					// Interrupt für Timer 1 freigeben
+		//IE1=0;					// Interrupt 0 request zurücksetzen
+		//EX1=1;					// Interrupt 0 wieder freigeben
 	}
 	else {
-		EX1=0;
-		send_ack();
+		//EX1=0;
+		//send_ack();
 		
 		
 		FT_SET_HEADER((telegramm[5]&0x0F)+9,0x29)	// +9
 		for (n=0;n<(rsin[1]-1);n++) rsin[n+6]=telegramm[n];	// -1
 		ft_send_frame();
-		last_tel=0;
+		//last_tel=0;
 		
-		IE1=0;
-		EX1=1;
+		//IE1=0;
+		//EX1=1;
 	}
 }
 
@@ -401,22 +407,28 @@ void PEI_identify_req(void)
 
 void ft_rs_init(void)
 {  
+	SSTAT|=0x40;	// TI wird am Ende des Stopbits gesetzt
+	BRGCON|=0x02;	// Baudrate Generator verwenden aber noch gestoppt
+#ifdef ROUTERMODE
+	SCON=0x50;	// Mode 1 für no parity (nur für 115200 Baud am Router erforderlich!!!)
+	BRGR1=0x00;	// Baudrate = cclk/((BRGR1,BRGR0)+16) = 19200 = 01 70
+	BRGR0=0x30;	// 115200 =  00 30
+#else
+	SCON=0xD0;	// Mode 3, receive enable für even parity
+	BRGR1=0x01;	// Baudrate = cclk/((BRGR1,BRGR0)+16) = 19200 = 01 70
+	BRGR0=0x70;	// 115200 =  00 30
 
-  SCON=0xD0;	// Mode 3, receive enable für even parity
-	//SCON=0x50;	// Mode 1 für no parity
+#endif
 	
-  SSTAT|=0x40;	// TI wird am Ende des Stopbits gesetzt
-  BRGCON|=0x02;	// Baudrate Generator verwenden aber noch gestoppt
-  BRGR1=0x01;	// Baudrate = cclk/((BRGR1,BRGR0)+16) = 19200 = 01 70
-  BRGR0=0x70;
+
+
+
   BRGCON|=0x01;	// Baudrate Generator starten
 }
 
 
 void serial_int(void) interrupt 4 using 2	// Interrupt on received char from serial port
 {
-
-	
 	ES=0;
 	if (RI) {
 		if (rsinpos<32) {
@@ -465,6 +477,12 @@ void read_value_req(void)
 }
 
 
+unsigned long read_obj_value(unsigned char objno)
+{
+	objno;
+	return(0);
+}
+
 
 void restart_app(void)		// Alle Applikations-Parameter zurücksetzen
 {
@@ -487,7 +505,7 @@ void restart_app(void)		// Alle Applikations-Parameter zurücksetzen
 	  fcb=0;
 	  property_5=0x01;
 	  
-	  transparency=1;		// telegramme nicht in prot.c auswerten
+	  auto_ack=0;		// telegramme nicht per ACK bestätigen
 	  
 	  
 }

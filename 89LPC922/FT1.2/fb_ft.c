@@ -11,18 +11,19 @@
  *  it under the terms of the GNU General Public License version 2 as
  *  published by the Free Software Foundation.
  *
+ *
+ *	Versionen:	1.00	erste Version
+ * 				1.01	int freigabe bei empfangenen telegrammen war zu früh
+ * 				1.02	Makros in Schleifen korrigiert
+ * 				1.10	umgestellt auf Library
+ *
  */
 
-// Versionen:	1.00	erste Version
-//				1.01	int freigabe bei empfangenen telegrammen war zu früh
-//				1.02	Makros in Schleifen korrigiert
 
 	
 
 #include <P89LPC922.h>
-#include "../com/fb_hal_lpc.h"
-#include "../com/fb_prot.h"
-//#include "fb_rs232.h"
+#include "../lib_lpc922/fb_lpc922.h"
 #include "fb_app_ft.h"
 
 
@@ -35,8 +36,10 @@ void main(void)
   
   
 	restart_hw();				// Hardware zurücksetzen
-	for (n=0;n<50;n++) sysdelay(0xFFFF);	// Warten bis Bus stabil
-	restart_prot();			// Protokoll-relevante Parameter zurücksetzen
+	for (n=0;n<50;n++) {
+		set_timer0(0xFFFF);					// Warten bis Bus stabil
+		while(!TF0);
+	}
 	restart_app();			// Anwendungsspezifische Einstellungen zurücksetzen
   
   
@@ -51,7 +54,10 @@ void main(void)
   				TF0=0;
   			}
   		}
-  		if (last_tel) process_telegram();
+  		if (tel_arrived) {
+  			tel_arrived=0;
+  			process_telegram();
+  		}
   		
 
   	} while(1);
