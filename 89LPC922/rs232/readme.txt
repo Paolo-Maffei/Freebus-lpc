@@ -17,6 +17,12 @@ fbs01/BB/L/TTT=0 oder 1 : sendet ein EIS1 Telegramm auf den Bus
 fbs06/BB/L/TTT=[0..255]	: sendet ein EIS6 Telegramm, z.b. für Dimmwerte
 
 
+fbs05/BB/L/TTT=[-671 088.64 ... 0 ... 670 760.96]	: sendet ein EIS5 Telegramm, z.b. für Temperatur-, Helligkeitswerte
+
+
+fbs15/BB/L/TTT=[A-Z,a-z,0-9]	: sendet ein EIS15 Telegramm, für Ascii Texte, max. 14 Zeichen
+
+
 fbrpa 			: lesen der physikalischen Adresse des Adapters
 
 
