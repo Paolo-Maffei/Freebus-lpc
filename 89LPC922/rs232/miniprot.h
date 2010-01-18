@@ -41,16 +41,9 @@ extern bit transparency;			// wenn 1 dann wird telegramm lokal nicht verarbeitet
 
 
 void timer1(void) interrupt 3;	// Interrupt von Timer 1, 370us keine Busaktivitaet seit letztem Byte,
-										//	 d.h. Telegramm wurde komplett uebertragen
 bit get_ack(void);				// wartet bis Byte empfangen wurde und prueft ob es ein ACK war  <- suboptimal, besser mit timeout !!!
-
 void send_telegramm(void);		// sendet das Telegramm, das in telegramm[] vorher abgelegt wurde und berechnet die checksum
 void send_ack(void);			// wartet auf Timer 1 wegen korrekter Positionierung und sendet ACK (0xCC)
-
-void set_pa(void);				// neue phys. Adresse programmieren
-
-
-
 void restart_prot(void);		// Protokoll-relevante Parameter zuruecksetzen
 
 

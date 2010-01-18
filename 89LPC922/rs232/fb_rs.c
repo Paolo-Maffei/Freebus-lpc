@@ -41,13 +41,13 @@
 
 void main(void)
 {
-	unsigned char n,rsinpos,pah,pal;
-	bit cr_received, crlf_received;
+	unsigned char n,rsinpos,pah,pal, rs_byte;
+	bit cr_received, crlf_received, echo=0;
 	unsigned int groupadr;
 	unsigned int value;
 
 
-	restart_hw();				// Hardware zurücksetzen
+	restart_hw();			// Hardware zurücksetzen
 	restart_prot();			// Protokoll-relevante Parameter zurücksetzen
 	restart_app();			// Anwendungsspezifische Einstellungen zurücksetzen
 
@@ -57,32 +57,37 @@ void main(void)
 	cr_received=0;
 	crlf_received=0;
 
-	rs_send_s("kubi's rs-interface ready.");
+	rs_send_s("kubi's rs-interface V1.03 ready.");
 	rs_send(13);
 	rs_send(10);
 
 	do  {
 		if (RI)
 		{
-			switch (SBUF)
+			rs_byte=SBUF;
+			switch (rs_byte)
 			{
 			case 0x0D:			// CR empfangen
 				cr_received=1;
 				break;
 			case 0x0A:			// LF empfangen
-				if (cr_received) crlf_received=1;
+				//if (cr_received) crlf_received=1;
 				break;
 			default:
-				rsin[rsinpos]=SBUF;			// empfangenes Byte ablegen
+				rsin[rsinpos]=rs_byte;			// empfangenes Byte ablegen
 				rsinpos++;
 				if(rsinpos>30) rsinpos=30;	// Überlauf des Puffers vermeiden
 				cr_received=0;
 				crlf_received=0;
 			}
 			RI=0;
+			if (echo) {
+				rs_send(rs_byte);
+				if(rs_byte==0x0D) rs_send(0x0A);	// echo LF on received CR
+			}
 		}
 
-		if (crlf_received)			// Zeile vollständig empfangen
+		if (cr_received)			// Zeile vollständig empfangen
 		{
 			if (rsin[0]=='f' && rsin[1]=='b')	// Magic-word 'fb' empfangen
 			{
@@ -242,14 +247,22 @@ void main(void)
 						rs_send(13);
 						rs_send(10);
 						n++;
-					}while(n>0);
+					}while(n<250);
 				}
-			}
+
+				if(rsin[2]=='e' && rsin[3]=='c' && rsin[4]=='h' && rsin[5]=='o' && rsin[6]=='=' && rsinpos==8)
+				{
+					if(rsin[7]=='0') echo=0; else echo=1;
+					rs_send_ok();
+				}
+
+
+			} // von if(fb...)
 			for(n=0;n<20;n++) rsin[n]=0x00;
 			rsinpos=0;
 			cr_received=0;
 			crlf_received=0;
-		}
+		} // von if(crlf_received)
 	} while(1);
 }
 

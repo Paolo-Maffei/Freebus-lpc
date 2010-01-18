@@ -18,15 +18,6 @@
  * 
  * 
  */
-/**
-* @file   fb_prot.c
-* @author Andreas Krebs <kubi@krebsworld.de>
-* @date    2008
-* 
-* @brief  Hier sind ausschliesslich die Protokoll-Handling Routinen fuer den 89LPC922
-* 
-* 
-*/
 
 
 
@@ -37,26 +28,13 @@
 #include "../com/fb_prot.h"
 
 
-unsigned char telegramm[23];
-unsigned char telpos;		/// Zeiger auf naechste Position im Array Telegramm
-unsigned char cs;			/// checksum
-
-bit progmode, connected;	/// Programmiermodus, Verbindung steht
-unsigned char conh, conl;	/// bei bestehender Verbindung phys. Adresse des Kommunikationspartners
-unsigned char pcount;		/// Paketzaehler, Gruppenadresszaehler
-unsigned char last_tel;
-bit transparency;
 
 
 
 
-/** 
-* Interrupt von Timer 1, 370us keine Busaktivit�t seit letztem Byte,
-* d.h. Telegramm wurde komplett uebertragen
-*
-* 
-* @return 
-*/
+
+
+
 void timer1(void) interrupt 3
 {
 	unsigned char data_laenge,daf;
@@ -64,47 +42,24 @@ void timer1(void) interrupt 3
 	EX1=0;					// ext. Interrupt stoppen 
 	ET1=0;					// Interrupt von Timer 1 sperren
 	set_timer1(4830);				// 4720 und neu starten fuer korrekte Positionierung des ACK Bytes
-  
 	if(cs==0xff) {					// Checksum des Telegramms ist OK
-		if (transparency) {
-			last_tel=telpos;
-		}
-		else {
-			data_laenge=(telegramm[5]&0x0F);		// Telegramm-Laenge = Bit 0 bis 3 
-			daf=(telegramm[5]&0x80);			// Destination Adress Flag = Bit 7, 0=phys. Adr., 1=Gruppenadr.
 
-			if(telegramm[3]==0 && telegramm[4]==0) {		// Broadcast, wenn Zieladresse = 0
+		data_laenge=(telegramm[5]&0x0F);	// Telegramm-Laenge = Bit 0 bis 3
+		daf=(telegramm[5]&0x80);			// Destination Adress Flag = Bit 7, 0=phys. Adr., 1=Gruppenadr.
 
-			}
-			else {
-				if(daf==0x00) {					// Unicast, wenn Zieladresse physikalische Adresse ist
-
-				}
-				else {		// Multicast, wenn Zieladresse Gruppenadresse ist
-					if(data_laenge>=1 && telegramm[6]==0x00 && (telegramm[7]&0xC0)==0x80) write_value_req();	// Objektwerte schreiben (zB. EISx)
-
-				}
-			}
-		} 
+		// Multicast
+		if(daf==0x80 && data_laenge>=1 && telegramm[6]==0x00 && (telegramm[7]&0xC0)==0x80) write_value_req();	// Objektwerte schreiben (zB. EISx)
 	}
 	telpos=0;  
-	IE1=0;					// IRQ Flag zuruecksetzen
-	EX1=1;					// externen Interrupt 0 wieder freigeben
-	if (!transparency) {	// Telegramm abgearbeitet
-		TR1=0;				// Timer 1 stoppen
-		cs=0;				// cheksum zur�cksetzen
-	}
+	IE1=0;				// IRQ Flag zuruecksetzen
+	EX1=1;				// externen Interrupt 0 wieder freigeben
+	TR1=0;				// Timer 1 stoppen
+	cs=0;				// cheksum zur�cksetzen
 }
 
 
 
 
-/** 
-* Byte empfangen und pruefen ob es ein ACK war
-*
-* 
-*
-*/
 bit get_ack(void)
 {
   bit ret;
@@ -126,12 +81,6 @@ bit get_ack(void)
 
 
 
-/** 
-* sendet das Telegramm, das in telegramm[] vorher abgelegt wurde und berechnet die checksum
-*
-*
-*
-*/
 void send_telegramm(void)
 {
   unsigned char data_laenge,l,checksum,r;
@@ -165,13 +114,6 @@ void send_telegramm(void)
 
 
 
-
-/** 
-* wartet auf Timer 1 wegen korrekter Positionierung und sendet ACK (0xCC)
-*
-*
-*
-*/
 void send_ack(void)
 {
   while(!TF1&&TR1) {}
@@ -197,23 +139,6 @@ void send_ack(void)
 
 
 
-/** 
-* neue phys. Adresse programmieren
-*
-*
-*
-*/
-void set_pa(void)
-{
-  START_WRITECYCLE
-  WRITE_BYTE(0x01,ADDRTAB+1,telegramm[8])
-  WRITE_BYTE(0x01,ADDRTAB+2,telegramm[9]);
-  STOP_WRITECYCLE
-}
-
-
-
-
 
 /** 
 * Protokoll-relevante Parameter zuruecksetzen
@@ -224,11 +149,7 @@ void set_pa(void)
 void restart_prot(void)
 {
   
-  progmode=0;			// kein Programmiermodus
-  pcount=1;				// Paketzaehler initialisieren
-  connected=0;			// keine Verbindung
   
   telpos=0;				// empfangene Bytes an dieser Position im Array telegramm[] ablegen
-  last_tel=0;
-  transparency=0;
+
 }

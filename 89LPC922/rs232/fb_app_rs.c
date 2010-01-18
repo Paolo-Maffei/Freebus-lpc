@@ -45,7 +45,7 @@ void write_value_req(void)
 	unsigned int val=0;
 
 	length=telegramm[5]&0x0F;
-	
+
 	if (length<=3)	{
 		rs_send_dec(telegramm[3]>>3);			// GA senden
 		rs_send('/');
@@ -107,13 +107,14 @@ void save_ga(unsigned int ga, unsigned int val)
 				STOP_WRITECYCLE
 				if(!(FMCON & 0x01)) write_ok=1;	// pruefen, ob erfolgreich geflasht
 			}				
-			n=254;	// Schleife abbrechen
+			n=250;	// Schleife abbrechen
 		}
 		n++;
-	}while (n<255);
+	}while (n<250);
 }
 
 
+// erstellt den Anfang des Telegramms, length ist die Länge der Nutzdaten
 void tel_header(unsigned int ga, unsigned char length)
 {
     telegramm[0]=0xBC;
@@ -127,7 +128,7 @@ void tel_header(unsigned int ga, unsigned char length)
 
 
 // konvertiert die GA, die ab Position pos in rsin[] steht in eine int
-int convert_ga(unsigned char pos)
+unsigned int convert_ga(unsigned char pos)
 {
 	unsigned int ga;
 	unsigned char gah, gal;
@@ -146,18 +147,18 @@ void restart_app(void)
 {
 	unsigned char n;
 	
-	for (n=0;n<50;n++) sysdelay(0xFFFF);	// Warten bis Bus stabil
+	//for (n=0;n<50;n++) sysdelay(0xFFFF);	// Warten bis Bus stabil
 	
 	n=0;
 	do {								// GA Tabelle löschen
 		START_WRITECYCLE
-		FMADRH = (n >> 6) + 0x1A;		// High Byte schreiben
+		FMADRH = (n >> 6) + 0x1A;
 		FMADRL = ((n & 0x3F) * 4);
-		FMDATA=0xFF;
-		FMADRH = (n >> 6) + 0x1A;		// Low Byte schreiben
-		FMADRL = ((n & 0x3F) * 4) + 1;
+		FMDATA=0xFF;					// High Byte GA schreiben
+		FMDATA=0xFF;					// Low Byte GA schreiben
+		FMDATA=0xFF;					// Wert
 		FMDATA=0xFF;
 		STOP_WRITECYCLE
 		n++;
-	}while(n>0);
+	}while(n<250);
 }
