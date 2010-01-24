@@ -187,5 +187,25 @@ Diese langen Unterbrechungen erfolgen also nur beim Programmieren, im Normalbetr
 kommt das nicht vor.
 
 
+Verwendung der Timer:
+---------------------
+
+Timer 0	wird als 16-bit timer parametriert, wird von der lib nicht benutzt und seht
+		somit exclusiv der app zur Verfügung, kann dort auch anders parametriert werden
+
+Timer 1	ist ausschliesslich für die lib, nicht in app verwenden
+
+RTC		wird mit 65ms gestartet, wird in der lib nicht verwendet, kann also in der
+		app beliebig verändert werden
+
+
+Interrupts:
+-----------
+
+Der externe Int1 und der Timer1-Int. werden bei Bedarf aktiviert und sollten nicht in der app 
+verändert werden. Alle anderen Int's sind inaktiv, EA ist aber gesetzt. Der externe Int1 hat die
+höchste Priorität (3), alle anderen die niedrigste (0). Kann in de app geändert werden, aber
+ext. Int1 muss die höchste haben! Danach sollte dann Timer1 folgen.
+
 
 ==> comments to kubi, thx!
