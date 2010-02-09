@@ -32,7 +32,7 @@
 
 void main(void)
 { 
-
+  unsigned int base;
   unsigned char n;
   restart_hw();				// Hardware zurücksetzen
  // rs_init();				// serielle Schnittstelle initialisieren
@@ -40,7 +40,12 @@ void main(void)
   restart_prot();			// Protokoll-relevante Parameter zurücksetzen
   restart_app();			// Anwendungsspezifische Einstellungen zurücksetzen
   portbuffer=P0;			// zunächst keine Änderungen bei Busspannungswiederkehr
-  
+  // Verzögerung Busspannungswiederkehr	
+  for(base=0;base<=(eeprom[0xD4]<<(eeprom[0xFE]>>4)) ;base++){//faktor startverz hohlen und um basis nach links schieben
+	  start_rtc(130);		// rtc auf 130ms
+	  while (RTCCON<=0x7F) ;	// Realtime clock ueberlauf abwarten
+	  stop_rtc;
+  }
   do  {
   
 /*	    if (RI)

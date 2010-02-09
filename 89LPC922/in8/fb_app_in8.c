@@ -286,7 +286,7 @@ void delay_timer(void)
 		    			if (duration>3){// wenn lamellenverstellzeit >3 dann zeit sichern und kurztele zwecks stop
 		    				//d.h. bei minimum nach ETS Faktor=3 T2 ist abgeschaltet->kein stop
 		    				//damit kann Jalousie als schalter mit 2 schaltebenen verwendung finden
-		    				duration=duration << (eeprom[0xFA+((objno+1)>>1)]>>(4*((objno&0x01)^0x01)));
+		    				duration=duration << ((eeprom[0xFA+((objno+1)>>1)]>>(4*((objno&0x01)^0x01)))&0x07);
 		    				duration += timer;
 		    				jobj=read_obj_value((objno&0x07)+8);
 		    				write_delay_record(objno, jobj|0x10, duration); // 0x10,0x11 fuer ende T2 (lamellenvestellzeit)
@@ -580,7 +580,6 @@ void delay(int w)	// delay ca. 4,5µs * w
 void restart_app(void)		// Alle Applikations-Parameter zurücksetzen
 {
 	unsigned char n;
-	unsigned int base;
 	bit objval=0,senden;
 	
   P0M1=0xFF;	//P0 auf input only (high impedance!)
@@ -604,12 +603,6 @@ void restart_app(void)		// Alle Applikations-Parameter zurücksetzen
   WRITE_BYTE(0x01,0x12,0x84);	// COMMSTAB Pointer
   STOP_WRITECYCLE
   EA=1;
-  // Verzögerung Busspannungswiederkehr	
-  for(base=0;base<=(eeprom[0xD4]<<(eeprom[0xFE]>>4)) ;base++){//faktor startverz hohlen und um basis nach links schieben
-	  start_rtc(130);		// rtc auf 130ms
-	  while (RTCCON<=0x7F) ;	// Realtime clock ueberlauf abwarten
-	  stop_rtc;
-  }
   //  ++++++++++++    Startverhalten bei Buswiederkehr ++++++++++
   for (n=0;n<8;n++){
 	  senden=0;
