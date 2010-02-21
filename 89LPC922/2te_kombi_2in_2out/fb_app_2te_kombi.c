@@ -261,7 +261,9 @@ void delay_timer(void)
 
 	if (delay_toggle) {	// RTC läuft auf 65ms, daher nur jedes 2. mal timer erhöhen
 		timer++;
-		if (timer==0x01000000) timer=0;	// nur 3 Byte aktiv
+//		if (timer==0x01000000) timer=0;	// nur 3 Byte aktiv
+		timer&=0x00FFFFFF;
+
 		for(objno=0;objno<=6;objno++) {  //nur zwei Objekte Relais angepasst
 			delay_state=delrec[objno*4];
 			if(delay_state!=0x00) {			// 0x00 = delay Eintrag ist leer
@@ -789,10 +791,10 @@ void send_value(unsigned char type, unsigned char objno, unsigned int sval)
     }
 
   }
-
-
-
 }
+
+
+
 
 /**
 * schreibt die Objektwerte in eine Variable
@@ -942,8 +944,12 @@ void restart_app(void)
 
 	unsigned long delay_target;
 	unsigned char zyk_basis, n, m, o,zyk_funk;
-
 	bit write_ok=0;
+
+
+	RTCCON=0x60;		// RTC anhalten und Flag löschen
+	RTCH=0x0E;			// reload Real Time Clock
+	RTCL=0xA0;
 
 	P0M1=0x0C;
 	P0M2=0x03;
@@ -982,8 +988,10 @@ void restart_app(void)
 			zyk_funk=0;
 		}
 
-		delrec[n*4]=zyk_funk;
-		delrec[n*4+3]=0x0F;
+//		delrec[n*4]=zyk_funk;
+//		delrec[n*4+3]=0x0F;
+		write_delay_record(n,zyk_funk,0x01);
+
 	}
 
 	owntele=0;
@@ -1010,6 +1018,7 @@ void restart_app(void)
 	EA=1;						// Interrupts freigeben
 
 	timer=0;			// Timer-Variable, wird alle 130ms inkrementiert
+	RTCCON=0x61;		// RTC starten
 
 
 }
