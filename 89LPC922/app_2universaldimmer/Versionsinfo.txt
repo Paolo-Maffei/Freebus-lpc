@@ -1,8 +1,8 @@
 Universaldimmer.hex
 -------------------
 
-Version 1.5
------------
+Version 1.5.2
+-------------
 
 26.2.2010
 - Erste veröffentlichte Version

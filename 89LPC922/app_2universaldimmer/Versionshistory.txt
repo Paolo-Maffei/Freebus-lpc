@@ -1,16 +1,19 @@
-
+Version 1.5.2
+-------------
+2.3.2010
+- Bug behoben: Physik. Adr konnte nicht gesetztwerden
+- Debugging: Progtaste 1..3s --> Anschnitt (tut noch nicht)
+- Debugging: Progtaste >3s --> Abschnitt
 
 
 Version 1.5
 -----------
-
 26.2.2010
 - Erste veröffentlichte Version
 - Bisher folgende Funktionen implementiert:
     o Ein/Aus
     o Dimmen
     o Helligkeitsobjekt
-    o Rückmeldeobjekte
     o Grundhelligkeit
     o Verhalten bei Busspannungsausfall (nur Stufen 0..11)
     o Einschalthelligkeit
