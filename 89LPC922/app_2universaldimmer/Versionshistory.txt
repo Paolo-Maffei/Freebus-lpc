@@ -1,7 +1,15 @@
+Version 1.5.3
+-------------
+4.3.2010
+- Debugging: Progtaste 0.5..2s --> Anschnitt (schaltet beu U=0 ab statt bei I=0)
+- Debugging: Progtaste >2s --> Abschnitt
+
+
+
 Version 1.5.2
 -------------
 2.3.2010
-- Bug behoben: Physik. Adr konnte nicht gesetztwerden
+- Bug behoben: Physik. Adr konnte nicht gesetzt werden
 - Debugging: Progtaste 1..3s --> Anschnitt (tut noch nicht)
 - Debugging: Progtaste >3s --> Abschnitt
 
