@@ -1,10 +1,10 @@
 Universaldimmer.hex
 -------------------
 
-Version 1.5.3
+Version 1.5.4
 -------------
 
-4.3.2010
+6.3.2010
 - Testversion für Debuggingzwecke
 - Bisher folgende Funktionen implementiert:
     o Ein/Aus
@@ -17,5 +17,6 @@ Version 1.5.3
     o anspringen/andimmen
     o Dimmgeschwindigkeit
 - ABschnittsdimmer
-- ANschnittsdimmer (aus bei U=0 testweise)
+- ANschnittsdimmer (aus bei I=0 testweise)
+       siehe Versionshistory
 

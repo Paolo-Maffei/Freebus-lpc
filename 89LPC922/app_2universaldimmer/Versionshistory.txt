@@ -1,3 +1,10 @@
+Version 1.5.4
+-------------
+7.3.2010
+- BUG behoben: Prio von T1 war zuu niedrig nach Parametrierung mit der ETS
+
+
+
 Version 1.5.3
 -------------
 4.3.2010
