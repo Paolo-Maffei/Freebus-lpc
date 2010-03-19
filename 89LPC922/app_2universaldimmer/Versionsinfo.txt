@@ -1,17 +1,18 @@
-Universaldimmer.hex
--------------------
+Universaldimmer.hex   Version 1.6.0
+-----------------------------------
 
-Version 1.5.4
--------------
+genaue Änderungen siehe Versionshistory.txt
 
-6.3.2010
-- Testversion für Debuggingzwecke
+Achtung: Ab version 1.6.0 ist die Ansteuerung der FETs invertiert, d.h.
+passt nur noch zu Hardware ab V1.4
+
 - Bisher folgende Funktionen implementiert:
     o Ein/Aus
     o Dimmen
     o Helligkeitsobjekt
     o Grundhelligkeit
     o Rückmeldeobjekte (Ein und Wert)
+    o Rückmeldung Kurzschluß
     o Verhalten bei Busspannungsausfall (nur Stufen 0..11)
     o Einschalthelligkeit
     o anspringen/andimmen

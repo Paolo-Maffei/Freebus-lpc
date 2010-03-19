@@ -1,3 +1,19 @@
+Version 1.6.0
+-------------
+19.3.2010
+Achtung: Ab version 1.6.0 ist die Ansteuerung der FETs invertiert, d.h.
+passt nur noch zu Hardware ab V1.4
+
+- FETs sind jetzt bei Ausgang = 1 an, d.h. invertiert zu vorher
+
+
+
+Version 1.5.5
+-------------
+7.3.2010
+- Dimmen Stopp jetzt auch mit Wert 0x88 (zusätzlich zu 0x80)
+- Rückmeldung Kurzschluss
+
 Version 1.5.4
 -------------
 7.3.2010
@@ -53,5 +69,12 @@ ToDo
 - Lichtszenen
 - Bestimmen der Dimmart
 - Abschalten bei Anschnittbei I=0
+   - Bei ANschnitt und kleiner Last -> kein I-Signal
+   - bei Anschnitt Starthilfe nötig da noch kein I-Signal
+- Spannungsausfall melden
+- Rückmeldungen:
+   - Ein:nur einmal sobald H!=0
+   - Aus: sobald H==0
+   - Wert: sobaldkeine änderung mehr (= Ziel ereicht pder dimmstopp)
   
   
