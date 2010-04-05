@@ -44,7 +44,7 @@ extern long timer;					// Timer für Schaltverzögerungen, wird alle 130us hochgez
 extern unsigned char delay_toggle;			// um nur jedes 2. Mal die delay routine auszuführen
 //extern unsigned char owntele;		// ist 0 wenn telegramm vom bus gekommen, 1 wenn eigenes tele (rückmeldung) verarbeitet wird
 //extern unsigned char respondpattern;
-extern unsigned char Kanal[3];		// Wert des Kanalobjekts
+extern unsigned char kanal[4];		// Wert des Kanalobjekts
 //extern unsigned char delrec[32];
 extern unsigned char oldportvalue;
 //void write_delay_record(unsigned char objno, unsigned char delay_status, long delay_target);	// Schreibt die Schalt-Verzoegerungswerte ins Flash

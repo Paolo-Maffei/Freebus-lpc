@@ -590,7 +590,7 @@ bit handsteuerung()
 				handmode = !handmode;
 				clear_delay_record(15);
 				if (handmode){
-					for(n=0;n<=7;n++) kanal[n]=0x00;
+					for(n=0;n<=4;n++) kanal[n]=0x00;
 					portchanged=1;
 				}
 				else{//wenn nach dem toggeln nicht handmode also ausgeschaltet
