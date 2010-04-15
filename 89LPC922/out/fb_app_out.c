@@ -145,7 +145,7 @@ void write_value_req(void)				// Ausg‰nge schalten gem‰ﬂ EIS 1 Protokoll (an/aus
                   case 0x81:
                     logicstate=logicstate|zf_bitpattern;
                 }
-                object_schalten(zfout-1, telegramm[7]&0x01);
+                object_schalten(zfout-1, read_obj_value(zfout-1));	//telegramm[7]&0x01);
               break;
               case 0x01:			// Sperren
             	block_polarity=eeprom[BLOCKPOL] & obj_bitpattern;
