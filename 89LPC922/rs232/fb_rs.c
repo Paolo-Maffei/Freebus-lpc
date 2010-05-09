@@ -58,8 +58,9 @@ void main(void)
 	cr_received=0;
 	crlf_received=0;
 
-	rs_send_s("kubi's rs-interface V1.03 ready @ ");
-	rs_send_dec(baud);
+	rs_send_s("kubi's rs-interface V1.04 ready @ ");
+	if (baud==96 || baud==192 || baud==384 || baud==576) rs_send_dec(baud);
+	else rs_send_s("1152");
 	rs_send_s("00 Baud.\n");
 
 	do  {
