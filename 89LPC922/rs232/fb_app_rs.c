@@ -12,14 +12,7 @@
  *  published by the Free Software Foundation.
  *
  */
-/**
-* @file   fb_app_rs.c
-* @author Andreas Krebs <kubi@krebsworld.de>
-* @date   2008
-*
-* @brief
-*
-*/
+
 
 #include <P89LPC922.h>
 #include "../com/fb_hal_lpc.h"
@@ -29,15 +22,26 @@
 
 
 unsigned char rsin[30];		// seriell empfangener string
+unsigned char rsinpos;
 
 __code struct ga_record __at 0x1A00 ga_db[256];
+__code unsigned char __at 0x1DFB echo;
+__code unsigned int __at 0x1DFE baud;
 
-/**
-* Empfangenes Telegramm verarbeiten
-*
-*
-* @return
-*/
+/* Flash Belegung:
+ * 1A00 bis 1DE7	250 mal GA und 2-Byte Wert
+ *
+ * 1DFB				lokales Echo an/aus
+ * 1DFC bis 1DFD	eigene PA
+ * 1DFE bis 1DFF	Baudrate
+ */
+
+
+
+
+
+
+// Empfangenes Telegramm verarbeiten
 void write_value_req(void)
 {
 	unsigned char length;
@@ -127,20 +131,57 @@ void tel_header(unsigned int ga, unsigned char length)
 }
 
 
-// konvertiert die GA, die ab Position pos in rsin[] steht in eine int
-unsigned int convert_ga(unsigned char pos)
+// konvertiert die GA oder PA, die ab Position pos in rsin[] steht in eine int
+unsigned int convert_adr(unsigned char pos)
 {
-	unsigned int ga;
-	unsigned char gah, gal;
+	unsigned int adr;
+	unsigned char sepcount, n, adr_tmp;
+	bit firstrun;
 
-    gah=((rsin[pos]-48)*10) + (rsin[pos+1]-48);
-    gah=gah*8;
-    gah=gah + (rsin[pos+3]-48);
-    gal=((rsin[pos+5]-48)*100) + ((rsin[pos+6]-48)*10) + (rsin[pos+7]-48);
-    ga=256*gah+gal;
-    return(ga);
+	firstrun=1;
+	sepcount=0;
+	n=pos;
+	adr=0;
+	adr_tmp=0;
+	while(rsin[n]!='=' && n<rsinpos) {
+		if(rsin[n]!='/' && rsin[n]!='.') {
+			if(!firstrun) adr_tmp*=10;
+			adr_tmp+=rsin[n]-48;
+			firstrun=0;
+		}
+		else {
+			sepcount++;
+			firstrun=1;
+			adr+=adr_tmp;
+			if (rsin[n]=='/') {		// für GA
+				if (sepcount==1) adr=adr<<3; else adr=adr<<8;
+			}
+			else {					// für PA
+				if (sepcount==1) adr=adr<<4; else adr=adr<<8;
+			}
+			adr_tmp=0;
+		}
+		n++;
+	}
+	adr+=adr_tmp;
+    return(adr);
 }
 
+
+
+
+unsigned char equal_pos(void)
+{
+	unsigned char n, pos;
+
+	n=0;
+	pos=0xFF;
+	while(n<rsinpos) {
+		if(rsin[n]=='=') pos=n;
+		n++;
+	}
+	return(pos);
+}
 
 
 void restart_app(void)

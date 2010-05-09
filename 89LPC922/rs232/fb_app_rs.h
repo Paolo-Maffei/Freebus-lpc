@@ -41,11 +41,15 @@ struct ga_record {
 
 
 extern unsigned char rsin[30];		// seriell empfangener string
+extern unsigned char rsinpos;
 extern __code struct ga_record __at 0x1A00 ga_db[256];
+extern __code unsigned char __at 0x1DFB echo;
+extern __code unsigned int __at 0x1DFE baud;
 
 void restart_app(void);		// Alle Applikations-Parameter zurücksetzen
 void save_ga(unsigned int ga, unsigned int val);
 void tel_header(unsigned int ga, unsigned char length);
-unsigned int convert_ga(unsigned char pos);
+unsigned int convert_adr(unsigned char pos);
+unsigned char equal_pos(void);
 void write_value_req(void);
 #endif
