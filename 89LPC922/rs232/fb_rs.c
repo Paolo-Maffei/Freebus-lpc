@@ -216,10 +216,10 @@ void main(void)
 					}
 
 					// Baudrate setzen mit fbsbr=xxxx
-					if(rsin[3]=='b' && rsin[4]=='r' && rsin[5]=='=') {
+					if(rsin[3]=='b' && rsin[4]=='r') {
 						baud_tmp=0;
-						if(rsinpos>9 && rsin[rsinpos-2]=='0' && rsin[rsinpos-1]=='0') {
-							for(n=6;n<rsinpos-2;n++) {
+						if(rsinpos>8 && rsin[rsinpos-2]=='0' && rsin[rsinpos-1]=='0') {
+							for(n=5;n<rsinpos-2;n++) {
 								baud_tmp*=10;
 								baud_tmp+=rsin[n]-48;
 							}
