@@ -5,7 +5,7 @@
  *   / __/ / _, _/ /___/ /___/ /_/ / /_/ /___/ /
  *  /_/   /_/ |_/_____/_____/_____/\____//____/
  *
- *  Copyright (c) 2008 Andreas Krebs <kubi@krebsworld.de>
+ *  Copyright (c) 2008-2010 Andreas Krebs <kubi@krebsworld.de>
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License version 2 as
@@ -27,12 +27,11 @@
 #define FB_RS232
 
 
-void rs_init(void);
+void rs_init(unsigned int baudrate);
 void rs_send_dec(unsigned int wert);
 void rs_send_hex(unsigned char wert);
 void rs_send_hex_l(unsigned long wert);
 void rs_send_hex_i(unsigned int wert);
-void rs_send_ok(void);
 void rs_send(unsigned char z);
 void rs_send_s(unsigned char *s);
 

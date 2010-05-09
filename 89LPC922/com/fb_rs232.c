@@ -34,15 +34,34 @@
 *
 *
 */
-void rs_init(void)
+void rs_init(unsigned int baudrate)
 {
+	unsigned int brg;
+
+	switch (baudrate) {
+	case 96:		// 9600 Baud
+		brg=0x02F0;
+		break;
+	case 192:		// 19200 Baud
+		brg=0x0170;
+		break;
+	case 384:		// 38400 Baud
+		brg=0x00B0;
+		break;
+	case 576:		// 57600 Baud
+		brg=0x0070;
+		break;
+	default:		// in allen anderen Fällen 115200 Baud als default
+		brg=0x0030;
+	}
+	BRGCON&=0xFE;	// Baudrate Generator stoppen
 	P1M1&=0xFC;		// RX und TX auf bidirectional setzen
 	P1M2&=0xFC;
 	SCON=0x50;		// Mode 1, receive enable
 	SSTAT|=0x40;	// TI wird am Ende des Stopbits gesetzt
 	BRGCON|=0x02;	// Baudrate Generator verwenden aber noch gestoppt
-	BRGR1=0x00;		// Baudrate = cclk/((BRGR1,BRGR0)+16)=(115200baud) = 00 30 (02 F0 für 9600 Baud)
-	BRGR0=0x30;
+	BRGR1=brg>>8;	// Baudrate = cclk/((BRGR1,BRGR0)+16)
+	BRGR0=brg;
 	BRGCON|=0x01;	// Baudrate Generator starten
 }
 
@@ -212,28 +231,6 @@ void rs_send_hex_i(unsigned int wert)
 
 
 
-
-/** 
-*
-*
-*
-*
-*/
-void rs_send_ok(void)
-{
-	SBUF='O';
-	while(!TI);
-	TI=0;
-	SBUF='K';
-	while(!TI);
-	TI=0;
-	SBUF=0x0D;
-	while(!TI);
-	TI=0;
-	SBUF=0x0A;
-	while(!TI);
-	TI=0;
-}
 
 
 
