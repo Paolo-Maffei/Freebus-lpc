@@ -37,7 +37,6 @@
 
 
 
-
 void main(void)
 {
 	unsigned char n, rs_byte, value_pos;
@@ -51,7 +50,8 @@ void main(void)
 	restart_prot();			// Protokoll-relevante Parameter zurücksetzen
 	restart_app();			// Anwendungsspezifische Einstellungen zurücksetzen
 
-
+	RXLED=1;
+	EIBLED=1;
 
 	rs_init(baud);			// serielle Schnittstelle initialisieren
 	rsinpos=0;
@@ -71,6 +71,7 @@ void main(void)
 			{
 			case 0x0D:			// CR empfangen
 				cr_received=1;
+				RXLED=1;
 				break;
 			case 0x0A:			// LF empfangen
 				//if (cr_received) crlf_received=1;
@@ -81,6 +82,7 @@ void main(void)
 				if(rsinpos>30) rsinpos=30;	// Überlauf des Puffers vermeiden
 				cr_received=0;
 				crlf_received=0;
+				RXLED=0;
 			}
 			RI=0;
 			if (echo) {
@@ -249,20 +251,12 @@ void main(void)
 					if(rsin[3]=='p' && rsin[4]=='a')
 					{
 						rs_send_dec(eeprom[0xFC]>>4);
-						SBUF='.';
-						while(!TI);
-						TI=0;
+						rs_send('.');
 						rs_send_dec(eeprom[0xFC]&0x0F);
-						SBUF='.';
-						while(!TI);
-						TI=0;
+						rs_send('.');
 						rs_send_dec(eeprom[0xFD]);
-						SBUF=0x0D;
-						while(!TI);
-						TI=0;
-						SBUF=0x0A;
-						while(!TI);
-						TI=0;
+						rs_send(0x0D);
+						rs_send(0x0A);
 					}
 
 					// gespeicherten Wert einer Gruppen-Adresse lesen (fbrgaxx/x/xxx)

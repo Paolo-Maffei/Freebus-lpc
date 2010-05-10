@@ -34,6 +34,9 @@
 #define RELMODE		0xF2	// Relaisbetrieb
 #define	DELAYTAB	0xF9	// Start der Tabelle für Verzögerungswerte (Basis)
 
+#define RXLED	P0_6
+#define EIBLED	P0_7
+
 struct ga_record {
 	unsigned int ga;
 	unsigned int val;
