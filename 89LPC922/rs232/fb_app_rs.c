@@ -105,9 +105,7 @@ void save_ga(unsigned int ga, unsigned int val)
 				FMADRH = (n >> 6) + 0x1A;		// Low Byte schreiben
 				FMADRL = ((n & 0x3F) * 4) + 2;
 				FMDATA=val;
-				FMADRH = (n >> 6) + 0x1A;		// High Byte schreiben
-				FMADRL = ((n & 0x3F) * 4) + 3;
-				FMDATA=val>>8;
+				FMDATA=val>>8;					// High Byte schreiben
 				STOP_WRITECYCLE
 				if(!(FMCON & 0x01)) write_ok=1;	// pruefen, ob erfolgreich geflasht
 			}				

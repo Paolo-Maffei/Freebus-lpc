@@ -215,7 +215,7 @@ void main(void)
 						rs_send_s("OK\n");
 					}
 
-					// Baudrate setzen mit fbsbr=xxxx
+					// Baudrate setzen mit fbsbrXXXXX
 					if(rsin[3]=='b' && rsin[4]=='r') {
 						baud_tmp=0;
 						if(rsinpos>8 && rsin[rsinpos-2]=='0' && rsin[rsinpos-1]=='0') {
@@ -266,7 +266,7 @@ void main(void)
 					}
 
 					// gespeicherten Wert einer Gruppen-Adresse lesen (fbrgaxx/x/xxx)
-					if(rsin[3]=='g' && rsin[4]=='a' && rsin[7]=='/' && rsin[9]=='/' && rsinpos==13)
+					if(rsin[3]=='g' && rsin[4]=='a')
 					{
 						groupadr=convert_adr(5);
 						n=0;
