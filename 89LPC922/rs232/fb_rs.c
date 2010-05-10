@@ -75,6 +75,7 @@ void main(void)
 				break;
 			case 0x0A:			// LF empfangen
 				//if (cr_received) crlf_received=1;
+				RXLED=1;
 				break;
 			default:
 				rsin[rsinpos]=rs_byte;		// empfangenes Byte ablegen
