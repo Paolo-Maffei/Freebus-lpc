@@ -23,6 +23,7 @@
 
 unsigned char rsin[30];		// seriell empfangener string
 unsigned char rsinpos;
+unsigned int ledcount;
 
 __code struct ga_record __at 0x1A00 ga_db[256];
 __code unsigned char __at 0x1DFB echo;
@@ -49,6 +50,7 @@ void write_value_req(void)
 	unsigned int val=0;
 
 	EIBLED=0;
+	ledcount=0;
 
 	length=telegramm[5]&0x0F;
 
@@ -76,7 +78,6 @@ void write_value_req(void)
 		ga=256*telegramm[3]+telegramm[4];
 		save_ga(ga,val);						// GA mit Wert speichern
 	}
-	EIBLED=1;
 }
 
 

@@ -52,6 +52,7 @@ void main(void)
 
 	RXLED=1;
 	EIBLED=1;
+	ledcount=0;
 
 	rs_init(baud);			// serielle Schnittstelle initialisieren
 	rsinpos=0;
@@ -64,6 +65,11 @@ void main(void)
 	rs_send_s("00 Baud.\n");
 
 	do  {
+		ledcount++;
+		if(ledcount==0xFFFF) {
+			RXLED=1;
+			EIBLED=1;
+		}
 		if (RI)
 		{
 			rs_byte=SBUF;
@@ -71,11 +77,9 @@ void main(void)
 			{
 			case 0x0D:			// CR empfangen
 				cr_received=1;
-				RXLED=1;
 				break;
 			case 0x0A:			// LF empfangen
 				//if (cr_received) crlf_received=1;
-				RXLED=1;
 				break;
 			default:
 				rsin[rsinpos]=rs_byte;		// empfangenes Byte ablegen
@@ -84,6 +88,7 @@ void main(void)
 				cr_received=0;
 				crlf_received=0;
 				RXLED=0;
+				ledcount=0;
 			}
 			RI=0;
 			if (echo) {
