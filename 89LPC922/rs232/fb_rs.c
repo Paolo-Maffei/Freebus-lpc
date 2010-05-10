@@ -23,9 +23,10 @@
  *						mit fbdump wird die interne Tabelle ausgegeben
  *				1.03	EIS5 und EIS15 eingebaut (thx daywalker)
  *						echo eingebaut
- *				1.04	Baudrate einstellbar mit fbsbr=x (x=9600, 19200, 38400, 57600, 115200)
+ *				1.04	Baudrate einstellbar mit fbsbrXXXXX (XXXXX=9600, 19200, 38400, 57600, 115200)
  *						echo status wird gespeichert
  *						kein Auffüllen mit Nullen mehr bei GA und PA
+ *						Status-LEDs für RX und EIB
  */
 
 
@@ -73,6 +74,9 @@ void main(void)
 		if (RI)
 		{
 			rs_byte=SBUF;
+			RXLED=0;
+			ledcount=0;
+
 			switch (rs_byte)
 			{
 			case 0x0D:			// CR empfangen
@@ -87,8 +91,7 @@ void main(void)
 				if(rsinpos>30) rsinpos=30;	// Überlauf des Puffers vermeiden
 				cr_received=0;
 				crlf_received=0;
-				RXLED=0;
-				ledcount=0;
+
 			}
 			RI=0;
 			if (echo) {
