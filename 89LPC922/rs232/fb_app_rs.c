@@ -23,7 +23,9 @@
 
 unsigned char rsin[30];		// seriell empfangener string
 unsigned char rsinpos;
-unsigned int ledcount;
+unsigned char ledcount;
+unsigned char eibledcount;
+unsigned char rxledcount;
 
 __code struct ga_record __at 0x1A00 ga_db[256];
 __code unsigned char __at 0x1DFB echo;
@@ -49,8 +51,8 @@ void write_value_req(void)
 	unsigned int ga;
 	unsigned int val=0;
 
-	EIBLED=0;
-	ledcount=0;
+//	EIBLED=0;
+	eibledcount=0xff;
 
 	length=telegramm[5]&0x0F;
 

@@ -53,8 +53,9 @@ void main(void)
 
 	RXLED=1;
 	EIBLED=1;
-	ledcount=0;
-
+	ledcount=0xff;
+	eibledcount=0;
+	rxledcount=0;
 	rs_init(baud);			// serielle Schnittstelle initialisieren
 	rsinpos=0;
 	cr_received=0;
@@ -66,31 +67,37 @@ void main(void)
 	rs_send_s("00 Baud.\n");
 
 	do  {
-		ledcount++;
-		if(ledcount==0xFFFF) {
-			RXLED=1;
-			EIBLED=1;
+		ledcount--;
+		if(!ledcount){
+			if(!eibledcount)EIBLED=1;
+			else eibledcount--;
+			if(!rxledcount)RXLED=1;
+			else rxledcount--;
 		}
 		if (RI)
 		{
 			rs_byte=SBUF;
 			RXLED=0;
-			ledcount=0;
+			rxledcount=0x40;
 
 			switch (rs_byte)
 			{
 			case 0x0D:			// CR empfangen
 				cr_received=1;
+				rxledcount=0xff;
 				break;
 			case 0x0A:			// LF empfangen
 				//if (cr_received) crlf_received=1;
+				break;
+			case 0x08:
+				if(rsinpos)rsinpos--;
 				break;
 			default:
 				rsin[rsinpos]=rs_byte;		// empfangenes Byte ablegen
 				rsinpos++;
 				if(rsinpos>30) rsinpos=30;	// Überlauf des Puffers vermeiden
 				cr_received=0;
-				crlf_received=0;
+				//crlf_received=0;
 
 			}
 			RI=0;
