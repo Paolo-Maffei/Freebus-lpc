@@ -70,21 +70,26 @@ void main(void)
 		ledcount--;
 		if(!ledcount){
 			if(!eibledcount)EIBLED=1;
-			else eibledcount--;
+			else {
+				eibledcount--;
+				EIBLED=0;
+			}
 			if(!rxledcount)RXLED=1;
-			else rxledcount--;
+			else {
+				rxledcount--;
+				RXLED=0;
+			}
 		}
 		if (RI)
 		{
 			rs_byte=SBUF;
-			RXLED=0;
-			rxledcount=0x40;
+			rxledcount=0x40;// * RXLED kurz eischalten
 
 			switch (rs_byte)
 			{
 			case 0x0D:			// CR empfangen
 				cr_received=1;
-				rxledcount=0xff;
+				rxledcount=0xff;// * RXLED lang einschalten
 				break;
 			case 0x0A:			// LF empfangen
 				//if (cr_received) crlf_received=1;

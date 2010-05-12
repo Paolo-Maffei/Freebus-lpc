@@ -51,8 +51,7 @@ void write_value_req(void)
 	unsigned int ga;
 	unsigned int val=0;
 
-//	EIBLED=0;
-	eibledcount=0xff;
+	eibledcount=0xff;// EIBLED lang einschalten
 
 	length=telegramm[5]&0x0F;
 

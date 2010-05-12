@@ -42,11 +42,11 @@ void timer1(void) interrupt 3
 	EX1=0;					// ext. Interrupt stoppen 
 	ET1=0;					// Interrupt von Timer 1 sperren
 	set_timer1(4830);				// 4720 und neu starten fuer korrekte Positionierung des ACK Bytes
-	EIBLED=0;
-	eibledcount=0x20;
+
+	eibledcount=0x20;		// * EIBLED kurz einschalten
 
 	if(cs==0xff) {					// Checksum des Telegramms ist OK
-	eibledcount=0x80;
+	eibledcount=0x80;		// * EIBLED mittel lang einschalten
 		data_laenge=(telegramm[5]&0x0F);	// Telegramm-Laenge = Bit 0 bis 3
 		daf=(telegramm[5]&0x80);			// Destination Adress Flag = Bit 7, 0=phys. Adr., 1=Gruppenadr.
 
@@ -76,8 +76,7 @@ bit get_ack(void)
       if (get_byte()==0xCC && parity_ok) {
     	  ret=1;
     	  n=3000;
-    		EIBLED=0;
-    		eibledcount=0x80;
+    		eibledcount=0x80;// * EIBLED mittel lang einschalten
       }
     }
   } while (n<3000);
