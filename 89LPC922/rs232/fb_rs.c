@@ -27,6 +27,7 @@
  *						echo status wird gespeichert
  *						kein Auffüllen mit Nullen mehr bei GA und PA
  *						Status-LEDs für RX und EIB
+ *						serilles Empfangen auf Int umgestellt
  */
 
 
@@ -40,89 +41,51 @@
 
 void main(void)
 {
-	unsigned char n, rs_byte, value_pos;
-	bit cr_received, crlf_received;
+	unsigned char n, value_pos;
+	bit write_ok;
 	unsigned int groupadr, pa;
 	unsigned int value;
 	unsigned int baud_tmp;
 
 
 	restart_hw();			// Hardware zurücksetzen
+	rs_init(baud);			// serielle Schnittstelle initialisieren, muss hier sein
+							// weil etwas Zeit vergehen muss bis erstmals gesendet werden kann
 	restart_prot();			// Protokoll-relevante Parameter zurücksetzen
 	restart_app();			// Anwendungsspezifische Einstellungen zurücksetzen
 
 	RXLED=1;
 	EIBLED=1;
-	ledcount=0xff;
-	eibledcount=0;
-	rxledcount=0;
-	rs_init(baud);			// serielle Schnittstelle initialisieren
-	rsinpos=0;
-	cr_received=0;
-	crlf_received=0;
+	ledcount=0;
 
-	rs_send_s("kubi's rs-interface V1.04 ready @ ");
+	rsinpos=0;
+
+	rs_send_s("kubi's RS-interface V1.04 ready @ ");
 	if (baud==96 || baud==192 || baud==384 || baud==576) rs_send_dec(baud);
 	else rs_send_s("1152");
 	rs_send_s("00 Baud.\n");
 
 	do  {
-		ledcount--;
-		if(!ledcount){
-			if(!eibledcount)EIBLED=1;
-			else {
-				eibledcount--;
-				EIBLED=0;
-			}
-			if(!rxledcount)RXLED=1;
-			else {
-				rxledcount--;
-				RXLED=0;
-			}
-		}
-		if (RI)
-		{
-			rs_byte=SBUF;
-			rxledcount=0x40;// * RXLED kurz eischalten
-
-			switch (rs_byte)
-			{
-			case 0x0D:			// CR empfangen
-				cr_received=1;
-				rxledcount=0xff;// * RXLED lang einschalten
-				break;
-			case 0x0A:			// LF empfangen
-				//if (cr_received) crlf_received=1;
-				break;
-			case 0x08:
-				if(rsinpos)rsinpos--;
-				break;
-			default:
-				rsin[rsinpos]=rs_byte;		// empfangenes Byte ablegen
-				rsinpos++;
-				if(rsinpos>30) rsinpos=30;	// Überlauf des Puffers vermeiden
-				cr_received=0;
-				//crlf_received=0;
-
-			}
-			RI=0;
-			if (echo) {
-				rs_send(rs_byte);
-				if(rs_byte==0x0D) rs_send(0x0A);	// echo LF on received CR
-			}
+		ledcount++;
+		if(ledcount==0xFFFF) {
+			RXLED=1;
+			EIBLED=1;
 		}
 
-		if (cr_received)			// Zeile vollständig empfangen
+
+		if(rsin[rsinpos-1]==0x0A) rsinpos--;	// ggf. LF entfernen
+		if(rsinpos>0 && rsin[rsinpos-1]==0x0D)	// CR empfangen
 		{
+			if(echo) rs_send(0x0A);
 			if (rsin[0]=='f' && rsin[1]=='b') {	// Magic-word 'fb' empfangen
 
 				if(rsin[2]=='s') {		// s=senden oder setzen
 
 					// EIS 1
-					if(rsin[3]=='0' && rsin[4]=='1' && rsin[rsinpos-2]=='=' && (rsin[rsinpos-1]=='0' || rsin[rsinpos-1]=='1')) {
+					if(rsin[3]=='0' && rsin[4]=='1' && rsin[rsinpos-3]=='=' && (rsin[rsinpos-2]=='0' || rsin[rsinpos-2]=='1')) {
 						groupadr=convert_adr(6);
 						tel_header(groupadr, 1);
-						if (rsin[rsinpos-1]=='1') value=1;
+						if (rsin[rsinpos-2]=='1') value=1;
 						else value=0;
 						telegramm[7]=0x80+value;
 						EX1=0;
@@ -146,17 +109,17 @@ void main(void)
 									//ascii Zeichen in Int wandeln, Anfang:
 
 						temp=0;
-						while (d<rsinpos && rsin[d]!=0x2E && rsin[d]!=0x2C) {
+						while (d<(rsinpos-1) && rsin[d]!=0x2E && rsin[d]!=0x2C) {
 							temp=temp*10;
 							temp=temp+(rsin[d]-48);
 							d++;
 						}
 						d++;
 						temp=temp*10;
-						if(d<rsinpos)temp=temp+(rsin[d]-48);//erste Stelle nach dem Komma
+						if(d<(rsinpos-1))temp=temp+(rsin[d]-48);//erste Stelle nach dem Komma
 						d++;
 						temp=temp*10;
-						if(d<rsinpos)temp=temp+(rsin[d]-48);//zweite Stelle nach dem Komma gen
+						if(d<(rsinpos-1))temp=temp+(rsin[d]-48);//zweite Stelle nach dem Komma gen
 						//ascii Zeichen in Int wandeln, Ende
 						exp=(0x0000);
 						while(temp > 0x07FF) {
@@ -186,7 +149,7 @@ void main(void)
 
 						value=0;
 						n=value_pos;
-						while(n<rsinpos) {
+						while(n<(rsinpos-1)) {
 							value*=10;
 							value+=rsin[n]-48;
 							n++;
@@ -211,7 +174,7 @@ void main(void)
 						telegramm[7]=0x80;
 
 						for(d=8;d<22;d++){
-							if((value_pos+d-8)>=rsinpos) telegramm[d]=0x00;
+							if((value_pos+d-8)>=(rsinpos-1)) telegramm[d]=0x00;
 							else telegramm[d]=rsin[(value_pos+d-8)];
 						}
 						EX1=0;
@@ -220,40 +183,43 @@ void main(void)
 						rs_send_s("OK\n");
 					}
 
-					// phys. Adresse des Adapters setzen (fbspaxx.xx.xxx)
+					// phys. Adresse des Adapters setzen (fbspaX.X.X)
 					if(rsin[3]=='p' && rsin[4]=='a')
 					{
-						/*
-						pah=(((rsin[5]-48)*10) + (rsin[6]-48))*16;
-						pah=pah + (((rsin[8]-48)*10) + (rsin[9]-48));
-						pal=(((rsin[11]-48)*100) + ((rsin[12]-48)*10) + (rsin[13]-48));
-						*/
 						pa=convert_adr(5);
-						START_WRITECYCLE
-						FMADRH = 0x1D;
-						FMADRL = 0xFC;
-						FMDATA = pa>>8;
-						FMDATA = pa;
-						STOP_WRITECYCLE
+						write_ok=0;
+						while (!write_ok) {
+							START_WRITECYCLE
+							FMADRH = 0x1D;
+							FMADRL = 0xFC;
+							FMDATA = pa>>8;
+							FMDATA = pa;
+							STOP_WRITECYCLE
+							if(!(FMCON & 0x01)) write_ok=1;	// pruefen, ob erfolgreich geflasht
+						}
 						rs_send_s("OK\n");
 					}
 
 					// Baudrate setzen mit fbsbrXXXXX
 					if(rsin[3]=='b' && rsin[4]=='r') {
 						baud_tmp=0;
-						if(rsinpos>8 && rsin[rsinpos-2]=='0' && rsin[rsinpos-1]=='0') {
-							for(n=5;n<rsinpos-2;n++) {
+						if(rsinpos>9 && rsin[rsinpos-3]=='0' && rsin[rsinpos-2]=='0') {
+							for(n=5;n<rsinpos-3;n++) {
 								baud_tmp*=10;
 								baud_tmp+=rsin[n]-48;
 							}
 						}
 						if (baud_tmp==96 || baud_tmp==192 || baud_tmp==384 || baud_tmp==576 || baud_tmp==1152) {
-							START_WRITECYCLE
-							FMADRH = 0x1D;
-							FMADRL = 0xFE;
-							FMDATA = baud_tmp;		// LSB
-							FMDATA = baud_tmp>>8;	// MSB
-							STOP_WRITECYCLE
+							write_ok=0;
+							while (!write_ok) {
+								START_WRITECYCLE
+								FMADRH = 0x1D;
+								FMADRL = 0xFE;
+								FMDATA = baud_tmp;		// LSB
+								FMDATA = baud_tmp>>8;	// MSB
+								STOP_WRITECYCLE
+								if(!(FMCON & 0x01)) write_ok=1;	// pruefen, ob erfolgreich geflasht
+							}
 							rs_send_s("OK\n");
 							rs_init(baud_tmp);
 						}
@@ -301,8 +267,7 @@ void main(void)
 
 
 				// GA-Tabelle ausgeben
-				if(rsin[2]=='d' && rsin[3]=='u' && rsin[4]=='m' && rsin[5]=='p' && rsinpos==6)
-				{
+				if(rsin[2]=='d' && rsin[3]=='u' && rsin[4]=='m' && rsin[5]=='p' && rsinpos==7) {
 					n=0;
 					do {
 						rs_send_hex(n);
@@ -318,22 +283,23 @@ void main(void)
 				}
 
 				// echo an-/ausschalten
-				if(rsin[2]=='e' && rsin[3]=='c' && rsin[4]=='h' && rsin[5]=='o' && rsin[6]=='=' && rsinpos==8)
-				{
-					START_WRITECYCLE
-					FMADRH = 0x1D;
-					FMADRL = 0xFB;
-					if(rsin[7]=='0') FMDATA=0; else FMDATA=1;
-					STOP_WRITECYCLE
+				if(rsin[2]=='e' && rsin[3]=='c' && rsin[4]=='h' && rsin[5]=='o' && rsin[6]=='=' && rsinpos==9) {
+					write_ok=0;
+					while (!write_ok) {
+						START_WRITECYCLE
+						FMADRH = 0x1D;
+						FMADRL = 0xFB;
+						if(rsin[7]=='0') FMDATA=0; else FMDATA=1;
+						STOP_WRITECYCLE
+						if(!(FMCON & 0x01)) write_ok=1;	// pruefen, ob erfolgreich geflasht
+					}
 					rs_send_s("OK\n");
 				}
 
 
 			} // von if(fb...)
-			for(n=0;n<20;n++) rsin[n]=0x00;
+			for(n=0;n<30;n++) rsin[n]=0x00;
 			rsinpos=0;
-			cr_received=0;
-			crlf_received=0;
 		} // von if(crlf_received)
 	} while(1);
 }

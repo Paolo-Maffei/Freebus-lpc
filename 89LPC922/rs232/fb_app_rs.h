@@ -5,21 +5,14 @@
  *   / __/ / _, _/ /___/ /___/ /_/ / /_/ /___/ /
  *  /_/   /_/ |_/_____/_____/_____/\____//____/
  *
- *  Copyright (c) 2008 Andreas Krebs <kubi@krebsworld.de>
+ *  Copyright (c) 2008-2010 Andreas Krebs <kubi@krebsworld.de>
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License version 2 as
  *  published by the Free Software Foundation.
  *
  */
-/**
-* @file   fb_app_rs.h
-* @author Andreas Krebs <kubi@krebsworld.de>
-* @date   2008
-*
-* @brief
-*
-*/
+
 
 #ifndef FB_APP_RS
 #define FB_APP_RS
@@ -45,9 +38,7 @@ struct ga_record {
 
 extern unsigned char rsin[30];		// seriell empfangener string
 extern unsigned char rsinpos;
-extern unsigned char ledcount;
-extern unsigned char eibledcount;
-extern unsigned char rxledcount;
+extern unsigned int ledcount;
 
 extern __code struct ga_record __at 0x1A00 ga_db[256];
 extern __code unsigned char __at 0x1DFB echo;
@@ -59,4 +50,5 @@ void tel_header(unsigned int ga, unsigned char length);
 unsigned int convert_adr(unsigned char pos);
 unsigned char equal_pos(void);
 void write_value_req(void);
+void serial_int(void) interrupt 4 using 2;
 #endif

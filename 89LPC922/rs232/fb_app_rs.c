@@ -5,7 +5,7 @@
  *   / __/ / _, _/ /___/ /___/ /_/ / /_/ /___/ /
  *  /_/   /_/ |_/_____/_____/_____/\____//____/
  *
- *  Copyright (c) 2008, 2009 Andreas Krebs <kubi@krebsworld.de>
+ *  Copyright (c) 2008-2010 Andreas Krebs <kubi@krebsworld.de>
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License version 2 as
@@ -23,9 +23,7 @@
 
 unsigned char rsin[30];		// seriell empfangener string
 unsigned char rsinpos;
-unsigned char ledcount;
-unsigned char eibledcount;
-unsigned char rxledcount;
+unsigned int ledcount;
 
 __code struct ga_record __at 0x1A00 ga_db[256];
 __code unsigned char __at 0x1DFB echo;
@@ -51,7 +49,8 @@ void write_value_req(void)
 	unsigned int ga;
 	unsigned int val=0;
 
-	eibledcount=0xff;// EIBLED lang einschalten
+	EIBLED=0;
+	ledcount=0;
 
 	length=telegramm[5]&0x0F;
 
@@ -103,8 +102,6 @@ void save_ga(unsigned int ga, unsigned int val)
 					FMADRH = (n >> 6) + 0x1A;		// Low Byte schreiben
 					FMADRL = ((n & 0x3F) * 4);		// (int wird LSB first abgelegt)
 					FMDATA=ga;
-					FMADRH = (n >> 6) + 0x1A;		// High Byte schreiben
-					FMADRL = ((n & 0x3F) * 4) + 1;
 					FMDATA=ga>>8;
 				}
 				FMADRH = (n >> 6) + 0x1A;		// Low Byte schreiben
@@ -146,7 +143,7 @@ unsigned int convert_adr(unsigned char pos)
 	n=pos;
 	adr=0;
 	adr_tmp=0;
-	while(rsin[n]!='=' && n<rsinpos) {
+	while(rsin[n]!='=' && n<(rsinpos-1)) {
 		if(rsin[n]!='/' && rsin[n]!='.') {
 			if(!firstrun) adr_tmp*=10;
 			adr_tmp+=rsin[n]-48;
@@ -172,14 +169,14 @@ unsigned int convert_adr(unsigned char pos)
 
 
 
-
+// gibt die Position des = Zeichens im empfangenen string zurück
 unsigned char equal_pos(void)
 {
 	unsigned char n, pos;
 
 	n=0;
 	pos=0xFF;
-	while(n<rsinpos) {
+	while(n<(rsinpos-1)) {
 		if(rsin[n]=='=') pos=n;
 		n++;
 	}
@@ -187,9 +184,31 @@ unsigned char equal_pos(void)
 }
 
 
+void serial_int(void) interrupt 4 using 1	// Interrupt on received char from serial port
+{
+	ES=0;
+	if (rsinpos<30) {
+		if(SBUF!=0x0A) {
+			rsin[rsinpos]=SBUF;		// store byte in rsin
+			rsinpos++;
+			if (echo) {
+				while(!TI);
+				SBUF=SBUF;
+				TI=0;
+			}
+		}
+	}
+	else rsinpos=0;
+	RI=0;
+	ES=1;
+}
+
+
+
 void restart_app(void)
 {
 	unsigned char n;
+	bit write_ok;
 	
 	P0M1=0x00;
 	P0M2=0x00;
@@ -198,14 +217,22 @@ void restart_app(void)
 	
 	n=0;
 	do {								// GA Tabelle löschen
-		START_WRITECYCLE
-		FMADRH = (n >> 6) + 0x1A;
-		FMADRL = ((n & 0x3F) * 4);
-		FMDATA=0xFF;					// High Byte GA schreiben
-		FMDATA=0xFF;					// Low Byte GA schreiben
-		FMDATA=0xFF;					// Wert
-		FMDATA=0xFF;
-		STOP_WRITECYCLE
+		write_ok=0;
+		while (!write_ok) {
+			START_WRITECYCLE
+			FMADRH = (n >> 6) + 0x1A;
+			FMADRL = ((n & 0x3F) * 4);
+			FMDATA=0xFF;					// High Byte GA schreiben
+			FMDATA=0xFF;					// Low Byte GA schreiben
+			FMDATA=0xFF;					// Wert
+			FMDATA=0xFF;
+			STOP_WRITECYCLE
+			if(!(FMCON & 0x01)) write_ok=1;	// pruefen, ob erfolgreich geflasht
+		}
 		n++;
 	}while(n<250);
+
+	RI=0;
+	TI=1;
+	ES=1;
 }
