@@ -37,7 +37,7 @@
 #include "../com/fb_rs232.h"
 #include "fb_app_rs.h"
 
-
+// kubi-----
 
 void main(void)
 {
@@ -56,8 +56,9 @@ void main(void)
 
 	RXLED=1;
 	EIBLED=1;
-	ledcount=0;
-
+	ledcount=0xff;
+	eibledcount=0;
+	rxledcount=0;
 	rsinpos=0;
 
 	rs_send_s("kubi's RS-interface V1.04 ready @ ");
@@ -66,16 +67,23 @@ void main(void)
 	rs_send_s("00 Baud.\n");
 
 	do  {
-		ledcount++;
-		if(ledcount==0xFFFF) {
-			RXLED=1;
-			EIBLED=1;
+		ledcount--;
+		if(!ledcount){
+			if(!eibledcount)EIBLED=1;
+			else {
+				eibledcount--;
+				EIBLED=0;
+			}
+			if(!rxledcount)RXLED=1;
+			else {
+				rxledcount--;
+				RXLED=0;
+			}
 		}
-
-
 		if(rsin[rsinpos-1]==0x0A) rsinpos--;	// ggf. LF entfernen
 		if(rsinpos>0 && rsin[rsinpos-1]==0x0D)	// CR empfangen
 		{
+			rxledcount=0xff;// * RXLED lang einschalten
 			if(echo) rs_send(0x0A);
 			if (rsin[0]=='f' && rsin[1]=='b') {	// Magic-word 'fb' empfangen
 

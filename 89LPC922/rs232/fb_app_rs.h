@@ -38,7 +38,9 @@ struct ga_record {
 
 extern unsigned char rsin[30];		// seriell empfangener string
 extern unsigned char rsinpos;
-extern unsigned int ledcount;
+extern unsigned char ledcount;
+extern unsigned char eibledcount;
+extern unsigned char rxledcount;
 
 extern __code struct ga_record __at 0x1A00 ga_db[256];
 extern __code unsigned char __at 0x1DFB echo;
