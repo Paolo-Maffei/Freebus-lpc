@@ -23,9 +23,6 @@
 
 unsigned char rsin[30];		// seriell empfangener string
 unsigned char rsinpos;
-unsigned char ledcount;
-unsigned char eibledcount;
-unsigned char rxledcount;
 
 __code struct ga_record __at 0x1A00 ga_db[256];
 __code unsigned char __at 0x1DFB echo;

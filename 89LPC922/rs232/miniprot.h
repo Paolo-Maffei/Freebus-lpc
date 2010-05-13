@@ -39,6 +39,10 @@ extern bit parity_ok;				// Parity Bit des letzten empfangenen Bytes OK
 extern unsigned char last_tel;
 extern bit transparency;			// wenn 1 dann wird telegramm lokal nicht verarbeitet
 
+extern unsigned char ledcount;
+extern unsigned char eibledcount;
+extern unsigned char rxledcount;
+
 
 void timer1(void) interrupt 3;	// Interrupt von Timer 1, 370us keine Busaktivitaet seit letztem Byte,
 bit get_ack(void);				// wartet bis Byte empfangen wurde und prueft ob es ein ACK war  <- suboptimal, besser mit timeout !!!
@@ -46,6 +50,9 @@ void send_telegramm(void);		// sendet das Telegramm, das in telegramm[] vorher a
 void send_ack(void);			// wartet auf Timer 1 wegen korrekter Positionierung und sendet ACK (0xCC)
 void restart_prot(void);		// Protokoll-relevante Parameter zuruecksetzen
 
+// Funktionen die sich in der app befinden müssen
+extern void write_value_req(void);		// Routine zur Verarbeitung eingegegangener Telegramme zum Schreiben eines Objektwertes
+extern void read_value_req(void);		// Objektwerte lesen angefordert
 
 
 
