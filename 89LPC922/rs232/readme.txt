@@ -5,13 +5,13 @@ Die Schnittstelle ist auf 115.200 Baud,n,8,1 eingestellt.
 Vom Bus empfangene Multicast-Telegramme werden in der Form x/x/x=y[CR][LF] an der seriellen Schnittstelle ausgegeben. (z.B. 1/5/27=1)
 
 
-Folgende Kommandos können an das Interface gesendet werden, jeweils durch ein CR LF abgeschlossen:
+Folgende Kommandos können an das Interface gesendet werden, jeweils durch ein CR abgeschlossen:
 
 
 fbs01/BB/L/TTT=0 oder 1 : sendet ein EIS1 Telegramm auf den Bus
 
-	BB/L/TTT ist die Gruppenadresse genau in dem Format (ggf. mit Nullen auffüllen!)
-	Beispiel: fbs01/01/4/007=1[CR][LF] schaltet Gruppenadresse 1/4/7 ein
+	BB/L/TTT ist die Gruppenadresse genau in dem Format 
+	Beispiel: fbs01/1/4/7=1[CR] schaltet Gruppenadresse 1/4/7 ein
 
 
 fbs06/BB/L/TTT=[0..255]	: sendet ein EIS6 Telegramm, z.b. für Dimmwerte
@@ -26,8 +26,7 @@ fbs15/BB/L/TTT=[A-Z,a-z,0-9]	: sendet ein EIS15 Telegramm, für Ascii Texte, max.
 fbrpa 			: lesen der physikalischen Adresse des Adapters
 
 
-fbspaXX.XX.XXX 		: Setzt die physikalische Adresse des Adapters (ggf. mit Nullen
-			  auffüllen!)
+fbspaXX.XX.XXX 		: Setzt die physikalische Adresse des Adapters 
 
 
 fbrgaBB/L/TTT		: liest den gespeicherten Wert einer Gruppenadresse aus
@@ -39,5 +38,6 @@ fbrgaBB/L/TTT		: liest den gespeicherten Wert einer Gruppenadresse aus
 
 fbdump			: gibt die interne Tabelle der GA aus
 
+fbsbr[115200,57600,19200,9600]: setzt die baudrate der schnittstelle, wird im flash gesichert.
 
 weiteres folgt...
