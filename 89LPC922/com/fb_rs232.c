@@ -5,22 +5,13 @@
  *   / __/ / _, _/ /___/ /___/ /_/ / /_/ /___/ /
  *  /_/   /_/ |_/_____/_____/_____/\____//____/
  *
- *  Copyright (c) 2008 Andreas Krebs <kubi@krebsworld.de>
+ *  Copyright (c) 2008-2010 Andreas Krebs <kubi@krebsworld.de>
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License version 2 as
  *  published by the Free Software Foundation.
  *
  */
-/**
-* @file   fb_rs232.c
-* @author Andreas Krebs <kubi@krebsworld.de>
-* @date    2008
-* 
-* @brief  Hier sind ausschliesslich die RS232 Routinen fuer den 89LPC922
-* 
-* 	serielle auf 115200,n,8,1 
-*/
 
 
 #include <P89LPC922.h>
@@ -28,12 +19,7 @@
 
 
 
-/** 
-* serielle auf 115200,n,8,1 initialisieren
-*
-*
-*
-*/
+
 void rs_init(unsigned int baudrate)
 {
 	unsigned int brg;
@@ -58,11 +44,12 @@ void rs_init(unsigned int baudrate)
 	P1M1&=0xFC;		// RX und TX auf bidirectional setzen
 	P1M2&=0xFC;
 	SCON=0x50;		// Mode 1, receive enable
-	SSTAT|=0x40;	// TI wird am Ende des Stopbits gesetzt
+	SSTAT|=0xE0;	// TI wird am Ende des Stopbits gesetzt und Interrupt nur bei RX und double TX buffer an
 	BRGCON|=0x02;	// Baudrate Generator verwenden aber noch gestoppt
 	BRGR1=brg>>8;	// Baudrate = cclk/((BRGR1,BRGR0)+16)
 	BRGR0=brg;
 	BRGCON|=0x01;	// Baudrate Generator starten
+	TI=1;
 }
 
 
@@ -90,8 +77,9 @@ void rs_send_dec(unsigned int wert)
 	}
   	if(n>0)
   	{
-  		SBUF=n+48;
   		while(!TI);
+  		SBUF=n+48;
+
   		TI=0;
   		zero=0;
   	}
@@ -103,8 +91,9 @@ void rs_send_dec(unsigned int wert)
 	}
   	if(n>0 || !zero)
   	{
-  		SBUF=n+48;
   		while(!TI);
+  		SBUF=n+48;
+
   		TI=0;
   		zero=0;
   	}  	
@@ -116,8 +105,9 @@ void rs_send_dec(unsigned int wert)
 	}
   	if(n>0 || !zero)
   	{
-  		SBUF=n+48;
   		while(!TI);
+  		SBUF=n+48;
+
   		TI=0;
   		zero=0;
   	}
@@ -129,15 +119,16 @@ void rs_send_dec(unsigned int wert)
 	}
   	if(n>0 || !zero)
   	{
-  		SBUF=n+48;
   		while(!TI);
+  		SBUF=n+48;
+
   		TI=0;
   		zero=0;
   	}
   	
-
-  	SBUF=wert+48;
   	while(!TI);
+  	SBUF=wert+48;
+
   	TI=0;
 }
 
@@ -157,12 +148,14 @@ void rs_send_s(unsigned char *s)
 	{
 		if(s[n]=='\n')
 		{
-			SBUF=0x0d;
 			while(!TI);
+			SBUF=0x0d;
+
 			TI=0;
 		}
-		SBUF=s[n];
 		while(!TI);
+		SBUF=s[n];
+
 		TI=0;
 		n++;
 		if(n>254)
@@ -242,7 +235,8 @@ void rs_send_hex_i(unsigned int wert)
 */
 void rs_send(unsigned char z)
 {
+	while(!TI);
 	SBUF=z;
- 	while(!TI);
+
  	TI=0;
 }
