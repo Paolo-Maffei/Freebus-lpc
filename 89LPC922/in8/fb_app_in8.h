@@ -24,7 +24,7 @@
 extern unsigned char portbuffer,p0h;	// Zwischenspeicherung der Portzustände
 extern unsigned char blocked;	// Sperrobjekte
 void pin_changed(unsigned char pinno);
-void schalten(unsigned char risefall, unsigned char pinno);	// Schaltbefehl senden
+void schalten(bit risefall, unsigned char pinno);	// Schaltbefehl senden
 unsigned char pin_function(unsigned char pinno);	// Funktion des Eingangs ermitteln
 unsigned char debounce(unsigned char pinno);		// Entprellzeit abwarten und prüfen
 void send_cyclic(unsigned char pinno);

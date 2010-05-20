@@ -41,6 +41,9 @@ void pin_changed(unsigned char pinno)
 	bit objval=0,jobj=0;
 	bit st_Flanke=0;
 	unsigned char pinnoX4,para_adr;
+ //   unsigned char sendval=0;
+//	   unsigned char func,sendval=0;
+
 	//const unsigned char para_adr_feld[]={0xF6,0xF7,0xF7,0xF8,0xF8,0xF9,0xF9,0xFA};
 	EX1=0;		// externen Interrupt 1 sperren
 	pinnoX4=pinno*4;
@@ -54,19 +57,24 @@ void pin_changed(unsigned char pinno)
 //	}
 	switch ((eeprom[0xCE+(pinno>>1)] >> ((pinno & 0x01)*4)) & 0x0F)	// Funktion des Eingangs
     {
-     case 0x01:				// Funktion Schalten
-        if(st_Flanke)	
-        {
-          schalten(1,pinno);			// steigende Flanke Eingang x.1
-          schalten(1,pinno+8);			// steigende Flanke Eingang x.2
-        }
-        else
-        {
-          schalten(0,pinno);			// fallende Flanke Eingang x.1
-          schalten(0,pinno+8);			// fallende Flanke Eingang x.2
-        }
-        send_cyclic(pinno);
-      break;  
+    case 0x01:				// Funktion Schalten
+    	schalten(st_Flanke,pinno);			// Flanke Eingang x.1
+
+         tmp=(eeprom[para_adr]&0x0C);//0xD5/ bit 2-3 zykl senden aktiv 2. Schaltebene
+          		
+         if ((tmp==4 && st_Flanke==1)||(tmp==8 && st_Flanke==0)){
+         			duration= eeprom[para_adr+1];//0xD6 Faktor Dauer )
+         			// im Nachfolgenden wird die Zeitbasis geholt und schiebt duration nach links
+         			//duration=duration << 0;//timebase;// Basis Dauer zwischen kurz und langzeit)	
+         			duration+=timer;//Zeitfaktor zum timer adieren(basis fest auf 130ms)
+         			write_delay_record(pinno, 0x20|st_Flanke, duration);//speichern des portzustandes
+         }
+         else {// kein zyklsenden, bzw loslassen
+         			clear_delay_record(pinno);
+         			schalten(st_Flanke,pinno+8);		// Flanke Eingang x.2
+         }
+
+     break;  
       case 0x02:				// Funktion Dimmen
     		/***********************
     		 * Funktion Dimmen
@@ -173,7 +181,7 @@ void pin_changed(unsigned char pinno)
         	typ=0x01;
         	objoffset=0;//läuft absichtlich in den nächsten case
         case 0x07:// Temperaturwertgeber
-         	para_value=para_value |0x1F;
+         	//para_value=para_value |0x1F; <--wird in Helligkeitswertgeber eh nochmal erledigt!
          	typ=typ|0x02;//kein objoffset zugewiesen,d.h. 8,da mit 8 initialisiert
         case 0x08:// Helligkeitswertgeber,
         	para_value=para_value |0x1F;
@@ -234,7 +242,7 @@ int eis5conversion(int zahl,unsigned char Typ)
  	return (wert+(exp<<11));// exponent dazu, geht auch bei EIS2 da EXP hier 0 ist.
 }
 
-
+/*
 void send_cyclic(unsigned char pinno)
 {
 	pinno;
@@ -253,6 +261,7 @@ unsigned char switch_dim(unsigned char pinno)
 pinno;
 return(1);
 }
+*/
 /** 
 * zaehlt alle 130ms die Variable Timer hoch und prueft records
 *
@@ -269,7 +278,7 @@ void delay_timer(void)
 	bit jobj=0;
 	stop_rtc();
 	timer++;
-	if (timer==0x01000000) timer=0;	// nur 3 Byte aktiv
+	timer&=0x00FFFFFF;	// nur 3 Byte aktiv
 	for(objno=0;objno<8;objno++) {
 		delay_state=delrec[objno*4];
 		if(delay_state!=0x00) {			// 0x00 = delay Eintrag ist leer   
@@ -277,7 +286,10 @@ void delay_timer(void)
 			delval=(delval<<8)+delrec[objno*4+2];
 			delval=(delval<<8)+delrec[objno*4+3];	// delval enthaelt den im delay record gespeicherten timer-wert
 			if(delval==timer) {	// ... es ist also soweit
-
+				if (delay_state & 0x20){
+					schalten(delay_state&0x01,objno+8);
+					clear_delay_record(objno);
+				}
 				if (delay_state & 0x80) { // 0x80, 0x81 für langzeit telegramm senden
 						send_value(1, objno+8, delay_state & 0x01);	// Langzeit Telegramm senden
 						// *** delay record neu laden für Dauer Lamellenverstellung ***
@@ -308,29 +320,23 @@ void delay_timer(void)
 }
 
 
-
-void schalten(unsigned char risefall, unsigned char pinno)	// Schaltbefehl senden
+void schalten(bit risefall, unsigned char pinno)	// Schaltbefehl senden
 {
-  unsigned char func,sendval=0;
-  func=eeprom[0xD7+((pinno&0x07)*4)];
-  
-  if (pinno<=7) {
-	  if (risefall==1) func=(func>>2)&0x03;		// Funktion bei steigender Flanke
-	  else func=func&0x03;						// Funktion bei fallender Flanke
-  }
-  else {
-	  if (risefall==1) func=(func>>6)&0x03;		// Funktion bei steigender Flanke
-	  else func=(func>>4)&0x03;					// Funktion bei fallender Flanke
-  }
+	unsigned char func,sendval=0;
 
-  if (func!=0)
-  {
-      if (func==0x03) sendval=(read_obj_value(pinno)^0x01);  //UM
-      else sendval = func & 0x01;	// EIN   AUS
-   	  send_value(1,pinno,sendval);
-  }
+		func=eeprom[0xD7+(pinno & 0x07)*4]; //0xD7
+		if (pinno>=8)func=func>>4;			// wenn 2. Schaltobjekt dann obere 4 bit
+		if (risefall) func=(func>>2);		// Funktion bei steigender Flanke obere 2 bit
+		func=func&0x03;					// Funktion maskieren
+		if (func!=0)
+		{
+			if (func==0x03) sendval=read_obj_value(pinno) ^0x01;  //UM
+			else sendval = func & 0x01;	// EIN   AUS
+			send_value(1,pinno,sendval);
+		}
+   
+	
 }
-
 
 
 /*
@@ -606,6 +612,7 @@ void restart_app(void)		// Alle Applikations-Parameter zurücksetzen
   //  ++++++++++++    Startverhalten bei Buswiederkehr ++++++++++
   for (n=0;n<8;n++){
 	  senden=0;
+	  clear_delay_record(n);
 	  switch ((eeprom[0xCE+(n>>1)] >> ((n & 0x01)*4)) & 0x0F)	// Funktion des objektes
 		{
 		case 0x01:// schalten
