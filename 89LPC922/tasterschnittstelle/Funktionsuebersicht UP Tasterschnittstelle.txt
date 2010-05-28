@@ -1,0 +1,30 @@
+Funktionen UP Tasterschnittstelle
+
+basiert auf	Jung 2092 4-fach Taster		(4 Taster + 4 Status LED)
+		Jung 2094 8-fach Taster		(8 Taster)
+
+
+Allgemein
+-Funktion der Betriebs LED einstellbar			ja
+-Funktion der Status LED einstellbar			nur 4-fach Taster
+
+Schalten
+-Ein/Aus/Um						ja
+-Verhalten bei Drücken und Loslassen einstellbar	ja
+
+Dimmen
+-Einflächenbedienung					ja
+-Zweiflächenbedienung					ja
+-Telegrammwiederhohlung					ja
+
+Jalousie/Rollo
+-Auf/Ab							ja
+-Kurz/Lang						ja
+
+Wertgeber
+-Lichtszenenaufruf ohne Speicherfunktion		ja
+-Lichtszenenaufruf mit Speicherfunktion			ja
+-Dimmwertgeber						ja
+-Temperaturwertgeber					ja
+-Helligkeitswertgeber					ja
+-Wertverstellung (Dimmen, Temperatur, Helligkeit)	ja
