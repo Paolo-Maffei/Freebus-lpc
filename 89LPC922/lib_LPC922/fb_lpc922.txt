@@ -23,6 +23,10 @@ tel_arrived	wird gesetzt, wenn ein Telegramm empfangen wurde und das Gerät adres
 auto_ack	wenn gesetzt, werden empfangene Telegramme geprüft, ob sie für das Gerät
 			gemeint waren, daraufhin wird ein ACK oder NACK automatisch gesendet, Wert
 			nach hw_restart: 1
+
+interrupted	wird gesetzt wenn entweder der externe interrupt oder timer1 interrupt aufgerufen wird,
+		muss in der app zurückgesetzt werden
+
 			
 unsigned char Variablen:
 ------------------------
