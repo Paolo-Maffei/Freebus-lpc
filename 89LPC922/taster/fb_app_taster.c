@@ -5,7 +5,7 @@
  *   / __/ / _, _/ /___/ /___/ /_/ / /_/ /___/ / 
  *  /_/   /_/ |_/_____/_____/_____/\____//____/  
  *                                      
- *  Copyright (c) 2008 Andreas Krebs <kubi@krebsworld.de>
+ *  Copyright (c) 2008,2009,2010 Andreas Krebs <kubi@krebsworld.de>
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License version 2 as
@@ -26,10 +26,8 @@
 */
 
 #include <P89LPC922.h>
-#include "../com/fb_hal_lpc.h"
-#include "../com/fb_prot.h"
+#include "../lib_lpc922/fb_lpc922.h"
 #include "../com/fb_delay.h"
-//#include "../com/fb_rs232.h"
 #include "fb_app_taster.h"
 
 
@@ -37,6 +35,7 @@ long timer; /// Timer fuer Schaltverzoegerungen, wird alle 130us hochgezaehlt
 bit delay_toggle; /// um nur jedes 2. Mal die delay routine auszufuehren
 long buttontimer[4];
 unsigned char button_buffer; /// Puffer fuer Taster Werte
+//unsigned char object_value[8];
 
 
 
@@ -101,7 +100,10 @@ void button_changed(unsigned char buttonno, bit buttonval)
 		}
 
 		if (command) {	// nur wenn EIN, UM oder AUS (0=keine Funktion)
-			send_eis(1,buttonno,objval);		// EIS 1 Telegramm senden
+			//send_eis(1,buttonno,objval);		// EIS 1 Telegramm senden
+			write_obj_value(buttonno,objval);
+			send_obj_value(buttonno);
+
 			switch_led(buttonno, objval);		// LED schalten
 		}
 		break;
@@ -140,18 +142,27 @@ void button_changed(unsigned char buttonno, bit buttonval)
 			if (delrec[(buttonno+4)*4]) {		// wenn delaytimer noch lauft, dann Schalten, also EIS1 telegramm senden
 				switch (eeprom[COMMAND+(buttonno*4)]&0x30) {
 				case 0x10:	// zweiflï¿½chen ein
-					send_eis(1, buttonno, 1);
+					//send_eis(1, buttonno, 1);
+					write_obj_value(buttonno,1);
+					send_obj_value(buttonno);
+
 					switch_led(buttonno,1);
 					break;
 				case 0x30:	// zweiflï¿½chen aus
-					send_eis(1, buttonno, 0);
+					//send_eis(1, buttonno, 0);
+					write_obj_value(buttonno,0);
+					send_obj_value(buttonno);
+
 					switch_led(buttonno,0);
 				}
 				clear_delay_record(buttonno+4);
 			}
 			else {	// Timer schon abgelaufen (also dimmen), dann beim loslassen stop-telegramm senden
 				if ((eeprom[COMMAND+(buttonno*4)] & 0x40) == 0) {	// ... natuerlich nur wenn parameter dementsprechend (0=senden!!!)
-					send_eis(2, buttonno+8, 0);		// Stop Telegramm
+					//send_eis(2, buttonno+8, 0);		// Stop Telegramm
+					write_obj_value(buttonno+8,0);
+					send_obj_value(buttonno+8);
+
 				}
 				else write_obj_value(buttonno+8,0);	// auch wenn Stopp Telegramm nicht gesendet wird, Objektwert auf 0 setzen
 			}
@@ -165,7 +176,10 @@ void button_changed(unsigned char buttonno, bit buttonval)
 	 ****************************/
 	case 3:
 		if (buttonval) {	// Taster gedrueckt -> schauen wie lange gehalten
-			send_eis(1, buttonno, ((eeprom[0xD3+(buttonno*4)]&0x10)>>4));	// Kurzzeit telegramm immer bei Drücken senden
+			//send_eis(1, buttonno, ((eeprom[0xD3+(buttonno*4)]&0x10)>>4));	// Kurzzeit telegramm immer bei Drücken senden
+			write_obj_value(buttonno,((eeprom[0xD3+(buttonno*4)]&0x10)>>4));
+			send_obj_value(buttonno);
+
 			switch_led(buttonno,1);	// Status-LED schalten
 			duration=eeprom[0xD5+(buttonno*4)];	// Faktor Dauer			
 			switch (eeprom[0xD4+(buttonno*4)]&0x06) { // Basis Dauer zwischen kurz und langzeit
@@ -182,10 +196,25 @@ void button_changed(unsigned char buttonno, bit buttonval)
 			write_delay_record(buttonno+4, ((eeprom[0xD3+(buttonno*4)]&0x10)>>4)+0x80, duration);
 		}
 		else {	// Taster losgelassen
-			if (delrec[(buttonno+4)*4] & 0x10) send_eis(1, buttonno, ((eeprom[0xD3+(buttonno*4)]&0x10)>>4));	// wenn delaytimer noch laueft und in T2 ist, dann kurzzeit telegramm senden
+			//if (delrec[(buttonno+4)*4] & 0x10) send_eis(1, buttonno, ((eeprom[0xD3+(buttonno*4)]&0x10)>>4));	// wenn delaytimer noch laueft und in T2 ist, dann kurzzeit telegramm senden
+			if (delrec[(buttonno+4)*4] & 0x10) {
+				write_obj_value(buttonno,((eeprom[0xD3+(buttonno*4)]&0x10)>>4));
+				send_obj_value(buttonno);
+			}
 			else clear_delay_record(buttonno+4);	// T2 bereits abgelaufen
 		}
 	}
+}
+
+
+unsigned long read_obj_value(unsigned char objno)
+{
+	return(object_value[objno]);
+}
+
+void write_obj_value(unsigned char objno, unsigned char objval)
+{
+	object_value[objno]=objval;
 }
 
 
@@ -203,7 +232,7 @@ void write_value_req(void)
 	gapos=gapos_in_gat(telegramm[3],telegramm[4]);
 	if (gapos!=0xFF)	
 	{
-		if ((telegramm[1] != eeprom[ADDRTAB+1]) || (telegramm[2] != eeprom[ADDRTAB+2])) send_ack();
+		//if ((telegramm[1] != eeprom[ADDRTAB+1]) || (telegramm[2] != eeprom[ADDRTAB+2])) send_ack();
 	    atp=eeprom[ASSOCTABPTR];			// Association Table Pointer
 	    assno=eeprom[atp];					// Erster Eintrag = Anzahl Eintraege
 	 
@@ -238,13 +267,17 @@ void read_value_req(void)
 	
 	objno=find_first_objno(telegramm[3],telegramm[4]);	// erste Objektnummer zu empfangener GA finden
 	if(objno!=0xFF) {	// falls Gruppenadresse nicht gefunden
-		send_ack(); 
+		//send_ack();
 		
 		objvalue=read_obj_value(objno);		// Objektwert aus USER-RAM lesen (Standard Einstellung)
 
 		objflags=read_objflags(objno);		// Objekt Flags lesen
 		// Objekt lesen, nur wenn read enable gesetzt (Bit3) und Kommunikation zulaessig (Bit2)
-		if((objflags&0x0C)==0x0C) send_eis(0,objno,objvalue);
+		//if((objflags&0x0C)==0x0C) send_eis(0,objno,objvalue);
+		if((objflags&0x0C)==0x0C) {
+			write_obj_value(objno,objvalue);
+			send_obj_value(objno+0x40);
+		}
     }
 }
 
@@ -296,17 +329,7 @@ void switch_led(unsigned char ledno, bit onoff)
 
 
 
-
-/** 
-* sucht Gruppenadresse fuer das Objekt objno und sendet ein EIS Telegramm
-* mit dem Wert sval+0x80
-*
-* \param  eistyp <Beschreibung>
-* \param  objno <Beschreibung>
-* \param  sval <Beschreibung>
-*
-* @return void
-*/
+/*
 void send_eis(unsigned char eistyp, unsigned char objno, int sval)
 {
   int ga;
@@ -355,6 +378,8 @@ void send_eis(unsigned char eistyp, unsigned char objno, int sval)
   }
   else write_obj_value(objno, sval);	// Objektwert trotzdem im USERRAM speichern
 }  
+*/
+
 
 
 /** 
@@ -385,7 +410,10 @@ void delay_timer(void)
 				}
 				else {	// delrec-Eintraege 4-7 sind die Abfragen wie lange Taster gedrueckt, bzw. wann er losgelassen wurde
 					if (delay_state & 0x80) { // 0x80, 0x81 für langzeit telegramm senden
-						send_eis(1, objno+4, delay_state & 0x01);	// Langzeit Telegramm senden
+						//send_eis(1, objno+4, delay_state & 0x01);	// Langzeit Telegramm senden
+						write_obj_value(objno+4,delay_state & 0x01);
+						send_obj_value(objno+4);
+
 						// *** delay record neu laden für Dauer Lamellenverstellung ***
 						duration=eeprom[DEL_FACTOR2+((objno-4)*4)];	// Faktor Dauer	T2		
 						switch (eeprom[DEL_BASE+((objno-4)*4)]&0x60) { // Basis Dauer T2
@@ -408,7 +436,10 @@ void delay_timer(void)
 					if (delay_state & 0x10) clear_delay_record(objno); // wenn T2 abgelaufen dann nichts mehr machen
 					
 					if (delay_state & 0x40) { // 0x4? fuer Dimmer Funktion
-						send_eis(2, objno+4, delay_state);	// Langzeit Telegramm senden
+						//send_eis(2, objno+4, delay_state);	// Langzeit Telegramm senden
+						write_obj_value(objno+4,delay_state);
+						send_obj_value(objno+4);
+
 						clear_delay_record(objno);
 					}
 				}

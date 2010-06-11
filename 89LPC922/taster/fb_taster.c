@@ -5,7 +5,7 @@
  *   / __/ / _, _/ /___/ /___/ /_/ / /_/ /___/ / 
  *  /_/   /_/ |_/_____/_____/_____/\____//____/  
  *                                      
- *  Copyright (c) 2008,2009 Andreas Krebs <kubi@krebsworld.de>
+ *  Copyright (c) 2008,2009,2010 Andreas Krebs <kubi@krebsworld.de>
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License version 2 as
@@ -32,8 +32,7 @@
 	
 
 #include <P89LPC922.h>
-#include "../com/fb_hal_lpc.h"
-#include "../com/fb_prot.h"
+#include "../lib_lpc922/fb_lpc922.h"
 #include "../com/fb_delay.h"
 #include "fb_app_taster.h"
 
@@ -41,7 +40,7 @@
 //#define NOPROGBUTTON	// es ist kein prog Taster vorhanden sondern progmode wird durch druecken von taste 1&3 oder 2&4 aktiviert
 
 
-
+unsigned char object_value[12];	// wird hier deklariert um den Speicher besser auszunutzen!!!
 
 /** 
 * The start point of the program, init all libraries, start the bus interface, the application
@@ -59,7 +58,6 @@ void main(void)
 		set_timer0(0xFFFF);					// Warten bis Bus stabil
 		while(!TF0);
 	}
-	restart_prot();							// Protokoll-relevante Parameter zuruecksetzen
 	restart_app();							// Anwendungsspezifische Einstellungen zuruecksetzen
 
 	do  {
@@ -74,24 +72,20 @@ void main(void)
 		if (!TASTER) {						// Programmiertaster gedrueckt
 			for(n=0;n<100;n++) {}
 			while(!TASTER);					// warten bis Programmiertaster losgelassen
-			START_WRITECYCLE;
-			WRITE_BYTE(0x00,0x60,userram[0x60] ^ 0x81);	// Prog-Bit und Parity-Bit im system_state toggeln
-			STOP_WRITECYCLE;
+			status60^=0x81;	// Prog-Bit und Parity-Bit im system_state toggeln
 		}
 #else
 		// progmode wird durch Taste 1&2 bzw. 3&4 getoggelt
 		if (((PORT & 0x0F)== 0x03) || ((PORT & 0x0F)== 0x0C)) {
 			while ((PORT & 0x0F)< 0x0F) ;	// Warten bis alle Taster losgelassen
-			START_WRITECYCLE;
-			WRITE_BYTE(0x00,0x60,userram[0x60] ^ 0x81);	// Prog-Bit und Parity-Bit im system_state toggeln
-			STOP_WRITECYCLE;
+			status60^=0x81;	// Prog-Bit und Parity-Bit im system_state toggeln
 		}
 #endif
 #ifdef NOPROGBUTTON
-		if (userram[0x60]&0x01) TASTER = blink;		// LED blinkt im Prog-Mode
+		if (status60&0x01) TASTER = blink;		// LED blinkt im Prog-Mode
 		else TASTER = !((eeprom[0xCD] & 0x10) >> 4);	// LED ist an oder aus gemaess Parameter fuer Betriebs-LED
 #else
-		if (userram[0x60]&0x01) TASTER = 0;		// LED leuchtet im Prog-Mode
+		if (status60&0x01) TASTER = 0;		// LED leuchtet im Prog-Mode
 		else TASTER = 1;						// LED aus
 #endif
 
