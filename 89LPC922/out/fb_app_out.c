@@ -5,7 +5,7 @@
  *   / __/ / _, _/ /___/ /___/ /_/ / /_/ /___/ / 
  *  /_/   /_/ |_/_____/_____/_____/\____//____/  
  *                                      
- *  Copyright (c) 2008,2009 Andreas Krebs <kubi@krebsworld.de>
+ *  Copyright (c) 2008-2010 Andreas Krebs <kubi@krebsworld.de>
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License version 2 as
@@ -32,6 +32,8 @@
  *
  * 18.12.09 - read_obj_value und write_obj_value aus der lib entfernt und in app implementiert
  * 			  kompletter Verzicht auf userram -> alle Stati in globalen Variablen
+ *
+ * 15.04.10 - Fehler mit den Logigverknüpfungen behoben
  */
 
 
@@ -39,6 +41,8 @@
 #include <P89LPC922.h>
 #include "../lib_lpc922/fb_lpc922.h"
 #include  "fb_app_out.h"
+
+//#include "../com/fb_rs232.h"
 
 unsigned char timerbase[TIMERANZ];// Speicherplatz für die Zeitbasis und 4 status bits
 unsigned char timercnt[TIMERANZ];// speicherplatz für den timercounter und 1 status bit
@@ -56,47 +60,29 @@ unsigned char logicstate;	// Zustand der Verknüpfungen pro Ausgang
 bit delay_toggle;			// um nur jedes 2. Mal die delay routine auszuführen
 bit portchanged;
 
-/*
-void write_delay_record(unsigned char objno, unsigned char delay_state, long delay_target)
-{
-	delrec[objno*4]=delay_state;
-	delrec[objno*4+1]=delay_target>>16;
-	delrec[objno*4+2]=delay_target>>8;
-	delrec[objno*4+3]=delay_target;
-}
-
-
-void clear_delay_record(unsigned char objno)
-{
-	delrec[objno*4]=0;
-	delrec[objno*4+1]=0;
-	delrec[objno*4+2]=0;
-	delrec[objno*4+3]=0;
-}
-*/
 
 
 
 void write_value_req(void)				// Ausgänge schalten gemäß EIS 1 Protokoll (an/aus)
 {
-  unsigned char objno,objflags,gapos,atp,assno,n,gaposh,zfout,zftyp;
+  unsigned char objno,objflags,assno,n,gaposh,zfout,zftyp;
   unsigned char blockstart, blockend, block_polarity;
   unsigned char obj_bitpattern, zf_bitpattern;
  
     gaposh=0;
 
-    gapos=gapos_in_gat(telegramm[3],telegramm[4]);	// Position der Gruppenadresse in der Adresstabelle
-    if (gapos!=0xFF)					// =0xFF falls nicht vorhanden
+    //gapos=gapos_in_gat(telegramm[3],telegramm[4]);	// Position der Gruppenadresse in der Adresstabelle
+    if (gapos_in_gat(telegramm[3],telegramm[4])!=0xFF)					// =0xFF falls nicht vorhanden
     {
-	  atp=eeprom[ASSOCTABPTR];			// Start Association Table
-      assno=eeprom[atp];				// Erster Eintrag = Anzahl Einträge
+	  //atp=eeprom[ASSOCTABPTR];			// Start Association Table
+      assno=eeprom[eeprom[ASSOCTABPTR]];				// Erster Eintrag = Anzahl Einträge
  
       for(n=0;n<assno;n++)				// Schleife über alle Einträge in der Ass-Table, denn es könnten mehrere Objekte (Pins) der gleichen Gruppenadresse zugeordnet sein
       {
-        gaposh=eeprom[atp+1+(n*2)];
-        if(gapos==gaposh)					// Wenn Positionsnummer übereinstimmt
+        gaposh=eeprom[eeprom[ASSOCTABPTR]+1+(n*2)];
+        if(gapos_in_gat(telegramm[3],telegramm[4])==gaposh)					// Wenn Positionsnummer übereinstimmt
         {
-          objno=eeprom[atp+2+(n*2)];				// Objektnummer
+          objno=eeprom[eeprom[ASSOCTABPTR]+2+(n*2)];				// Objektnummer
           objflags=read_objflags(objno);			// Objekt Flags lesen
 //obj_bitpattern prüfen !!!
           obj_bitpattern=0x01<<(objno-8);
@@ -112,7 +98,7 @@ void write_value_req(void)				// Ausgänge schalten gemäß EIS 1 Protokoll (an/aus
             switch (objno-8)			// Zugeordneten Ausgang zu Zusatzfunktionsnr. in zfout speichern (1-8)
             {
               case 0x00:		
-                zfout=eeprom[FUNCASS]&0x0F;		
+                zfout=eeprom[FUNCASS]&0x0F;
                 blockstart=eeprom[BLOCKACT]&0x03;		// Verhalten bei Beginn der Sperrung
                 blockend=(eeprom[BLOCKACT]>>2)&0x03;	// Verhalten bei Ende der Sperrung
               break;
@@ -246,7 +232,7 @@ void write_obj_value(unsigned char objno,unsigned int objvalue)	// schreibt den 
 void object_schalten(unsigned char objno, bit objstate)	// Schaltet einen Ausgang gemäß objstate und den zugörigen Parametern
 {
 	
-	unsigned char port_pattern,objflags,delay_base,delay_state,delay_zeit,logicfunc,zfno;
+	unsigned char delay_base,delay_state,logicfunc,zfno;
 	unsigned char delay_onoff;
 	bit off_disable;
     
@@ -255,8 +241,8 @@ void object_schalten(unsigned char objno, bit objstate)	// Schaltet einen Ausgan
 	off_disable=((eeprom[OFFDISABLE]>>objno)&0x01);	// nur ausschalten wenn AUS-Tete nicht ignoriert werden soll
 	if ((!objstate && !off_disable) || objstate) {
 		write_obj_value(objno,objstate);		// Objektwert speichern
-		objflags=read_objflags(objno);			// Objekt Flags lesen
-		port_pattern=0x01<<objno;
+		//objflags=read_objflags(objno);			// Objekt Flags lesen
+
 		zfno=0;
 		logicfunc=0;
 		if((eeprom[FUNCASS]&0x0F)==(objno+1)) zfno=1;
@@ -266,24 +252,24 @@ void object_schalten(unsigned char objno, bit objstate)	// Schaltet einen Ausgan
 		if(zfno) {
 			if(((eeprom[FUNCTYP]>>((zfno-1)*2))&0x03)==0x00) logicfunc=((eeprom[LOGICTYP]>>((zfno-1)*2))&0x03);
 		}
-  
-		if((port_pattern & blocked)==0 && (objflags&0x14)==0x14) {	// Objekt ist nicht gesperrt und Kommunikation zulässig (Bit 2 = communication enable) und Schreiben zulässig (Bit 4 = write enable)
+
+		if(((0x01<<objno) & blocked)==0 && (read_objflags(objno)&0x14)==0x14) {	// Objekt ist nicht gesperrt und Kommunikation zulässig (Bit 2 = communication enable) und Schreiben zulässig (Bit 4 = write enable)
 			delay_base=eeprom[(((objno+1)>>1)+DELAYTAB)];   
 			if((objno&0x01)==0x01) delay_base&=0x0F;
 			else delay_base=(delay_base&0xF0)>>4;
 			//delay_target=0;
 			delay_onoff=0;
 			delay_state=0;
-			delay_zeit=eeprom[0xEA];
-			delay_zeit=((delay_zeit>>objno)&0x01);    
+			//delay_zeit=eeprom[0xEA];
+			//delay_zeit=((eeprom[0xEA]>>objno)&0x01);
 					// Ausschalten
 			if ( (objstate==0 && (logicfunc==0 || (logicfunc==1 && ((logicstate>>objno)&0x01)==0x00) || logicfunc>=2))
 					|| (objstate==1 && (logicfunc>=2 && ((logicstate>>objno)&0x01)==0x00)) )
 			{
 				delay_onoff=eeprom[objno+0xE2];
-				if(delay_onoff==0x00 || delay_zeit==0x01) {		// sofort ausschalten
-					if (((eeprom[RELMODE]>>objno)&0x01)==0x00) portbuffer=portbuffer&~port_pattern;	// Schliesserbetrieb
-					else portbuffer=portbuffer|port_pattern;						// Öffnerbetrieb
+				if(delay_onoff==0x00 || ((eeprom[0xEA]>>objno)&0x01)==0x01) {		// sofort ausschalten
+					if (((eeprom[RELMODE]>>objno)&0x01)==0x00) portbuffer=portbuffer&~(0x01<<objno);	// Schliesserbetrieb
+					else portbuffer=portbuffer|(0x01<<objno);						// Öffnerbetrieb
 				}
 				else delay_state=0x01;				// verzögert ausschalten
 			}
@@ -294,12 +280,14 @@ void object_schalten(unsigned char objno, bit objstate)	// Schaltet einen Ausgan
 			{
 				delay_onoff=eeprom[objno+0xDA];
 				if(delay_onoff==0x00) {
-					if(delay_zeit==0x01) { 			// Zeitschaltfunktion 
+
+
+					if(((eeprom[0xEA]>>objno)&0x01)==0x01) { 			// Zeitschaltfunktion
 						delay_state=0x80;
 						delay_onoff=eeprom[objno+0xE2];
 					} 
-					if (((eeprom[RELMODE]>>objno)&0x01)==0x00) portbuffer=portbuffer|port_pattern;	// sofort einschalten (Schliesserbetrieb)
-					else portbuffer=portbuffer&~port_pattern;					// sofort einschalten (Öffnerbetrieb)
+					if (((eeprom[RELMODE]>>objno)&0x01)==0x00) portbuffer=portbuffer|(0x01<<objno);	// sofort einschalten (Schliesserbetrieb)
+					else portbuffer=portbuffer&~(0x01<<objno);					// sofort einschalten (Öffnerbetrieb)
 				}
 				else delay_state=0x11;				// verzögert einschalten
 			}
