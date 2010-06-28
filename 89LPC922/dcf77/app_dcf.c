@@ -152,7 +152,7 @@ void restart_app(void)		// Alle Applikations-Parameter zurücksetzen
 	WRITE_BYTE(0x01,0x04,0x0C)
 	WRITE_BYTE(0x01,0x05,0x24)	// Devicetype 0x2422 Merten Zeitgeber
 	WRITE_BYTE(0x01,0x06,0x22)
-	WRITE_BYTE(0x01,0x07,0x01)	// Versionnumber of application programm
+	WRITE_BYTE(0x01,0x07,0x10)	// Versionnumber of application programm
 	WRITE_BYTE(0x01,0x0C,0x00)	// PORT A Direction Bit Setting
 	WRITE_BYTE(0x01,0x0D,0xFF)	// Run-Status (00=stop FF=run)
 	WRITE_BYTE(0x01,0x12,0x3A)	// COMMSTAB Pointer
