@@ -28,6 +28,7 @@
  *						kein Auffüllen mit Nullen mehr bei GA und PA
  *						Status-LEDs für RX und EIB
  *						serilles Empfangen auf Int umgestellt
+ *						fbrva für lesen eines GA-Wertes über bus
  */
 
 
@@ -254,9 +255,8 @@ void main(void)
 						rs_send(0x0A);
 					}
 
-					// gespeicherten Wert einer Gruppen-Adresse lesen (fbrgaxx/x/xxx)
-					if(rsin[3]=='g' && rsin[4]=='a')
-					{
+					// gespeicherten Wert einer Gruppen-Adresse lesen (fbrgax/x/x)
+					if(rsin[3]=='g' && rsin[4]=='a') {
 						groupadr=convert_adr(5);
 						n=0;
 						value=0xFFFF;
@@ -270,6 +270,17 @@ void main(void)
 						rs_send_dec(value);
 						rs_send(13);
 						rs_send(10);
+					}
+
+					// Wert einer Gruppen-Adresse über Bus lesen (fbrvax/x/x)
+					if(rsin[3]=='v' && rsin[4]=='a') {
+						groupadr=convert_adr(5);
+						tel_header(groupadr, 1);
+						telegramm[7]=0x00;
+						EX1=0;
+						send_telegramm();
+						EX1=1;
+
 					}
 				}	// ende read
 

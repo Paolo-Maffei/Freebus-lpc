@@ -56,7 +56,10 @@ void timer1(void) interrupt 3
 
 		// Multicast
 		if(daf==0x80 && data_laenge>=1 && telegramm[6]==0x00 && (telegramm[7]&0xC0)==0x80) write_value_req();	// Objektwerte schreiben (zB. EISx)
+		if(daf==0x80 && data_laenge>=1 && telegramm[6]==0x00 && (telegramm[7]&0xC0)==0x40) write_value_req();	// read_value_request_response
+
 	}
+
 	telpos=0;  
 	IE1=0;				// IRQ Flag zuruecksetzen
 	EX1=1;				// externen Interrupt 0 wieder freigeben

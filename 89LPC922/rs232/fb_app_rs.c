@@ -212,7 +212,7 @@ void restart_app(void)
 	P0M1=0x00;
 	P0M2=0x00;
 
-	//for (n=0;n<50;n++) sysdelay(0xFFFF);	// Warten bis Bus stabil
+	for (n=0;n<50;n++) sysdelay(0xFFFF);	// Warten bis Bus stabil
 	
 	n=0;
 	do {								// GA Tabelle löschen
