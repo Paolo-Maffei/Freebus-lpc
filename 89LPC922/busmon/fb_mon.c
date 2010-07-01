@@ -36,7 +36,7 @@ void main(void)
 	restart_hw();				// Hardware zurücksetzen
 	restart_app();				// Anwendungsspezifische Einstellungen zurücksetzen
 
-	rs_init();					// serielle Schnittstelle initialisieren
+	rs_init(1152);				// serielle Schnittstelle initialisieren
   
 	auto_ack=0;					// kein automatisches ACK senden
 
