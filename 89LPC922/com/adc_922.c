@@ -21,9 +21,7 @@
 unsigned char LowByte,HighByte,CMPx,CMPModex;
 unsigned char CMPbufaddr,CMPbuf[2];
 
-
-
-
+//#define CMPOUT 0x80
 
 void Get_SD_ADC(void) __naked
 {

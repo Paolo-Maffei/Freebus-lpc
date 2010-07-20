@@ -53,16 +53,6 @@ void rs_init(unsigned int baudrate)
 }
 
 
-
-
-
-
-/** 
-*
-*
-*
-*
-*/
 void rs_send_dec(unsigned int wert)
 {
 	unsigned int n;
@@ -133,14 +123,6 @@ void rs_send_dec(unsigned int wert)
 }
 
 
-
-
-/** 
-*
-*
-*
-*
-*/
 void rs_send_s(unsigned char *s)
 {
 	unsigned char n=0;
@@ -165,14 +147,6 @@ void rs_send_s(unsigned char *s)
 }
 
 
-
-
-/** 
-*
-*
-*
-*
-*/
 void rs_send_hex(unsigned char wert)
 {
         const unsigned char hex[]={'0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F'};
@@ -182,14 +156,6 @@ void rs_send_hex(unsigned char wert)
 }
 
 
-
-
-/** 
-*
-*
-*
-*
-*/
 void rs_send_hex_l(unsigned long wert)
 {
         const unsigned char hex[]={'0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F'};
@@ -205,14 +171,6 @@ void rs_send_hex_l(unsigned long wert)
 }
 
 
-
-
-/** 
-*
-*
-*
-*
-*/
 void rs_send_hex_i(unsigned int wert)
 {
         const unsigned char hex[]={'0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F'};
@@ -223,16 +181,6 @@ void rs_send_hex_i(unsigned int wert)
 }
 
 
-
-
-
-
-/** 
-*
-*
-*
-*
-*/
 void rs_send(unsigned char z)
 {
 	while(!TI);

@@ -29,8 +29,8 @@ unsigned char telegramm[23];
 unsigned char telpos;		// Zeiger auf naechste Position im Array Telegramm
 unsigned char cs;			// checksum
 
-__code unsigned char __at 0x3600 userram[255];	/// Bereich im Flash fuer User-RAM
-__code unsigned char __at 0x3700 eeprom[255];	/// Bereich im Flash fuer EEPROM
+__code unsigned char __at 0x3600 userram[256];	/// Bereich im Flash fuer User-RAM
+__code unsigned char __at 0x3700 eeprom[256];	/// Bereich im Flash fuer EEPROM
 
 bit parity_ok;			/// Parity Bit des letzten empfangenen Bytes OK
 bit interrupted;		/// Wird durch interrupt-routine gesetzt. So kann eine andere Routine pruefen, ob sie unterbrochen wurde

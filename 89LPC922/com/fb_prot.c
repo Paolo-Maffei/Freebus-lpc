@@ -69,7 +69,7 @@ void timer1(void) interrupt 3
 
 	EX1=0;					// ext. Interrupt stoppen 
 	ET1=0;					// Interrupt von Timer 1 sperren
-	set_timer1(4830);		// 4720 und neu starten fuer korrekte Positionierung des ACK Bytes
+	set_timer1(4720);		// 4720 und neu starten fuer korrekte Positionierung des ACK Bytes
 #ifdef HAND
 	REFRESH
 	interrupted=1;			// teilt anderen Routinen mit, dass sie unterbrochen wurden
@@ -705,14 +705,14 @@ void restart_prot(void)
 {
   
   //progmode=0;			// kein Programmiermodus
-	/*
+
 	EA=0;
 	START_WRITECYCLE;
 	WRITE_BYTE(0x00,0x60,0x00);
 	STOP_WRITECYCLE;
 	EA=1;
-	*/
 	
+
   pcount=1;				// Paketzaehler initialisieren
   connected=0;			// keine Verbindung
   

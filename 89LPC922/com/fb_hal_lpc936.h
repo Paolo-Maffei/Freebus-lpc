@@ -88,8 +88,8 @@
 extern unsigned char telegramm[23];
 extern unsigned char telpos;		// Zeiger auf naechste Position im Array Telegramm
 extern unsigned char cs;			// checksum
-extern __code unsigned char __at 0x3600 userram[255];	// Bereich im Flash fuer User-RAM
-extern __code unsigned char __at 0x3700 eeprom[255];	// Bereich im Flash fuer EEPROM
+extern __code unsigned char __at 0x3600 userram[256];	// Bereich im Flash fuer User-RAM
+extern __code unsigned char __at 0x3700 eeprom[256];	// Bereich im Flash fuer EEPROM
 extern bit parity_ok;		// Parity Bit des zuletzt empfangenen Bytes OK
 extern bit interrupted;		// wird durch interrupt-routine gesetzt. so kann eine andere routine pruefen, ob sie unterbrochen wurde
 
