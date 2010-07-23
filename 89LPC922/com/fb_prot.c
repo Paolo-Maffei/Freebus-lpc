@@ -51,8 +51,7 @@ unsigned char conh, conl;	/// bei bestehender Verbindung phys. Adresse des Kommu
 unsigned char pcount;		/// Paketzaehler, Gruppenadresszaehler
 unsigned char last_tel;
 bit transparency;
-
-
+bit con_timer_refresh;
 
 
 /** 
@@ -74,6 +73,7 @@ void timer1(void) interrupt 3
 	REFRESH
 	interrupted=1;			// teilt anderen Routinen mit, dass sie unterbrochen wurden
 #endif
+	
 	if(cs==0xff) {			// Checksum des Telegramms ist OK
 		if (transparency) last_tel=telpos;
 		else {
@@ -101,11 +101,13 @@ void timer1(void) interrupt 3
 						switch (tpdu) {	// transport layer control field
 						
 						case 0x42:	// Data PDU - memory operations
+							con_timer_refresh=1; // connect timeout auffrischen
 							if((telegramm[7]&0xC0)==0x80) write_memory();	// write_memory_request	
 							if((telegramm[7]&0xC0)==0x00) read_memory();	// read_memory_request
 							break;
 							
 						case 0x43:	// Data PDU - misc.
+							con_timer_refresh=1; // connect timeout auffrischen
 							if(telegramm[7]==0x80) {	// restart request
 								restart_hw();			// Hardware zuruecksetzen
 								restart_prot();			// Protokoll-relevante Parameter zuruecksetzen
@@ -116,7 +118,8 @@ void timer1(void) interrupt 3
 							
 						case 0x80:	// UCD Verbindungsaufbau
 							if(!connected) {		// wenn bereits verbunden: ignorieren
-							    connected=1;
+								con_timer_refresh=1; // connect timeout auffrischen
+								connected=1;
 							    conh=telegramm[1];	// phys. Adresse des Verbindungspartners
 							    conl=telegramm[2];
 							    send_ack();			// quittieren
@@ -164,8 +167,7 @@ void timer1(void) interrupt 3
 		TR1=0;				// Timer 1 stoppen
 		cs=0;				// cheksum zur�cksetzen
 	}
-}
-
+}// end function
 
 
 
@@ -205,17 +207,17 @@ bit get_ack(void)
 void send_telegramm(void)
 {
   unsigned char data_laenge,l,checksum,r;
-
+bit busy=0;
   r=0;
+  set_timer1(18780);			//18780 Warten bis Bus frei ist
+  while(!TF1) {
+    if(!FBINC) set_timer1(18780);
+  }
   do
   {
     checksum=0;
     data_laenge=telegramm[5]&0x0F;	// Telegramm-Laenge = Bit 0 bis 3
 
-    set_timer1(18780);			// Warten bis Bus frei ist
-    while(!TF1) {
-      if(!FBINC) set_timer1(18780);
-    }
     TR1=0;
   
     for(l=0;l<=data_laenge+6;l++)
@@ -231,6 +233,7 @@ void send_telegramm(void)
     telegramm[0]&=0xDF;			// Bit 5 loeschen = Wiederholung
   }
   while(r<=3); 				// falls kein ACK max. 3 Mal wiederholen
+  
 }
 
 
@@ -270,8 +273,21 @@ void send_nack(void)
 
 
 
-
-
+void T_Disconnect(void)
+{
+	  EX1=0;
+	  telegramm[0]=0xB0;			// Control Byte			
+	  telegramm[1]=eeprom[ADDRTAB+1];			// Quelladresse ist phys. Adresse
+	  telegramm[2]=eeprom[ADDRTAB+2];
+	  telegramm[3]=conh;		// Zieladresse ist Quelladresse vom Aufbau
+	  telegramm[4]=conl;
+	  telegramm[5]=0x60;			// DRL
+	  telegramm[6]=0x81;			// 
+	  send_telegramm();
+      IE1=0;
+      EX1=1;
+	  connected=0;
+	}
 
 /** 
 * NCD Quittierung zurueck senden. 
@@ -705,14 +721,14 @@ void restart_prot(void)
 {
   
   //progmode=0;			// kein Programmiermodus
-
+	
 	EA=0;
 	START_WRITECYCLE;
 	WRITE_BYTE(0x00,0x60,0x00);
 	STOP_WRITECYCLE;
 	EA=1;
 	
-
+	
   pcount=1;				// Paketzaehler initialisieren
   connected=0;			// keine Verbindung
   

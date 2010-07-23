@@ -34,18 +34,27 @@ void main(void)
 { 
   unsigned int base;
   unsigned char n;
+
   restart_hw();				// Hardware zurücksetzen
- // rs_init();				// serielle Schnittstelle initialisieren
+ // rs_init(192);				// serielle Schnittstelle initialisieren
+
+  SET_RTC (65)			//realtimerclock mit 65ms Ablaufzeit setzen 
+  START_RTC					//...und starten
 
   restart_prot();			// Protokoll-relevante Parameter zurücksetzen
   restart_app();			// Anwendungsspezifische Einstellungen zurücksetzen
   portbuffer=P0;			// zunächst keine Änderungen bei Busspannungswiederkehr
   // Verzögerung Busspannungswiederkehr	
   for(base=0;base<=(eeprom[0xD4]<<(eeprom[0xFE]>>4)) ;base++){//faktor startverz hohlen und um basis nach links schieben
-	  start_rtc(130);		// rtc auf 130ms
-	  while (RTCCON<=0x7F) ;	// Realtime clock ueberlauf abwarten
-	  stop_rtc;
+//	  start_rtc(130);		// rtc auf 130ms
+		RTCCON=0x60;		// RTC anhalten und Flag löschen
+		RTCH=0x1D;			// reload Real Time Clock für 65ms
+		RTCL=0x40;
+		RTCCON=0x61;		// RTC starten
+	    while (RTCCON<=0x7F) ;	// Realtime clock ueberlauf abwarten
+//	  stop_rtc;
   }
+  TASTER=1;
   do  {
   
 /*	    if (RI)
@@ -54,7 +63,6 @@ void main(void)
 	    	if (SBUF>47) rs_send_hex(read_obj_value(SBUF-48));
 	    }
 */
-	  
     p0h=P0;				// prüfen ob ein Eingang sich geändert hat
     if (p0h!=portbuffer) 
     {
@@ -79,6 +87,8 @@ void main(void)
 		STOP_WRITECYCLE;
 		EA=1;
     }
+    //TASTER= !connected;
+    //if(timercnt[PROTTIMER]&0x80)TASTER=0;else TASTER=1;
 	TASTER=!(userram[0x060] & 0x01);	// LED entsprechend Prog-Bit schalten (low=LED an)
     for(n=0;n<100;n++) {}
   } while(1);

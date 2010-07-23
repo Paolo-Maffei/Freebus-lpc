@@ -29,10 +29,14 @@
 #define COMMSTABPTR 	0x12	// Adresse des Pointers auf die Kommunikationsobjekt-Tabelle
 #define ADDRTAB			0x16	// Startadresse der Adresstabelle
 
+
+
 // Globale Variablen
 //extern bit progmode;			// Programmiermodus
 extern unsigned char last_tel;
 extern bit transparency;		// wenn 1 dann wird telegramm lokal nicht verarbeitet
+extern bit connected;
+extern bit con_timer_refresh;
 
 // Funktionen
 void timer1(void) interrupt 3;	// Interrupt von Timer 1, 370us keine Busaktivitaet seit letztem Byte,										//	 d.h. Telegramm wurde komplett uebertragen
@@ -42,6 +46,7 @@ void send_ack(void);			// wartet auf Timer 1 wegen korrekter Positionierung und 
 void send_nack(void);			// wartet auf Timer 1 wegen korrekter Positionierung und sendet NACK (0x0C)
 void get_gat(void);				// group address table aus EEPROM lesen und in array gat[] schreiben
 unsigned char gapos_in_gat(unsigned char gah, unsigned char gal);	// Gruppenadresse in Adresstabelle finden, Rueckgabe Positionsnr.
+void T_Disconnect(void);		// sendet ein T_disconnect
 void ncd_quit(void);			// NCD Quittierung zurueck senden. Setzt telegramm Bytes 0 bis 6 !!!
 void read_masq(void);			// Maskenversion senden
 void read_memory(void);			// read_memory_request - Speicher auslesen und senden

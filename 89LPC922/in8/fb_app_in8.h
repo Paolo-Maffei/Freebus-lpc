@@ -21,6 +21,15 @@
 #define	DELAYTAB		0xF9	// Start der Tabelle für Verzögerungswerte (Basis)
 #define PDIR			0xFF	// Port-Richtung, wenn Bit gesetzt dann ist der entsprechende Pin ein Ausgang (für kombinierte Ein-/Ausgänge)
 
+//#define PROTTIMER 		TIMERANZ+1
+#define TIMERANZ		0x09	// timeranzahl (17)
+#define PROTTIMER		TIMERANZ-1// PROTTIMER ist stets der letzte timer(0-7user,8prot,Gesmatzahl=9)
+
+
+
+
+
+//extern unsigned char prot_timer;
 extern unsigned char portbuffer,p0h;	// Zwischenspeicherung der Portzustände
 extern unsigned char blocked;	// Sperrobjekte
 void pin_changed(unsigned char pinno);
