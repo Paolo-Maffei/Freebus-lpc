@@ -207,17 +207,16 @@ bit get_ack(void)
 void send_telegramm(void)
 {
   unsigned char data_laenge,l,checksum,r;
-bit busy=0;
   r=0;
-  set_timer1(18780);			//18780 Warten bis Bus frei ist
-  while(!TF1) {
-    if(!FBINC) set_timer1(18780);
-  }
   do
   {
     checksum=0;
     data_laenge=telegramm[5]&0x0F;	// Telegramm-Laenge = Bit 0 bis 3
 
+    set_timer1(18780);			// Warten bis Bus frei ist
+    while(!TF1) {
+      if(!FBINC) set_timer1(18780);
+    }
     TR1=0;
   
     for(l=0;l<=data_laenge+6;l++)
