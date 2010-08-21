@@ -5,7 +5,7 @@
  *   / __/ / _, _/ /___/ /___/ /_/ / /_/ /___/ / 
  *  /_/   /_/ |_/_____/_____/_____/\____//____/  
  *                                      
- *  Copyright (c) 2008 Andreas Krebs <kubi@krebsworld.de>
+ *  Copyright (c) 2010 Jan Wegner
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License version 2 as
@@ -22,9 +22,9 @@
 
 
 
-long timer;						// Timer für Schaltverzögerungen, wird alle 130us hochgezählt
-bit delay_toggle;				// um nur jedes 2. Mal die delay routine auszuführen
-int temp[4],lasttemp[4],lastsendtemp[4];
+long timer;			// Timer für Schaltverzögerungen, wird alle 130us hochgezählt
+bit delay_toggle;	// um nur jedes 2. Mal die delay routine auszuführen
+int temp[4],lasttemp[4],lastsendtemp[4];	// Temperaturwerte speichern
 
 unsigned char kanal;
 unsigned char zyk_senden_basis;
@@ -356,11 +356,9 @@ void delay_timer(void)
 
 	if (delay_toggle) {	// RTC läuft auf 65ms, daher nur jedes 2. mal timer erhöhen
 		timer++;
-//		if (timer==0x01000000) timer=0;	// nur 3 Byte aktiv
-
 		timer&=0x00FFFFFF;
 
-		for(objno=0;objno<=8;objno++) {  //nur zwei Objekte Relais angepasst
+		for(objno=0;objno<=8;objno++) {
 			delay_state=delrec[objno*4];
 			if(delay_state!=0x00) {			// 0x00 = delay Eintrag ist leer
 				delval=delrec[objno*4+1];

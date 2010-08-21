@@ -5,7 +5,7 @@
  *   / __/ / _, _/ /___/ /___/ /_/ / /_/ /___/ / 
  *  /_/   /_/ |_/_____/_____/_____/\____//____/  
  *                                      
- *  Copyright (c) 2008 Andreas Krebs <kubi@krebsworld.de>
+ *  Copyright (c) 2010 Jan Wegner
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License version 2 as
@@ -65,18 +65,29 @@ void main(void)
 			else
 			{
 				interrupted=0;
-				th=read_temp();						// Temperatur einlesen
+
+				// Temperatur einlesen + Übergabe Sensortyp
+				th=read_temp(  ((eeprom[0x6B+(kanal>>1)])>>(((~kanal)&0x01)<<2))&0x0F  );
 
 				if (!interrupted)
 				{
 					temp[kanal]=th;
+
+					// Grenzwerte
 					grenzwert(kanal);
+
+					// Messwertdifferenz
 					messwert(kanal);
+
+					// Buswiederkehr bearbeiten
 					if (sende_sofort_bus_return)
 					{
 						bus_return();
 					}
+
 					sequence=1;
+
+					// Kanalumschaltung
 					kanal++;
 					kanal&=0x03;
 					P0_0=kanal&0x01;
