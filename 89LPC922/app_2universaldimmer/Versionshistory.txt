@@ -1,3 +1,25 @@
+Version 1.6.3
+-------------
+12.9.2010
+-fb_lib922.lib eingebunden (war bisher im Source enthalten und konnte deshalb nichtins SVN eingepflegt werden)
+- Erste Sourceversion im SVN
+
+
+Version 1.6.2  
+-------------
+15.4.2010
+IRQ EX0 und KBD eingebunden und Messprogramm der Phasen
+
+
+Version 1.6.1
+-------------
+9.4.2010
+-Debugfunktion um die Auslösung des Watchdogs überwachen zu können:
+ Bei jedem Neustart wird ein Zähler im userram auf 0xFF hochgezählt
+ und ein Telegramm an die GA des 1. Lichtszenenobjektes gesendet um einen Restart über Watchdog
+ loggen zu können.
+
+
 Version 1.6.0
 -------------
 19.3.2010
@@ -6,6 +28,11 @@ passt nur noch zu Hardware ab V1.4
 
 - FETs sind jetzt bei Ausgang = 1 an, d.h. invertiert zu vorher
 
+5.4.2010
+- ANSchnittsdimmer auf U=0+x = EIN    und I=0 auf aus
+  tut noch nicht
+7.4.2010
+- Watchdog integriert
 
 
 Version 1.5.5
@@ -61,6 +88,8 @@ Version 1.5
 
 ToDo
 ----
+- Neustart soll Zähler hochzählen und EIB-Telegramm senden 
+  (um Watchdog Resets feststellen zu können)
 - Soft-Ein
 - Soft-aus
 - Zeitdimmfunktion

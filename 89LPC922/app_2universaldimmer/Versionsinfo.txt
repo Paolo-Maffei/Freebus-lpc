@@ -1,4 +1,4 @@
-Universaldimmer.hex   Version 1.6.0
+Universaldimmer.hex   Version 1.6.3
 -----------------------------------
 
 genaue Änderungen siehe Versionshistory.txt
@@ -18,6 +18,18 @@ passt nur noch zu Hardware ab V1.4
     o anspringen/andimmen
     o Dimmgeschwindigkeit
 - ABschnittsdimmer
-- ANschnittsdimmer (aus bei I=0 testweise)
+- ANschnittsdimmer nicht funktionsfähig!
        siehe Versionshistory
 
+Debugfunktionen:
+-Debugfunktion um die Auslösung des Watchdogs überwachen zu können:
+ Bei jedem Neustart wird ein Zähler im userram auf 0xFF hochgezählt
+ und ein Telegramm an die GA des 1. Lichtszenenobjektes gesendet um einen Restart über Watchdog
+ loggen zu können.
+- Folgende Info wird bei Programmstart über die serielle Schnittstelle ausgegeben (115200 8N1)
+   Programmstart V1.6.3  PA=0000  FF=0001
+      wobei 
+          V1.6.3  = Programmversion
+	  PA =       physik. Adr.
+	  FF = 0001  d.h Debugzähler von 0 auf 1 erhöht = 1. Programmstart nach ETS
+	         0203   3. Programmstart (evtl. watchdog)
