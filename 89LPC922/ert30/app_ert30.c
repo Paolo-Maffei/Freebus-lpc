@@ -573,7 +573,7 @@ void restart_app(void)		// Alle Applikations-Parameter zurücksetzen
 	while(!TF0);
 	RESET=1;
 	TR0=0;
-P1_2=!P1_2;
+
 	NIGHT=read_obj_value(2)&0x01;		// Nachtabsenkung
 	POLARITY=read_obj_value(11)&0x01;	// Heizen/Kühlen
 	BL=read_obj_value(12)&0x01;			// Backlight

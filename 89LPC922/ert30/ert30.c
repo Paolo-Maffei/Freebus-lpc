@@ -5,7 +5,7 @@
  *   / __/ / _, _/ /___/ /___/ /_/ / /_/ /___/ / 
  *  /_/   /_/ |_/_____/_____/_____/\____//____/  
  *                                      
- *  Copyright (c) 2008, 2009 Andreas Krebs <kubi@krebsworld.de>
+ *  Copyright (c) 2008-2010 Andreas Krebs <kubi@krebsworld.de>
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License version 2 as
@@ -13,27 +13,10 @@
  *
  */
 /**
-* @file   ert30.c
-* @author Andreas Krebs <kubi@krebsworld.de>
-* @date   Tue Jan 01 17:44:47 2009
 * 
-* @brief  Kombisensor for temperature and lux
 *
-* \par Changes:
+*
 *		1.00	erste Version
-* 		1.01	Temperaturschwellen eingebaut
-*		1.02	Temperaturwert senden komplett
-* 		1.03	Helligkeitsschwellen und Nachregelung eingebaut
-* 		1.04	zyklisches Senden für Werte, Schwellen und Nachregelung geht, Lux-Berechnung korrigiert
-* 		1.05	Wert senden für Helligkeitsschwellen zugefügt, auch zyklisch
-* 		1.06	Verknüpfungsobjekte zugefügt, read_value_req() von hal in app verlegt
-* 				neue Struktur für schwelle()
-* 		1.07	Verzögertes Senden bei Helligkeitsschwellen neu
-* 		1.08	zuvor gesperrte Objekte senden bei Aufheben der Sperre sofort
-* 				Objektwerte werden nur beim Senden aktualisiert
-* 
-* @todo:
-* 
 */
 
 #define LPC936
@@ -75,7 +58,7 @@ void main(void)
 	restart_hw();				// Hardware zurücksetzen
 	restart_prot();			// Protokoll-relevante Parameter zurücksetzen
 	restart_app();			// Anwendungsspezifische Einstellungen zurücksetzen
-P1_2=!P1_2;
+P1_2=1;	// debug-led
 
 	//rs_init();
 
@@ -83,7 +66,7 @@ P1_2=!P1_2;
 		if (!TR1 && (eeprom[0x0D]==0xFF)) {	// Nur wenn nicht gerade TR1 läuft, also Senden/Empfangen noch nicht abgeschlossen
 			switch (sequence) {						// Temperatur messen
 			case 1:	
-				P1_2=!P1_2;
+				//P1_2=!P1_2;
 				interrupted=0;
 				start_tempconversion();				// Konvertierung starten
 				if (!interrupted) sequence=2;
