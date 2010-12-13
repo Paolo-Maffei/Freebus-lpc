@@ -651,7 +651,7 @@ void restart_app(void)		// Alle Applikations-Parameter zurücksetzen
 	START_WRITECYCLE;			// Applikations-spezifische eeprom Eintraege schreiben
 	WRITE_BYTE(0x01,0x03,0x00);	// Herstellercode: 0x0000 Freebus
   	WRITE_BYTE(0x01,0x04,0x00);
-  	WRITE_BYTE(0x01,0x05,0x10);	// Gerätetyp: 0x221C AP254
+  	WRITE_BYTE(0x01,0x05,0x10);	// Gerätetyp: 0x1000
   	WRITE_BYTE(0x01,0x06,0x00);	
   	WRITE_BYTE(0x01,0x07,0x01);	// Software-Versionsnummer
   	WRITE_BYTE(0x01,0x0C,0x00);	// PORT A Direction Bit Setting

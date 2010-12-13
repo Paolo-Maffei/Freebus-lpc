@@ -132,44 +132,45 @@ P1_2=1;	// debug-led
 			}
 		}
 
+		if (eeprom[0x0D]==0xFF) {
+			// Senden von Temp und Lux bei Änderung
+			if ((eeprom[TEMPPARAM] & 0x70)) {	// wenn Temp senden bei Änderung aktiv
+				change=((eeprom[TEMPPARAM]&0x70)>>4)*100;
+				if (((temp + change)<= lasttemp) || ((lasttemp + change)<= temp)) {	// bei Änderung um 1-3K
+					//send_value(1,1,eis5temp);
+					WRITE_DELAY_RECORD(1,1,1,timer+1)
+					lasttemp=temp;
+				}
+			}
+			if (eeprom[LUXPARAM] & 0x70) {	// wenn Lux senden bei Änderung aktiv
+				change=_divuint(lastlux,luxchange[(eeprom[LUXPARAM]&0x70)>>4]);
+				if (change==0) change=1;		// mindestens 1 Lux Änderung
+				if (((lux + change)<= lastlux) || ((lastlux + change)<= lux)) {	// bei Änderung um 5-30%
+					//send_value(1,0,eis5lux);
+					WRITE_DELAY_RECORD(0,1,1,timer+1)
+					lastlux=lux;
+				}
+			}
 
-		// Senden von Temp und Lux bei Änderung
-		if ((eeprom[TEMPPARAM] & 0x70)) {	// wenn Temp senden bei Änderung aktiv
-			change=((eeprom[TEMPPARAM]&0x70)>>4)*100;
-			if (((temp + change)<= lasttemp) || ((lasttemp + change)<= temp)) {	// bei Änderung um 1-3K
-				//send_value(1,1,eis5temp);	
-				WRITE_DELAY_RECORD(1,1,1,timer+1)
-				lasttemp=temp;
+			schwelle(8);	// Verknüpfungsobjekte
+			schwelle(9);
+
+			if (RLY && !lastrly) {	// Schaltausgang ein
+				lastrly=1;
+				send_value(1,6,1);
+				write_obj_value(6,1);
 			}
-		}
-		if (eeprom[LUXPARAM] & 0x70) {	// wenn Lux senden bei Änderung aktiv		  
-			change=_divuint(lastlux,luxchange[(eeprom[LUXPARAM]&0x70)>>4]);
-			if (change==0) change=1;		// mindestens 1 Lux Änderung
-			if (((lux + change)<= lastlux) || ((lastlux + change)<= lux)) {	// bei Änderung um 5-30%		  
-				//send_value(1,0,eis5lux);
-				WRITE_DELAY_RECORD(0,1,1,timer+1)
-				lastlux=lux;
+			if (!RLY && lastrly) {	// Schaltausgang aus
+				lastrly=0;
+				send_value(1,6,0);
+				write_obj_value(6,0);
 			}
+
+			if (!RESET) restart_app();		// wenn Reset-Taste am ERT30 gedrückt wurde
+
+			if(RTCCON>=0x80) delay_timer();	// Realtime clock Überlauf
 		}
 		
-		schwelle(8);	// Verknüpfungsobjekte
-		schwelle(9);
-		
-		if (RLY && !lastrly) {	// Schaltausgang ein
-			lastrly=1;
-			send_value(1,6,1);
-			write_obj_value(6,1);
-		}
-		if (!RLY && lastrly) {	// Schaltausgang aus
-			lastrly=0;
-			send_value(1,6,0);
-			write_obj_value(6,0);
-		}
-
-		if (!RESET) restart_app();		// wenn Reset-Taste am ERT30 gedrückt wurde
-	  
-		if(RTCCON>=0x80) delay_timer();	// Realtime clock Überlauf
-	  
 		TASTER=1;					// Pin als Eingang schalten um Taster abzufragen
 		if(!TASTER) {				// Taster wurde gedrückt
 			for(n=0;n<100;n++) {}
