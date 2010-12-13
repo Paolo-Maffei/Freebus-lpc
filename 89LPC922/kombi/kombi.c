@@ -29,6 +29,9 @@
 * 		1.06	Verknüpfungsobjekte zugefügt, read_value_req() von hal in app verlegt
 * 				neue Struktur für schwelle()
 * 		1.07	Verzögertes Senden bei Helligkeitsschwellen neu
+* 		1.08	zuvor gesperrte Objekte senden bei Aufheben der Sperre sofort
+* 				Objektwerte werden nur beim Senden aktualisiert
+* 		1.09	Bug bei sehr hohen Lux-Werten behoben
 * 
 * @todo:
 * 
@@ -45,9 +48,10 @@
 #include "app_kombi.h"
 
 
-long timer;
+unsigned int timer;
 
-const unsigned char logtable[] = {0,1,12,24,35,47,59,71,82,94,106,118,129,141,153};
+//const unsigned char logtable[] = {0,1,12,24,35,47,59,71,82,94,106,118,129,141,153,255};
+const unsigned char logtable[] = {0,9,17,27,40,53,66,79,88,96,101,106,109,112,255};
 const unsigned char luxchange[] = {100,20,10,5,3};
 
 
@@ -55,8 +59,9 @@ void main(void)
 { 
 	unsigned char n,delta, rest;
 	int th, change=0;
+	unsigned int exponent;
 
-	restart_hw();				// Hardware zurücksetzen
+	restart_hw();			// Hardware zurücksetzen
 	restart_prot();			// Protokoll-relevante Parameter zurücksetzen
 	restart_app();			// Anwendungsspezifische Einstellungen zurücksetzen
   
@@ -93,26 +98,39 @@ void main(void)
 			case 4:		// Helligkeitswert konvertieren
 				Get_ADC(3);		// ADC-Wert holen
 				n=0;
-				while (HighByte >= logtable[n]) n++;
-				if (n>1) {
-					lux=8;
-					lux=lux<<(n-1);	// unterer Wert
-			  	}
-					  
-			  	else lux=0;
-			  	rest=HighByte-logtable[n-1];
-			  	delta=logtable[n]-logtable[n-1];
-			  
-			  	if (n<11) lux=lux+_divuint(rest<<(n+2),delta);
-				if (n<7) lux=lux+(_divuint(LowByte<<(n+2),delta)>>8);
+				if (HighByte>=112) {
+					lux=65535;
+				}
+				else {
+					while (HighByte >= logtable[n]) n++;
 				
+					if (n>1) {
+						lux=8;
+						lux=lux<<(n-1);	// unterer Wert
+					}
+					  
+					else lux=0;
+				
+					rest=HighByte-logtable[n-1];
+					delta=logtable[n]-logtable[n-1];
+			  
+					if (n<11) lux+=_divuint(rest<<(n+2),delta);
+					else lux+=_divuint(rest<<(n-2),delta)<<4;
+					if (n<7) lux+=(_divuint(LowByte<<(n+2),delta)>>8);
+				}
 				if (lux!=lastlux) {
-					  eis5lux=lux;
-					  eis5lux+=lux>>1;
-					  eis5lux+=lux>>4;
-					  eis5lux=eis5lux+(0x3000);			// Exponent 6
-				  	  schwelle(4);					// Helligkeitsschwellen 2 und 3
-				  	  schwelle(5);
+					exponent=0x3800;	// Exponent 7
+					eis5lux=lux>>1;
+					eis5lux+=lux>>2;
+					eis5lux+=lux>>5;
+					while (eis5lux > 0x07FF) {	// Exponent erhöhen falls Mantisse zu groß 
+						eis5lux=eis5lux>>1;
+						exponent+=0x0800;
+					}
+					eis5lux+=exponent;			
+		//eis5lux=256*HighByte+LowByte;
+				  	schwelle(4);					// Helligkeitsschwellen 2 und 3
+				  	schwelle(5);
 				}
 				schwelle(3);	// Helligkeitsschwelle 1 trotzdem jedes mal weil es auch Nachregelung sein könnte
 				sequence=1;
@@ -126,15 +144,18 @@ void main(void)
 		if ((eeprom[TEMPPARAM] & 0x70)) {	// wenn Temp senden bei Änderung aktiv
 			change=((eeprom[TEMPPARAM]&0x70)>>4)*100;
 			if (((temp + change)<= lasttemp) || ((lasttemp + change)<= temp)) {	// bei Änderung um 1-3K
-				send_value(1,1,eis5temp);	//5
+				//send_value(1,1,eis5temp);	
+				WRITE_DELAY_RECORD(1,1,1,timer+1)
 				lasttemp=temp;
 			}
 		}
 		if (eeprom[LUXPARAM] & 0x70) {	// wenn Lux senden bei Änderung aktiv		  
 			change=_divuint(lastlux,luxchange[(eeprom[LUXPARAM]&0x70)>>4]);
 			if (change==0) change=1;		// mindestens 1 Lux Änderung
-			if (((lux + change)<= lastlux) || ((lastlux + change)<= lux)) {	// bei Änderung um 5-30%		  
-				send_value(1,0,eis5lux);	//5
+			//if (((lux + change)<= lastlux) || ((lastlux + change)<= lux)) {	// bei Änderung um 5-30%
+			if ((lux>lastlux && (lux-lastlux)>=change) || (lux<lastlux && (lastlux-lux)>=change)) {
+				//send_value(1,0,eis5lux);
+				WRITE_DELAY_RECORD(0,1,1,timer+1)
 				lastlux=lux;
 			}
 		}
@@ -149,9 +170,13 @@ void main(void)
 		if(!TASTER) {				// Taster wurde gedrückt
 			for(n=0;n<100;n++) {}
 			while(!TASTER);			// warten bis Taster losgelassen
-			progmode=!progmode;
+			  EA=0;
+		      START_WRITECYCLE;
+		      WRITE_BYTE(0x00,0x60,userram[0x60] ^ 0x81);	// Prog-Bit und Parity-Bit im system_state toggeln
+		      STOP_WRITECYCLE;
+		      EA=1;
 		}
-		TASTER=!progmode;			// LED entsprechend schalten (low=LED an)
+	    TASTER=!(userram[0x060] & 0x01);	// LED entsprechend Prog-Bit schalten (low=LED an)
 	} while(1);
 }
 

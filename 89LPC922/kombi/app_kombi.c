@@ -20,24 +20,28 @@
 #include "app_kombi.h"
 
 //292
-const int cycleval[] = {17490, 20, 875, 1458, 2915, 5830, 8745, 13117, 17490}; // Zykluszeit in 130ms
+const int cycleval[] = {17490, 292, 875, 1458, 2915, 5830, 8745, 13117, 17490}; // Zykluszeit in 130ms
 const unsigned int luxtable[] = {2,2,2,3,3,4,4,5,5,6,7,8,9,10,11,12,14,16,18,20,23,26,30,35,40,45,50,55,60,70,80,90,100,110,125,140,160,180,200,230,260,300,350,400,450,500,550,600,700,800,900,1000,1100,1250,1400,1600,1800,2000,2300,2600,3000,3500,4000,4500,5000,5500,6000,7000,8000,9000,10000,11000,12500,14000,16000,18000,20000,23000,26000,30000,35000,40000,45000,50000,55000,60000,65535,65535,65535,65535};
 const unsigned char hystable[] = {1,2,10,5,3};	// divisor für Lux Hysterese (50%,10%,20%,30%)
 const unsigned int luxdelay[] = {0,10,25,49,73,97,146,219,292,438,583,875,1458,2915,4380,8745};
+const unsigned char ctrl_adr[]  = {0xD2,0xD1,0,0xF9,0xF4,0xEF,0xEA,0xE5,0xE0,0xDA};
+//const unsigned char cycle_adr[] = {0,0,0,0xFA,0xF5,0xF0,0xEB,0xE6,0xE1,0xDB};
 
-int temp, eis5temp,lasttemp,lux,lastlux, eis5lux;
-unsigned char overrun, dimmwert, underrun, sequence;
+
+int temp, eis5temp,lasttemp;
+unsigned int lux,lastlux, eis5lux;
+unsigned char overrun, dimmwert, underrun, sequence, lockatt, resend;
+
 
 struct delayrecord {
+	unsigned char delayactive;
 	unsigned char delaystate;
-	long delayvalue;
+	unsigned int delayvalue;
 };
-struct delayrecord delreco[9];
+struct delayrecord delrec[9];
 
 
-#define WRITE_DELAY_RECORD(wdro,wdrs,wdrt) \
-	delreco[wdro].delaystate=wdrs; \
-	delreco[wdro].delayvalue=wdrt; 
+
 
 
 
@@ -47,13 +51,13 @@ void schwelle(unsigned char objno)		// Luxschwelle prüfen und reagieren
 	
 	unsigned char ctrl, cycle, bitmask, temp_compare, lux_compare;
 	unsigned char lastdimm, step, wertl, werth, offset;
-	bit sendval=0, lock, over=0, under=0;
+	bit sendval=0, unlock, over=0, under=0;
 	bit luxlevel=0;
-	unsigned char sendcyclicl, sendcyclich;
+	unsigned char sendcyclicl=0, sendcyclich=0, active;
 
 	unsigned int schwellwert=0;
 	unsigned int hysterese=0, delayover=0, delayunder=0;
-	long timerneu;
+	unsigned int timerneu;
 	
 
 	offset=(objno-3)*5;
@@ -62,21 +66,21 @@ void schwelle(unsigned char objno)		// Luxschwelle prüfen und reagieren
 	ctrl=eeprom[LUXCTRL-offset];
 	cycle = eeprom[LUXCYCLE1-offset] & 0x07;
 	timerneu = timer+cycleval[cycle];
-	lock=read_obj_value(10);
+	unlock=!((ctrl & 0x08) & (read_obj_value(10)));
 
 	if ((eeprom[LUXPARAM]&0x80) && objno==3) {	// Helligkeitsregelung (nur Objekt1)
 		
-		lastdimm=dimmwert;
+		lastdimm=dimmwert;		// beim letzten Durchlauf errechneter Wert
 		schwellwert=eeprom[LUXSCHWELLWERT]*10;		// schwellwert ist hier der Sollwert
 		hysterese=_divuint(schwellwert,hystable[ctrl&0x07]);
 		if (hysterese==0) hysterese=1;	// mindestens jedoch 1 Lux
 		step=(((ctrl & 0xF0) >> 4) + 1) * 16;
 		
-		if (((ctrl & 0x08)==0) || lock==0) {	// Sperre ignorieren oder Sperre=0
+		//if (unlock) {	// Sperre ignorieren oder Sperre=0
 			if (lux>schwellwert) {	// wenn überschritten
-				if ((lux > (schwellwert*2)) && (dimmwert >= step)) dimmwert-=step;
+				if ((lux > (schwellwert*2)) && (dimmwert >= step)) dimmwert-=step;	// grosse Schritte wenn weit weg von Sollwert
 				else {
-					if (dimmwert>3) dimmwert-=4;
+					if (dimmwert>3) dimmwert-=4;		// kleine Schritte
 					else dimmwert=0;
 				}
 			}
@@ -88,16 +92,17 @@ void schwelle(unsigned char objno)		// Luxschwelle prüfen und reagieren
 				}
 			}
 			if (lastdimm != dimmwert) {
-				send_value(1,3,dimmwert);	//6
-				WRITE_DELAY_RECORD(2,1,timerneu)
+				//send_value(1,3,dimmwert);	//6
+				//WRITE_DELAY_RECORD(2,1,timerneu)
+				WRITE_DELAY_RECORD(2,1,dimmwert,timer+1)
 			}
-		}
+		//}
 	}
 
 	else {	// Schwellen
 
 		if (objno<6) {	// Helligkeitsschwellen
-			schwellwert=luxtable[eeprom[LUXSCHWELLWERT-offset]-7];
+			schwellwert=luxtable[eeprom[LUXSCHWELLWERT-offset]-7];	// -7, weil luxtable erst ab 7 beginnt
 			hysterese=_divuint(schwellwert,hystable[ctrl&0x07]);
 			if (hysterese==0) hysterese=1;	// mindestens jedoch 1 Lux
 			if (lux>schwellwert) over=1; 
@@ -121,18 +126,24 @@ void schwelle(unsigned char objno)		// Luxschwelle prüfen und reagieren
 			if (objno<8) {	// Temperaturschwellen
 				schwellwert=eeprom[LUXSCHWELLWERT-offset];		
 				hysterese = ctrl & 0x07;
-				if ((temp > (schwellwert*100)) && schwellwert<51) over=1;
-				if ((temp < ((schwellwert - hysterese)*100)) && schwellwert<51) under=1;
+				if (schwellwert<51) {	//>51 : Temperaturschwelle inaktiv
+					if (temp > (schwellwert*100)) over=1;
+					if (temp < ((schwellwert - hysterese)*100)) under=1;
+				}
 			}
 			else {			// Verknüpfungsobjekte
+				
 				if (objno==8) {
-					temp_compare = eeprom[VERKCYCLE_TEMP1] & 0x70;
+					//temp_compare = eeprom[VERKCYCLE_TEMP1] & 0x70;
 					lux_compare = eeprom[VERKLUX1] & 0xF0;
 				}
 				else {
-					temp_compare = eeprom[VERKCYCLE_TEMP2] & 0x70;
+					//temp_compare = eeprom[VERKCYCLE_TEMP2] & 0x70;
 					lux_compare = eeprom[VERKLUX2] & 0xF0;
 				}
+				
+				temp_compare = eeprom[ctrl_adr[objno]+1] & 0x70;
+
 				
 
 				// hier bedeutet over=Bedingung erfüllt, under=bedingung nicht erfüllt
@@ -184,42 +195,56 @@ void schwelle(unsigned char objno)		// Luxschwelle prüfen und reagieren
 		werth=eeprom[LUX_OVER-offset];		// zu sendender Wert bei überschreiten
 		wertl=eeprom[LUX_UNDER-offset];		// zu sendender Wert bei unterschreiten
 		bitmask=1<<(objno-3);				// Bitmaske für underrun und overrun
-		sendcyclich = (ctrl & 0x20) >> 5;	// zyklisches senden bei überschreiten
-		sendcyclicl = (ctrl & 0x80) >> 7;	// zyklisches senden bei unterschreiten
+
 		
-		
-		if (((ctrl & 0x08)==0) || lock==0) {	// Sperre ignorieren oder Sperre=0
-			if (over) {					// wenn überschritten
-				if ((ctrl & 0x30) && !(overrun&bitmask)) { 	// wenn einmal oder zyklisch gesendet werden soll
-					if (delayover) {
-						sendcyclich+=2;	// Bit0: zyklisch, Bit1: verzögert, alle 0 = inaktiv
+		if (over) {					// wenn überschritten
+			if (!(overrun&bitmask)) { 	// wenn neu überschritten
+				
+				if (delayover==0 || (resend&bitmask)) {		// sofort senden
+					timerneu=timer+1;
+					resend&=~bitmask;
+					active=3;
+				}
+				else {	// verzögert senden
+					if(delrec[objno-1].delayactive==5) {
+						active=0;
+					}
+					else {
+						active=7;
 						timerneu=timer+delayover;
 					}
-					WRITE_DELAY_RECORD(objno-1,sendcyclich,timerneu)	//objno-1 weil objekt 2 nicht existiert
-					if (delayover==0) send_value(1,objno,werth);	//eistype
-					if (read_obj_value(objno) != werth) write_obj_value(objno,werth);	// nur flashen wenn nötig
-					overrun|=bitmask;		// überschreiten wurde schon gesendet
 				}
-				underrun&=0xFF-bitmask;	// unterschreiten schon gesendet löschen
+				WRITE_DELAY_RECORD(objno-1,active,werth,timerneu)	//objno-1 weil objekt 2 nicht existiert					
+				
+
 			}
-			if (under) {		// wenn unterschritten
-				if ((ctrl & 0xC0) && !(underrun&bitmask)) { 	// wenn einmal oder zyklisch gesendet werden soll
-					if (delayunder) {
-						sendcyclicl+=2;	// Bit0: zyklisch, Bit1: verzögert, alle 0 = inaktiv
+			overrun|=bitmask;
+			underrun&=~bitmask;
+		}
+		
+		if (under) {		// wenn unterschritten
+			if (!(underrun&bitmask)) { 	// wenn einmal oder zyklisch gesendet werden soll
+				
+				if (delayunder==0 || (resend&bitmask)) {	// sofort senden
+					timerneu=timer+1;
+					resend&=~bitmask;
+					active=1;
+				}
+				else {											// verzögert senden
+					if(delrec[objno-1].delayactive==7) {
+						active=0;
+						}
+					else {
+						active=5;
 						timerneu=timer+delayunder;
 					}
-					WRITE_DELAY_RECORD(objno-1,sendcyclicl,timerneu)
-					if (delayunder==0) send_value(1,objno,wertl);	//eistype
-					if (read_obj_value(objno) != wertl) write_obj_value(objno,wertl);	// nur flashen wenn nötig
-					underrun|=bitmask;
 				}
-				overrun&=0xFF-bitmask;
+				WRITE_DELAY_RECORD(objno-1,active,wertl,timerneu)
+				
+
 			}
-		}
-		else {	// Sperre gesetzt und muss beachtet werden
-			WRITE_DELAY_RECORD(objno-1,0,0)	// zyklisches Senden anhalten
-			overrun&=0xFF-bitmask;			// über-/unterschritten bits löschen, damit es bei aufgehobener sperre sofort weiterläuft
-			underrun&=0xFF-bitmask;
+			underrun|=bitmask;
+			overrun&=~bitmask;
 		}
 	}
 }
@@ -227,7 +252,7 @@ void schwelle(unsigned char objno)		// Luxschwelle prüfen und reagieren
 
 
 void send_value(unsigned char type, unsigned char objno, int sval)	// sucht Gruppenadresse für das Objekt objno uns sendet ein EIS Telegramm
-{												// mit dem Wert sval
+{																	// mit dem Wert sval
   int ga;
   unsigned char objtype;
 
@@ -313,15 +338,25 @@ void read_value_req(void)
 
 void write_value_req(void)
 {
-	unsigned char objno, wert;
+	unsigned char objno, n, bitmask;
 	
 	objno=find_first_objno(telegramm[3],telegramm[4]); 
 	
-	if (objno>2) {	// Sperrobjekt und Schaltobjekte
+	if (objno==10) {	// nur Sperrobjekt
 		send_ack();
-		if (objno==3 && (eeprom[LUXPARAM]&0x80)) wert=telegramm[8];	// bei Helligkeitsregelung EIS 6
-		else wert=telegramm[7]&0x01;								// sonst EIS 1
-		write_obj_value(objno,wert);
+		write_obj_value(objno,telegramm[7]&0x01);
+		
+		if((telegramm[7]&0x01)==0) {
+			resend=0;
+			for(n=0; n<=7; n++) {
+				bitmask=1<<n;
+				if(lockatt&bitmask) {
+					overrun&=~bitmask;
+					underrun&=~bitmask;
+					resend|=bitmask;
+				}
+			}
+		}
 	}
 }
 
@@ -329,50 +364,81 @@ void write_value_req(void)
 
 void delay_timer(void)	// zählt alle 130ms die Variable Timer hoch und prüft Einträge
 {
-	unsigned char objno, delay_state, eistype, cycle_param=0, offset;
-	unsigned int objvalue;
+	unsigned char delrecno, objno, delay_state, cycle_param=0, ctrl, werth, sperre;
+	unsigned int objvalue=0;
+	bit send, cyclic, sendcyclicl=0, sendcyclich=0;
 
 	stop_rtc();
 	timer++;
 	start_rtc(130);	// RTC mit 130ms neu starten
 	
-	for(objno=0;objno<=7;objno++) {
-		eistype=0;
-		delay_state=delreco[objno].delaystate;	  
-		if (delreco[objno].delayvalue==timer && delay_state) {
-		  
-			switch (objno) {
-		  
-			case 0:		// Helligkeitswert zyklisch senden
-				cycle_param=eeprom[LUXPARAM]&0x0F;
-				objvalue = eis5lux;
-				break;		  
-		  
-			case 1:		// Temperaturwert zyklisch senden
-				cycle_param=eeprom[TEMPPARAM]&0x0F;
-				objvalue = eis5temp;
-				break;
-
-			case 2: 	// Helligkeitsschwelle1, objektnummer 3 !!!
-				cycle_param=eeprom[LUXCYCLE1]&0x07;
-				if (overrun & 0x01) objvalue = eeprom[LUX_OVER]; else objvalue = eeprom[LUX_UNDER];
-				if (eeprom[LUXPARAM]&0x80) objvalue = dimmwert; 
-				break;
-				
-			default:
-				cycle_param=eeprom[LUXCYCLE1-((objno-3)*5)]&0x07;
-				objvalue = read_obj_value(objno+1);
-				break;
-			}
-			if (objno>1) offset=1; else offset=0;	// da objno 2 im delay nicht benutzt wird
+	for(delrecno=0;delrecno<=7;delrecno++) {
+		objno=delrecno;
+		if (delrecno>1) objno++;	// da objno 2 im delay nicht benutzt wird
+		
+		delay_state=delrec[delrecno].delaystate;	  
+		if (delrec[delrecno].delayvalue==timer && delrec[delrecno].delayactive) {
 			
-			send_value(1,objno+offset,objvalue);	
-			if (delay_state&0x01) {	// zyklisch
-				WRITE_DELAY_RECORD(objno,1,timer+cycleval[cycle_param])
+			send=0;
+			cyclic=0;
+			ctrl=eeprom[ctrl_adr[objno]];		// Control Parameter 
+			werth=eeprom[ctrl_adr[objno]-1];	// Wert bei überschreiten ( 1 unter Control )
+			sperre=read_obj_value(10);
+			
+			switch (delrecno) {
+			case 0:		// Helligkeitswert
+				objvalue = eis5lux;
+				send=1;		// ohne Prüfung auf Sperre etc. senden
+				cyclic=1; 
+				break;		  
+			case 1:		// Temperaturwert
+				objvalue = eis5temp;
+				send=1;					// ohne Prüfung auf Sperre etc. senden
+				cyclic=1;
+				break;
+			default:
+				objvalue = delay_state;
+				
+				//if (werth==delay_state) {	// wenn überschritten
+				if (delrec[delrecno].delayactive & 0x02) {	// wenn überschritten
+					if(ctrl & 0x20) cyclic=1;	// wenn überschritten und es soll zyklisch gesendet werden...
+				}
+				else {
+					if(ctrl & 0x80) cyclic=1;	// ...oder wenn unterschritten und es soll zyklisch gesendet werden...
+				}
+
+
+				//if ((werth==delay_state && (ctrl&0x30)) || (werth!=delay_state && (ctrl&0xC0))) {	// ... nur wenn einmal oder zyklisch
+				if (((delrec[delrecno].delayactive & 0x02) && (ctrl&0x30)) || (!(delrec[delrecno].delayactive & 0x02) && (ctrl&0xC0))) {
+					if ((ctrl & 0x08)==0 || sperre==0) {	// ... nur wenn Sperre ignorieren oder Sperre=0
+						send=1;
+					}
+				}
+
+
+				if ((eeprom[LUXPARAM]&0x80) && (objno==3)) {	// bei Helligkeitsregelung immer zyklisch und immer senden
+					if ((ctrl & 0x08)==0 || sperre==0) {	// ... nur wenn Sperre ignorieren oder Sperre=0
+						send=1;
+						cyclic=1;
+					}
+				}
 			}
-			else {
-				WRITE_DELAY_RECORD(objno,0xFF,0);	// inaktiv
+
+			if (send) {
+				send_value(1,objno,objvalue);			// Telegramm senden
+				write_obj_value(objno,objvalue);		// Wert ins userram schreiben
 			}
+			
+			// wenn delay zur Verzögerung aktiv war, dann Verzögerungs-Bit löschen
+			if(delrec[delrecno].delayactive & 0x04) delrec[delrecno].delayactive-=4;
+			
+			if (cyclic) {	
+				cycle_param=eeprom[ctrl_adr[objno]+1]&0x0F;	// Zyklus-Adresse jeweils ein Byte über ctrl_adr
+				delrec[delrecno].delayvalue=timer+cycleval[cycle_param];
+			}
+			// wenn nicht zyklisch gesendet werden soll den timer inaktiv setzen
+			else delrec[delrecno].delayactive=0;
+			
 		}
 	}
 }
@@ -381,7 +447,7 @@ void delay_timer(void)	// zählt alle 130ms die Variable Timer hoch und prüft Ein
 void restart_app(void)		// Alle Applikations-Parameter zurücksetzen
 {
 	
-	unsigned char objno;
+	unsigned char objno, bitmask, ctrl;
   
 	PT0AD=0xF0; 		// disable digital inputs P0.1 ... P0.5
 	P0= 0xBF;			// P0.0 push-pull for charging the capacitor, P0.6 push-pull status-LED
@@ -390,18 +456,26 @@ void restart_app(void)		// Alle Applikations-Parameter zurücksetzen
 	
 	lux=0;
 	lastlux=0;
-	temp=0;
-	lasttemp=0;
+	temp=-1000;
+	lasttemp=-1000;
 
-	overrun=0;			// obere Bits für überschritten gesendet, untere für Unterschritten gesendet
+	overrun=0;
 	underrun=0;
-	
+
 	timer=0;
 	sequence=1;
+	
+	// in lockatt bit setzen für jedes Objekt, das Sperre beachten muss
+	lockatt=0;
+	for (objno=3; objno<=9; objno++) {	
+		ctrl=eeprom[ctrl_adr[objno]];		
+		bitmask=1<<(objno-3);
+		if (ctrl & 0x08) lockatt|=bitmask;
+	}
+	
+	write_obj_value(10,0);		// Sperre bei Neustart löschen
   
-  	for (objno=0;objno<9;objno++) WRITE_DELAY_RECORD(objno,0,0)			// erstmal alle delay-records auf inaktiv setzen
-	if ((eeprom[TEMPPARAM] & 0x0F)!=0x00) WRITE_DELAY_RECORD(1,1,30)	// falls Temperaturwert zyklisch gesendet werden soll
-	if ((eeprom[LUXPARAM] & 0x0F)!=0x00)  WRITE_DELAY_RECORD(0,1,35)	// falls Helligkeitswert zyklisch gesendet werden soll
+  	for (objno=0;objno<9;objno++) WRITE_DELAY_RECORD(objno,0,0,0)			// erstmal alle delay-records auf inaktiv setzen
 
 	START_WRITECYCLE			// Applikations-spezifische eeprom Eintraege schreiben
 	WRITE_BYTE(0x01,0x03,0x00)	// Herstellercode: 0x0001 Siemens
@@ -413,6 +487,8 @@ void restart_app(void)		// Alle Applikations-Parameter zurücksetzen
   	WRITE_BYTE(0x01,0x0D,0xFF)	// Run-Status (00=stop FF=run)
   	WRITE_BYTE(0x01,0x12,0x56)	// COMMSTAB Pointer
 	STOP_WRITECYCLE
-
+	START_WRITECYCLE;
+	WRITE_BYTE(0x00,0x60,0x2E);	// system state: all layers active (run), not in prog mode
+	STOP_WRITECYCLE;
 
 }

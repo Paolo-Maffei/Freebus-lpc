@@ -61,17 +61,28 @@
 
 
 
-extern long timer;			// Timer für Schaltverzögerungen, wird alle 130us hochgezählt
-extern int temp, eis5temp,lasttemp,lux,lastlux, eis5lux;
+extern unsigned int timer;			// Timer für Schaltverzögerungen, wird alle 130us hochgezählt
+extern int temp, eis5temp,lasttemp;
+extern unsigned int lux,lastlux, eis5lux;
+extern unsigned char overrun, dimmwert, underrun, sequence, lockatt, resend;
 
-extern bit templevel1, templevel2;
 
-extern unsigned char oversent, dimmwert, undersent, sequence;
+extern struct delayrecord {
+	unsigned char delayactive;
+	unsigned char delaystate;
+	unsigned int delayvalue;
+};
+extern struct delayrecord delrec[9];
+
+#define WRITE_DELAY_RECORD(wdro,wdra,wdrs,wdrt) \
+	delrec[wdro].delayactive=wdra; \
+	delrec[wdro].delaystate=wdrs; \
+	delrec[wdro].delayvalue=wdrt; 
+
 
 void write_delay_record(unsigned char objno, unsigned char state, long deltime);
 
 void restart_app(void);					// Alle Applikations-Parameter zurücksetzen
-//void temp_schwelle(bit schwelle);		// Temperaturschwelle prüfen und reagieren
 void schwelle(unsigned char objno);
 void delay_timer(void);					// zählt alle 130ms die Variable Timer hoch und prüft Queue
 void send_value(unsigned char eistyp, unsigned char objno, int sval);	// sendet ein EIS Telegramm
