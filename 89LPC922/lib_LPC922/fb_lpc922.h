@@ -5,7 +5,7 @@
  *   / __/ / _, _/ /___/ /___/ /_/ / /_/ /___/ / 
  *  /_/   /_/ |_/_____/_____/_____/\____//____/  
  *                                      
- *  Copyright (c) 2009 Andreas Krebs <kubi@krebsworld.de>
+ *  Copyright (c) 2009-2011 Andreas Krebs <kubi@krebsworld.de>
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License version 2 as
@@ -32,6 +32,8 @@
 #define ASSOCTABPTR 	0x11	// Adresse des Pointers auf die Assoziations-Tabelle
 #define COMMSTABPTR 	0x12	// Adresse des Pointers auf die Kommunikationsobjekt-Tabelle
 #define ADDRTAB			0x16	// Startadresse der Adresstabelle
+
+#define USERRAMADDRH	0x1C
 
 
 
@@ -104,12 +106,10 @@ void init_repeat_tx(void);
 unsigned char gapos_in_gat(unsigned char gah, unsigned char gal);
 bit build_tel(unsigned char objno);
 unsigned int find_ga(unsigned char objno);	// Gruppenadresse ueber Assoziationstabelle finden (erster Eintrag, falls mehrere)
-unsigned char read_obj_type(unsigned char objno);	// gibt den Typ eines Objektes zurueck
+//unsigned char read_obj_type(unsigned char objno);	// gibt den Typ eines Objektes zurueck
 void send_obj_value(unsigned char objno);
 
-void set_timer0(unsigned int deltime);
-void start_rtc(unsigned char base);		// RTC starten, base in ms
-void stop_rtc(void);
+//void set_timer0(unsigned int deltime);
 void restart_hw(void);
 
 void process_tel(void);		// Interrupt von Timer 1, 370us keine Busaktivitaet seit letztem Byte,										//	 d.h. Telegramm wurde komplett uebertragen

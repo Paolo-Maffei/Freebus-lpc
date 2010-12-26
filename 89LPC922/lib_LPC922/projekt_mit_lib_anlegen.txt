@@ -4,5 +4,5 @@
 - da bei SDCC compiler in command: sdcc -c --stack-auto
 - bei sdcc Linker in command: sdcc --stack-auto
 - bei sdcc Linker unter Libraries im Fenster Libraries auf + und fb_lpc922.lib eintragen
-- im Fenster library search path das verzeichnis eintragen wo die lib ist
+- im Fenster library search path das verzeichnis eintragen wo die lib ist (standardmässig im Release Verzeichnis)
 - nicht vergessen im reiter Build Artifact unter Artifact extension hex einzutragen

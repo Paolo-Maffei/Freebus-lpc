@@ -112,11 +112,8 @@ void set_timer0(unsigned int deltime)
 						startet Timer 0 mit dem übergebenen Wert, die Zeit bis zum Überlauf
 						sind 0,27127µs x deltime plus 12µs für den Aufruf an sich, der Timer 0 
 						ist ausschliesslich für die app reserviert
-						
-void start_rtc(unsigned char base)
-						startet die real time clock, base ist im ms anzugeben
-						
-void stop_rtc(void)		stoppt die realtime clock
+
+*** die RTC Funktionen sind entfallen, s.u. "Verwendung der Timer" ***
 
 void restart_hw(void)	setzt das gesamte system in den Ausgangszustand zurück und initiiert
 						das Empfangen
@@ -169,7 +166,7 @@ Senden eines Telegrammes aus der app:
 -------------------------------------
 
 Man ermittelt die Objektnummer dessen Wert gesendet werden soll. Es ist sicherzustellen, daß
-man den Wert des Objektes vorher mit write_obj_value() gespeichert hat. Dann wird einfach
+man den Wert des Objektes vorher so gespeichert hat, daß read_obj_value() ihn ausgeben kann. Dann wird einfach
 die Funktion send_obj_value(objno) aufgerufen. Das Senden erfolgt komplett im 
 Hintergrund. Man kann also ruhig mehrere Telegramme direkt hintereinander senden. Der
 Ringspeicher reicht für 8 Telegramme, was im Normalfall völlig ausreicht. Sollten doch
@@ -194,13 +191,17 @@ kommt das nicht vor.
 Verwendung der Timer:
 ---------------------
 
-Timer 0	wird als 16-bit timer parametriert, wird von der lib nicht benutzt und seht
+Timer 0	wird als 16-bit timer parametriert, wird von der lib nicht benutzt und steht
 		somit exclusiv der app zur Verfügung, kann dort auch anders parametriert werden
 
 Timer 1	ist ausschliesslich für die lib, nicht in app verwenden
 
 RTC		wird mit 65ms gestartet, wird in der lib nicht verwendet, kann also in der
 		app beliebig verändert werden
+		Starten der RTC:		RTCH=0x1D;		// Real Time Clock auf 130ms laden (0,13s x 7372800 / 128)
+								RTCL=0x40;		// (RTC ist ein down-counter mit 128 bit prescaler und osc-clock)
+								RTCCON=0x61;	// ... und starten
+		Stoppen der RTC:		RTCCON=0x60;	// Real Time Clock stoppen
 
 
 Interrupts:
