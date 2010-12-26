@@ -92,9 +92,14 @@ void main(void)
 	
 	restart_hw();							// Hardware zuruecksetzen
 
-	for (n=0;n<50;n++) {
-		set_timer0(0xFFFF);					// Warten bis Bus stabil
+	for (n=0;n<50;n++) {					// Warten bis Bus stabil
+		  TR0=0;					// Timer 0 anhalten
+		  TH0=0;					// Timer 0 setzen
+		  TL0=0;
+		  TF0=0;					// Überlauf-Flag zurücksetzen
+		  TR0=1;					// Timer 0 starten
 		while(!TF0);
+		TR0=0;
 	}
 	
 	restart_app();							// Anwendungsspezifische Einstellungen zuruecksetzen

@@ -138,19 +138,22 @@ void write_value_req(void)				// Ausgänge schalten gemäß EIS 1 Protokoll (an/aus
                 if (((telegramm[7]==0x80) && (block_polarity==0)) ||
                 	((telegramm[7]==0x81) && (block_polarity!=0)))
                 {	// Ende der Sperrung
-                    blocked=blocked&(0xFF-zf_bitpattern);
-                    if (blockend==0x01) portbuffer=portbuffer&(0xFF-zf_bitpattern);	// Bei Ende der Sperrung ausschalten
-                    if (blockend==0x02) portbuffer=portbuffer|zf_bitpattern;		// Bei Ende der Sperrung einschalten
+                	if((blocked & zf_bitpattern)!=0) {	// nur wenn Sperre aktiv war
+						blocked=blocked&(0xFF-zf_bitpattern);
+						if (blockend==0x01) portbuffer=portbuffer&(0xFF-zf_bitpattern);	// Bei Ende der Sperrung ausschalten
+						if (blockend==0x02) portbuffer=portbuffer|zf_bitpattern;		// Bei Ende der Sperrung einschalten
+                	}
                 }
                   
                 if (((telegramm[7]==0x81) && (block_polarity==0)) ||
                 	((telegramm[7]==0x80) && (block_polarity!=0)))
                 {	// Beginn der Sperrung
-
-                    blocked=blocked|zf_bitpattern;
-                    if (blockstart==0x01) portbuffer=portbuffer&(0xFF-zf_bitpattern);	// Bei Beginn der Sperrung ausschalten
-                    if (blockstart==0x02) portbuffer=portbuffer|zf_bitpattern;		// Bei Beginn der Sperrung einschalten
-                    timercnt[zfout-1]=0;//delrec[(zfout-1)*4]=0;	// ggf. Eintrag für Schaltverzögerung löschen
+                	if((blocked & zf_bitpattern)==0) {	// nur wenn Sperre inaktiv war
+						blocked=blocked|zf_bitpattern;
+						if (blockstart==0x01) portbuffer=portbuffer&(0xFF-zf_bitpattern);	// Bei Beginn der Sperrung ausschalten
+						if (blockstart==0x02) portbuffer=portbuffer|zf_bitpattern;		// Bei Beginn der Sperrung einschalten
+						timercnt[zfout-1]=0;//delrec[(zfout-1)*4]=0;	// ggf. Eintrag für Schaltverzögerung löschen
+                	}
                 }
               //port_schalten(portbuffer);
               break;
