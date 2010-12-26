@@ -63,6 +63,7 @@
 *   3.20	port_schalten() wird jetzt zentral von der main aufgerufen
 *   3.30	umgestellt auf statemachine library
 *   3.31	ein paar lokale Variablen enfernt um stack zu entlasten
+*   3.32	Funktion bei Beginn/Ende der Sperre nur wenn Sperre vorher inaktiv/aktiv war
 * 
 * @todo:
 	- Prio beim Senden implementieren \n
@@ -76,7 +77,7 @@
 
 #include "../com/fb_rs232.h"
 
-//__idata unsigned char __at 0x80 stack[128];
+
 
 /** 
 * The start point of the program, init all libraries, start the bus interface, the application
@@ -105,7 +106,7 @@ void main(void)
 	restart_app();							// Anwendungsspezifische Einstellungen zuruecksetzen
 	bus_return();							// Aktionen bei Busspannungswiederkehr
 
-//rs_init(1152);
+
 
 	do  {
 		if(eeprom[RUNSTATE]==0xFF) {	// nur wenn run-mode gesetzt
@@ -148,10 +149,6 @@ void main(void)
 			for(n=0;n<100;n++) {}	// Entprell-Zeit
 			while(!TASTER);			// warten bis Taster losgelassen
 			status60^=0x81;	// Prog-Bit und Parity-Bit im system_state toggeln
-	//		for(n=0;n<128;n++) {
-	//			rs_send_hex(stack[n]);
-	//			rs_send(' ');
-	//		}
 		}
 		TASTER=!(status60 & 0x01);	// LED entsprechend Prog-Bit schalten (low=LED an)
 		for(n=0;n<100;n++) {}	// falls Hauptroutine keine Zeit verbraucht, der LED etwas Zeit geben, damit sie auch leuchten kann
