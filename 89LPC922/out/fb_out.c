@@ -5,7 +5,7 @@
  *   / __/ / _, _/ /___/ /___/ /_/ / /_/ /___/ /
  *  /_/   /_/ |_/_____/_____/_____/\____//____/  
  *                                      
- *  Copyright (c) 2008-2010 Andreas Krebs <kubi@krebsworld.de>
+ *  Copyright (c) 2008-2011 Andreas Krebs <kubi@krebsworld.de>
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License version 2 as
@@ -64,7 +64,9 @@
 *   3.30	umgestellt auf statemachine library
 *   3.31	ein paar lokale Variablen enfernt um stack zu entlasten
 *   3.32	Funktion bei Beginn/Ende der Sperre nur wenn Sperre vorher inaktiv/aktiv war
-* 
+ 
+
+
 * @todo:
 	- Prio beim Senden implementieren \n
 	- Zwangsstellungsobjekte implementieren \n
@@ -78,7 +80,6 @@
 #include "../com/fb_rs232.h"
 
 
-
 /** 
 * The start point of the program, init all libraries, start the bus interface, the application
 * and check the status of the program button.
@@ -88,42 +89,44 @@
 void main(void)
 { 
 	unsigned char n;
-	
-
+	signed char cal;
+	static __code signed char __at 0x1BFF trimsave;
 	
 	restart_hw();							// Hardware zuruecksetzen
 
-	for (n=0;n<50;n++) {					// Warten bis Bus stabil
-		  TR0=0;					// Timer 0 anhalten
-		  TH0=0;					// Timer 0 setzen
-		  TL0=0;
-		  TF0=0;					// Überlauf-Flag zurücksetzen
-		  TR0=1;					// Timer 0 starten
+	cal=trimsave;
+	TRIM = TRIM+trimsave;
+
+	for (n=0;n<50;n++) {
+		set_timer0(0xFFFF);					// Warten bis Bus stabil
 		while(!TF0);
-		TR0=0;
 	}
-	
 	restart_app();							// Anwendungsspezifische Einstellungen zuruecksetzen
 	bus_return();							// Aktionen bei Busspannungswiederkehr
-
-
 
 	do  {
 		if(eeprom[RUNSTATE]==0xFF) {	// nur wenn run-mode gesetzt
 
 			if(RTCCON>=0x80) delay_timer();	// Realtime clock Ueberlauf
-
 			if(TF0 && (TMOD & 0x0F)==0x01) {	// Vollstrom für Relais ausschalten und wieder PWM ein
+#ifndef SPIBISTAB
 				TMOD=(TMOD & 0xF0) + 2;			// Timer 0 als PWM
 				TAMOD=0x01;
 				TH0=DUTY;
+#endif				
 				TF0=0;
+#ifndef SPIBISTAB
 				AUXR1|=0x10;	// PWM von Timer 0 auf Pin ausgeben
+#endif
 				PWM=1;			// PWM Pin muss auf 1 gesetzt werden, damit PWM geht !!!
+#ifndef SPIBISTAB
 				TR0=1;
+#else
+				P0=portbuffer;
+#endif				
 			}
 
-			if (portchanged) port_schalten();				// Ausgänge schalten
+			if (portchanged)port_schalten();	// Ausgänge schalten
 
 			// portbuffer flashen, Abbruch durch ext-int wird akzeptiert und später neu probiert
 			// T1-int wird solange abgeschaltet, timeout_count wird ggf. um 4ms (flashzeit) reduziert
@@ -143,16 +146,45 @@ void main(void)
 		}
 
 		
-
+		
 		TASTER=1;				// Pin als Eingang schalten um Taster abzufragen
 		if(!TASTER) {				// Taster gedrückt
 			for(n=0;n<100;n++) {}	// Entprell-Zeit
-			while(!TASTER);			// warten bis Taster losgelassen
-			status60^=0x81;	// Prog-Bit und Parity-Bit im system_state toggeln
+			n=0;
+			while(!TASTER)			// warten bis Taster losgelassen
+			 {
+				while (RTCCON<0x80);
+				if (n<=254)	n++;
+				stop_rtc();
+				start_rtc(8);		// RTC neu mit 8ms starten
+			 }
+				if(n<125){
+					status60^=0x81;	// Prog-Bit und Parity-Bit im system_state toggeln
+				}
+				else
+				{					//länger als 1 Sekunde
+					if (n<250){
+						cal++;//kürzer als 2 sekunden
+						TRIM+=1;
+					}
+					else{
+						cal--;
+						TRIM-=1;
+					}
+					EA=0;
+					START_WRITECYCLE;	//cal an 0x1bff schreiben
+					FMADRH= 0x1B;		
+					FMADRL= 0xFF; 
+					FMDATA=	cal; 
+					STOP_WRITECYCLE;
+					EA=1;				//int wieder freigeben
+				}
+				stop_rtc();
+				start_rtc(65);		// RTC neu mit 8ms starten
+
 		}
 		TASTER=!(status60 & 0x01);	// LED entsprechend Prog-Bit schalten (low=LED an)
 		for(n=0;n<100;n++) {}	// falls Hauptroutine keine Zeit verbraucht, der LED etwas Zeit geben, damit sie auch leuchten kann
-
   } while(1);
 }
 

@@ -5,7 +5,7 @@
  *   / __/ / _, _/ /___/ /___/ /_/ / /_/ /___/ / 
  *  /_/   /_/ |_/_____/_____/_____/\____//____/  
  *                                      
- *  Copyright (c) 2008-2010 Andreas Krebs <kubi@krebsworld.de>
+ *  Copyright (c) 2008-2011 Andreas Krebs <kubi@krebsworld.de>
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License version 2 as
@@ -34,6 +34,9 @@
  * 			  kompletter Verzicht auf userram -> alle Stati in globalen Variablen
  *
  * 15.04.10 - Fehler mit den Logigverknüpfungen behoben
+ * 
+ * 02.01.11 - Ausgabe auf serielle Schieberegister für bistabile Relaise via Compilerschalter
+ * 
  */
 
 
@@ -464,6 +467,27 @@ void port_schalten(void)		// Schaltet die Ports mit PWM, DUTY ist Pulsverhältnis
 {
 	unsigned char n, pattern;
 
+#ifdef SPIBISTAB	//serielle schiebeausgang für bistabile Relaise
+		spi_2_out(sort_output(portbuffer));		// Ports schalten
+		PWM=0;
+		TF0=0;			// Timer 0 für Haltezeit Vollstrom verwenden
+		TH0=0x6f;		// 16ms (10ms=6fff)
+		TL0=0xff;
+		TMOD=(TMOD & 0xF0) +1;		// Timer 0 als 16-Bit Timer
+		TAMOD=0x00;
+		TR0=1;
+
+	rm_state=portbuffer ^ eeprom[RMINV];	// Rückmeldeobjekte setzen
+	for (n=0;n<8;n++) {	// Rückmeldung wenn ein Ausgag sich geändert hat
+		pattern=1<<n;
+		if((portbuffer&pattern)!=(oldportbuffer&pattern)) send_obj_value(n+12);
+	}
+
+	oldportbuffer=portbuffer;
+	portchanged=0;
+
+#else	// also normaler out8 oder out4
+
 	if(portbuffer & ~oldportbuffer) {	// Vollstrom nur wenn ein relais eingeschaltet wird
 		TR0=0;
 		AUXR1&=0xE9;	// PWM von Timer 0 nicht mehr auf Pin ausgeben
@@ -491,8 +515,126 @@ void port_schalten(void)		// Schaltet die Ports mit PWM, DUTY ist Pulsverhältnis
 
 	oldportbuffer=portbuffer;
 	portchanged=0;
+	
+#endif
 
 }
+
+unsigned int sort_output(unsigned char portbuffer){
+   unsigned char diff;
+   unsigned int result;
+   diff=portbuffer ^ oldportbuffer;
+   result=0;
+   // A1 
+   if (diff & 0x01){
+	   if(portbuffer & 0x01){
+		   result|=0x1000;
+	   }
+	   else{
+		   result|=0x2000;
+	   }
+   }
+
+   // A2
+   if (diff & 0x02){
+	   if(portbuffer & 0x02){
+	      result|=0x0004;
+	   }
+	   else{
+	      result|=0x0008;
+	   }
+   }
+   // A3
+   if (diff & 0x04){
+	   if(portbuffer & 0x04){
+	      result|=0x4000;
+	   }
+	   else{
+	      result|=0x8000;
+	   }
+   }
+   // A4
+   if (diff & 0x08){
+	   if(portbuffer & 0x08){
+	      result|=0x0001;
+	   }
+	   else{
+	      result|=0x0002;
+	   }
+   }
+   
+   // A5
+   if (diff & 0x10){
+	   if(portbuffer & 0x10){
+	      result|=0x0040;
+	   }
+	   else{
+	      result|=0x0080;
+	   }
+   }
+   // A6
+   if (diff & 0x20){
+   	   if(portbuffer & 0x20){
+	      result|=0x0100;
+	   }
+	   else{
+	      result|=0x0200;
+	   }
+   }
+   
+   // A7
+   if (diff & 0x40){
+	   if(portbuffer & 0x40){
+	      result|=0x0010;
+	   }
+	   else{
+	      result|=0x0020;
+	   }
+   }
+   // A8
+   if (diff & 0x80){
+	   if(portbuffer & 0x80){
+	      result|=0x0400;
+	   }
+	   else{
+	      result|=0x0800;
+	   }
+   }
+   return result;
+
+}
+
+
+void spi_2_out(unsigned int daten){
+
+   unsigned char n, unten, mitte;
+
+   unten=daten & 0xFF;
+   mitte=daten>>8;
+
+   WRITE=0;
+   CLK=0;
+   for(n=0;n<=7;n++){
+      
+
+      BOT_OUT=(unten & 0x080)>>7;
+      unten<<=1;
+      
+      MID_OUT=(mitte & 0x080)>>7;
+      mitte<<=1;
+
+      CLK=1;
+      CLK=0;
+
+   }
+
+   WRITE=1;
+
+   WRITE=0;
+
+}
+
+
 
 
 
@@ -547,12 +689,16 @@ void restart_app(void)		// Alle Applikations-Parameter zurücksetzen
 
 	rm_state=portbuffer ^ eeprom[RMINV];	// Rückmeldeobjekte setzen
 
-  	TMOD=(TMOD & 0xF0) + 2;		// Timer 0 als PWM
+#ifdef SPIBISTAB
+	PWM=1;
+#else 
+	TMOD=(TMOD & 0xF0) + 2;		// Timer 0 als PWM
 	TAMOD=0x01;
 	TH0=DUTY;		// Pulsverhältnis PWM
 	AUXR1|=0x10;	// PWM von Timer 0 auf Pin ausgeben, gleichzeitig low-powermode ein (da <8MHz)
-	ET0=0;			// Interrupt für Timer 0 sperren
 	TR0=1;			// Timer 0 starten (PWM)
+#endif
+	ET0=0;			// Interrupt für Timer 0 sperren
 
 	zf_state=0x00;		// Zustand der Zusatzfunktionen 1-4
 	blocked=0x00;		// Ausgänge nicht gesperrt

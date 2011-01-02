@@ -10,3 +10,4 @@ Um das richtige hex-file für die entsprechende Anwendung zu erzeugen müssen in d
 #define MAX_PORTS_8	für den 8-fach Aktor
 #define MAX_PORTS_4	für den 4-fach Aktor
 
+#define SPIBISTAB	Serielle Ausgabe für bistabile relaise aktivieren
