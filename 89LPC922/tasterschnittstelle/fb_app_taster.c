@@ -1,40 +1,39 @@
 /*
+ *
  *      __________  ________________  __  _______
  *     / ____/ __ \/ ____/ ____/ __ )/ / / / ___/
- *    / /_  / /_/ / __/ / __/ / __  / / / /\__ \ 
- *   / __/ / _, _/ /___/ /___/ /_/ / /_/ /___/ / 
- *  /_/   /_/ |_/_____/_____/_____/\____//____/  
- *                                      
- *  Copyright (c) 2008 Andreas Krebs <kubi@krebsworld.de>
+ *    / /_  / /_/ / __/ / __/ / __  / / / /\__ \
+ *   / __/ / _, _/ /___/ /___/ /_/ / /_/ /___/ /
+ *  /_/   /_/ |_/_____/_____/_____/\____//____/
+ *
+ *  Copyright (c) 2010 Jan Wegner
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License version 2 as
  *  published by the Free Software Foundation.
  *
- *http://de.wikibooks.org/wiki/C%2B%2B-Programmierung:_Dokumentation_mit_Doxygen
- * http://studiwiki.informatik.uni-stuttgart.de/Softwaretechnik/Studienprojekte/Beispiel_Styleguide
- *http://www.stack.nl/~dimitri/doxygen/commands.html
  */
-/**
-* @file   fb_app_taster.c
-* @author Andreas Krebs <kubi@krebsworld.de>
-* @date    2008
-* 
-* @brief Applikation Taster, siehe fb_tester.c 
-* 
-* 
-*/
 
 #include <P89LPC922.h>
-#include "../com/fb_hal_lpc.h"
-#include "../com/fb_prot.h"
-#include "../com/fb_delay.h"
+#include "fb_hal_lpc.h"
+#include "fb_prot.h"
+#include "fb_delay.h"
 #include "fb_app_taster.h"
 
+#if (PROGRAMM == 4)
+#include "spi.h"
+#endif
 
-long timer; /// Timer fuer Schaltverzoegerungen, wird alle 130us hochgezaehlt
-unsigned char button_buffer; /// Puffer fuer Taster Werte
+long timer; // Timer fuer Schaltverzoegerungen, wird alle 130us hochgezaehlt
+unsigned char button_buffer; // Puffer fuer Taster Werte
 bit dimmrichtung;
+
+#if (PROGRAMM == 4)
+unsigned char led_port;
+#endif
+
+
+
 
 
 /** 
@@ -50,20 +49,28 @@ void port_changed(unsigned char portval)
 	set_timer0(50000);			// Entprellzeit
 	while (!TF0);				// warten auf Timer 0
 
-#ifdef TASTER_4
-	if ((PORT & 0x0F) == portval)
-	{
-		for (n=0; n<4; n++)		// alle 4 Taster einzeln pruefen (koennten ja mehrere gleichzeitig gedrueckt worden sein)
-#else
+
+#if (PROGRAMM == 1 | PROGRAMM == 2) // MODUL_8_IN oder TASTER_8
 	if (PORT == portval)
 	{
 		for (n=0; n<8; n++)		// alle 8 Taster einzeln pruefen (koennten ja mehrere gleichzeitig gedrueckt worden sein)
+
+#elif (PROGRAMM == 3) // TASTER_4
+	if ((PORT & 0x0F) == portval)
+	{
+		for (n=0; n<4; n++)		// alle 4 Taster einzeln pruefen (koennten ja mehrere gleichzeitig gedrueckt worden sein)
+
+#elif (PROGRAMM == 4)  // RADIO
+	if (spi_in_out(led_port) == portval)
+	{
+		for (n=0; n<8; n++)		// alle 8 Taster einzeln pruefen (koennten ja mehrere gleichzeitig gedrueckt worden sein)
+
 #endif
 
 		{
 			buttonpattern=1<<n;
 
-#ifdef MODUL_8_IN
+#if (PROGRAMM == 1) // MODUL_8_IN
 			if ((portval & buttonpattern) && !(button_buffer & buttonpattern)) button_changed(n,1);	// Taster losgelassen
 			if (!(portval & buttonpattern) && (button_buffer & buttonpattern)) button_changed(n,0);	// Taster gedrueckt
 #else
@@ -124,10 +131,9 @@ void button_changed(unsigned char buttonno, bit buttonval)
 		{
 			send_value(1,(buttonno),objval);
 
-#ifdef TASTER_4
+#if (PROGRAMM == 3 | PROGRAMM == 4) // TASTER_4 oder RADIO
 			switch_led(buttonno, objval);		// LED schalten
 #endif
-
 		}
 	}
 
@@ -136,10 +142,9 @@ void button_changed(unsigned char buttonno, bit buttonval)
 		if (buttonval)	// Taster gedrueckt -> schauen wie lange gehalten
 		{
 
-#ifdef TASTER_4
+#if (PROGRAMM == 3 | PROGRAMM == 4) // TASTER_4 oder RADIO
 			if ((eeprom[COMMAND+(buttonno*4)]) & 0x04) switch_led(buttonno,0);	// wenn Betuetigungsanzeige, dann gleich beim druecken einschalten
 #endif
-
 
 			duration=eeprom[0xD6+(buttonno*4)];	// Faktor Dauer
 			duration=duration<<4;
@@ -150,7 +155,7 @@ void button_changed(unsigned char buttonno, bit buttonval)
 
 			d_command=(eeprom[COMMAND+(buttonno*4)]&0x30);
 
-			d_delay_state=d_delay_state_help>>(4*(!(d_command&0x20)>>6));	// dimmen heller / dunkler
+			d_delay_state=d_delay_state_help>>(4*((~(d_command&0x20)>>5)&0x01));	// dimmen heller / dunkler
 
 			if (d_command==0x20)
 			{
@@ -172,7 +177,7 @@ void button_changed(unsigned char buttonno, bit buttonval)
 					case 0x10:	// zweiflächen ein
 						d_an_aus=1;
 
-#ifdef TASTER_4
+#if (PROGRAMM == 3 | PROGRAMM == 4) // TASTER_4 oder RADIO
 						switch_led(buttonno,1);
 #endif
 
@@ -181,7 +186,7 @@ void button_changed(unsigned char buttonno, bit buttonval)
 						d_an_aus=(((~read_obj_value(buttonno))&0x01));
 						dimmrichtung=!d_an_aus;
 
-#ifdef TASTER_4
+#if (PROGRAMM == 3 | PROGRAMM == 4) // TASTER_4 oder RADIO
 						switch_led(buttonno,(!dimmrichtung));
 #endif
 
@@ -189,7 +194,7 @@ void button_changed(unsigned char buttonno, bit buttonval)
 					case 0x30:	// zweiflächen aus
 						d_an_aus=0;
 
-#ifdef TASTER_4
+#if (PROGRAMM == 3 | PROGRAMM == 4) // TASTER_4 oder RADIO
 						switch_led(buttonno,0);
 #endif
 
@@ -222,7 +227,7 @@ void button_changed(unsigned char buttonno, bit buttonval)
 			objval=((eeprom[0xD3+(buttonno*4)]&0x10)>>4);
 			send_value(1, buttonno, objval);	// Kurzzeit telegramm immer bei Drücken senden
 
-#ifdef TASTER_4
+#if (PROGRAMM == 3 | PROGRAMM == 4) // TASTER_4 oder RADIO
 			switch_led(buttonno,1);	// Status-LED schalten
 #endif
 
@@ -249,7 +254,7 @@ void button_changed(unsigned char buttonno, bit buttonval)
 		if (buttonval) // taster gedrückt
 		{
 
-#ifdef TASTER_4
+#if (PROGRAMM == 3 | PROGRAMM == 4) // TASTER_4 oder RADIO
 			switch_led(buttonno,1);	// Status-LED schalten
 #endif
 
@@ -283,7 +288,7 @@ void button_changed(unsigned char buttonno, bit buttonval)
 				}
 			}
 
-#ifdef TASTER_4
+#if (PROGRAMM == 3 | PROGRAMM == 4) // TASTER_4 oder RADIO
 			if ((delrec[buttonno*4] & 0xF0)==0x60)
 			{
 				w_switch_led(buttonno,0);
@@ -292,6 +297,7 @@ void button_changed(unsigned char buttonno, bit buttonval)
 			clear_delay_record(buttonno);
 		}
 	}
+
 }
 
 
@@ -322,8 +328,8 @@ void write_value_req(void)
 	    			if (objno<16) {					// max 12 objekte
 	    				write_obj_value(objno,telegramm[7]);
 
-#ifdef TASTER_4
-	    				if ((objno<4) && ((eeprom[COMMAND+(objno*4)]) & 0x07) <4) switch_led(objno,telegramm[7]&0x01);	// LED nur schalten, wenn nicht auf Betï¿½tigungsanzeige parametriert
+#if (PROGRAMM == 3 | PROGRAMM == 4) // TASTER_4 oder RADIO
+	    				if ((objno<8) && ((eeprom[COMMAND+(objno*4)]) & 0x07) <4) switch_led(objno,telegramm[7]&0x01);	// LED nur schalten, wenn nicht auf Betï¿½tigungsanzeige parametriert
 #endif
 
 	    			}
@@ -448,7 +454,7 @@ void delay_timer(void)
 
 	timer&=0x00FFFFFF;	// nur 3 Byte aktiv
 
-	for(objno=0;objno<12;objno++) {
+	for(objno=0;objno<16;objno++) {
 		delay_state=delrec[objno*4];
 		if(delay_state!=0x00) {			// 0x00 = delay Eintrag ist leer   
 			delval=delrec[objno*4+1];
@@ -456,7 +462,7 @@ void delay_timer(void)
 			delval=(delval<<8)+delrec[objno*4+3];	// delval enthaelt den im delay record gespeicherten timer-wert
 			if(delval==timer) {	// ... es ist also soweit
 
-#ifdef TASTER_4
+#if (PROGRAMM == 3) // TASTER_4
 				if (objno>7)	// LED bei Betaetigungsanzeige nach eingestellter Zeit ausschalten
 				{
 					PORT &= ~(1<<(objno-4));	// LEDs sind an Pin 4-7
@@ -465,6 +471,16 @@ void delay_timer(void)
 				}
 				else
 				{
+#endif
+
+#if (PROGRAMM == 4) // RADIO
+					if (objno>7)	// LED bei Betaetigungsanzeige nach eingestellter Zeit ausschalten
+					{
+						led_port &= ~(1<<(objno-8));	// LEDs sind an Pin 4-7
+						clear_delay_record(objno);
+					}
+					else
+					{
 #endif
 
 				if ((delay_state & 0xF0)==0x10) // 0x1? für langzeit telegramm senden
@@ -525,14 +541,14 @@ void delay_timer(void)
 							else	// 5.sekunde rum
 							{
 
-#ifdef TASTER_4
+#if (PROGRAMM == 3 | PROGRAMM == 4) // TASTER_4 oder RADIO
 								w_switch_led(objno,1);
 #endif
 
 								send_value(1, objno+8, eeprom[0xD5+4*objno]+0x80);	// Lichtszene speichern
 								clear_delay_record(objno);
 
-#ifdef TASTER_4
+#if (PROGRAMM == 3 | PROGRAMM == 4) // TASTER_4 oder RADIO
 								w_switch_led(objno,0);
 #endif
 
@@ -556,9 +572,10 @@ void delay_timer(void)
 
 							w_diff=0x27;
 
-#ifdef TASTER_4
+#if (PROGRAMM == 3 | PROGRAMM == 4) // TASTER_4 oder RADIO
 							w_switch_led(objno,1);
 #endif
+
 							if (w_value==0x39FD || w_value==0x3828)	//Differenz ausgleichen
 							{
 								w_value--;
@@ -568,7 +585,8 @@ void delay_timer(void)
 
 							if (w_value==0x3800)	// bei 0lux LED aus
 							{
-#ifdef TASTER_4
+
+#if (PROGRAMM == 3 | PROGRAMM == 4) // TASTER_4 oder RADIO
 								w_switch_led(objno,0);
 #endif
 							}
@@ -593,7 +611,7 @@ void delay_timer(void)
 
 							w_diff=0x32;
 
-#ifdef TASTER_4
+#if (PROGRAMM == 3 | PROGRAMM == 4) // TASTER_4 oder RADIO
 							w_switch_led(objno,1);
 #endif
 
@@ -602,7 +620,10 @@ void delay_timer(void)
 
 							if (w_value==0x0800)	// bei 0°C LED aus
 							{
-								w_switch_led(objno,0);
+
+#if (PROGRAMM == 3 | PROGRAMM == 4) // TASTER_4 oder RADIO
+							w_switch_led(objno,0);
+#endif
 							}
 
 							if (!(w_value&0x0800)) w_value=0x0FD0;	// von 0 nix mehr abziehen also wieder bei 40°C starten
@@ -625,14 +646,16 @@ void delay_timer(void)
 							if ((w_value)>w_diff || w_value==0x00)
 							{
 								w_value-=w_diff;
-#ifdef TASTER_4
+
+#if (PROGRAMM == 3 | PROGRAMM == 4) // TASTER_4 oder RADIO
 								w_switch_led(objno,1);
 #endif
 							}
 							else
 							{
 								w_value=0x00;
-#ifdef TASTER_4
+
+#if (PROGRAMM == 3 | PROGRAMM == 4) // TASTER_4 oder RADIO
 								w_switch_led(objno,0);
 #endif
 							}
@@ -646,10 +669,9 @@ void delay_timer(void)
 					}
 				}
 
-#ifdef TASTER_4
+#if (PROGRAMM == 3 | PROGRAMM == 4) // TASTER_4 oder RADIO
 				}
 #endif
-
 
 			}
 		}
@@ -657,8 +679,7 @@ void delay_timer(void)
 	start_rtc(8);		// RTC neu starten mit 8ms
 }
 
-
-#ifdef TASTER_4
+#if (PROGRAMM == 3) // TASTER_4
 /**
 * LEDs schalten entsprechend der parametrierung
 *
@@ -709,6 +730,60 @@ void w_switch_led(unsigned char ledno, bit onoff)
 
 
 
+
+#if (PROGRAMM == 4) // RADIO
+/**
+* LEDs schalten entsprechend der parametrierung
+*
+* \param  ledno <Beschreibung>
+* \param  onoff <Beschreibung>
+*
+* @return void
+*/
+void switch_led(unsigned char ledno, bit onoff)
+{
+	unsigned char command, led_zeit;
+
+	if (ledno<8) {
+
+		command = ((eeprom[COMMAND+(ledno*4)]) & 0x07);	// Befehl der Status LED
+
+		if (command<1) {onoff=0;}				//immer aus
+		else if (command<2) {onoff=1;}			//immer an
+		else if (command<3) {}					//Statusanzeige
+		else if (command<4) {onoff=!onoff;}		//invertierte Statusanzeige
+		else									//Betätigungsanzeige
+		{
+			onoff=1;
+			led_zeit=(eeprom[LED_DURATION]>>5);
+			write_delay_record(ledno+8, 0x80, timer+(94*led_zeit));
+		}
+
+		led_port &= ~(1<<ledno);
+		led_port |= (onoff<<ledno);
+	}
+}
+
+
+/**
+* LEDs schalten bei Wertverstellung Wertgeber
+*
+* \param  ledno <Beschreibung>
+* \param  onoff <Beschreibung>
+*
+* @return void
+*/
+void w_switch_led(unsigned char ledno, bit onoff)
+{
+	led_port &= ~(1<<ledno);
+	led_port |= (onoff<<ledno);
+}
+
+#endif
+
+
+
+
 /** 
 * Alle Applikations-Parameter zuruecksetzen und Empfang starten
 * 
@@ -720,30 +795,33 @@ void restart_app(void)
 {
 	unsigned char n;
 	bit write_ok=0;
-	
-#ifdef TASTER_8
-	P0M1=0x00;				//P0 auf bidirektional
-	P0M2=0x00;
-	P0=0xFF;				//Taster auf high
-	button_buffer=0xFF;		// Variable für letzten abgearbeiteten Taster Status
-#endif
 
 
-#ifdef MODUL_8_IN
+#if (PROGRAMM == 1) // MODUL_8_IN
 	P0M1=0xFF;				//P0 auf input only (high impedance!)
 	P0M2=0x00;
 	P0=0x00;				// Taster auf low
 	button_buffer=0x00;		// Variable für letzten abgearbeiteten Taster Status
-#endif
-	
-#ifdef TASTER_4
+
+#elif (PROGRAMM == 2) // TASTER_8
+	P0M1=0x00;				//P0 auf bidirektional
+	P0M2=0x00;
+	P0=0xFF;				//Taster auf high
+	button_buffer=0xFF;		// Variable für letzten abgearbeiteten Taster Status
+
+#elif (PROGRAMM == 3) // TASTER_4
 	P0M1=0x00;				//P0.0-P0.3 auf bidirektional P0.4-P0.7 auf Push-Pull
 	P0M2=0xF0;
 	PORT=0x0F;				// Taster auf high, LEDs zunächst aus
 	button_buffer=0x0F;		// Variable für letzten abgearbeiteten Taster Status
 
+#elif (PROGRAMM == 4) // RADIO
+	P0M1=0x00;				// P0_1 Biderektional Rest PushPull
+	P0M2=0xFB;
+	P0=0x04;				// SER_IN=1
+	button_buffer=0xFF;		// Variable für letzten abgearbeiteten Taster Status
+
 #endif
-	
 
 	dimmrichtung=1;
 
@@ -756,7 +834,7 @@ void restart_app(void)
 	START_WRITECYCLE			
 	WRITE_BYTE(0x01,0x03,0x00)	// Herstellercode 0x0004 = Jung
 	WRITE_BYTE(0x01,0x04,0x04)
-#ifdef TASTER_4
+#if (PROGRAMM == 3) // TASTER_4
 	WRITE_BYTE(0x01,0x05,0x10)	// Devicetype 0x1052 = Jung Tastsensor 2092
 	WRITE_BYTE(0x01,0x06,0x52)
 #else
@@ -772,11 +850,16 @@ void restart_app(void)
 	WRITE_BYTE(0x00,0x60,0x2E);	// system state: all layers active (run), not in prog mode
 	STOP_WRITECYCLE;
 
-	for (n=0;n<8;n++) write_obj_value(n,0);		// Objektwerte alle auf 0 setzen
-	for (n=0;n<8;n++) clear_delay_record(n);	// delay records loeschen
+	for (n=0;n<16;n++) write_obj_value(n,0);		// Objektwerte alle auf 0 setzen
+	for (n=0;n<16;n++) clear_delay_record(n);	// delay records loeschen
 
-#ifdef TASTER_4
+
+#if (PROGRAMM == 3) // TASTER_4
 	for (n=0;n<4;n++) switch_led(n,0);	// Alle LEDs gemaess ihren Parametern setzen
+#endif
+
+#if (PROGRAMM == 4) // RADIO
+	for (n=0;n<8;n++) switch_led(n,0);	// Alle LEDs gemaess ihren Parametern setzen
 #endif
 
 	EA=1;		// Interrupts freigeben	

@@ -1,26 +1,17 @@
 /*
  *      __________  ________________  __  _______
  *     / ____/ __ \/ ____/ ____/ __ )/ / / / ___/
- *    / /_  / /_/ / __/ / __/ / __  / / / /\__ \ 
- *   / __/ / _, _/ /___/ /___/ /_/ / /_/ /___/ / 
- *  /_/   /_/ |_/_____/_____/_____/\____//____/  
- *                                      
- *  Copyright (c) 2008 Andreas Krebs <kubi@krebsworld.de>
+ *    / /_  / /_/ / __/ / __/ / __  / / / /\__ \
+ *   / __/ / _, _/ /___/ /___/ /_/ / /_/ /___/ /
+ *  /_/   /_/ |_/_____/_____/_____/\____//____/
+ *
+ *  Copyright (c) 2010 Jan Wegner
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License version 2 as
  *  published by the Free Software Foundation.
  *
  */
-/**
-* @file   fb_app_taster.h
-* @author Andreas Krebs <kubi@krebsworld.de>
-* @date    2008
-* 
-* @brief The Freebus Taster Application, Firmware f�r einen 4-fach Taster mit 4 LEDs
-* 
-* 
-*/
 
 #ifndef FB_APP
 #define FB_APP
@@ -28,8 +19,20 @@
 //#define MODUL_8_IN
 //#define TASTER_8
 #define TASTER_4
+//#define RADIO
 
-#define NO_PROG_BUTTON
+#ifdef MODUL_8_IN
+#define PROGRAMM 1
+#endif
+#ifdef TASTER_8
+#define PROGRAMM 2
+#endif
+#ifdef TASTER_4
+#define PROGRAMM 3
+#endif
+#ifdef RADIO
+#define PROGRAMM 4
+#endif
 
 #define POWERLED		0xCD
 #define LED_DURATION	0xCE
@@ -50,10 +53,16 @@ void write_value_req(void);		// Hauptroutine fuer Ausgaenge schalten gemaess EIS
 void delay_timer(void);			// zaehlt alle 130ms die Variable Timer hoch und prueft Queue
 void send_value(unsigned char type, unsigned char objno, unsigned int sval);	// sendet ein EIS Telegramm
 
-#ifdef TASTER_4
+
+#if (PROGRAMM == 4)
+extern unsigned char led_port;
+#endif
+
+
+#if (PROGRAMM == 3 | PROGRAMM == 4) // TASTER_4 oder RADIO
 void switch_led(unsigned char ledno, bit onoff);
 void w_switch_led(unsigned char ledno, bit onoff);
 #endif
 
 
-#endif
+#endif /* FB_APP */
