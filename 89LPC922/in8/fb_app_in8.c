@@ -20,6 +20,9 @@
 #include "../com/fb_prot.h"
 #include "fb_app_in8.h"
 #include "../com/fb_rs232.h"
+#ifdef IN8_2TE
+#include "spi.h"
+#endif
 
 //unsigned char prot_timer;
 unsigned char portbuffer,p0h;
@@ -44,7 +47,9 @@ bit st_Flanke=0;
 void pin_changed(unsigned char pin_no)
 {
 //	long duration=1;		// falls seitens ETS falsch programmiert 8ms default
+#ifdef zaehler
 	int maxzaehler;
+#endif
 	unsigned char tmp;
 	unsigned char objoffset=8;
 	unsigned char typ=0;
@@ -70,21 +75,21 @@ void pin_changed(unsigned char pin_no)
     case 0x01:				// Funktion Schalten
     	schalten(st_Flanke,pinno);			// Flanke Eingang x.1
 
-         tmp=(eeprom[para_adr]&0x0C);//0xD5/ bit 2-3 zykl senden aktiv 2. Schaltebene
-          		
-         if ((tmp==4 && st_Flanke==1)||(tmp==8 && st_Flanke==0)){
-         			timercnt[pinno]= eeprom[para_adr+1]+ 0x80;//0xD6 Faktor Dauer )
-         			timerbase[pinno]=0;
-         			// im Nachfolgenden wird die Zeitbasis geholt und schiebt duration nach links
-         			//duration=duration << 0;//timebase;// Basis Dauer zwischen kurz und langzeit)	
-         			//duration+=timer;//Zeitfaktor zum timer adieren(basis fest auf 130ms)
-         			timer_state = 0x20|st_Flanke;//speichern des portzustandes
+#ifdef zykls	// mit zyklisch senden Eingang normal behandeln
+		schalten(st_Flanke,pinno+8);		// Flanke Eingang x.2
+
+#else			// ohne zyklisch senden dafür 2. schaltebene
+        tmp=(eeprom[para_adr]&0x0C);//0xD5/ bit 2-3 zykl senden aktiv 2. Schaltebene
+		if ((tmp==0x04 && st_Flanke==1)||(tmp==0x08 && st_Flanke==0)){
+        	 timercnt[pinno]= eeprom[para_adr+1]+ 0x80;//0xD6 Faktor Dauer )
+         	 timerbase[pinno]=0;
+         	 timer_state = 0x20|st_Flanke;//speichern des portzustandes
          }
          else {// kein zyklsenden, bzw loslassen
          			timercnt[pinno]=0;
          			schalten(st_Flanke,pinno+8);		// Flanke Eingang x.2
          }
-
+#endif
      break;  
       case 0x02:				// Funktion Dimmen
     		/***********************
@@ -92,11 +97,10 @@ void pin_changed(unsigned char pin_no)
     		 ***********************/
     		// Taster gedrueckt -> schauen wie lange gehalten
             if (st_Flanke){// Taster gedrueckt -> schauen wie lange gehalten
-  			timercnt[pinno]=0x80+(eeprom[0xD7+(pinnoX4)]&0x7F);	// Faktor Dauer			
-            // im Nachfolgenden wird die Zeitbasis geholt und schiebt duration nach links
-			//duration=duration << timebase;// Basis Dauer zwischen kurz und langzeit)	
-  			//duration+=timer;
-  			objval=(read_obj_value(pinno+8)>>3)&0x01;
+  			timercnt[pinno]=0x80+(eeprom[0xD7+(pinnoX4)]&0x7F);	// Faktor/Dauer			
+			timerbase[pinno]=timer_base;
+
+   			objval=(read_obj_value(pinno+8)>>3)&0x01;
   			switch (eeprom[para_adr + 0x02]&0x70) {
   			case 0x00:	// UM Dimmen
   				objval = !objval;	// Dimmrichtung ändern
@@ -174,9 +178,8 @@ void pin_changed(unsigned char pin_no)
 	            	send_value(1, pinno, jobj);	// Kurzzeit telegramm immer bei Drücken senden
 	    			timercnt[pinno]=0x80+eeprom[0xD6+(pinno*4)];//Faktor Dauer )
 	    			timerbase[pinno]=timer_base;
-	    			// im Nachfolgenden wird die Zeitbasis geholt und schiebt duration nach links
-	    			//duration=duration << timebase;// Basis Dauer zwischen kurz und langzeit)	
-	     			//duration+=timer;
+	    			// Zeit zwischen kurz und langzeit)	
+	     			//
 	    			timer_state = jobj+0x80;
 	            }// ende Bedienkonzept lang-kurz-lang
             }//ende steigende Flanke
@@ -185,11 +188,12 @@ void pin_changed(unsigned char pin_no)
     			else timercnt[pinno]=0;	// T2 bereits abgelaufen
     		}
         break;
- 
+
+#ifdef wertgeber 
     	/**********************************************************
     	 * Funktion Wertgeber Dimmen,Temparatur,Helligkeit
     	 **********************************************************/
-        
+       
         case 0x04:// Dimmwertgeber
         	para_value=0xFF;
         	typ=0x01;
@@ -225,8 +229,11 @@ void pin_changed(unsigned char pin_no)
 		}
  	
         break;
+#endif        
+
         
-        case 0x09:
+#ifdef zaehler         
+         case 0x09:
         	/*******************************************
         	 * Funktion Impulszaehler
         	 *******************************************/
@@ -293,13 +300,15 @@ void pin_changed(unsigned char pin_no)
             	}
         
         	break;
+#endif        	
     }
 	timerstate[pinno]=timer_state;
   }
   IE1=0;	// IRQ 1 Flag zurücksetzen
   EX1=1;	// externen Interrupt 1 wieder freigeben
 }
-             
+
+#ifdef wertgeber
 int eis5conversion(int zahl,unsigned char Typ)
 {
 	unsigned char exp=0;
@@ -323,27 +332,8 @@ int eis5conversion(int zahl,unsigned char Typ)
 	}
  	return (wert+(exp<<11));// exponent dazu, geht auch bei EIS2 da EXP hier 0 ist.
 }
+#endif
 
-/*
-void send_cyclic(unsigned char pinno)
-{
-	pinno;
-}
-
-
-unsigned char operation(unsigned char pinno)
-{
-pinno;
-return(1);
-}
-
-
-unsigned char switch_dim(unsigned char pinno)
-{
-pinno;
-return(1);
-}
-*/
 /** 
 * zaehlt alle 130ms die Variable Timer hoch und prueft records
 *
@@ -359,50 +349,56 @@ void delay_timer(void)
 	bit jobj=0;
 
 	
-	SET_RTC(65)
+	SET_RTC(65)// timer auf die hälfte der kleinsten basis setzen
 
 
 	timer++;
-	timerflags = timer&(~(timer-1));
+	timerflags = timer&(~(timer-1));// flanke generieren
 	for(n=0;n<16;n++){
 		if(timerflags & 0x0001){// positive flags erzeugen und schieben
 			for(m=0;m<TIMERANZ;m++){// die timer der reihe nach checken und dec wenn laufen
 				if ((timerbase[m]& 0x0F)==n){// wenn die base mit der gespeicherten base übereinstimmt
 					if (timercnt[m]>0x80){// wenn der counter läuft...
-						timercnt[m]=timercnt[m]-1;// den timer [m]decrementieren
+						timercnt[m]=timercnt[m]-1;// den timer[m]decrementieren
 					}// end if (timercnt...
 				}//end if(timerbase...
 			}// end  for(m..
 		}// end if timer...
 		timerflags = timerflags>>1;
 	}//end for (n=...
-	if (connected ){		//timer für timer-overflow connect 
-		if(con_timer_refresh){
-			timercnt[PROTTIMER]=0xAE;// wenn connected und refresh timeout timer neu setzen
-			con_timer_refresh=0;
-		}
-		else timercnt[PROTTIMER]--;
-	}
-	else timercnt[PROTTIMER]=0x00;// wenn nicht connected timeout timer ausschalten
+//	if (connected ){		//timer für timer-overflow connect 
+//		if(con_timer_refresh){
+//			timercnt[PROTTIMER]=0xAE;// wenn connected und refresh timeout timer neu setzen
+//			con_timer_refresh=0;
+//		}
+		//else timercnt[PROTTIMER]--;
+//	}
+//	else timercnt[PROTTIMER]=0x00;// wenn nicht connected timeout timer ausschalten
 	
-	if (timercnt[PROTTIMER]==0x80)T_Disconnect();//Verbindungsabbau wegen timeout
+//	if (timercnt[PROTTIMER]==0x80)T_Disconnect();//Verbindungsabbau wegen timeout
 	
-	//timer&=0x00FFFFFF;	// nur 3 Byte aktiv
+// Im folgenden die Aktionen bei abgelaufenen Timern
 	for(objno=0;objno<8;objno++) {
 		timer_state=timerstate[objno];
-		//if(delay_state!=0x00) {			// 0x00 = delay Eintrag ist leer   
-		//	delval=delrec[objno*4+1];
-		//	delval=(delval<<8)+delrec[objno*4+2];
-		//	delval=(delval<<8)+delrec[objno*4+3];	// delval enthaelt den im delay record gespeicherten timer-wert
-		//	if(delval==timer) {	// ... es ist also soweit
 		if(timercnt[objno]==0x80) {
-				if (timer_state & 0x20){
+#ifndef zykls
+		if (timer_state & 0x20){
+#ifdef test //zykls
+					schalten(timer_state & 0x01,objno);
+					jobj=read_obj_value((objno&0x07)+8);
+					if(timerbase[objno]<15){
+						schalten(jobj,objno+8);
+					}
+					timercnt[objno]=(eeprom[0xD6+(objno*4)]&0x7F)+0x80;
+#endif
+ 
 					schalten(timer_state & 0x01,objno+8);
 					//timerbase[objno]=0;
 					timercnt[objno]=0;
 					//timerstate=0;
 				}
-				if (timer_state & 0x80) { // 0x80, 0x81 für langzeit telegramm senden
+#endif
+			if (timer_state & 0x80) { // 0x80, 0x81 für langzeit telegramm senden
 						send_value(1, objno+8, timer_state & 0x01);	// Langzeit Telegramm senden
 						// *** delay record neu laden für Dauer Lamellenverstellung ***
 
@@ -411,7 +407,6 @@ void delay_timer(void)
 		    				//d.h. bei minimum nach ETS Faktor=3 T2 ist abgeschaltet->kein stop
 		    				//damit kann Jalousie als schalter mit 2 schaltebenen verwendung finden
 		    				timerbase[objno]= ((eeprom[0xFA+((objno+1)>>1)]>>(4*((objno&0x01)^0x01)))&0x07);
-		    				//duration += timer;
 		    				jobj=read_obj_value((objno&0x07)+8);
 		    				timerstate[objno]= jobj|0x10; // 0x10,0x11 fuer ende T2 (lamellenvestellzeit)
 		    				timercnt[objno]= m + 0x80;
@@ -457,21 +452,25 @@ void schalten(bit risefall, unsigned char pinno)	// Schaltbefehl senden
 }
 
 
-/*
-unsigned char pin_function(unsigned char pinno)		// Funktion des Eingangs ermitteln
-{
-pinno;
-return(1);
-}
-*/
+
+
+
 unsigned char debounce(unsigned char pinno)	// Entprellzeit abwarten und prüfen !!
 {
-  unsigned char debtime,n,ret;
-  
+  unsigned char debtime,n,w,ret;//,port_help;
   debtime=eeprom[DEBTIME];			// Entprellzeit in 0,5ms Schritten
-  if (debtime>0) for(n=0;n<debtime;n++) delay(110);  
+  if (debtime>0) for(n=0;n<debtime;n++){
+	  	for(w=112;w>0;w--) {}// delay ca. 4,5µs
+  }
+
+#ifndef IN8_2TE
   if (((P0>>pinno)&0x01) == ((p0h>>pinno)&0x01)) ret=1;
-  else ret=0; 
+  else ret=0;
+#else
+  if (((spi_in_out()>>pinno)&0x01) == ((p0h>>pinno)&0x01)) ret=1;
+  else ret=0;
+#endif
+
   return(ret);
 }
 
@@ -499,9 +498,6 @@ void write_value_req(void)		// Objekt-Wert setzen gemäß empfangenem EIS  Telegra
     					//if (telegramm[7]==0x81) objstate|=(0x0001<<objno);
     					while(!write_obj_value(objno,telegramm[7]&0x0F));
     				}
- //   				if (objno>7&&objno<16){ // zum Bsp Langzeitobjekte		
- //   					write_obj_value(objno,telegramm[7]&0x0F);
- //   				}
     				else{		//16-23 Sperrobjekte
     					tmp=telegramm[7]& 0x01;
     					if (read_obj_value(objno)^tmp) {
@@ -638,7 +634,6 @@ void send_value(unsigned char type, unsigned char objno, int sval)	// sucht Grup
   unsigned char objtype;
   bit safe;
   bit selftele;
-//  bit busy;
   
   if (type & 0x10){		// bei EIS Type +16 wird es nicht in obj_value gesichert
 	  safe=0;
@@ -689,7 +684,6 @@ void send_value(unsigned char type, unsigned char objno, int sval)	// sucht Grup
 
     	send_telegramm();
 //    }
-//    while(busy==1);
     IE1=0;
     EX1=1;
   }
@@ -699,21 +693,21 @@ void send_value(unsigned char type, unsigned char objno, int sval)	// sucht Grup
 
 
 
-void delay(int w)	// delay ca. 4,5µs * w
-{
-	int n;
-	for(n=w;n>0;n--) {}
-}
-
 
 void restart_app(void)		// Alle Applikations-Parameter zurücksetzen
 {
 	unsigned char n;
 	bit objval=0,senden;
-	
-  P0M1=0xFF;	//P0 auf input only (high impedance!)
-  P0M2=0x00;
-  P0=0xFF;
+
+#ifndef IN8_2TE
+	P0M1=0xFF;	//P0 auf input only (high impedance!)
+	P0M2=0x00;
+	P0=0xFF;
+#else
+	P0M1=0x00;	// P0_1 Biderektional Rest PushPull
+	P0M2=0xFD;
+	P0=0x22;	// WRITE=1 SER_IN=1
+#endif
 
   transparency=0;
 //	stop_rtc();
@@ -731,14 +725,20 @@ void restart_app(void)		// Alle Applikations-Parameter zurücksetzen
   WRITE_BYTE(0x01,0x0D,0xFF)	// Run-Status (00=stop FF=run)
   WRITE_BYTE(0x01,0x12,0x84)	// COMMSTAB Pointer
   STOP_WRITECYCLE
+
+  START_WRITECYCLE;
+  WRITE_BYTE(0x00,0x60,0x2E);	// system state: all layers active (run), not in prog mode
+  STOP_WRITECYCLE;
+
   EA=1;
   //  ++++++++++++    Startverhalten bei Buswiederkehr ++++++++++
   for (n=0;n<8;n++){
 	  senden=0;
-	  timercnt[n]=0;
+	  timercnt[n]=0;// alle timer ausschalten
 	  switch ((eeprom[0xCE+(n>>1)] >> ((n & 0x01)*4)) & 0x0F)	// Funktion des objektes
 		{
 		case 0x01:// schalten
+		timerstate[n]=0;
 		case 0x03:// Jalousie
 	//  case 0x04:// Wertgeber(lichtszene)		
 			switch(eeprom[0xD5+(n*4)]&0xC0){

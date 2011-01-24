@@ -27,23 +27,34 @@
 #include "../com/fb_prot.h"
 #include "fb_app_in8.h"
 #include "../com/fb_rs232.h"
+//#include "../com/fb_rs232.c"
 
+//#include "watchdog.h"
 
+#ifdef IN8_2TE
+#include "spi.h"
+#endif
 
 void main(void)
 { 
   unsigned int base;
-  unsigned char n;
-
+  unsigned char n,tmp,objno,objstate;
+  tmp;objno;objstate;
   restart_hw();				// Hardware zurücksetzen
- // rs_init(192);				// serielle Schnittstelle initialisieren
-
+//  rs_init(192);				// serielle Schnittstelle initialisieren
+//  watchdog_init();
   SET_RTC (65)			//realtimerclock mit 65ms Ablaufzeit setzen 
   START_RTC					//...und starten
 
   restart_prot();			// Protokoll-relevante Parameter zurücksetzen
   restart_app();			// Anwendungsspezifische Einstellungen zurücksetzen
+
+#ifndef IN8_2TE
   portbuffer=P0;			// zunächst keine Änderungen bei Busspannungswiederkehr
+#else
+  portbuffer=spi_in_out();
+#endif
+
   // Verzögerung Busspannungswiederkehr	
   for(base=0;base<=(eeprom[0xD4]<<(eeprom[0xFE]>>4)) ;base++){//faktor startverz hohlen und um basis nach links schieben
 //	  start_rtc(130);		// rtc auf 130ms
@@ -56,14 +67,17 @@ void main(void)
   }
   TASTER=1;
   do  {
-  
 /*	    if (RI)
 	    {
 	    	RI=0;
 	    	if (SBUF>47) rs_send_hex(read_obj_value(SBUF-48));
 	    }
 */
-    p0h=P0;				// prüfen ob ein Eingang sich geändert hat
+#ifndef IN8_2TE
+	  p0h=P0;				// prüfen ob ein Eingang sich geändert hat
+#else
+	  p0h=spi_in_out();
+#endif
     if (p0h!=portbuffer) 
     {
       for(n=0;n<8;n++)					// jeden Eingangspin einzel prüfen
@@ -75,7 +89,29 @@ void main(void)
       }
       portbuffer=p0h;					// neuen Portzustand in buffer speichern
     }
-	if (RTCCON>=0x80) delay_timer();	// Realtime clock ueberlauf
+	if (RTCCON>=0x80)delay_timer();	// Realtime clock ueberlauf
+
+        	 
+#ifdef zykls
+	for(objno=0;objno<=7;objno++){	
+    	tmp=(eeprom[0xD5+(objno*4)]&0x0C);//0xD5/ bit 2-3 zykl senden aktiv 
+    	objstate=read_obj_value(objno);
+    	if (((eeprom[0xCE+(objno>>1)] >> ((objno & 0x01)*4)) & 0x0F)==1){// bei Funktion=Schalten
+			if ((tmp==0x04 && objstate==1)||(tmp==0x08 && objstate==0)|| tmp==0x0C){//bei zykl senden aktiviert
+				n=timercnt[objno];
+				if ((n & 0x7F) ==0){ 		//    wenn aus oder abgelaufen
+					timercnt[objno] = (eeprom[0xD6+(objno*4)]& 0x3F)+ 0x80 ;//0xD6 Faktor Zyklisch senden x.1 + x.2 )+ einschalten
+					timerbase[objno]=(eeprom[0xF6+((objno+1)>>1)]>>(4*((objno&0x01)^0x01)))&0x07;	//Basis zyklisch senden
+					if (n & 0x80){// wenn timer ein war
+						send_value(0x30 +1,objno,objstate);		// Eingang x.1 zyklisch senden
+					}
+				}
+			}
+			else timercnt[objno]=0;
+  		}
+	}
+
+#endif
 
     TASTER=1;				// Pin als Eingang schalten um Taster abzufragen
     if(!TASTER) {				// Taster gedrückt
@@ -87,8 +123,6 @@ void main(void)
 		STOP_WRITECYCLE;
 		EA=1;
     }
-    //TASTER= !connected;
-    //if(timercnt[PROTTIMER]&0x80)TASTER=0;else TASTER=1;
 	TASTER=!(userram[0x060] & 0x01);	// LED entsprechend Prog-Bit schalten (low=LED an)
     for(n=0;n<100;n++) {}
   } while(1);

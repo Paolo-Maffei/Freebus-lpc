@@ -21,17 +21,22 @@
 #define	DELAYTAB		0xF9	// Start der Tabelle für Verzögerungswerte (Basis)
 #define PDIR			0xFF	// Port-Richtung, wenn Bit gesetzt dann ist der entsprechende Pin ein Ausgang (für kombinierte Ein-/Ausgänge)
 
-//#define PROTTIMER 		TIMERANZ+1
 #define TIMERANZ		0x09	// timeranzahl (17)
 #define PROTTIMER		TIMERANZ-1// PROTTIMER ist stets der letzte timer(0-7user,8prot,Gesmatzahl=9)
 
-
+#define IN8_2TE					// nur für shifter version des in8
+#define wertgeber				// mit Wertgeber
+#define zaehler					// mit Zähler
+#define zykls					// mit zyklisches senden
 
 
 
 //extern unsigned char prot_timer;
 extern unsigned char portbuffer,p0h;	// Zwischenspeicherung der Portzustände
 extern unsigned char blocked;	// Sperrobjekte
+extern unsigned char timerbase[TIMERANZ];// Speicherplatz für die Zeitbasis 
+extern unsigned char timercnt[TIMERANZ];// speicherplatz für den timercounter und 1 status bit
+extern unsigned char timerstate[TIMERANZ];//
 void pin_changed(unsigned char pinno);
 void schalten(bit risefall, unsigned char pinno);	// Schaltbefehl senden
 unsigned char pin_function(unsigned char pinno);	// Funktion des Eingangs ermitteln
@@ -40,13 +45,38 @@ void send_cyclic(unsigned char pinno);
 unsigned char operation(unsigned char pinno);
 unsigned char switch_dim(unsigned char pinno);
 int eis5conversion(int zahl,unsigned char typ);
-void delay(int w);
 void delay_timer(void);
 void write_value_req(void);	
 void sperren(unsigned char objno,unsigned char freigabe);
 void read_value_req(void);
 void send_value(unsigned char type, unsigned char objno, int sval);
 void restart_app(void);		// Alle Applikations-Parameter zurücksetzen
-//void send_eis(unsigned char eistyp, unsigned char objno, int sval);	// sendet ein EIS Telegramm
 
 #endif
+
+/*Bedeutung der bits in timercnt[]:
+   	bit 0-6 Zählwert
+   	bit 7 timer-run bit
+
+  Bedeutung der bits in timerstate[]:
+	bit 0 Dimmen:schrittweite, Jalo:ab, Schalten:ein,
+	bit 1 Dimmen:schrittweite,
+	bit 2 Dimmen:schrittweite,
+	bit 3 Dimmen:heller,
+	bit 4 Jalo:T2,
+	bit 5 Schalten:2.ebene,
+	bit 6 Dimmen,
+	bit 7 Jalo lang,
+	
+  Bedeutung der bits in timerbase[]
+	bit 0-3 Zeitbasis (0=grundbasis von rtc(xx)*2; 1= wie 0 * 2, 2= wie 0*4 ...
+	bit 4
+	bit 5
+	bit 6
+	bit 7  && timerstate==0 :impulszähler aktiv
+*/
+
+
+
+
+
