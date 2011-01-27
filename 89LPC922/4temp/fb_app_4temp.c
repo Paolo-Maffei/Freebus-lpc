@@ -26,7 +26,7 @@ long timer;			// Timer für Schaltverzögerungen, wird alle 130us hochgezählt
 bit delay_toggle;	// um nur jedes 2. Mal die delay routine auszuführen
 int temp[4],lasttemp[4],lastsendtemp[4];	// Temperaturwerte speichern
 
-unsigned char kanal;
+//unsigned char kanal;
 unsigned char zyk_senden_basis;
 unsigned char sequence;
 unsigned char sende_sofort_bus_return;
@@ -466,7 +466,7 @@ void restart_app(void)		// Alle Applikations-Parameter zurücksetzen
 
 	// Port Konfigurieren
 	P0M1= 0x00;
-	P0M2= 0x00;
+	P0M2= 0x00;	// alle auf quasi bidirektional
 
 	// Zeit für Sendeverzögerung bei Busspannungswiederkehr ins delrec schreiben
 	sendeverzoegerung=eeprom[0xA0]<<3;

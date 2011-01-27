@@ -15,7 +15,6 @@
 
 #ifndef FB_APP_4temp
 #define FB_APP_4temp
-
 void restart_app(void);		// Alle Applikations-Parameter zurücksetzen
 void write_value_req(void);
 void send_value(unsigned char type, unsigned char objno, unsigned int sval);

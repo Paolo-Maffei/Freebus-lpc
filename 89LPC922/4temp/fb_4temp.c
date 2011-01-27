@@ -90,9 +90,10 @@ void main(void)
 					// Kanalumschaltung
 					kanal++;
 					kanal&=0x03;
+#ifdef multiplex					
 					P0_0=kanal&0x01;
 					P0_1=(kanal>>1)&0x01;
-
+#endif
 				}
 			}
 		}

@@ -14,6 +14,7 @@
  */
 
 
+//#define multiplex
 
 bit ow_init(void);						// one-wire Gerät initialisieren
 void ow_write(unsigned char owbyte);	// Byte an one-wire Gerät senden
