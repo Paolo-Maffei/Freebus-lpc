@@ -71,14 +71,16 @@
 
 
 
-#define EDITTIMEOUT	21
+#define EDITTIMEOUT	22
 
 
 extern unsigned int timer;			// Timer für Schaltverzögerungen, wird alle 130us hochgezählt
 __xdata extern int temp;
 __xdata extern unsigned int lux;
-__xdata extern unsigned char overrun, dimmwert, underrun, sequence, lockatt, resend, solltempmanu;
-extern bit editmode, lastrly;
+__xdata extern unsigned char overrun, dimmwert, underrun, sequence, lockatt, resend;
+extern volatile __xdata unsigned char solltemplcd, solltemplpc;
+extern bit lastrly;
+extern volatile bit editmode;
 
 
 extern struct delayrecord {
@@ -103,6 +105,9 @@ void write_value_req(void);
 void read_value_req(void);
 unsigned long read_obj_value(unsigned char objno);
 void write_obj_value(unsigned char objno,int objvalue);
+int eis5_to_int100(int eis5);
+char eis5_to_char2(int eis5);
+unsigned int int100_to_eis5(int int100);
 void sync(void);
 void key(void) interrupt 7;
 #endif

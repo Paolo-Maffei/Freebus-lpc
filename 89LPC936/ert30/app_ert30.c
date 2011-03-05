@@ -33,8 +33,10 @@ const unsigned char ctrl_adr[]  = {0xD2,0xD1,0,0xF9,0xF4,0xEF,0xEA,0xE5,0xE0,0xD
 
 __xdata int temp;
 __xdata unsigned int lux;
-__xdata unsigned char overrun, dimmwert, underrun, sequence, lockatt, resend, solltempmanu;
-bit editmode, lastrly;
+__xdata unsigned char overrun, dimmwert, underrun, sequence, lockatt, resend;
+volatile __xdata unsigned char solltemplpc, solltemplcd;
+bit lastrly;
+volatile bit editmode;
 
 
 struct delayrecord {
@@ -282,12 +284,14 @@ void write_obj_value(unsigned char objno,int objvalue)
 	commstab=eeprom[COMMSTABPTR];
 	objtype=eeprom[commstab+offset+4];
 
-	if (objno <= commstab) {	// wenn objno <= anzahl objekte
+	if (objno < eeprom[commstab]) {	// wenn objno < anzahl objekte, da obj 0 das erste ist
 		valuepointer=eeprom[commstab+offset+2];	// Zeiger auf USERRAM, wo der Objekt-Wert gespeichert ist
-		if (objtype < 8) userram[valuepointer]=objvalue & (0xFF>>(7-objtype));
+		if (objtype < 8) {
+			userram[valuepointer]=objvalue & (0xFF>>(7-objtype));
+		}
 		else {	// da hier nur max. mit 2-Byte Werten gearbeitet wird, reicht das "else"
 			userram[valuepointer]=objvalue>>8;		// HighByte
-			userram[valuepointer+1]=objvalue;		// Autoinkrement, LowByte
+			userram[valuepointer+1]=objvalue;		// LowByte
 		}
 	}
 }
@@ -335,10 +339,17 @@ void write_value_req(void)
 		POLARITY=telegramm[7]&0x01;
 		restart_app();
 	}
-	if (objno==12) {		// Heizen/Kühlen
+	if (objno==12) {		// Hintergrundbeleuchtung
 		write_obj_value(objno,telegramm[7]&0x01);
 		BL=telegramm[7]&0x01;
 	}
+	if (objno==13) {		// Temperatur Sollwert Schwelle 1
+		write_obj_value(objno,telegramm[8]*256 + telegramm[9]);
+		solltemplpc=eis5_to_char2(telegramm[8]*256 + telegramm[9]);
+		if (solltemplpc<20) solltemplpc=20;	// minimal 10°
+		if (solltemplpc>70) solltemplpc=70;	// maximal 35°
+	}
+
 }
 
 
@@ -347,6 +358,7 @@ void delay_timer(void)	// zählt alle 130ms die Variable Timer hoch und prüft Ein
 {
 	unsigned char delrecno, objno, delay_state, cycle_param=0, ctrl, sperre;
 	bit send, cyclic, over;
+	int sw5;
 
 	RTCCON=0x60;	// Real Time Clock stoppen
 
@@ -414,10 +426,79 @@ void delay_timer(void)	// zählt alle 130ms die Variable Timer hoch und prüft Ein
 			
 		}
 	}
+	if (editmode && delrec[9].delayactive==0) {
+		WRITE_DELAY_RECORD(9,1,0,timer+EDITTIMEOUT);
+	}
 	if (delrec[9].delayvalue==timer && delrec[9].delayactive) {	//editmode manuelle Sollwerteinstellung
 		editmode=0;
 		delrec[9].delayactive=0;
+		sw5=solltemplpc*50;		// Sollwert auf 100stel Grad umrechnen
+		sw5=int100_to_eis5(sw5);	// in eis5 Format umwandeln
+		write_obj_value(13,sw5);	// Objektwert speichern
+		send_obj_value(13);			// Objektwert senden
+
+		DEECON=0;
+		while(fb_state!=0);		// warten falls noch gesendet wird
+		EA=0;
+		DEEDAT=solltemplpc;
+		DEEADR=0;
+		EA=1;
 	}
+}
+
+
+int eis5_to_int100(int eis5)	// wandelt einen eis5 wert in einen int wert (hundertstel)
+{
+	unsigned char exponent;
+	unsigned int mantisse;
+	int int100;
+
+	exponent = (eis5>>11) & 0x0F;
+	mantisse = eis5 & 0x07FF;
+	int100 = mantisse * (1<<exponent);
+	if (eis5 & 0x8000) int100=-int100;
+
+	return (int100);
+}
+
+
+char eis5_to_char2(int eis5)	// wandelt einen eis5 wert in einen char wert (halbe)
+{
+	unsigned char exponent;
+	unsigned int mantisse;
+	int int100;
+	char c2;
+
+	exponent = (eis5>>11) & 0x0F;
+	mantisse = eis5 & 0x07FF;
+	int100 = mantisse * (1<<exponent);
+	if (eis5 & 0x8000) int100=-int100;
+	c2=_divuint(int100,50);
+
+	return (c2);
+}
+
+
+unsigned int int100_to_eis5(int int100)
+{
+	unsigned char exponent;
+	unsigned int mantisse;
+	unsigned int eis5;
+
+
+	if (int100<0) mantisse=-int100;
+	else mantisse=int100;
+	exponent=0;
+
+	while (mantisse > 0x07FF) {
+		mantisse/=2;
+		exponent++;
+	}
+
+	eis5=mantisse + (exponent<<11);
+	if(int100<0) eis5+=0x8000;
+
+	return (eis5);
 }
 
 
@@ -427,8 +508,8 @@ void sync(void)
 	
 	
 	EKBI=0;
-	if (solltempmanu<40) {
-		for (n=0;n<(41-solltempmanu);n++) {
+	if (solltemplpc<solltemplcd) {	// Sollwert am LCD reduzieren
+		for (n=0;n<=(solltemplcd-solltemplpc);n++) {
 			DOWN=0;
 			for (m=0;m<10;m++) {
 				TR0=0;					// Timer 0 anhalten
@@ -456,8 +537,8 @@ void sync(void)
 		WRITE_DELAY_RECORD(9,1,0,timer+EDITTIMEOUT)
 	}
 	
-	if (solltempmanu>40) {
-		for (n=0;n<(solltempmanu-39);n++) {
+	if (solltemplpc>solltemplcd) {	// Sollwert am LCD erhöhen
+		for (n=0;n<=(solltemplpc-solltemplcd);n++) {
 			UP=0;
 			for (m=0;m<10;m++) {
 				TR0=0;					// Timer 0 anhalten
@@ -483,65 +564,83 @@ void sync(void)
 		}
 		editmode=1;
 		WRITE_DELAY_RECORD(9,1,0,timer+EDITTIMEOUT)
+
 	}
+	solltemplcd=solltemplpc;
 	KBCON=0;
-	//EKBI=1;
+	EKBI=1;
 }
 
 
-void key(void) interrupt 7
+void key (void) __interrupt (7) __using (1)
 {
-	EA=0;				// alle Interrupts sperren
+	unsigned char n;
+	bit upkey, downkey;
+
+	EKBI=0;				// keyboard Interrupt sperren
+
+	upkey=UP;
+	downkey=DOWN;
 	
-	// Entprellung
-	TR0=0;					// Timer 0 anhalten
-	TH0=0;					// Timer 0 setzen
-	TL0=0;
-	TF0=0;					// Überlauf-Flag zurücksetzen
-	TR0=1;					// Timer 0 starten
-	while (!TF0);
-	TF0=0;
-	TR0=0;
-	
+	//if (!upkey) UP=0;
+	//if (!downkey) DOWN=0;
+
 	if (editmode) {		// erster Tastendruck bewirkt nichts, geht nur in Editier-Modus
-		if (!UP) {		// + Taste gedrückt
-			if (solltempmanu<70) solltempmanu++;
-			//while(!UP);		// warten bis losgelassen
+		if (!upkey) {		// + Taste gedrückt
+			if (solltemplcd<70) solltemplcd++;
 		}
-		else {		// - Taste gedrückt
-			if (solltempmanu>10) solltempmanu--;
-			//while(!DOWN);	// warten bis losgelassen
+		if (!downkey) {		// - Taste gedrückt
+			if (solltemplcd>20) solltemplcd--;
 		}
-		
-		//rs_send_dec(solltempmanu);
-		
-		// ins flash schreiben
-		/*
-		START_WRITECYCLE
-		WRITE_BYTE(0x00,0x00,solltempmanu)
-		STOP_WRITECYCLE
-		*/
 	}
-	
+	solltemplpc=solltemplcd;
 	editmode=1;
-	WRITE_DELAY_RECORD(9,1,0,timer+EDITTIMEOUT)
-	while(!DOWN || !UP);
-	
-	
-	KBCON=0;	// Interrupt-Flag löschen
-	EA=1;		// alle Interrupts wieder frei geben
+
+	// Entprellung
+	for (n=0;n<5;n++) {
+		TR0=0;					// Timer 0 anhalten
+		TH0=0;					// Timer 0 setzen
+		TL0=0;
+		TF0=0;					// Überlauf-Flag zurücksetzen
+		TR0=1;					// Timer 0 starten
+		while (!TF0);
+		TF0=0;
+		TR0=0;
+	}
+
+	//UP=1;
+	//DOWN=1;
+	while(!DOWN || !UP);	// warten bis beide Tasten losgelassen
+
+	for (n=0;n<5;n++) {
+		TR0=0;					// Timer 0 anhalten
+		TH0=0;					// Timer 0 setzen
+		TL0=0;
+		TF0=0;					// Überlauf-Flag zurücksetzen
+		TR0=1;					// Timer 0 starten
+		while (!TF0);
+		TF0=0;
+		TR0=0;
+	}
+
+
+	interrupted=1;
+	KBCON=0;				// Interrupt-Flag löschen
+	EKBI=1;					// Keyboard Interrupt wieder frei geben
 }
+
 
 void restart_app(void)		// Alle Applikations-Parameter zurücksetzen
 {
 	
 	unsigned char objno, bitmask, ctrl, n, m;
   
-	PT0AD=0xF0; 		// disable digital inputs P0.1 ... P0.5
-	P0= 0xBF;			// P0.3 push-pull for charging the capacitor
+
+
+						// P0.3 push-pull for charging the capacitor
 	P0M1= 0x24;			// others bidirectional,
 	P0M2= 0x08;			// P0_5 & P0_2 high impedance for adc inputs
-	
+	P0= 0xFF;
 
 	P2M1=0x00;			// Port 2 - alle bidirektional
 	P2M2=0x00;
@@ -596,15 +695,17 @@ void restart_app(void)		// Alle Applikations-Parameter zurücksetzen
 
 	
 	// Init DAC 0
-	P2M1|=0x01;		// P2.0 high impedance
+	PT0AD=0x22; 		// disable digital inputs P0_5 & P0_2
+	P2M1|=0x01;			// P2.0 high impedance
 	P2M2&=0xFE;
-	ADMODB|=0x04; 	// enable DAC0
-	ADCON0|=0x04;	// enable ADC0 (muss auch für DAC sein!)
+	ADMODB|=0x04; 		// enable DAC0
+	ADCON0|=0x04;		// enable ADC0 (muss auch für DAC sein!)
 	
+	// Init Keyboard Interrupt
 	KBMASK=0x50;		// P0.4 & P0.6 enabled for KB-Interrupt
 	KBPATN=0x50;		// Pattern
 	KBCON=0;			// Interrupt when port not equal to pattern
-	//EKBI=1;
+	EKBI=1;
 
 
 	lux=0;
@@ -612,18 +713,25 @@ void restart_app(void)		// Alle Applikations-Parameter zurücksetzen
 	temp=-10000;
 
 	
-	solltempmanu=eeprom[TEMPSCHWELLWERT1]*2;
-	/*
-	while(fb_state!=0);
-	EA=0;
-	START_WRITECYCLE;
-	WRITE_BYTE(0x00,0x00,solltempmanu);
-	STOP_WRITECYCLE;
-	EA=1;
-	*/
-	
-	sync();
-	
+	//solltemplpc=eeprom[TEMPSCHWELLWERT1]*2;
+	DEECON=0;
+	DEEADR=0;
+	while(!DEECON&0x80);
+	solltemplpc=DEEDAT;
+
+	if (solltemplpc<10 || solltemplpc>70) {
+		solltemplpc=40;
+
+		DEECON=0;
+		while(fb_state!=0);		// warten falls noch gesendet wird
+		EA=0;
+		DEEDAT=solltemplpc;
+		DEEADR=0;
+		EA=1;
+
+	}
+	solltemplcd=40;		// Defaultwert 20° nach reset
+
 	overrun=0;
 	underrun=0;
 
@@ -641,7 +749,7 @@ void restart_app(void)		// Alle Applikations-Parameter zurücksetzen
 	
 	write_obj_value(10,0);		// Sperre bei Neustart löschen
   
-  	for (objno=0;objno<9;objno++) WRITE_DELAY_RECORD(objno,0,0,0)			// erstmal alle delay-records auf inaktiv setzen
+  	for (objno=0;objno<=9;objno++) WRITE_DELAY_RECORD(objno,0,0,0)			// erstmal alle delay-records auf inaktiv setzen
 
 	START_WRITECYCLE;			// Applikations-spezifische eeprom Eintraege schreiben
 	WRITE_EEPROM(0x03,0x00);	// Herstellercode: 0x0000 Freebus

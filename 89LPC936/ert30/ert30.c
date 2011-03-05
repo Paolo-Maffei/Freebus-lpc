@@ -5,7 +5,7 @@
  *   / __/ / _, _/ /___/ /___/ /_/ / /_/ /___/ / 
  *  /_/   /_/ |_/_____/_____/_____/\____//____/  
  *                                      
- *  Copyright (c) 2008-2010 Andreas Krebs <kubi@krebsworld.de>
+ *  Copyright (c) 2008-2011 Andreas Krebs <kubi@krebsworld.de>
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License version 2 as
@@ -17,6 +17,9 @@
 *
 *
 *		1.00	erste Version
+*		1.10	auf lib portiert, Bugs bei Verknüpfung raus
+*		1.11	Wartezeit nach reset verlängert (Probleme mit solltemp einstellung)
+*		1.12	Solltemperaturobjekt eingefügt, Sollwert wird im EEPROM gespeichert
 */
 
 #define LPC936
@@ -88,8 +91,10 @@ void main(void)
 
 					// Anzeige der Temperatur auf dem ERT30 Display
 					tempx2=_divuint((temp-25),50);
+userram[1]=dactemp[tempx2-18];
 					if (tempx2<18) tempx2=18;
 					if (tempx2>80) tempx2=80;
+
 					AD0DAT3=dactemp[tempx2-18]+eeprom[TEMPCORR];	// + Abgleichwert
 					
 					if (temp != lasttemp) {
@@ -206,6 +211,8 @@ void main(void)
 				write_obj_value(6,0);
 				send_obj_value(6);
 			}
+
+			if (!editmode && solltemplcd != solltemplpc) sync();
 
 			if (!RESET) restart_app();		// wenn Reset-Taste am ERT30 gedrückt wurde
 
