@@ -84,13 +84,14 @@
 
 
 // Globale Variablen
-extern unsigned char telegramm[23];
-extern unsigned char tx_buffer[8];
-extern unsigned char telpos;			// Zeiger auf naechste Position im Array Telegramm
+extern volatile __xdata unsigned char telegramm[23];
+extern volatile __xdata unsigned char tx_buffer[8];
+extern volatile unsigned char telpos;			// Zeiger auf naechste Position im Array Telegramm
 extern volatile bit interrupted;		// wird durch interrupt-routine gesetzt. so kann eine andere routine pruefen, ob sie unterbrochen wurde
 extern volatile unsigned char fb_state;
-extern bit ack, nack, tel_arrived, auto_ack;
-extern unsigned char timeout_count, tx_nextwrite, tx_nextsend;
+extern volatile bit ack, nack, tel_arrived, tel_sent, auto_ack;
+extern volatile bit send_ack, send_nack, transparency;
+extern volatile unsigned char timeout_count, tx_nextwrite, tx_nextsend;
 
 extern __xdata unsigned char userram[256];	// Bereich in xdata fuer User-RAM
 extern __code unsigned char __at 0x3700 eeprom[256];	// Bereich im Flash fuer EEPROM
