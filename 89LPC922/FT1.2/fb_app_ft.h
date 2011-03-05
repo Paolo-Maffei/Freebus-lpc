@@ -29,11 +29,22 @@
 #define TLlocal		0x03
 #define LL			0x04
 
-extern unsigned char rsin[32];
-extern unsigned char rsinpos, switch_mode;
-extern bit fcb;
-extern unsigned char property_5;
-extern bit ft_ack;
+#define RSIN_NONE      0
+#define RSIN_VARFRAME  1
+#define RSIN_FIXFRAME  2
+
+#ifdef FB_APP_FT_C
+#define FB_APP_EXTERN
+#else
+#define FB_APP_EXTERN extern
+#endif
+
+
+FB_APP_EXTERN unsigned char rsin[32];
+FB_APP_EXTERN unsigned char rsinpos, switch_mode, rsin_stat;
+FB_APP_EXTERN bit fcb;
+FB_APP_EXTERN unsigned char property_5;
+FB_APP_EXTERN bit ft_ack;
 
 
 void ft_process_var_frame();

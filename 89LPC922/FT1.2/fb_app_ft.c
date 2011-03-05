@@ -5,7 +5,7 @@
  *   / __/ / _, _/ /___/ /___/ /_/ / /_/ /___/ / 
  *  /_/   /_/ |_/_____/_____/_____/\____//____/  
  *                                      
- *  Copyright (c) 2008 Andreas Krebs <kubi@krebsworld.de>
+ *  Copyright (c) 2008-2011 Andreas Krebs <kubi@krebsworld.de>
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License version 2 as
@@ -13,19 +13,16 @@
  *
  */
 
+#define FB_APP_FT_C
 #include <P89LPC922.h>
-#include "../lib_lpc922/fb_lpc922.h"
+#include "../lib_LPC922/fb_lpc922.h"
 #include "fb_app_ft.h"
 
 //#define ROUTERMODE		// 115200,n,8,1 (auskommentieren für 19200,e,8,1)
 
-
-unsigned char rsin[32];					// serieller Empfangspuffer
-unsigned char rsinpos, switch_mode;
-bit fcb;
-unsigned char property_5;
-bit ft_ack;
-
+/*
+global variables now defined only once in fb_app_ft.h unsing switch FB_APP_FT_C. tuxbow.
+*/
 
 #define FT_SEND_T_DATACONNECTED_CONF \
 	FT_SET_HEADER(rsin[1],0x8E) \
@@ -79,13 +76,12 @@ void ft_process_var_frame(void)
 {
 	unsigned char n;
 	bit write_ok=0;
-	
 	if (rsin[0]==0x68 && rsin[3]==0x68 && rsin[1]==rsin[2]) {	// Multi Byte
 		if ((rsin[4]&0xDF)==0x53) {		// send_Udat
 			switch (rsin[5])		// PEI10 message code
 			{
 			case 0x11:		// send a telegram on the bus
-				FT_SEND_CHAR(0xE5)				
+				FT_SEND_CHAR(0xE5)
 				//EX1=0;
 				while(fb_state!=0);
 				for (n=3;n<(rsin[1]-2);n++) telegramm[n]=rsin[n+6];
@@ -94,7 +90,7 @@ void ft_process_var_frame(void)
 				telegramm[2]=eeprom[ADDRTAB+2];	// PA low	
 				FT_SEND_L_DATA_CONF				// send confirmation frame
 
-				while(timeout_count!=0);
+				while(timeout_count!=0);         // wait till bus free
 				init_tx();
 				//send_telegramm();
 
@@ -236,7 +232,7 @@ void ft_process_var_frame(void)
 			}
 		}
 	}
-	rsinpos=0;
+	//rsinpos=0;
 }
 
 
@@ -256,7 +252,7 @@ void ft_process_fix_frame(void)		// frame with fixed length received
 			FT_SEND_CHAR(0x16)
 		}
 	}
-	rsinpos=0;
+	//rsinpos=0;
 }
 
 
@@ -332,29 +328,25 @@ void ft_send_frame(void)	// send a frame with variable length that is stored in 
 	unsigned char b,n,repeat;
 	unsigned int timeout;
 	
-rsinpos=0;
-	repeat=0;
-	while (repeat<4) {		// repeat sending frame up to 3 times if not achnowleged
+	repeat=4;
+	while (repeat--) {		// repeat sending frame up to 3 times if not achnowleged
 		rsin[rsin[1]+4]=0;
 		for (n=4;n<(rsin[1]+4);n++) rsin[rsin[1]+4]+=rsin[n];	// checksum berechnen
 		rsin[rsin[1]+5]=0x16;
-	ES=0;
+//	ES=0;
 		for (b=0;b<(rsin[1]+6);b++) {
 			FT_SEND_CHAR(rsin[b])
 			
 		}
-	ES=1;
-		rsinpos=0;
-		timeout=0;
-		while (timeout<10000) {		// give enough time to receive an ack
+//	ES=1;
+		timeout=10000;
+		while (timeout--) {		// give enough time to receive an ack
 			if (ft_ack) {			
-				repeat=4;
-				timeout=10000;
+				repeat=0;
 				ft_ack=0;
+                break;
 			}
-			timeout++;
 		}
-		repeat++;
 	}
 }
 
@@ -370,11 +362,11 @@ void ft_send_fixed_frame(unsigned char controlfield)	// send a frame with fixed 
 		rsin[1]=controlfield;
 		rsin[2]=controlfield;
 		rsin[3]=0x16;
-		ES=0;
+//		ES=0;
 		for (n=0;n<4;n++) {
 			FT_SEND_CHAR(rsin[n])
 		}
-		ES=1;
+//		ES=1;
 		//if (ft_get_ack()) r=4;
 		r++;
 	}
@@ -427,41 +419,50 @@ void ft_rs_init(void)
 }
 
 
-void serial_int(void) interrupt 4 using 2	// Interrupt on received char from serial port
+void serial_int(void) interrupt 4 using 2   // Interrupt on received char from serial port
 {
-	ES=0;
-	if (RI) {
-		if (rsinpos<32) {
-			rsin[rsinpos]=SBUF;		// store byte in rsin
-			rsinpos++;
-			RI=0;
-			TI=0;
-			if (rsinpos==1 && rsin[0]==0xE5) {	// in case of ack, set the ft_ack bit
-				ft_ack=1;
-				rsinpos=0;
-			}
-			TR0=0;
-			TH0=0xCC;	// set timer to max idle time between 2 bytes = 33 bit
-			TL0=0xFF;
-			TF0=0;
-			TR0=1;
-		}
-
-		else {
-			RI=0;
-			rsinpos=0;
-			TF0=0;
-			TR0=0;
-		}
-	}
-	
-	ES=1;
+    unsigned char rxc;
+    ES=0; /*????*/
+    if (RI) {
+        RI=0;
+        if (TF0) {      // time between 2 bytes was too long, discard previous frame.
+            rsinpos=0;
+        }
+        rxc=SBUF;     // store byte in rsbuf
+//      TI=0; //????
+        if (rsinpos==0 && rxc==0xE5) {  // in case of ack, set the ft_ack bit
+            ft_ack=1;
+        }
+        else {                              //else increment buffer pointer, if possible
+            rsin[rsinpos]=rxc;
+            /* check if frame complete */
+            if (rxc==0x16 && rsinpos==(rsin[1]+5)) rsin_stat = RSIN_VARFRAME;
+            if (rsin[0]      ==0x10 && rsinpos==3) rsin_stat = RSIN_FIXFRAME;
+            if (rsin_stat    != RSIN_NONE) {
+                /* frame complete, copy it to rsin */
+                rsinpos = 0;   // ready to receive next frame.
+            }
+            else {            // increment buffer pointer if there is space left
+                if (rsinpos < sizeof(rsin)-1){
+                    rsinpos++;
+                }
+            }
+        }
+		TR0=0;
+#ifdef ROUTERMODE
+        TH0=0xCC;   // set timer to max idle time between 2 bytes = 33 bit
+#else
+    /*    that is 1716µs at 19200 bps.
+        timer increments each 0.27µsec, we must divide by 1716/0.27 = 6355
+        TL0 is prescaler / 32 . 6355/32 = 199  .  256-199=57=0x39 */
+        TH0=0x39;
+#endif
+        TL0=0xFF;
+        TF0=0;
+        TR0=1;
+    }
+    ES=1;  /*????*/
 }
-
-
-
-
-
 
 
 void write_value_req(void)
@@ -504,8 +505,9 @@ void restart_app(void)		// Alle Applikations-Parameter zurücksetzen
 	  switch_mode=0x00;		// normal mode
 	  fcb=0;
 	  property_5=0x01;
+	  transparency=1;	// auch fremde Gruppentelegramme werden verarbeitet
 	  
-	  auto_ack=0;		// telegramme nicht per ACK bestätigen
+	 // auto_ack=0;		// telegramme nicht per ACK bestätigen
 	  
 	  
 }
