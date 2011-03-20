@@ -24,7 +24,7 @@
 #define TIMERANZ		0x09	// timeranzahl (17)
 #define PROTTIMER		TIMERANZ-1// PROTTIMER ist stets der letzte timer(0-7user,8prot,Gesmatzahl=9)
 
-#define IN8_2TE					// nur für shifter version des in8
+//#define IN8_2TE					// nur für shifter version des in8
 #define wertgeber				// mit Wertgeber
 #define zaehler					// mit Zähler
 #define zykls					// mit zyklisches senden

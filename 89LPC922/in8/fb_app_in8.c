@@ -101,7 +101,7 @@ void pin_changed(unsigned char pin_no)
 			timerbase[pinno]=timer_base;
 
    			objval=(read_obj_value(pinno+8)>>3)&0x01;
-  			switch (eeprom[para_adr + 0x02]&0x70) {
+  			switch (eeprom[para_adr]&0x70) {
   			case 0x00:	// UM Dimmen
   				objval = !objval;	// Dimmrichtung ändern
   				break;

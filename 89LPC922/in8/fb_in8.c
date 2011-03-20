@@ -41,7 +41,8 @@ void main(void)
   unsigned char n,tmp,objno,objstate;
   tmp;objno;objstate;
   restart_hw();				// Hardware zurücksetzen
-//  rs_init(192);				// serielle Schnittstelle initialisieren
+TRIM+=2;
+  //  rs_init(192);				// serielle Schnittstelle initialisieren
 //  watchdog_init();
   SET_RTC (65)			//realtimerclock mit 65ms Ablaufzeit setzen 
   START_RTC					//...und starten
