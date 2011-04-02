@@ -365,7 +365,7 @@ void delay_timer(void)	// zählt alle 130ms die Variable Timer hoch und prüft Ein
 			
 			if (delrecno<2) {	//Helligkeits- und Temperaturwert
 				send=1;		// ohne Prüfung auf Sperre etc. immer senden
-				if (eeprom[0xD3-delrecno]&0x0F!=0) cyclic=1;	// falls zyklisches Senden
+				if ((eeprom[0xD3-delrecno]&0x0F)!=0) cyclic=1;	// falls zyklisches Senden
 			}
 			else{	// Schwellen und Verknüpfungen
 				over=delrec[delrecno].delayactive & 0x02;	// überschritten
@@ -422,8 +422,10 @@ void restart_app(void)		// Alle Applikations-Parameter zurücksetzen
 	P0M1= 0x22;			// others bidirectional,
 	P0M2= 0x41;			// P0_5 & P0_1 high impedance for adc inputs
 	
-	lux=0;
+	lux=65535;
 	temp=-1000;
+	lastlux=lux;
+	lasttemp=temp;
 
 	overrun=0;
 	underrun=0;
@@ -436,14 +438,19 @@ void restart_app(void)		// Alle Applikations-Parameter zurücksetzen
 	bitmask=1;
 	for (objno=3; objno<=9; objno++) {	
 		ctrl=eeprom[ctrl_adr[objno]];		
-		//bitmask=1<<(objno-3);
 		if (ctrl & 0x08) lockatt|=bitmask;
 		bitmask=bitmask<<1;
 	}
 	
 	write_obj_value(10,0);		// Sperre bei Neustart löschen
   
-  	for (objno=0;objno<9;objno++) WRITE_DELAY_RECORD(objno,0,0,0);			// erstmal alle delay-records auf inaktiv setzen
+  	for (objno=2;objno<9;objno++) WRITE_DELAY_RECORD(objno,0,0,0);			// erstmal alle delay-records auf inaktiv setzen
+  	if ((eeprom[0xD3]&0x0F)!=0) {
+  		WRITE_DELAY_RECORD(0,1,1,timer+50)
+  	}
+  	if ((eeprom[0xD2]&0x0F)!=0) {
+  		WRITE_DELAY_RECORD(1,1,1,timer+55)
+  	}
 
   	EA=0;
 	START_WRITECYCLE			// Applikations-spezifische eeprom Eintraege schreiben

@@ -36,8 +36,10 @@
 * 				Bug bei Timerüberlauf behoben
 * 		2.00	auf lib portiert
 * 		2.01	Korrekturwert Temperatur eingebaut
-* 
-* @todo:
+* 		2.02	Debug: zyklisches Senden nach restart ging nicht: Initialwerte geändert
+* 		2.03	Parameter zyklisches Senden in der restart abgefragt
+* 		2.04	Klammerfehler bei zykl. senden behoben (ging bei 3min,10min, etc. nicht)
+* 				ADC Routine wird bei interrupted unterbrochen um Programmieren zu erleichtern
 * 
 */
 
@@ -45,13 +47,14 @@
 #include <P89LPC922.h>
 
 #include "../lib_lpc922/fb_lpc922.h"
-#include "_divuint.c"
 #include "../com/onewire.h"
 #include "../com/adc_922.h"
 #include "app_kombi.h"
 
 
 unsigned int timer;
+unsigned int lastlux;
+int lasttemp;
 
 const unsigned char logtable[] = {0,9,17,27,40,53,66,79,88,96,101,106,109,112,255};
 const unsigned char luxchange[] = {100,20,10,5,3};
@@ -60,27 +63,26 @@ const unsigned char luxchange[] = {100,20,10,5,3};
 void main(void)
 { 
 	unsigned char n,m,delta;
-	int th, change=0, eis5temp, lasttemp;
+	int th, change=0, eis5temp;
 	signed char korrektur;
-	unsigned int exponent, eis5lux, lastlux,rest;
+	unsigned int exponent, eis5lux, rest;
 
 	restart_hw();				// Hardware zuruecksetzen
 
 	for (n=0;n<50;n++) {		// Warten bis Bus stabil, nach Busspannungswiederkehr
-		  TR0=0;					// Timer 0 anhalten
-		  TH0=0;					// Timer 0 setzen
-		  TL0=0;
-		  TF0=0;					// Überlauf-Flag zurücksetzen
-		  TR0=1;					// Timer 0 starten
-		while(!TF0);
+		TR0=0;					// Timer 0 anhalten
+		TH0=eeprom[ADDRTAB+1];	// Timer 0 setzen mit phys. Adr. damit Geräte unterschiedlich beginnen zu senden
+		TL0=eeprom[ADDRTAB+2];
+		TF0=0;					// Überlauf-Flag zurücksetzen
+		TR0=1;					// Timer 0 starten
+	while(!TF0);
 	}
 
 	restart_app();				// Anwendungsspezifische Einstellungen zuruecksetzen
-	lastlux=lux;
-	lasttemp=temp;
+
 
 	do {
-		if (eeprom[0x0D]==0xFF && fb_state==0) {	// Nur wenn im run-mode und statemachine idle
+		if (eeprom[0x0D]==0xFF && fb_state==0 && !connected) {	// Nur wenn im run-mode und statemachine idle
 			ET1=0;									// statemachine stoppen
 			switch (sequence) {
 			case 1:	
