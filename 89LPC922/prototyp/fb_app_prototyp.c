@@ -46,8 +46,8 @@ unsigned long read_obj_value(unsigned char objno)
 	 */
 
 	// Dummy Code: (damit der compiler nicht meckert, weil es leer ist...)
-	objno;
-	return(1738);	// Beispiel return-Wert
+	objno++;
+	return(objno);	// Beispiel return-Wert
 }
 
 
@@ -68,7 +68,7 @@ void restart_app(void)		// Alle Applikations-Parameter zurücksetzen
 	WRITE_BYTE(0x01,0x03,0x00)	// Herstellercode 0x0004 = Jung
 	WRITE_BYTE(0x01,0x04,0x04)
 	WRITE_BYTE(0x01,0x05,0x20)	// Devicetype 0x2060 = Jung Aktor 2138.10
-	WRITE_BYTE(0x01,0x06,0x60)	
+	WRITE_BYTE(0x01,0x06,0x60)
 	WRITE_BYTE(0x01,0x07,0x01)	// Versionnumber of application programm
 	WRITE_BYTE(0x01,0x0C,0x00)	// PORT A Direction Bit Setting
 	WRITE_BYTE(0x01,0x0D,0xFF)	// Run-Status (00=stop FF=run)

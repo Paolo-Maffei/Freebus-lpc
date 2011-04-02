@@ -32,18 +32,24 @@ void main(void)
 	unsigned char n;
 
 	restart_hw();				// Hardware zuruecksetzen
-	for (n=0;n<50;n++) {
-		set_timer0(0xFFFF);		// Warten bis Bus stabil, nach Busspannungswiederkehr
-		while(!TF0);
+	for (n=0;n<50;n++) {		// Warten bis Bus stabil, nach Busspannungswiederkehr
+		TR0=0;					// Timer 0 anhalten
+		TH0=eeprom[ADDRTAB+1];	// Timer 0 setzen mit phys. Adr. damit Geräte unterschiedlich beginnen zu senden
+		TL0=eeprom[ADDRTAB+2];
+		TF0=0;					// Überlauf-Flag zurücksetzen
+		TR0=1;					// Timer 0 starten
+	while(!TF0);
 	}
 	restart_app();				// Anwendungsspezifische Einstellungen zuruecksetzen
 
 	do  {
-		
+		if(eeprom[RUNSTATE]==0xFF) {	// nur wenn run-mode gesetzt
+
 		// ***************************************************************************
 		// Hier ist der Platz für wiederkehrende Abfragen, die nicht zeitkritisch sind
 		// ***************************************************************************
-  
+
+		}
 
 		if(tel_arrived) {		// empfangenes Telegramm abarbeiten
 			tel_arrived=0;
