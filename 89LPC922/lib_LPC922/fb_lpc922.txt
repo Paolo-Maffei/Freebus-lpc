@@ -17,15 +17,20 @@ tel_arrived	wird gesetzt, wenn ein Telegramm empfangen wurde und das Gerät adres
 			das ist dann der Fall, wenn die Gruppenadresse bekannt ist oder die eigene
 			physikalische Adresse das Ziel war oder wenn es ein Broadcast-Telegramm war,
 			muss durch die app zurückgesetzt werden, in der Regel ruft die app bei gesetztem
-			Bit die Funktion process_tel auf, die das Bit dann zurücksetzt, Wert nach
+			Bit die Funktion process_tel() auf, die das Bit dann zurücksetzt, Wert nach
 			hw_restart: 0
+			siehe auch "transparency"
 			
 auto_ack	wenn gesetzt, werden empfangene Telegramme geprüft, ob sie für das Gerät
 			gemeint waren, daraufhin wird ein ACK oder NACK automatisch gesendet, Wert
 			nach hw_restart: 1
 
 interrupted	wird gesetzt wenn entweder der externe interrupt oder timer1 interrupt aufgerufen wird,
-		muss in der app zurückgesetzt werden
+			muss in der app zurückgesetzt werden
+		
+transparency	0: nur Gruppentelegramme mit einer eigenen GA werden per tel_arrived angekündigt (default)
+				1: alle Gruppentelegramme werden angekündigt
+				Diese Variable kann bei Bedarf in der restart_app() gesetzt werden
 
 			
 unsigned char Variablen:
@@ -178,8 +183,9 @@ Zeitverhalten der Library:
 --------------------------
 
 Alle Funktionen werden per Interrupt aufgerufen. Die App muß also damit umgehen können, daß
-in der Regel alle 35µs eine kurze Unterbrechung erfolgt, die im Bereich einiger µs liegt. In
-zwei Fällen wird ins Flash geschrieben und der Controller wird für 4ms in den Idle-Zustand
+zeitweise alle 35µs eine kurze Unterbrechung erfolgt, die im Bereich einiger µs liegt. Wenn keine 
+Busaktivität ist, also nach timeout, werden diese Unterbrechungen gestoppt. 
+In zwei Fällen wird ins Flash geschrieben und der Controller wird für 4ms in den Idle-Zustand
 vesetzt: 
 - bei memory_write Operationen, z.B. beim Programmieren der Parameter und Gruppenadressen
   durch ETS

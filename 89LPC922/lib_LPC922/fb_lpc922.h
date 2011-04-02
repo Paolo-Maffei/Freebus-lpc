@@ -89,7 +89,9 @@ extern unsigned char tx_buffer[8];
 extern unsigned char telpos;			// Zeiger auf naechste Position im Array Telegramm
 extern volatile bit interrupted;		// wird durch interrupt-routine gesetzt. so kann eine andere routine pruefen, ob sie unterbrochen wurde
 extern volatile unsigned char fb_state;
-extern bit ack, nack, tel_arrived, auto_ack;
+extern volatile bit connected;
+extern bit ack, nack, tel_arrived, tel_sent, auto_ack;
+extern bit send_ack, send_nack, transparency;
 extern unsigned char timeout_count, tx_nextwrite, tx_nextsend, status60;
 
 extern __code unsigned char __at 0x1C00 userram[255];	// Bereich im Flash fuer User-RAM
