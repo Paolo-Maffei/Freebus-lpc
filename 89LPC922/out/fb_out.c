@@ -64,6 +64,7 @@
 *   3.30	umgestellt auf statemachine library
 *   3.31	ein paar lokale Variablen enfernt um stack zu entlasten
 *   3.32	Funktion bei Beginn/Ende der Sperre nur wenn Sperre vorher inaktiv/aktiv war
+*   3.33	Auf lib Version 1.22 f.f. angepasst (tel_sent, rtc- und timer-funktion)
  
 
 
@@ -97,10 +98,15 @@ void main(void)
 	cal=trimsave;
 	TRIM = TRIM+trimsave;
 
-	for (n=0;n<50;n++) {
-		set_timer0(0xFFFF);					// Warten bis Bus stabil
+	for (n=0;n<50;n++) {		// Warten bis Bus stabil
+		TR0=0;					// Timer 0 anhalten
+		TH0=eeprom[ADDRTAB+1];	// Timer 0 setzen mit phys. Adr. damit Geräte unterschiedlich beginnen zu senden
+		TL0=eeprom[ADDRTAB+2];
+		TF0=0;					// Überlauf-Flag zurücksetzen
+		TR0=1;					// Timer 0 starten
 		while(!TF0);
 	}
+
 	restart_app();							// Anwendungsspezifische Einstellungen zuruecksetzen
 	bus_return();							// Aktionen bei Busspannungswiederkehr
 
@@ -140,8 +146,9 @@ void main(void)
 			}
 
 		}
-		if (tel_arrived) {
+		if (tel_arrived || tel_sent) {
 			tel_arrived=0;
+			tel_sent=0;
 			process_tel();
 		}
 
@@ -155,8 +162,10 @@ void main(void)
 			 {
 				while (RTCCON<0x80);
 				if (n<=254)	n++;
-				stop_rtc();
-				start_rtc(8);		// RTC neu mit 8ms starten
+				RTCCON=0x60;	// Real Time Clock stoppen
+				RTCH=0x01;		// Real Time Clock auf 8ms laden (0,008s x 7372800 / 128)
+				RTCL=0xCD;		// (RTC ist ein down-counter mit 128 bit prescaler und osc-clock)
+				RTCCON=0x61;	// ... und starten
 			 }
 				if(n<125){
 					status60^=0x81;	// Prog-Bit und Parity-Bit im system_state toggeln
@@ -179,8 +188,11 @@ void main(void)
 					STOP_WRITECYCLE;
 					EA=1;				//int wieder freigeben
 				}
-				stop_rtc();
-				start_rtc(65);		// RTC neu mit 8ms starten
+				RTCCON=0x60;	// Real Time Clock stoppen
+				RTCH=0x0E;		// Real Time Clock auf 65ms laden (0,065 x 7372800 / 128)
+				RTCL=0xA0;		// (RTC ist ein down-counter mit 128 bit prescaler und osc-clock)
+				RTCCON=0x61;	// ... und starten
+
 
 		}
 		TASTER=!(status60 & 0x01);	// LED entsprechend Prog-Bit schalten (low=LED an)
