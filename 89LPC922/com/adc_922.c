@@ -49,6 +49,9 @@ void Get_SD_ADC(void) __naked
 	CLR A
 	MOV CMPOUT,C 				; P0.0 = comparator output (charge capacitor when negative input is lower than positive)
 	
+	JB _interrupted,00004$
+
+
 	;Counter
 	CLR C						; increase 16-bit counter register R4/R5
 	MOV A,R4
@@ -67,6 +70,9 @@ void Get_SD_ADC(void) __naked
 	
 	00003$:					//MAINLOOP:
 	;Sigma
+
+	JB _interrupted,00004$
+
 	CLR C
 	MOV _CMPbuf,_CMP1		; comparatur control registers into CMPbuf
 	MOV _CMPbuf+1,_CMP2
@@ -93,6 +99,7 @@ void Get_SD_ADC(void) __naked
 	
 	CJNE A,#0xC4,00003$		; check only high byte of R4/R5 to get correct number of measure cycles
 	
+	00004$:					//END:
 	POP ar5;
 	POP ar4;
 	pop ar0
