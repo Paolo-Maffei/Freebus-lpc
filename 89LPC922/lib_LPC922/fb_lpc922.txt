@@ -113,10 +113,7 @@ void send_obj_value(unsigned char objno)
 						Objektnummern größer 128 sind Systemtelegramme und brauchen von der
 						app nicht verwendet werden
 					
-void set_timer0(unsigned int deltime)
-						startet Timer 0 mit dem übergebenen Wert, die Zeit bis zum Überlauf
-						sind 0,27127µs x deltime plus 12µs für den Aufruf an sich, der Timer 0 
-						ist ausschliesslich für die app reserviert
+*** die set_timer0() Funktion ist entfallen ***
 
 *** die RTC Funktionen sind entfallen, s.u. "Verwendung der Timer" ***
 
