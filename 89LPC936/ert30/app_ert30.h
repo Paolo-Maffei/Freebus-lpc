@@ -2,6 +2,8 @@
 #ifndef FB_APP_KOMBI
 #define FB_APP_KOMBI
 
+//#define V24		// 24V Version, auskommentieren für 230V Version
+
 #define	TEMPCORR			0xCA	// Abgleichwert für Temperaturanzeige (-127 bis 128)
 #define FUNKTION			0xCB	// schalten oder wert senden
 
@@ -71,10 +73,12 @@
 
 
 
-#define EDITTIMEOUT	22
+#define EDITTIMEOUT	22				// Zeit bis Editmode beendet wird
 
 
 extern unsigned int timer;			// Timer für Schaltverzögerungen, wird alle 130us hochgezählt
+extern int lasttemp;
+extern unsigned int lastlux;
 __xdata extern int temp;
 __xdata extern unsigned int lux;
 __xdata extern unsigned char overrun, dimmwert, underrun, sequence, lockatt, resend;
@@ -96,7 +100,7 @@ extern struct delayrecord delrec[10];
 	delrec[wdro].delayvalue=wdrt; 
 
 
-void write_delay_record(unsigned char objno, unsigned char state, long deltime);
+//void write_delay_record(unsigned char objno, unsigned char state, long deltime);
 
 void restart_app(void);					// Alle Applikations-Parameter zurücksetzen
 void schwelle(unsigned char objno);

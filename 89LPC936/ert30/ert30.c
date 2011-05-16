@@ -20,6 +20,9 @@
 *		1.10	auf lib portiert, Bugs bei Verknüpfung raus
 *		1.11	Wartezeit nach reset verlängert (Probleme mit solltemp einstellung)
 *		1.12	Solltemperaturobjekt eingefügt, Sollwert wird im EEPROM gespeichert
+*		1.13	define für 24-Version eingefügt, Tastenentprellung auf Messung Pulsbreite umgebaut
+* 		1.14	Klammerfehler bei zykl. senden behoben (ging bei 3min,10min, etc. nicht)
+* 				ADC Routine wird bei interrupted unterbrochen um Programmieren zu erleichtern
 */
 
 #define LPC936
@@ -31,7 +34,6 @@
 
 #include "../lib_lpc936/fb_lpc936.h"
 #include "app_ert30.h"
-#include "_divuint.c"
 #include "../../89LPC922/com/onewire.h"
 #include "../../89LPC922/com/adc_922.h"
 
@@ -39,6 +41,8 @@
 
 
 unsigned int timer;
+unsigned int lastlux;
+int lasttemp;
 
 const unsigned char logtable[] = {0,9,17,27,40,53,66,79,88,96,101,106,109,112,255};
 const unsigned char luxchange[] = {100,20,10,5,3};
@@ -55,20 +59,16 @@ const unsigned char dactemp[] = {0,4, 	  8, 12, 15, 19, 22, 25, 28, 32, 36, 39,
 void main(void)
 { 
 	unsigned char n,m,delta, tempx2;
-	int th, change=0, eis5temp, lasttemp;
-	unsigned int exponent, eis5lux, lastlux,rest;
+	int th, change=0, eis5temp;
+	unsigned int exponent, eis5lux,rest;
 
 
 	restart_hw();				// Hardware zurücksetzen
 	restart_app();			// Anwendungsspezifische Einstellungen zurücksetzen
 	P1_2=1;	// debug-led aus
 
-	lasttemp=temp;
-	lastlux=lux;
-
-
 	do {
-		if (eeprom[0x0D]==0xFF && fb_state==0) {	// Nur wenn nicht gerade TR1 läuft, also Senden/Empfangen noch nicht abgeschlossen
+		if (eeprom[0x0D]==0xFF && fb_state==0 && !connected) {	// Nur wenn nicht gerade TR1 läuft, also Senden/Empfangen noch nicht abgeschlossen
 			ET1=0;									// statemachine stoppen
 			switch (sequence) {						// Temperatur messen
 			case 1:	
@@ -102,7 +102,9 @@ userram[1]=dactemp[tempx2-18];
 						eis5temp=eis5temp+(0x18 << 8);	
 						if (temp<0) eis5temp+=0x8000;	// Vorzeichen
 						write_obj_value(1,eis5temp);
-						//schwelle(6);					// Temperaturschwellen prüfen und ggf. reagieren
+#ifdef V24
+						schwelle(6);					// Temperaturschwellen prüfen und ggf. reagieren
+#endif
 						schwelle(7);	  				// (nur Temp.Schwelle 2 prüfen)	
 					}
 					
@@ -200,7 +202,7 @@ userram[1]=dactemp[tempx2-18];
 
 			schwelle(8);	// Verknüpfungsobjekte
 			schwelle(9);
-
+#ifndef V24
 			if (RLY && !lastrly) {	// Schaltausgang ein
 				lastrly=1;
 				write_obj_value(6,1);
@@ -211,8 +213,8 @@ userram[1]=dactemp[tempx2-18];
 				write_obj_value(6,0);
 				send_obj_value(6);
 			}
-
-			if (!editmode && solltemplcd != solltemplpc) sync();
+#endif
+			if (!editmode && solltemplcd != solltemplpc) sync();	// falls Solltemperatur im LPC verändert wurde -> LCD einstellen
 
 			if (!RESET) restart_app();		// wenn Reset-Taste am ERT30 gedrückt wurde
 
@@ -228,7 +230,7 @@ userram[1]=dactemp[tempx2-18];
 		if(!TASTER) {				// Taster gedrückt
 			for(n=0;n<100;n++) {}	// Entprell-Zeit
 			while(!TASTER);			// warten bis Taster losgelassen
-			userram[0x60]^=0x81;			// Prog-Bit und Parity-Bit im system_state toggeln
+			userram[0x60]^=0x81;	// Prog-Bit und Parity-Bit im system_state toggeln
 		}
 		TASTER=!(userram[0x60] & 0x01);	// LED entsprechend Prog-Bit schalten (low=LED an)
 	} while(1);

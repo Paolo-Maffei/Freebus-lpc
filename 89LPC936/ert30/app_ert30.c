@@ -125,11 +125,17 @@ void schwelle(unsigned char objno)		// Luxschwelle prüfen und reagieren
 		}
 		else {			
 			if (objno<8) {	// Temperaturschwellen
-				schwellwert=eeprom[LUXSCHWELLWERT-offset];		
-				hysterese = ctrl & 0x07;
-				if (schwellwert<51) {	//>51 : Temperaturschwelle inaktiv
-					if (temp > (schwellwert*100)) over=1;
-					if (temp < ((schwellwert - hysterese)*100)) under=1;
+				if (objno==6) {							// nur für 24V Version wird obj 6 bedient
+					if (temp > (solltemplpc * 50)) over=1;		// solltemplpc in 0,5° !
+					if (temp < ((solltemplpc - (hysterese*2))*50)) under=1;
+				}
+				else {
+					schwellwert=eeprom[LUXSCHWELLWERT-offset];
+					hysterese = ctrl & 0x07;
+					if (schwellwert<51) {	//>51 : Temperaturschwelle inaktiv
+						if (temp > (schwellwert*100)) over=1;
+						if (temp < ((schwellwert - hysterese)*100)) under=1;
+					}
 				}
 			}
 			else {			// Verknüpfungsobjekte
@@ -382,7 +388,7 @@ void delay_timer(void)	// zählt alle 130ms die Variable Timer hoch und prüft Ein
 			
 			if (delrecno<2) {	//Helligkeits- und Temperaturwert
 				send=1;		// ohne Prüfung auf Sperre etc. immer senden
-				if (eeprom[0xD3-delrecno]&0x0F!=0) cyclic=1;	// falls zyklisches Senden
+				if ((eeprom[0xD3-delrecno]&0x0F)!=0) cyclic=1;	// falls zyklisches Senden
 			}
 			else{	// Schwellen und Verknüpfungen
 				over=delrec[delrecno].delayactive & 0x02;	// überschritten
@@ -432,13 +438,13 @@ void delay_timer(void)	// zählt alle 130ms die Variable Timer hoch und prüft Ein
 	if (delrec[9].delayvalue==timer && delrec[9].delayactive) {	//editmode manuelle Sollwerteinstellung
 		editmode=0;
 		delrec[9].delayactive=0;
-		sw5=solltemplpc*50;		// Sollwert auf 100stel Grad umrechnen
+		sw5=solltemplpc*50;			// Sollwert auf 100stel Grad umrechnen
 		sw5=int100_to_eis5(sw5);	// in eis5 Format umwandeln
 		write_obj_value(13,sw5);	// Objektwert speichern
 		send_obj_value(13);			// Objektwert senden
 
-		DEECON=0;
-		while(fb_state!=0);		// warten falls noch gesendet wird
+		DEECON=0;					// im "echten" eeprom speichern
+		while(fb_state!=0);			// warten falls noch gesendet wird
 		EA=0;
 		DEEDAT=solltemplpc;
 		DEEADR=0;
@@ -582,37 +588,30 @@ void key (void) __interrupt (7) __using (1)
 	upkey=UP;
 	downkey=DOWN;
 	
-	//if (!upkey) UP=0;
-	//if (!downkey) DOWN=0;
+	// Entprellung, Tastensignal muß mindestens 50ms low sein
+	for (n=0;n<50;n++) {
+		TR0=0;					// Timer 0 anhalten
+		TH0=0xF1;				// Timer 0 setzen (1ms)
+		TL0=0x99;
+		TF0=0;					// Überlauf-Flag zurücksetzen
+		TR0=1;					// Timer 0 starten
+		while (!TF0);
+		TF0=0;
+		TR0=0;
+		upkey|=UP;
+		downkey|=DOWN;
+	}
 
 	if (editmode) {		// erster Tastendruck bewirkt nichts, geht nur in Editier-Modus
-		if (!upkey) {		// + Taste gedrückt
-			if (solltemplcd<70) solltemplcd++;
-		}
-		if (!downkey) {		// - Taste gedrückt
-			if (solltemplcd>20) solltemplcd--;
-		}
+		if (!upkey && solltemplcd<70) solltemplcd++;	// + Taste gedrückt
+		if (!downkey && solltemplcd>20) solltemplcd--;	// - Taste gedrückt
 	}
 	solltemplpc=solltemplcd;
-	editmode=1;
+	if(!upkey || !downkey) editmode=1;
 
-	// Entprellung
-	for (n=0;n<5;n++) {
-		TR0=0;					// Timer 0 anhalten
-		TH0=0;					// Timer 0 setzen
-		TL0=0;
-		TF0=0;					// Überlauf-Flag zurücksetzen
-		TR0=1;					// Timer 0 starten
-		while (!TF0);
-		TF0=0;
-		TR0=0;
-	}
-
-	//UP=1;
-	//DOWN=1;
 	while(!DOWN || !UP);	// warten bis beide Tasten losgelassen
 
-	for (n=0;n<5;n++) {
+	for (n=0;n<1;n++) {		// Preller beim loslassen überbrücken
 		TR0=0;					// Timer 0 anhalten
 		TH0=0;					// Timer 0 setzen
 		TL0=0;
@@ -623,8 +622,7 @@ void key (void) __interrupt (7) __using (1)
 		TR0=0;
 	}
 
-
-	interrupted=1;
+	interrupted=1;			// Flag setzen, dass unterbrochen wurde
 	KBCON=0;				// Interrupt-Flag löschen
 	EKBI=1;					// Keyboard Interrupt wieder frei geben
 }
@@ -649,8 +647,7 @@ void restart_app(void)		// Alle Applikations-Parameter zurücksetzen
 	UP=1;
 	DOWN=1;
 
-	RESET=0;
-	// ERT30 zurücksetzen
+	RESET=0;			// ERT30 zurücksetzen
 	TR0=0;					// Timer 0 anhalten
 	TH0=0;					// Timer 0 setzen
 	TL0=0;
@@ -674,9 +671,18 @@ void restart_app(void)		// Alle Applikations-Parameter zurücksetzen
 
 	TASTER=1;					// LED aus
 
+	for (n=0;n<50;n++) {		// Warten bis Bus stabil
+		TR0=0;					// Timer 0 anhalten
+		TH0=eeprom[ADDRTAB+1];	// Timer 0 setzen mit phys. Adr. damit Geräte unterschiedlich beginnen zu senden
+		TL0=eeprom[ADDRTAB+2];
+		TF0=0;					// Überlauf-Flag zurücksetzen
+		TR0=1;					// Timer 0 starten
+		while(!TF0);
+	}
+
+
 	for (m=0;m<3;m++) {
-		for (n=0;n<200;n++) {
-			// Warten bis Bus stabil und Anzeige bereit
+		for (n=0;n<200;n++) {		// Warten bis Anzeige bereit
 			TR0=0;					// Timer 0 anhalten
 			TH0=0;					// Timer 0 setzen
 			TL0=0;
@@ -690,9 +696,6 @@ void restart_app(void)		// Alle Applikations-Parameter zurücksetzen
 	lastrly=0;							// Schaltausgang zunächst aus
 	write_obj_value(6,0);
 	send_obj_value(6);
-	
-	//while (!ow_init());
-
 	
 	// Init DAC 0
 	PT0AD=0x22; 		// disable digital inputs P0_5 & P0_2
@@ -708,29 +711,28 @@ void restart_app(void)		// Alle Applikations-Parameter zurücksetzen
 	EKBI=1;
 
 
-	lux=0;
+	lux=65535;
+	temp=-1000;
+	lastlux=lux;
+	lasttemp=temp;
 
-	temp=-10000;
-
-	
-	//solltemplpc=eeprom[TEMPSCHWELLWERT1]*2;
-	DEECON=0;
+	DEECON=0;			// Sollwert aus EEPROM lesen
 	DEEADR=0;
 	while(!DEECON&0x80);
 	solltemplpc=DEEDAT;
 
-	if (solltemplpc<10 || solltemplpc>70) {
-		solltemplpc=40;
+	if (solltemplpc<10 || solltemplpc>70) {		// falls Sollwert ausserhalb des gültigen Bereichs
+		solltemplpc=40;							// auf 20° setzen
 
 		DEECON=0;
-		while(fb_state!=0);		// warten falls noch gesendet wird
+		while(fb_state!=0);						// warten falls noch gesendet wird
 		EA=0;
-		DEEDAT=solltemplpc;
+		DEEDAT=solltemplpc;						// Sollwert ins EEPROM schreiben
 		DEEADR=0;
 		EA=1;
 
 	}
-	solltemplcd=40;		// Defaultwert 20° nach reset
+	solltemplcd=40;		// Defaultwert des Sollwertes der LCD Anzeige 20° nach reset
 
 	overrun=0;
 	underrun=0;
@@ -749,7 +751,13 @@ void restart_app(void)		// Alle Applikations-Parameter zurücksetzen
 	
 	write_obj_value(10,0);		// Sperre bei Neustart löschen
   
-  	for (objno=0;objno<=9;objno++) WRITE_DELAY_RECORD(objno,0,0,0)			// erstmal alle delay-records auf inaktiv setzen
+  	for (objno=2;objno<9;objno++) WRITE_DELAY_RECORD(objno,0,0,0)			// erstmal alle delay-records auf inaktiv setzen
+	if ((eeprom[0xD3]&0x0F)!=0) {
+		WRITE_DELAY_RECORD(0,1,1,timer+50)
+	}
+	if ((eeprom[0xD2]&0x0F)!=0) {
+		WRITE_DELAY_RECORD(1,1,1,timer+55)
+	}
 
 	START_WRITECYCLE;			// Applikations-spezifische eeprom Eintraege schreiben
 	WRITE_EEPROM(0x03,0x00);	// Herstellercode: 0x0000 Freebus
