@@ -35,12 +35,15 @@
 #define DEL_FACTOR2		0xD6
 
 
-extern long timer;				// Timer fuer Schaltverzoegerungen, wird alle 130us hochgezaehlt
+extern unsigned int timer,timerflags;				// Timer fuer Schaltverzoegerungen, wird alle 130us hochgezaehlt
+extern unsigned char timercnc[8],timerbase[8],timerstate[8];
 extern bit delay_toggle;		// um nur jedes 2. Mal die delay routine auszufuehren
-extern long buttontimer[4];
+//extern long buttontimer[4];
+extern unsigned char LEDSTATE,dimmcompare,dimmwert; // den LED status speichern um Dimmbar zu machen
 extern unsigned char button_buffer;	// puffer fuer taster werte
 extern unsigned char object_value[12];
 
+void timer0_int(void) interrupt 1;
 void port_changed(unsigned char portval);		// ein Taster wurde gedrueckt oder losgelassen
 void button_changed(unsigned char buttonno, bit buttonval);	// Taster Aktion abarbeiten
 void switch_led(unsigned char ledno, bit onoff);	// LED schalten
