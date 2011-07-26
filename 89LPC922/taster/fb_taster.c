@@ -27,7 +27,8 @@
 *		1.01	eigenes Telegramm wird ausgewertet, "Affengriff" entprellt
 * 		1.02	div. bugs behoben
 * 		1.03	Fehler bei Lamellenverstellzeit (T2) behoben
-* 
+* 		1.04	LEDs dimmbar, neue backendsoft, fehlende Funktionen zugefügt,
+* 				trimbar über RS 
 */
 //#define LPC936
 
@@ -44,8 +45,24 @@
 //#include "fb_lpc922.c"
 //#include "fb_lpc922.h"
 #include"../com/watchdog.h"
-//#define NOPROGBUTTON	// es ist kein prog Taster vorhanden sondern progmode wird durch druecken von taste 1&3 oder 2&4 aktiviert
-#define NOPROGLED // Die Progled blinkt im Progmodus da sie auch Betriebs LED ist
+//#define NOPROGBUTTON	//typ 1,3 es ist kein prog Taster vorhanden sondern progmode wird durch druecken von taste 1&3 oder 2&4 aktiviert
+#define NOPROGLED //typ 0,2 Die Progled blinkt im Progmodus da sie auch Betriebs LED ist
+
+#ifdef NOPROGBUTTON
+	#ifdef NOPROGLED	
+		#define TYPE 3
+	#else
+		#define TYPE 1
+	#endif
+#else
+	#ifdef NOPROGLED	
+		#define TYPE 2
+	#else
+		#define TYPE 0
+	#endif
+#endif
+
+#define VERSION		104
 
 
 unsigned char object_value[12];	// wird hier deklariert um den Speicher besser auszunutzen!!!
@@ -59,11 +76,28 @@ unsigned char object_value[12];	// wird hier deklariert um den Speicher besser a
 */
 void main(void)
 { 
-	unsigned char n,LED;
+	unsigned char n,LED,cmd;
 	bit blink, verstell, verstellt;
-	static __code unsigned char __at 0x1BFE LED_hell;	
+	signed char cal;
+	static __code signed char __at 0x1BFF trimsave;
+	static __code unsigned char __at 0x1BFE LED_hell;
+	// Verions bit 6 und 7 für die varianten, bit 0-5 für die verionen (63)
+	//Varianten sind hier noprogbutton=0x040, noprogled=0x80
+	__bit wduf;
+	wduf=WDCON&0x02;
 
 	restart_hw();							// Hardware zuruecksetzen	
+#ifdef NOPROGBUTTON
+	if((((PORT & 0x0F)== 0x03) || ((PORT & 0x0F)== 0x0C)) && wduf) cal=0;
+	else cal=trimsave;
+
+#else
+	TASTER=1;
+	if(!TASTER && wduf)cal=0;
+	else cal=trimsave;
+#endif
+	TRIM = (TRIM+trimsave);
+	TRIM &= 0x3F;//oberen 2 bits ausblenden
 	watchdog_init();
 	watchdog_start();
 	for (n=0;n<50;n++) {
@@ -75,7 +109,7 @@ void main(void)
 		while(!TF0);
 	}
 	restart_app();							// Anwendungsspezifische Einstellungen zuruecksetzen
-	rs_init(192);
+	rs_init(6);
 	for (n=0;n<4;n++) switch_led(n,0);	// Alle LEDs gemaess ihren Parametern setzen
 
 	LED=0;
@@ -119,7 +153,36 @@ void main(void)
 			process_tel();
 		}
 		
-		
+		if (RI){
+			RI=0;
+			cmd=SBUF;
+			if(cmd=='c')rs_send(0x55);
+			if(cmd=='+'){
+				TRIM--;
+				cal--;
+			}
+			if(cmd=='-'){
+				TRIM++;
+				cal++;
+			}
+			if(cmd=='w'){
+				EA=0;
+				START_WRITECYCLE;	//cal an 0x1bff schreiben
+				FMADRH= 0x1B;		
+				FMADRL= 0xFF; 
+				FMDATA=	cal; 
+				STOP_WRITECYCLE;
+				EA=1;				//int wieder freigeben
+			}
+			if(cmd=='p')status60^=0x81;	// Prog-Bit und Parity-Bit im system_state toggeln
+			if(cmd=='v')rs_send(VERSION);
+			if(cmd=='t')rs_send(TYPE);
+			//if(cmd >=49 && cmd <= 56){
+			//	portbuffer = portbuffer ^ (0x01<< (cmd-49));
+			//	port_schalten();
+			//}
+		}
+			
 #ifndef NOPROGBUTTON
 		TASTER=1;				        	// Pin als Eingang schalten um Programmiertaster abzufragen
 		if (!TASTER) {						// Programmiertaster gedrueckt

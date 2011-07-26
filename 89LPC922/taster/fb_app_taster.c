@@ -264,8 +264,8 @@ void button_changed(unsigned char buttonno, bit buttonval)
 			}
 			break;
 		case 2: // ++++++  Helligkeitswertgeber
-/*			if (buttonval){
-				write_obj_value(buttonno+8,(eeprom[0xD5+(buttonno*4)]<<8)+eeprom[0xD6+(buttonno*4));
+			if (buttonval){
+				write_obj_value(buttonno+8,(eeprom[0xD5+(buttonno*4)]<<8)+ eeprom[0xD6+(buttonno*4)]);
 				send_obj_value(buttonno+8);
 				switch_led(buttonno,1);
 				if(!(eeprom[0xD3+(buttonno*4)]& 0x80)){// schauen ob Verstellung freigegeben
@@ -277,18 +277,28 @@ void button_changed(unsigned char buttonno, bit buttonval)
 			else{
 				if (timerstate[buttonno+4]==0x80){
 					//dimmwert abspeichern kommt noch
-	    			EA=0;		// Interrupts sperren, damit flashen nicht unterbrochen wird
-	    			START_WRITECYCLE
-	    			WRITE_BYTE(0x01,0xD5+(buttonno*4),read_obj_value(buttonno+8)>>8);
-	    			WRITE_BYTE(0x01,0xD6+(buttonno*4),read_obj_value(buttonno+8)& 0xFF);
-	    			STOP_WRITECYCLE // Luxwert speichern
-	    			EA=1;
-
 				}
 				timerstate[buttonno+4]=0;
 			}			
-*/			break;
+			break;
 		case 3:	// ++++++  Temperaturwertgeber
+			if (buttonval){
+				write_obj_value(buttonno+8,(eeprom[0xD5+(buttonno*4)]<<8)+ eeprom[0xD6+(buttonno*4)]);
+				send_obj_value(buttonno+8);
+				switch_led(buttonno,1);
+				if(!(eeprom[0xD3+(buttonno*4)]& 0x80)){// schauen ob Verstellung freigegeben
+					timercnt[buttonno+4]=156;
+					timerbase[buttonno+4]=2; //(32ms)
+					timerstate[buttonno+4]=0x90;// Betätigung länger 5 sekunden bei Dimmwert
+				}
+			}
+			else{
+				if (timerstate[buttonno+4]==0xA0){
+					//dimmwert abspeichern kommt noch
+					//bereits in delay timer geschehen
+				}
+				timerstate[buttonno+4]=0;
+			}			
 			break;
 		case 4: // ++++++   Dimmwertgeber
 			if (buttonval){
@@ -347,12 +357,18 @@ int eis5conversion(int zahl,unsigned char Typ)
 */
 unsigned long read_obj_value(unsigned char objno)
 {
-	return(object_value[objno]);
+//	unsigned int retvalue;
+	if(objno<4)return(object_value[objno]);
+	else return((object_value[objno-4]<<8)+object_value[objno]);
 }
 
-void write_obj_value(unsigned char objno, unsigned char objval)
+void write_obj_value(unsigned char objno, unsigned int objval)
 {
-	object_value[objno]=objval;
+	if(objno<4)object_value[objno]=objval;
+	else {
+		object_value[objno-4]=objval>>8;
+		object_value[objno]=objval&0xFF;
+	}
 }
 
 
@@ -491,6 +507,7 @@ const unsigned char tele_repeat_value[8]={63,125,188,250,25,38,50,94};
 void delay_timer(void)
 {
 	unsigned char objno, delay_value,ledvar,tmp,m,n;
+	unsigned int i_tmp;
 //	long delval;
 //	long duration=1;
 	RTCCON=0x60;
@@ -598,10 +615,57 @@ void delay_timer(void)
 
 			case 0x70: // Wertgeber Helligkeit langdrücken
 			case 0x80: // Wertgeber Helligkeit verstellen
-			break;
+				timerbase[objno]=0;
+				timercnt[objno]=tele_repeat_value[(eeprom[0xD4+((objno-4)*4)]& 0x30)>>4];// schrittweite und zeit zw. telegrammen
+				i_tmp=(eeprom[0xD5+4*(objno-4)])<<8;
+				i_tmp +=eeprom[0xD6+4*(objno-4)];
+				if (i_tmp==0x39FD || i_tmp==0x3828)	//Differenz ausgleichen
+				{
+					i_tmp--;
+				}
+				i_tmp -= 0x27;
+
+				if(!(i_tmp&0x0800)){
+					i_tmp=0x03C94;
+				}
+				else{
+					switch_led(objno-4,1);
+				}
+				write_obj_value(objno+4,i_tmp);// wir rechnen immer mit exp 2^7
+				timerstate[objno]=0x80;
+    			EA=0;		// Interrupts sperren, damit flashen nicht unterbrochen wird
+    			START_WRITECYCLE
+    			WRITE_BYTE(0x01,0xD5+((objno-4)*4),read_obj_value(objno+4)>>8);
+    			WRITE_BYTE(0x01,0xD6+((objno-4)*4),read_obj_value(objno+4)& 0xFF);
+    			STOP_WRITECYCLE // Luxwert speichern
+    			EA=1;
+				send_obj_value(objno+4);
+
+    			break;
 
 			case 0x90: // Wertgeber Temperatur langdrücken
 			case 0xA0: // Wertgeber Temperatur verstellen
+				timerbase[objno]=0;
+				timercnt[objno]=tele_repeat_value[(eeprom[0xD4+((objno-4)*4)]& 0x30)>>4];// schrittweite und zeit zw. telegrammen
+				i_tmp=(eeprom[0xD5+4*(objno-4)]&0x07)<<8;
+				i_tmp +=eeprom[0xD6+4*(objno-4)];
+				if(i_tmp>=0x0032){
+					i_tmp -= 0x32;
+					switch_led(objno-4,1);
+				}
+				else{
+					i_tmp=0x07D0;
+				}
+				write_obj_value(objno+4,i_tmp|0x0800);// wir rechnen immer mit exp 2^1
+				timerstate[objno]=0xA0;
+    			EA=0;		// Interrupts sperren, damit flashen nicht unterbrochen wird
+    			START_WRITECYCLE
+    			WRITE_BYTE(0x01,0xD5+((objno-4)*4),read_obj_value(objno+4)>>8);
+    			WRITE_BYTE(0x01,0xD6+((objno-4)*4),read_obj_value(objno+4)& 0xFF);
+    			STOP_WRITECYCLE // Temperaturwert speichern
+    			EA=1;
+				send_obj_value(objno+4);
+
 			break;
 
 			case 0xB0: // Wertgeber Dimmer langdrücken

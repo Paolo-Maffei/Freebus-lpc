@@ -26,6 +26,7 @@
 #define FB_APP
 
 
+
 #define POWERLED		0xCD
 #define LED_DURATION	0xCE
 #define FUNCTION		0xCF	// Funktion der Taster
@@ -51,6 +52,6 @@ void write_value_req(void);		// Hauptroutine fuer Ausgaenge schalten gemaess EIS
 void delay_timer(void);			// zaehlt alle 130ms die Variable Timer hoch und prueft Queue
 //void send_eis(unsigned char eistyp, unsigned char objno, int sval);	// sendet ein EIS Telegramm
 unsigned long read_obj_value(unsigned char objno);
-void write_obj_value(unsigned char objno, unsigned char objval);
+void write_obj_value(unsigned char objno, unsigned int objval);
 
 #endif
