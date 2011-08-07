@@ -128,8 +128,9 @@ void in50hz_init(void)
 {
   P1M1 |= (1<<4); //Pin P1.4 input
   P1M2 &= ~(1<<4);
-  EX1=1; //Externer intrrupt ein
+  EX1=1; //Externer interrupt ein
   IT1=1; //fallende flanke
+  IP0H |= 0x01;
   EA=1;  //globale interruptfreigabe
   return;
 
@@ -139,13 +140,13 @@ void in50hz_init(void)
 void main(void)
 {
   int i;
-  rs_init();
+//  rs_init(9600);
   i2c_sla_init();
   in50hz_init();
   P1M1 |= 0x03; //rs232 open drain
   P1M2 |= 0x03; //rs232 open drain
 
-  rs_send_s("Programmstart\n");
+ // rs_send_s("Programmstart\n");
 
   P0M1 &= ~0xc0; //pin 0.6 und 0.7 Ausgang
   P0M2 |= 0xc0;
@@ -155,6 +156,7 @@ void main(void)
   TMOD=0x01;   // Timer 0 als reload
   //AUXR1&=~0x10;             // toggled whenever Timer0 overflows ausschalten
   ET0=1;                        // Interrupt für Timer 0 freigeben
+  IP0 |= 0x02;
   TR0=1;                        // Timer 0 starten
   EA=1;
 
@@ -169,7 +171,7 @@ void main(void)
   if(P0_1==0)
     {
       mode=AN;    //anschnittdimmer
-      rs_send_s("Anschnitt\n");
+ //     rs_send_s("Anschnitt\n");
     }
   while(1)
     {
@@ -184,11 +186,11 @@ void main(void)
 
       if(dimm_I2C[0]!=mk[0]||dimm_I2C[1]!=mk[1])
          {
-          rs_send_s("D");
-          rs_send_hex(dimm_I2C[0]);
-          rs_send(' ');
-          rs_send_hex(dimm_I2C[1]);
-          rs_send_s("\n");
+   //       rs_send_s("D");
+   //       rs_send_hex(dimm_I2C[0]);
+   //       rs_send(' ');
+   //       rs_send_hex(dimm_I2C[1]);
+  //        rs_send_s("\n");
           mk[0]=dimm_I2C[0];
           mk[1]=dimm_I2C[1];
          }
