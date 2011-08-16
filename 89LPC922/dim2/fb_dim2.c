@@ -43,7 +43,8 @@
 #include "../com/fb_rs232.h"
 #include "fb_i2c.h"
 
-
+#define VERSION 1
+#define TYPE	1
 extern unsigned char Tval;
 #define MAXDIMMWERT 255
 
@@ -111,13 +112,13 @@ void restart_app(void)		// Alle Applikations-Parameter zurücksetzen
 
   basis_dimmgeschwindikeit[0]=basis[(eeprom[0xC6]&0x07)];
   basis_dimmgeschwindikeit[1]=basis[(eeprom[0xC6]>>4)&0x07];
-  rs_send_s("M=");
+  //rs_send_s("M=");
 
 
-  rs_send_hex(mindimmwert[0]);
-  rs_send_s(" ");
-  rs_send_hex(mindimmwert[1]);
-  rs_send_s(" ");
+ // rs_send_hex(mindimmwert[0]);
+ // rs_send_s(" ");
+ // rs_send_hex(mindimmwert[1]);
+ // rs_send_s(" ");
   EA=0;
   START_WRITECYCLE
   WRITE_BYTE(0x01,0x03,0x00);	// Herstellercode 0x0004 = Jung 0x0008 = Gira
@@ -143,7 +144,7 @@ void tastenauswertung(void)
   unsigned char retp0=P0;//port 0 merken
   P3_0=0;                //SCL damit i2c nicht meckert
   P0=0;
-  if(ctaste<6)           //0 bis 7
+  if(ctaste<6)           //0 bis 5
     ctaste++;
   else ctaste=0;
   P0M1=~(1<<ctaste);    // Port 0  PIN Output
@@ -159,9 +160,9 @@ void tastenauswertung(void)
           if(ctaste==2)
             dimm_helldunkel[0]=1;
           if(ctaste==5)
-            dimm_helldunkel[1]=1;
-          if(ctaste==6)
             dimm_helldunkel[1]=9;
+          if(ctaste==6)
+            dimm_helldunkel[1]=1;
         }
 
      }
@@ -173,8 +174,8 @@ void tastenauswertung(void)
             {
               if(ctaste==1) dimmwert[0]=0xff;
               if(ctaste==2) dimmwert[0]=0x0;
-              if(ctaste==5) dimmwert[1]=0x0;
-              if(ctaste==6) dimmwert[1]=0xff;
+              if(ctaste==5) dimmwert[1]=0xff;
+              if(ctaste==6) dimmwert[1]=0x0;
             }
           if(mtaste[ctaste]>199) //langer tastendruck
             if(ctaste==1||ctaste==2)
@@ -201,13 +202,13 @@ void tr0_int(void) interrupt 1         //n=nummer 0x03+8*n
   TH0=0xf9;     // timer mit 0xb7 200HZ = 5ms
 
   tastenauswertung();
-    P0_0=(dimm_I2C[0])?1:0;     //LED_zeile K1
-    if(dimm_I2C[0]>75) P0_1=1;
-    else P0_1=0;
-    if(dimm_I2C[0]>125) P0_2=1;
+    P0_3=(dimm_I2C[0])?1:0;     //LED_zeile K1
+    if(dimm_I2C[0]>75) P0_2=1;
     else P0_2=0;
-    if(dimm_I2C[0]>220) P0_3=1;
-    else P0_3=0;
+    if(dimm_I2C[0]>125) P0_1=1;
+    else P0_1=0;
+    if(dimm_I2C[0]>220) P0_0=1;
+    else P0_0=0;
 
     P0_7=(dimm_I2C[1])?1:0;     //LED_zeile K2
     if(dimm_I2C[1]>75) P0_6=1;
@@ -311,18 +312,58 @@ void tr0_int(void) interrupt 1         //n=nummer 0x03+8*n
 void main(void)
 {
 unsigned int i=0;
-  unsigned char n;
+  unsigned char n,cmd;
+	signed char cal;
+	static __code signed char __at 0x1BFF trimsave;
+
   bit flag50hz=0;
 
   restart_hw();				// Hardware zurücksetzen
   restart_prot();			// Protokoll-relevante Parameter zurücksetzen
-  rs_init();
+  rs_init(6);
   i2c_ma_init();
   restart_app();                        // Anwendungsspezifische Einstellungen zurücksetzen
-  rs_send_s("Programmstart\n");
+ // rs_send_s("Programmstart\n");
+	TASTER=1;
+	if(!TASTER )cal=0;// && wduf
+	else cal=trimsave;
+	TRIM = (TRIM+trimsave);
+	TRIM &= 0x3F;//oberen 2 bits ausblenden
+
+
+  rs_send(0x55);
   do
       {
-     //if(RTCCON>=0x80) delay_timer();	// Realtime clock Überlauf
+		if (RI){
+			RI=0;
+			cmd=SBUF;
+			if(cmd=='c')rs_send(0x55);
+			if(cmd=='+'){
+				TRIM--;
+				cal--;
+			}
+			if(cmd=='-'){
+				TRIM++;
+				cal++;
+			}
+			if(cmd=='w'){
+				EA=0;
+				START_WRITECYCLE;	//cal an 0x1bff schreiben
+				FMADRH= 0x1B;		
+				FMADRL= 0xFF; 
+				FMDATA=	cal; 
+				STOP_WRITECYCLE;
+				EA=1;				//int wieder freigeben
+			}
+			if(cmd=='v')rs_send(VERSION);
+			if(cmd=='t')rs_send(TYPE);
+			//if(cmd >=49 && cmd <= 56){
+			//	portbuffer = portbuffer ^ (0x01<< (cmd-49));
+			//	port_schalten();
+			//}
+		}
+		
+	  //if(RTCCON>=0x80) delay_timer();	// Realtime clock Überlauf
       //
       // +++++ Handhabung des Programmiertasters und der ProgrammierLED +++++
       //
