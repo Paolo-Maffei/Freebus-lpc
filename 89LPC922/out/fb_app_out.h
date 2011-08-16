@@ -17,7 +17,7 @@
 #define FB_APP_OUT
 
 #define GS2					// GS1 für alte Relais-Schaltung, GS2 für neue
-//#define HAND				// Handsteuerung aktiv (auskommentieren wenn nicht gewünscht)
+#define HAND				// Handsteuerung aktiv (auskommentieren wenn nicht gewünscht)
 #define MAX_PORTS_8			// Anzahl Ausgänge (nur 4 oder 8 erlaubt)
 //#define SPIBISTAB			// Serielle Ausgabe für bistabile relaise aktivieren
 // Parameter-Adressen im EEPROM
@@ -25,7 +25,7 @@
 #define OFFDISABLE	0xEB	// Aus-Telegramm ignorieren
 #define FUNCTYP		0xED	// Typ der Zusatzfunktion
 #define LOGICTYP	0xEE	// Verknüpfungs Typ 0=keine 1=ODER 2=UND 3=UND mir Rückführung
-#define BLOCKACT	0xEF	// Verhalten beim Sperren
+#define BLOCKACT	0xEF    // Verhalten beim Sperren
 #define BLOCKPOL	0xF1	// Polarität der Sperrobjekte
 #define RELMODE		0xF2	// Relaisbetrieb (Öffner/Schließer)
 #define RMINV		0xF3	// Rückmeldung invertiert oder normal
@@ -70,7 +70,6 @@ void restart_app(void);		// Alle Applikations-Parameter zurücksetzen
 
 unsigned long read_obj_value(unsigned char objno);	// gibt den Wert eines Objektes zurueck
 void write_obj_value(unsigned char objno,unsigned int objvalue);	// schreibt den aktuellen Wert eines Objektes ins 'USERRAM'
-
 
 
 #endif

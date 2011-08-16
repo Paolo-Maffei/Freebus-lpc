@@ -65,8 +65,8 @@
 *   3.31	ein paar lokale Variablen enfernt um stack zu entlasten
 *   3.32	Funktion bei Beginn/Ende der Sperre nur wenn Sperre vorher inaktiv/aktiv war
 *   3.33	Auf lib Version 1.22 f.f. angepasst (tel_sent, rtc- und timer-funktion)
- 
-
+*	3.34	Trimfunktion via RS 600bd.(c + - w) version (v) und Type (t) abrufbar. 
+			progmode(p) relaise toggeln(ziffer 1-8)
 
 * @todo:
 	- Prio beim Senden implementieren \n
@@ -79,7 +79,7 @@
 #include "fb_app_out.h"
 
 #include "../com/fb_rs232.h"
-
+#include"../com/watchdog.h"
 
 /** 
 * The start point of the program, init all libraries, start the bus interface, the application
@@ -87,30 +87,72 @@
 * 
 *
 */
+#ifdef MAX_PORTS_4
+	#ifdef SPIBISTAB
+		#ifdef HAND
+			#define TYPE 7
+		#else	
+			#define TYPE 6
+		#endif
+	#else	// kein SPIBISTAB
+		#ifdef HAND
+			#define TYPE 5
+		#else	
+			#define TYPE 4
+		#endif
+	#endif
+#else		// MAX_PORTS_8
+	#ifdef SPIBISTAB
+		#ifdef HAND
+			#define TYPE 3
+		#else	
+			#define TYPE 2
+		#endif
+	#else	// kein SPIBISTAB
+		#ifdef HAND
+			#define TYPE 1 
+		#else	
+			#define TYPE 0
+		#endif
+	#endif
+#endif
+#define VERSION 34
+
 void main(void)
 { 
-	unsigned char n;
+	unsigned char n,cmd;
 	signed char cal;
 	static __code signed char __at 0x1BFF trimsave;
-	
+
+	__bit wduf;
+	wduf=WDCON&0x02;
 	restart_hw();							// Hardware zuruecksetzen
-
-	cal=trimsave;
-	TRIM = TRIM+trimsave;
-
-	for (n=0;n<50;n++) {		// Warten bis Bus stabil
-		TR0=0;					// Timer 0 anhalten
-		TH0=eeprom[ADDRTAB+1];	// Timer 0 setzen mit phys. Adr. damit Geräte unterschiedlich beginnen zu senden
-		TL0=eeprom[ADDRTAB+2];
-		TF0=0;					// Überlauf-Flag zurücksetzen
-		TR0=1;					// Timer 0 starten
-		while(!TF0);
+// im folgendem wird der watchdof underflow abgefragt und mit gedrücktem Progtaster
+// ein resetten der cal Variable veranlasst um wieder per rs232 trimmen zu können.	
+	TASTER=1;
+	if(!TASTER && wduf)cal=0;
+	else cal=trimsave;
+	TRIM = (TRIM+trimsave);
+	TRIM &= 0x3F;//oberen 2 bits ausblenden
+	if (!wduf){// BUS return verzögerung nur wenn nicht watchdog underflow
+		for (n=0;n<50;n++) {		// Warten bis Bus stabil
+			TR0=0;					// Timer 0 anhalten
+			TH0=eeprom[ADDRTAB+1];	// Timer 0 setzen mit phys. Adr. damit Geräte unterschiedlich beginnen zu senden
+			TL0=eeprom[ADDRTAB+2];
+			TF0=0;					// Überlauf-Flag zurücksetzen
+			TR0=1;					// Timer 0 starten
+			while(!TF0);
+		}
 	}
-
+	watchdog_init();
+	watchdog_start();
 	restart_app();							// Anwendungsspezifische Einstellungen zuruecksetzen
-	bus_return();							// Aktionen bei Busspannungswiederkehr
-
+	if(!wduf)bus_return();							// Aktionen bei Busspannungswiederkehr
+	rs_init(6);
+	rs_send(0x55);
 	do  {
+		watchdog_feed();
+
 		if(eeprom[RUNSTATE]==0xFF) {	// nur wenn run-mode gesetzt
 
 			if(RTCCON>=0x80) delay_timer();	// Realtime clock Ueberlauf
@@ -152,7 +194,35 @@ void main(void)
 			process_tel();
 		}
 
-		
+		if (RI){
+			RI=0;
+			cmd=SBUF;
+			if(cmd=='c')rs_send(0x55);
+			if(cmd=='+'){
+				TRIM--;
+				cal--;
+			}
+			if(cmd=='-'){
+				TRIM++;
+				cal++;
+			}
+			if(cmd=='w'){
+				EA=0;
+				START_WRITECYCLE;	//cal an 0x1bff schreiben
+				FMADRH= 0x1B;		
+				FMADRL= 0xFF; 
+				FMDATA=	cal; 
+				STOP_WRITECYCLE;
+				EA=1;				//int wieder freigeben
+			}
+			if(cmd=='p')status60^=0x81;	// Prog-Bit und Parity-Bit im system_state toggeln
+			if(cmd=='v')rs_send(VERSION);
+			if(cmd=='t')rs_send(TYPE);
+			if(cmd >=49 && cmd <= 56){
+				portbuffer = portbuffer ^ (0x01<< (cmd-49));
+				port_schalten();
+			}
+		}
 		
 		TASTER=1;				// Pin als Eingang schalten um Taster abzufragen
 		if(!TASTER) {				// Taster gedrückt
@@ -172,7 +242,7 @@ void main(void)
 				}
 				else
 				{					//länger als 1 Sekunde
-					if (n<250){
+/*					if (n<250){
 						cal++;//kürzer als 2 sekunden
 						TRIM+=1;
 					}
@@ -187,7 +257,7 @@ void main(void)
 					FMDATA=	cal; 
 					STOP_WRITECYCLE;
 					EA=1;				//int wieder freigeben
-				}
+*/				}
 				RTCCON=0x60;	// Real Time Clock stoppen
 				RTCH=0x0E;		// Real Time Clock auf 65ms laden (0,065 x 7372800 / 128)
 				RTCL=0xA0;		// (RTC ist ein down-counter mit 128 bit prescaler und osc-clock)
