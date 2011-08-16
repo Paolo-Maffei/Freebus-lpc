@@ -45,7 +45,7 @@
 //#include "fb_lpc922.c"
 //#include "fb_lpc922.h"
 #include"../com/watchdog.h"
-//#define NOPROGBUTTON	//typ 1,3 es ist kein prog Taster vorhanden sondern progmode wird durch druecken von taste 1&3 oder 2&4 aktiviert
+#define NOPROGBUTTON	//typ 1,3 es ist kein prog Taster vorhanden sondern progmode wird durch druecken von taste 1&3 oder 2&4 aktiviert
 #define NOPROGLED //typ 0,2 Die Progled blinkt im Progmodus da sie auch Betriebs LED ist
 
 #ifdef NOPROGBUTTON
@@ -110,6 +110,7 @@ void main(void)
 	}
 	restart_app();							// Anwendungsspezifische Einstellungen zuruecksetzen
 	rs_init(6);
+	rs_send(0x55);
 	for (n=0;n<4;n++) switch_led(n,0);	// Alle LEDs gemaess ihren Parametern setzen
 
 	LED=0;
