@@ -432,6 +432,12 @@ void delay_timer(void)	// zählt alle 130ms die Variable Timer hoch und prüft Ein
 			
 		}
 	}
+
+	if (delrec[8].delayvalue==timer && delrec[8].delayactive) {
+		PBCOM=0;	// Taster aktiv
+		delrec[8].delayactive=0;
+	}
+
 	if (editmode && delrec[9].delayactive==0) {
 		WRITE_DELAY_RECORD(9,1,0,timer+EDITTIMEOUT);
 	}
@@ -538,6 +544,12 @@ void sync(void)
 				TF0=0;
 				TR0=0;
 			}
+			// feed watchdog
+			EA=0;
+			WFEED1=0xA5;
+			WFEED2=0x5A;
+			EA=1;
+
 		}
 		editmode=1;
 		WRITE_DELAY_RECORD(9,1,0,timer+EDITTIMEOUT)
@@ -567,6 +579,12 @@ void sync(void)
 				TF0=0;
 				TR0=0;
 			}
+			// feed watchdog
+			EA=0;
+			WFEED1=0xA5;
+			WFEED2=0x5A;
+			EA=1;
+
 		}
 		editmode=1;
 		WRITE_DELAY_RECORD(9,1,0,timer+EDITTIMEOUT)
@@ -585,42 +603,42 @@ void key (void) __interrupt (7) __using (1)
 
 	EKBI=0;				// keyboard Interrupt sperren
 
+
 	upkey=UP;
 	downkey=DOWN;
+	PBCOM=1;			// Taster inaktiv
 	
-	// Entprellung, Tastensignal muß mindestens 50ms low sein
-	for (n=0;n<50;n++) {
-		TR0=0;					// Timer 0 anhalten
-		TH0=0xF1;				// Timer 0 setzen (1ms)
-		TL0=0x99;
-		TF0=0;					// Überlauf-Flag zurücksetzen
-		TR0=1;					// Timer 0 starten
-		while (!TF0);
-		TF0=0;
-		TR0=0;
-		upkey|=UP;
-		downkey|=DOWN;
+	if (!upkey) UP=0;
+	if (!downkey) DOWN=0;
+
+	if(!upkey || !downkey) {
+		for (n=0;n<200;n++) {
+			TR0=0;					// Timer 0 anhalten
+			TH0=0xF1;				// Timer 0 setzen (1ms)
+			TL0=0x99;
+			TF0=0;					// Überlauf-Flag zurücksetzen
+			TR0=1;					// Timer 0 starten
+			while (!TF0);
+			TF0=0;
+			TR0=0;
+		}
 	}
+
+	UP=1;
+	DOWN=1;
+
 
 	if (editmode) {		// erster Tastendruck bewirkt nichts, geht nur in Editier-Modus
 		if (!upkey && solltemplcd<70) solltemplcd++;	// + Taste gedrückt
 		if (!downkey && solltemplcd>20) solltemplcd--;	// - Taste gedrückt
 	}
 	solltemplpc=solltemplcd;
-	if(!upkey || !downkey) editmode=1;
-
-	while(!DOWN || !UP);	// warten bis beide Tasten losgelassen
-
-	for (n=0;n<1;n++) {		// Preller beim loslassen überbrücken
-		TR0=0;					// Timer 0 anhalten
-		TH0=0;					// Timer 0 setzen
-		TL0=0;
-		TF0=0;					// Überlauf-Flag zurücksetzen
-		TR0=1;					// Timer 0 starten
-		while (!TF0);
-		TF0=0;
-		TR0=0;
+	if(!upkey || !downkey) {
+		editmode=1;
+		WRITE_DELAY_RECORD(9,1,0,timer+EDITTIMEOUT);
 	}
+
+	WRITE_DELAY_RECORD(8,1,0,timer+4);
 
 	interrupted=1;			// Flag setzen, dass unterbrochen wurde
 	KBCON=0;				// Interrupt-Flag löschen
@@ -643,6 +661,7 @@ void restart_app(void)		// Alle Applikations-Parameter zurücksetzen
 	P2M1=0x00;			// Port 2 - alle bidirektional
 	P2M2=0x00;
 	P2=0xFE;
+	PBCOM=0;			// Taster aktiv (gemeinsamer Anschluss der Taster auf GND)
 	
 	UP=1;
 	DOWN=1;
@@ -659,8 +678,10 @@ void restart_app(void)		// Alle Applikations-Parameter zurücksetzen
 
 	NIGHT=read_obj_value(2)&0x01;		// Nachtabsenkung
 	POLARITY=read_obj_value(11)&0x01;	// Heizen/Kühlen
-	BL=read_obj_value(12)&0x01;			// Backlight
 	
+	write_obj_value(12,0);				// Backlight
+	BL=0;
+
 
 	
 	
@@ -671,6 +692,13 @@ void restart_app(void)		// Alle Applikations-Parameter zurücksetzen
 
 	TASTER=1;					// LED aus
 
+	// feed watchdog
+	EA=0;
+	WFEED1=0xA5;
+	WFEED2=0x5A;
+	EA=1;
+
+
 	for (n=0;n<50;n++) {		// Warten bis Bus stabil
 		TR0=0;					// Timer 0 anhalten
 		TH0=eeprom[ADDRTAB+1];	// Timer 0 setzen mit phys. Adr. damit Geräte unterschiedlich beginnen zu senden
@@ -679,6 +707,12 @@ void restart_app(void)		// Alle Applikations-Parameter zurücksetzen
 		TR0=1;					// Timer 0 starten
 		while(!TF0);
 	}
+
+	// feed watchdog
+	EA=0;
+	WFEED1=0xA5;
+	WFEED2=0x5A;
+	EA=1;
 
 
 	for (m=0;m<3;m++) {
@@ -689,16 +723,24 @@ void restart_app(void)		// Alle Applikations-Parameter zurücksetzen
 			TF0=0;					// Überlauf-Flag zurücksetzen
 			TR0=1;					// Timer 0 starten
 			while(!TF0);
+			// feed watchdog
+			EA=0;
+			WFEED1=0xA5;
+			WFEED2=0x5A;
+			EA=1;
 		}
 	}
 	TR0=0;
 	
+
+
+
 	lastrly=0;							// Schaltausgang zunächst aus
 	write_obj_value(6,0);
 	send_obj_value(6);
 	
 	// Init DAC 0
-	PT0AD=0x22; 		// disable digital inputs P0_5 & P0_2
+	PT0AD=0x24; 		// disable digital inputs P0_5 & P0_2
 	P2M1|=0x01;			// P2.0 high impedance
 	P2M2&=0xFE;
 	ADMODB|=0x04; 		// enable DAC0

@@ -1,8 +1,8 @@
 
-#ifndef FB_APP_KOMBI
-#define FB_APP_KOMBI
+#ifndef FB_APP_ERT
+#define FB_APP_ERT
 
-//#define V24		// 24V Version, auskommentieren für 230V Version
+#define V24		// 24V Version, auskommentieren für 230V Version
 
 #define	TEMPCORR			0xCA	// Abgleichwert für Temperaturanzeige (-127 bis 128)
 #define FUNKTION			0xCB	// schalten oder wert senden
@@ -66,6 +66,7 @@
 #define UP 			P0_4
 #define DOWN		P0_6
 #define BL			P0_7
+#define PBCOM		P2_2
 #define POLARITY	P2_4
 #define RESET		P2_5
 
@@ -73,7 +74,7 @@
 
 
 
-#define EDITTIMEOUT	22				// Zeit bis Editmode beendet wird
+#define EDITTIMEOUT	37				// Zeit bis Editmode beendet wird
 
 
 extern unsigned int timer;			// Timer für Schaltverzögerungen, wird alle 130us hochgezählt
