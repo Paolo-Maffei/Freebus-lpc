@@ -15,7 +15,7 @@
 
 #define FB_APP_FT_C
 #include <P89LPC922.h>
-#include "../lib_LPC922/fb_lpc922.h"
+#include "../lib_lpc922/fb_lpc922.h"
 #include "fb_app_ft.h"
 
 //#define ROUTERMODE		// 115200,n,8,1 (auskommentieren für 19200,e,8,1)
@@ -283,7 +283,7 @@ void process_telegram(void)		// EIB telegram received
 {
 	unsigned char n;	
 	//bit ack;
-
+	tel_arrived=0;
 	if (switch_mode==0x05)		// busmonitor
 	{
 		//ack=get_ack();

@@ -26,64 +26,29 @@
 #include "../lib_LPC922/fb_lpc922.h"
 #include "fb_app_ft.h"
 
-/** 
-* Timer 0 stoppen, setzen und starten (Timer wird mit CCLK/2 betrieben)
-*
-*
-* \param deltime
-*/
-void set_timer0(unsigned int deltime)
-{
-  TR0=0;                    // Timer 0 anhalten
-  deltime=0xFFFF-deltime;
-  TH0=deltime>>8;           // Timer 0 setzen 
-  TL0=deltime;  
-  TF0=0;                    // Überlauf-Flag zuruecksetzen
-  TR0=1;                    // Timer 0 starten
-}
-
-
 
 
 void main(void)
 { 
   unsigned char n;
-
-  
   
 	restart_hw();				// Hardware zurücksetzen
-	for (n=0;n<50;n++) {
-		set_timer0(0xFFFF);					// Warten bis Bus stabil
+	for (n=0;n<50;n++) {		// Warten bis Bus stabil, nach Busspannungswiederkehr
+		TR0=0;					// Timer 0 anhalten
+		TH0=eeprom[ADDRTAB+1];	// Timer 0 setzen mit phys. Adr. damit Geräte unterschiedlich beginnen zu senden
+		TL0=eeprom[ADDRTAB+2];
+		TF0=0;					// Überlauf-Flag zurücksetzen
+		TR0=1;					// Timer 0 starten
 		while(!TF0);
 	}
 	restart_app();			// Anwendungsspezifische Einstellungen zurücksetzen
-  
-  
+
   	do  {
-            n = rsin_stat;
-            rsin_stat = RSIN_NONE;
-            if ( n == RSIN_VARFRAME ) ft_process_var_frame();
-            if ( n == RSIN_FIXFRAME ) ft_process_fix_frame();
-/*
-    		if (rsinpos>0) {
-	  
-  			if (rsin[rsinpos-1]==0x16 && rsinpos==(rsin[1]+6)) ft_process_var_frame();
-  			if (rsin[0]==0x10 && rsinpos==4) ft_process_fix_frame();
-
-  			if (TF0) {		// timeout, frame verwerfen
-  				rsinpos=0;
-  				TR0=0;
-  				TF0=0;
-  			}
-*/
-            if (tel_arrived) {
-                tel_arrived=0;
-                //if ( (telegramm[1]!=eeprom[ADDRTAB+1]) ||
-                //     (telegramm[2]!=eeprom[ADDRTAB+2]) )
-                   process_telegram();      // don't process self sent telegrams
-            }
-  		
-
+		n = rsin_stat;
+		rsin_stat = RSIN_NONE;
+		if ( n == RSIN_VARFRAME ) ft_process_var_frame();
+		if ( n == RSIN_FIXFRAME ) ft_process_fix_frame();
+		if (tel_arrived) process_telegram();
   	} while(1);
 }
 
