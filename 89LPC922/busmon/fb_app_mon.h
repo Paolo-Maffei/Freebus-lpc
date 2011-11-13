@@ -16,6 +16,7 @@
 #ifndef FB_APP_BM
 #define FB_APP_BM
 
+void ft_send_char(unsigned char sc);
 void restart_app(void);		// Alle Applikations-Parameter zurücksetzen
 void write_value_req(void);	// entfällt
 void read_value_req(void);	// entfällt
