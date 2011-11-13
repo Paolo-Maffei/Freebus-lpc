@@ -40,7 +40,7 @@
 * 		2.03	Parameter zyklisches Senden in der restart abgefragt
 * 		2.04	Klammerfehler bei zykl. senden behoben (ging bei 3min,10min, etc. nicht)
 * 				ADC Routine wird bei interrupted unterbrochen um Programmieren zu erleichtern
-* 
+* 		2.05	mit lib Version 1.24 compiliert
 */
 
 
@@ -75,7 +75,7 @@ void main(void)
 		TL0=eeprom[ADDRTAB+2];
 		TF0=0;					// Überlauf-Flag zurücksetzen
 		TR0=1;					// Timer 0 starten
-	while(!TF0);
+		while(!TF0);
 	}
 
 	restart_app();				// Anwendungsspezifische Einstellungen zuruecksetzen
@@ -227,6 +227,7 @@ void main(void)
 			status60^=0x81;			// Prog-Bit und Parity-Bit im system_state toggeln
 		}
 		TASTER=!(status60 & 0x01);	// LED entsprechend Prog-Bit schalten (low=LED an)
+		if (fb_state==0) for(n=0;n<100;n++) {}	// etwas zeit zum leuchten, wenn Hauptschleife nicht aktiv
 	} while(1);
 }
 
