@@ -49,7 +49,7 @@
 //! Betriebsart
 #define CFG_CONTROL_MODE                (eeprom[LOC_CONTROL_MODE] & 0x07)
 //! Regelverhalten ...
-#define CFG_CONTROLLER_TYPE             ((eeprom[LOC_CONTROLLER_TYPE] & 0x01) & ((eeprom[LOC_CONTROLLER_TYPE] & 0x40) >> 5))
+#define CFG_CONTROLLER_TYPE             ((eeprom[LOC_CONTROLLER_TYPE] & 0x01) | ((eeprom[LOC_CONTROLLER_TYPE] & 0x40) >> 5))
 //! Regelparameter PI Proportionalbereich
 #define CFG_CONTROLLER_PI_PROP          (eeprom[LOC_CONTROLLER_PI_PROP])
 //! Regelparameter PI Nachstellzeit

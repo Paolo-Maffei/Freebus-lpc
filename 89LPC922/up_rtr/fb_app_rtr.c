@@ -110,10 +110,11 @@ void app_process(void)
 void rtc_process(void)
 {
     // wird von 0 bis 153 hochgezählt, danach sind ca. 10 Sekunden vergangen
-    static int sec10_counter;
+    static int sec10_counter = 0;
+
     // prüft gemäß Konfiguration ob die Berechnung des Reglers durchgeführt werden muss;
     // zählt rückwärts, wenn der Wert 0 ist, wird die Berechnung durchgeführt
-    static int controller_counter;
+    static int controller_counter = 0;
 
     CHECK_10S_COUNTER(sec10_counter);
 
@@ -130,7 +131,10 @@ void rtc_process(void)
         {
             g_do_controller = 1;
             // counter zurücksetzen
-            controller_counter = CFG_CONTROLLER_CYCLE - 1; // es dauert 10 Sekunden zum ersten dekrementieren
+            if (CFG_CONTROLLER_CYCLE != 0)
+                controller_counter = CFG_CONTROLLER_CYCLE - 1; // es dauert 10 Sekunden zum ersten dekrementieren
+            else
+                controller_counter = 90 - 1; // wenn kein gültiger Wert vorliegt, Standardwert benutzen
             return;
         }
         else
@@ -402,6 +406,9 @@ void restart_app(void)
 
 #ifdef DEBUG
     rs_send_s("------------------------------------------------------\nUP RTR by semi\n\n");
+    rs_send_s(CFG_CONTROLLER_TYPE == 0 ? "PI-stetig\n" :
+                                                                                CFG_CONTROLLER_TYPE == 1 ? "PI-schaltend\n" :
+                                                                                CFG_CONTROLLER_TYPE == 2 ? "2P-stetig\n" : "2P-schaltend\n");
 #if 0
     rs_send_s("Betriebsart                           :");
     switch(CFG_CONTROL_MODE)
