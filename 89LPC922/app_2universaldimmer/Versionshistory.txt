@@ -1,3 +1,32 @@
+Version 1.7.1
+-------------
+17.2.2011
+- Timerqueue überarbeitet, kann jetzt mehrere Befehle
+
+
+Version 1.7.1
+-------------
+27.1.2011
+- Verzögerung der Nullpunkterkennung bei ANSchnitt in der Software korrigiert
+- Erste Tests, noch buggy
+
+
+Version 1.7.0
+-------------
+angepasst an neue Hardwareversion ohne eigenen I-Sensor, d.h.U-Sensor wird auch I-Sernsor wenn eingeschaltet
+
+
+Version 1.6.4
+-------------
+26.10.2010
+- fb_lib922.lib wieder entfernt und durch Quellcode ersetzt
+- fb_lpc922 in fb_lpc9xx umbenannt und so angepasst, dass mit  #define LPC936 für den LPC936 compiliert wird
+   d.h. eeprom und userram wandern weiter nach hinten
+- 2 buildkonfigurationen angelegt:
+     + Release922  Ausgabe: Universaldimmer922.hex
+     + Release936  Ausgabe: Universaldimmer936.hex   Parameter -DLPC936 an SDCC übergeben
+
+
 Version 1.6.3
 -------------
 12.9.2010
