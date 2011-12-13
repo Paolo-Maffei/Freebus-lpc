@@ -286,6 +286,7 @@ void read_value_req(void)
 {
     unsigned char   objno, objflags;
     int             objvalue;
+    operating_mode  mode;
 
 #ifdef DEBUG
 //    rs_send_s("read_value_req: ");
@@ -310,11 +311,20 @@ void read_value_req(void)
         switch (objno)
         {
             case OBJNR_KOMFORTBETRIEB:
+                mode = get_mode();
+                send_value(1, objno, mode == om_komfort);
+                break;
             case OBJNR_NACHTBETRIEB:
+                mode = get_mode();
+                send_value(1, objno, mode == om_nacht);
+                break;
             case OBJNR_FROSTSCHUTZ:
+                mode = get_mode();
+                send_value(1, objno, mode == om_frost);
+                break;
             case OBJNR_STANDBY:
-            case OBJNR_BASIS_SOLLWERT:
-                // -> kann nicht gelesen werden
+                mode = get_mode();
+                send_value(1, objno, mode == om_standby);
                 break;
 
             case OBJNR_TASTER:
@@ -347,6 +357,15 @@ void read_value_req(void)
 
             case OBJNR_STATUS:
                 send_obj_status();
+                break;
+
+            case OBJNR_BASIS_SOLLWERT:
+                // der Basis-Sollwert wird mit einer Auflösung von 1 Grad gespeichert
+                objvalue = read_obj_value(OBJNR_BASIS_SOLLWERT) * 100;
+                // ... in EIS5 umwandeln ...
+                objvalue = temp_to_eis5(objvalue);
+                // ... und senden
+                send_value(1, OBJNR_BASIS_SOLLWERT, objvalue);
                 break;
         }
     }

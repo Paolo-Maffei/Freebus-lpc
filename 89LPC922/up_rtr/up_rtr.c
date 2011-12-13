@@ -14,6 +14,8 @@
  */
 
 // Versionen:	1.00	erste Version
+// Versionen:   1.01    - Modi Komfort, Nacht, Frostschutz und Standby können abgefragt werden
+//                      - Basis-Sollwert kann abgefragt werden
 
 // unterstützte Funktionen:
 // [X] - Betriebsart Heizen
