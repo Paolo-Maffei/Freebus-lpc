@@ -39,6 +39,12 @@
 // ausgeführt werden müssen
 #define CHECK_DO(do_val) if (do_val == 1 && do_val--)
 
+// wandelt den operating mode in das passende Kommunikationsobjekt um
+#define GET_OBJNR_FROM_MODE(mode) mode == om_komfort ? OBJNR_KOMFORTBETRIEB :    \
+                                  mode == om_nacht   ? OBJNR_NACHTBETRIEB   :    \
+                                  mode == om_frost   ? OBJNR_FROSTSCHUTZ    :    \
+                                  mode == om_standby ? OBJNR_STANDBY        : OBJNR_KOMFORTBETRIEB
+
 /*
  * typedefs
  */
@@ -68,6 +74,7 @@ operating_mode  get_mode();
 int             get_sollwert(void);
 void            controller_process(void);
 void            send_obj_status(void);
+void            send_sollwert(void);
 #ifdef DEBUG
 static void     dump_telegramm(void);
 #endif
@@ -269,11 +276,12 @@ void write_value_req(void)
                 // EIS 5 Format in Temperatur konvertieren
                 objvalue = eis5_to_temp(objvalue);
 
-                // workaround für krumme Temperaturwerte, z.B. 20,96 Grad
-                objvalue |= 0x04;
-
                 // permanent speichern, der Basis-Sollwert wird mit einer Auflösung von 1 Grad gespeichert
                 write_obj_value(OBJNR_BASIS_SOLLWERT, (objvalue + 50) / 100);
+
+                // den durch die Änderung des Basis-Sollwert geänderten aktuellen Sollwert auf den Bus
+                // senden
+                send_sollwert();
                 break;
         }
     }
@@ -332,12 +340,7 @@ void read_value_req(void)
                 break;
 
             case OBJNR_SOLLWERT:
-                // Sollwert abfragen ...
-                objvalue = get_sollwert();
-                // ... in EIS5 umwandeln ...
-                objvalue = temp_to_eis5(objvalue);
-                // ... und senden
-                send_value(1, OBJNR_SOLLWERT, objvalue);
+                send_sollwert();
                 break;
 
             case OBJNR_ISTWERT:
@@ -529,43 +532,20 @@ void send_value(unsigned char requested, unsigned char objno, unsigned int sval)
  */
 void set_mode(operating_mode mode)
 {
-    int v;
+    operating_mode mode_old;
 
-#ifdef DEBUG
-//    rs_send_s("set_mode: ");
-//    if (mode == om_komfort)     rs_send_s("komfort\n");
-//    if (mode == om_nacht)       rs_send_s("nacht\n");
-//    if (mode == om_frost)       rs_send_s("frost\n");
-//    if (mode == om_standby)     rs_send_s("standby\n");
-#endif
+    // prüfen ob sich der Mode geändert hat
+    mode_old = get_mode();
+    if (mode_old == mode)
+        return;
 
-    v = read_obj_value(OBJNR_KOMFORTBETRIEB);
-    if (   mode == om_komfort && v != 1 || mode != om_komfort && v == 1)
-    {
-        // Wert hat sich geändert, im eeprom ändern
-        write_obj_value(OBJNR_KOMFORTBETRIEB, mode == om_komfort);
-    }
+    // alten Mode deaktivierung ...
+    write_obj_value(GET_OBJNR_FROM_MODE(mode_old), 0);
+    // ... und neuen Mode aktivieren
+    write_obj_value(GET_OBJNR_FROM_MODE(mode),     1);
 
-    v = read_obj_value(OBJNR_NACHTBETRIEB);
-    if (   mode == om_nacht && v != 1 || mode != om_nacht && v == 1)
-    {
-        // Wert hat sich geändert, im eeprom ändern
-        write_obj_value(OBJNR_NACHTBETRIEB, mode == om_nacht);
-    }
-
-    v = read_obj_value(OBJNR_FROSTSCHUTZ);
-    if (   mode == om_frost && v != 1 || mode != om_frost && v == 1)
-    {
-        // Wert hat sich geändert, im eeprom ändern
-        write_obj_value(OBJNR_FROSTSCHUTZ, mode == om_frost);
-    }
-
-    v = read_obj_value(OBJNR_STANDBY);
-    if (   mode == om_standby && v != 1 || mode != om_standby && v == 1)
-    {
-        // Wert hat sich geändert, im eeprom ändern
-        write_obj_value(OBJNR_STANDBY, mode == om_standby);
-    }
+    // den durch die Mode-Änderung geänderten aktuellen Sollwert auf den Bus senden
+    send_sollwert();
 }
 
 /**
@@ -691,6 +671,21 @@ void send_obj_status(void)
 
         default: break;
     }
+}
+
+/**
+ * den aktuellen Sollwert auf den Bus senden
+ */
+void send_sollwert(void)
+{
+    int sollwert;
+
+    // Sollwert abfragen ...
+    sollwert = get_sollwert();
+    // ... in EIS5 umwandeln ...
+    sollwert = temp_to_eis5(sollwert);
+    // ... und senden
+    send_value(1, OBJNR_SOLLWERT, sollwert);
 }
 
 #ifdef DEBUG
