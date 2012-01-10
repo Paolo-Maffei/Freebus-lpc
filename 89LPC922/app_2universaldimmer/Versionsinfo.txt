@@ -1,7 +1,9 @@
-Universaldimmer.hex   Version 2.1 
+Universaldimmer.hex   Version 2.1
 --------------------------------
 
 genaue Änderungen siehe Versionshistory.txt
+
+pasend zur Hardwareversion 2.2
 
 Achtung: Ab version 1.6.0 ist die Ansteuerung der FETs invertiert, d.h.
 passt nur noch zu Hardware ab V1.4
