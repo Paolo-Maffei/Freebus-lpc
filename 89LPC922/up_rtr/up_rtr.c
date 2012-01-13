@@ -13,10 +13,11 @@
  *
  */
 
-// Versionen:	1.00	erste Version
-// Versionen:   1.01    - Modi Komfort, Nacht, Frostschutz und Standby können abgefragt werden
+// Versionen:	1.00	- erste Version
+//              1.01    - Modi Komfort, Nacht, Frostschutz und Standby können abgefragt werden
 //                      - Basis-Sollwert kann abgefragt werden
-
+//              1.02    - bei Änderung des aktuellen Sollwertes diesen automatisch auf den Bus senden
+//
 // unterstützte Funktionen:
 // [X] - Betriebsart Heizen
 // [X] - Regelverhalten für Heizen: PI/2Punkt schaltend/stetig
