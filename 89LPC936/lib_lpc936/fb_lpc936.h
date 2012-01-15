@@ -89,6 +89,7 @@ extern volatile __xdata unsigned char tx_buffer[8];
 extern volatile unsigned char telpos;			// Zeiger auf naechste Position im Array Telegramm
 extern volatile bit interrupted;		// wird durch interrupt-routine gesetzt. so kann eine andere routine pruefen, ob sie unterbrochen wurde
 extern volatile unsigned char fb_state;
+extern volatile bit connected;
 extern volatile bit ack, nack, tel_arrived, tel_sent, auto_ack;
 extern volatile bit send_ack, send_nack, transparency;
 extern volatile unsigned char timeout_count, tx_nextwrite, tx_nextsend;
