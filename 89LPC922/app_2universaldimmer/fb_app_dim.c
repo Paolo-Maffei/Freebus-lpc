@@ -44,6 +44,10 @@ __idata byte einschalthelligkeit[AnzahlKanaele];	// parametr. Einschalthelligkei
 __idata byte anspringen[AnzahlKanaele];          	// parametriert: andimmen (0) oder anspringen (1)
 __idata byte sperren[AnzahlKanaele];             	// parametrierte Sperren    1=sperren
 __idata uint dimmgeschwindikeit[AnzahlKanaele];		// parametrierte Dimmgeschwindigkeit
+__idata uint softEinGeschwindikeit[AnzahlKanaele];	// parametrierte Dimmgeschwindigkeit Soft-Ein
+__idata uint softAusGeschwindikeit[AnzahlKanaele];	// parametrierte Dimmgeschwindigkeit Soft-Aus
+__idata uint softEin[AnzahlKanaele];				// Soft-Ein aktiv
+__idata uint softAus[AnzahlKanaele];				// Soft-Aus aktiv
 __idata volatile byte IstKurzschluss[2];			//
 __idata volatile byte IstSpannungsausfall[2];		//
 
@@ -62,13 +66,25 @@ void restart_app(void)		// Alle Applikations-Parameter zurücksetzen
 	SET_BIT(IP0H,3);
 
 	ud_init();	// Dimmer initialisieren
-	anspringen[0]=(eeprom[0xC6]&(1<<3))>>3;
-	anspringen[1]=(eeprom[0xC6]&(1<<7))>>7;
+	// Einschaltwerte
 	einschalthelligkeit[0]=eeprom[0xC4]&0x0f;       //wert 0 - 0x0c
 	einschalthelligkeit[1]=eeprom[0xC4]>>4;         //wert 0 - 0x0c
-
+	// Dimmmodus
+	anspringen[0]=(eeprom[0xC6]&(1<<3))>>3;
+	anspringen[1]=(eeprom[0xC6]&(1<<7))>>7;
 	dimmgeschwindikeit[0]=basis[(eeprom[0xC6]&0x07)]*eeprom[0xC8];
 	dimmgeschwindikeit[1]=basis[(eeprom[0xC6]>>4)&0x07]*eeprom[0xC9];
+	// Soft-Ein
+	softEin[0]=(eeprom[0xD3]!=0);
+	softEin[1]=(eeprom[0xD4]!=0);
+	softEinGeschwindikeit[0]=basis[(eeprom[0xD2]&0x07)]*eeprom[0xD3];
+	softEinGeschwindikeit[1]=basis[(eeprom[0xD2]>>4)&0x07]*eeprom[0xD4];
+	// Soft-Aus
+	softAus[0]=(eeprom[0xD7]!=0);
+	softAus[1]=(eeprom[0xD8]!=0);
+	softAusGeschwindikeit[0]=basis[(eeprom[0xD6]&0x07)]*eeprom[0xD7];
+	softAusGeschwindikeit[1]=basis[(eeprom[0xD6]>>4)&0x07]*eeprom[0xD8];
+
 	sperren[KANAL1]=false;
 	sperren[KANAL2]=false;
 	RueckmeldungPending[KANAL1]=0;
@@ -84,8 +100,8 @@ void restart_app(void)		// Alle Applikations-Parameter zurücksetzen
 	SwitchDimmer(KANAL1,HelligkeitFromStufe(eeprom[0xe2]&0x0f,0),true,1);
 	SwitchDimmer(KANAL2,HelligkeitFromStufe((eeprom[0xe2]>>4)&0x0f,1),true,1);
 // @toto test
-	SwitchDimmer(KANAL1,0,true,1);
-	SwitchDimmer(KANAL2,0,true,1);
+	//SwitchDimmer(KANAL1,0,true,1);
+	//SwitchDimmer(KANAL2,0,true,1);
 
 	// EEprom initialisieren
 	EA=0;
@@ -131,13 +147,13 @@ unsigned long read_obj_value(byte objno)
 
 	//@todo  Rückmeldung nur senden wenn parametriert
 	if (objno<2) return  dim_val_ist[objno]==0;		// Schalten
-	if (objno<4) return  0x22 ; 					//@todo test Dimmen
+	//if (objno<4) return  0x22 ; 					//@todo test Dimmen
 	if (objno<6) return  dim_val_ist[objno-4];		// Helligkeit
 	if (objno<8) return  dim_val_ist[objno-6]!=0;  	// Rückmeldung Schaltzustand
 	if (objno<10) return  dim_val_ist[objno-8];		// Rückmeldung Helligkeit
-	if (objno<12) return  111 ; 					//@todo test Rückmeldung Sperre
+	//if (objno<12) return  111 ; 					//@todo test Rückmeldung Sperre
 	if (objno<13) return userram[0xFF] ; 			//@todo Lichtszene1 Momentan rebootzähler
-	if (objno<14) return  113 ; 					//@todo Lichtszene2
+	//if (objno<14) return  113 ; 					//@todo Lichtszene2
 	if (objno<16) return  IstKurzschluss[objno-14];	//@todo test Kurzschluss
 	if (objno<18) return  IstSpannungsausfall[objno-16];	//@todo test Spannungsausfall
 	return 0x99;
@@ -222,14 +238,14 @@ void write_value_req(void)
         	  //Kanal 1+2
               if(dataw==0&&commObjectNumber==c && sperren[c]==0) //schaltobjekt  aus,
                 {
-            	  // @todo Softausfunktion implementieren
-            	  SwitchDimmer(c,0,true,dimmgeschwindikeit[c]);
+            	  // @todo Softausfunktion testen
+            	  SwitchDimmer(c,0,!softAus[c],softAusGeschwindikeit[c]);
             	  RueckmeldungPending[c]=true;
                 }
               if(dataw==1&&commObjectNumber==c && sperren[c]==0) //schaltobjekt  EIN
                 {
-            	  // @todo Softeinfunktiion implementieren
-            	  SwitchDimmer(c,HelligkeitFromStufe(einschalthelligkeit[c],c),true,dimmgeschwindikeit[c]);
+            	  // @todo Softeinfunktiion testen
+            	  SwitchDimmer(c,HelligkeitFromStufe(einschalthelligkeit[c],c),!softEin[c],softEinGeschwindikeit[c]);
             	  RueckmeldungPending[c]=true;
                 }
               if(commObjectNumber==c+2 && sperren[c]==0)         //Dimmobjekt

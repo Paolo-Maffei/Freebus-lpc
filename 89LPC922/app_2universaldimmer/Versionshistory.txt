@@ -1,3 +1,10 @@
+Version 2.2
+-------------
+31.1.2012
+- Soft-Ein hinzugefügt
+- Soft-Aus hinzugefügt
+
+
 Version 2.1.1
 -------------
 Kopie von 2.1   7.1.2012

@@ -1,4 +1,4 @@
-Universaldimmer.hex   Version 2.1.1
+Universaldimmer.hex   Version 2.2
 ---------------------------------
 
 genaue Änderungen siehe Versionshistory.txt
@@ -18,6 +18,8 @@ passt nur noch zu Hardware ab V1.4
     o Einschalthelligkeit
     o anspringen/andimmen
     o Dimmgeschwindigkeit
+    o Soft-Ein
+    o Soft-Aus
 - ABschnittsdimmer
 - ANschnittsdimmer funktionsfähig aber nicht getestet!!!
        siehe Versionshistory
