@@ -5,7 +5,7 @@
  *   / __/ / _, _/ /___/ /___/ /_/ / /_/ /___/ / 
  *  /_/   /_/ |_/_____/_____/_____/\____//____/  
  *                                      
- *  Copyright (c) 2008-2011 Andreas Krebs <kubi@krebsworld.de>
+ *  Copyright (c) 2008-2012 Andreas Krebs <kubi@krebsworld.de>
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License version 2 as
@@ -62,20 +62,21 @@ unsigned char blocked;		// Sperrung der 8 Ausgänge (1=gesperrt)
 unsigned char logicstate;	// Zustand der Verknüpfungen pro Ausgang
 bit delay_toggle;			// um nur jedes 2. Mal die delay routine auszuführen
 bit portchanged;
+unsigned char rm_send;		// die von der main zu sendenden Rückmeldungen
 
 
 
 
-void write_value_req(void)				// Ausgänge schalten gemäß EIS 1 Protokoll (an/aus)
+void write_value_req(void) 				// Ausgänge schalten gemäß EIS 1 Protokoll (an/aus)
 {
-  unsigned char objno,objflags,assno,n,gaposh,zfout,zftyp;
+  unsigned char objno,objflags,assno,n,gaposh,zfout,zftyp, gapos;
   unsigned char blockstart, blockend, block_polarity;
   unsigned char obj_bitpattern, zf_bitpattern;
  
     gaposh=0;
 
-    //gapos=gapos_in_gat(telegramm[3],telegramm[4]);	// Position der Gruppenadresse in der Adresstabelle
-    if (gapos_in_gat(telegramm[3],telegramm[4])!=0xFF)					// =0xFF falls nicht vorhanden
+    gapos=gapos_in_gat(telegramm[3],telegramm[4]);	// Position der Gruppenadresse in der Adresstabelle
+    if (gapos!=0xFF)					// =0xFF falls nicht vorhanden
     {
 	  //atp=eeprom[ASSOCTABPTR];			// Start Association Table
       assno=eeprom[eeprom[ASSOCTABPTR]];				// Erster Eintrag = Anzahl Einträge
@@ -83,7 +84,7 @@ void write_value_req(void)				// Ausgänge schalten gemäß EIS 1 Protokoll (an/aus
       for(n=0;n<assno;n++)				// Schleife über alle Einträge in der Ass-Table, denn es könnten mehrere Objekte (Pins) der gleichen Gruppenadresse zugeordnet sein
       {
         gaposh=eeprom[eeprom[ASSOCTABPTR]+1+(n*2)];
-        if(gapos_in_gat(telegramm[3],telegramm[4])==gaposh)					// Wenn Positionsnummer übereinstimmt
+        if(gapos==gaposh)					// Wenn Positionsnummer übereinstimmt
         {
           objno=eeprom[eeprom[ASSOCTABPTR]+2+(n*2)];				// Objektnummer
           objflags=read_objflags(objno);			// Objekt Flags lesen
@@ -197,7 +198,7 @@ void read_value_req(void)
 }
 
 
-unsigned long read_obj_value(unsigned char objno)	// gibt den Wert eines Objektes zurueck
+unsigned long read_obj_value(unsigned char objno) 	// gibt den Wert eines Objektes zurueck
 {
 	unsigned char ret_val=0;
 
@@ -309,7 +310,7 @@ void object_schalten(unsigned char objno, bit objstate)	// Schaltet einen Ausgan
 
 
 
-void delay_timer(void)	// zählt alle 130ms die Variable Timer hoch und prüft Queue
+void delay_timer(void)	// zählt alle 65ms die Variable Timer hoch und prüft Queue
 {
 	unsigned char objno,port_pattern,delay_zeit,delay_onoff,delay_base,n,m;
 	unsigned int timerflags;
@@ -510,7 +511,7 @@ void port_schalten(void)		// Schaltet die Ports mit PWM, DUTY ist Pulsverhältnis
 	rm_state=portbuffer ^ eeprom[RMINV];	// Rückmeldeobjekte setzen
 	for (n=0;n<8;n++) {	// Rückmeldung wenn ein Ausgag sich geändert hat
 		pattern=1<<n;
-		if((portbuffer&pattern)!=(oldportbuffer&pattern)) send_obj_value(n+12);
+		if((portbuffer&pattern)!=(oldportbuffer&pattern)) rm_send|=pattern;		//send_obj_value(n+12);
 	}
 
 	oldportbuffer=portbuffer;
@@ -641,18 +642,44 @@ void spi_2_out(unsigned int daten){
 
 void bus_return(void)		// Aktionen bei Busspannungswiederkehr
 {
-	unsigned char n;
+	unsigned char n, bw, bwh, pattern;
+
+	portbuffer=eeprom[PORTSAVE];	// Verhalten nach Busspannungs-Wiederkehr
+
+	bw=eeprom[0xF6];
+	for(n=0;n<=3;n++) {			// Ausgänge 1-4
+		bwh=(bw>>(2*n))&0x03;
+		if(bwh==0x01)  portbuffer=portbuffer & (0xFF-(0x01<<n));
+		if(bwh==0x02)  portbuffer=portbuffer | (0x01<<n);
+	}
+
+#ifdef MAX_PORTS_8
+	bw=eeprom[0xF7];
+	for(n=0;n<=3;n++) {			// Ausgänge 5-8
+		bwh=(bw>>(2*n))&0x03;
+		if(bwh==0x01)  portbuffer=portbuffer & (0xFF-(0x01<<(n+4)));
+		if(bwh==0x02)  portbuffer=portbuffer | (0x01<<(n+4));
+	}
+#endif
+
+	oldportbuffer=0; 	// auf 0 setzen, da sonst kein Vollstrom aktiviert wird
+	portchanged=1;		// Post hinterlegen damit in delaytimer nach portschalten springt
+
+
+	rm_state=portbuffer ^ eeprom[RMINV];	// Rückmeldeobjekte setzen
+
 
 	// Rückmeldung bei Busspannungswiederkehr
-	for (n=12;n<20;n++) {
-		send_obj_value(n);
+
+	for (n=0;n<8;n++) {	// Rückmeldung nur für Objekte mit Wert 0, da Wert 1 in normelem schalten eh gesendet wird
+		pattern=1<<n;
+		if((~portbuffer)&pattern) send_obj_value(n+12);
 	}
 }
 
 
-void restart_app(void)		// Alle Applikations-Parameter zurücksetzen
+void restart_app(void) 		// Alle Applikations-Parameter zurücksetzen
 {
-	unsigned char bw,bwh,n;
 #ifdef HAND
 	Tval=0x00;
 #endif
@@ -665,29 +692,6 @@ void restart_app(void)		// Alle Applikations-Parameter zurücksetzen
 	P0M2= 0x0F;
 #endif	
  
-	portbuffer=eeprom[PORTSAVE];	// Verhalten nach Busspannungs-Wiederkehr
-
-	bw=eeprom[0xF6];
-	for(n=0;n<=3;n++) {			// Ausgänge 1-4
-		bwh=(bw>>(2*n))&0x03; 
-		if(bwh==0x01)  portbuffer=portbuffer & (0xFF-(0x01<<n));
-		if(bwh==0x02)  portbuffer=portbuffer | (0x01<<n);
-	}
-	
-#ifdef MAX_PORTS_8
-	bw=eeprom[0xF7];
-	for(n=0;n<=3;n++) {			// Ausgänge 5-8
-		bwh=(bw>>(2*n))&0x03; 
-		if(bwh==0x01)  portbuffer=portbuffer & (0xFF-(0x01<<(n+4)));
-		if(bwh==0x02)  portbuffer=portbuffer | (0x01<<(n+4));
-	}
-#endif
-	
-	oldportbuffer=0; 	// auf 0 setzen, da sonst kein Vollstrom aktiviert wird
-	portchanged=1;		// Post hinterlegen damit in delaytimer nach portschalten springt
-
-
-	rm_state=portbuffer ^ eeprom[RMINV];	// Rückmeldeobjekte setzen
 
 #ifdef SPIBISTAB
 	PWM=1;

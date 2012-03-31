@@ -12,6 +12,7 @@
  *  published by the Free Software Foundation.
  *
  */
+
 /**
 * @file   fb_out.c
 * @author Andreas Krebs <kubi@krebsworld.de>
@@ -67,18 +68,13 @@
 *   3.33	Auf lib Version 1.22 f.f. angepasst (tel_sent, rtc- und timer-funktion)
 *	3.34	Trimfunktion via RS 600bd.(c + - w) version (v) und Type (t) abrufbar. 
 			progmode(p) relaise toggeln(ziffer 1-8)
-
-* @todo:
-	- Prio beim Senden implementieren \n
-	- Zwangsstellungsobjekte implementieren \n
+*   3.35	Fehler bei Rückmeldung und bei eeprom flashen behoben, neue LIB
 */
 
 
 #include <P89LPC922.h>
 #include "../lib_lpc922/fb_lpc922.h"
 #include "fb_app_out.h"
-
-#include "../com/fb_rs232.h"
 #include"../com/watchdog.h"
 
 /** 
@@ -116,18 +112,18 @@
 		#endif
 	#endif
 #endif
-#define VERSION 34
+#define VERSION 35
 
 void main(void)
 { 
-	unsigned char n,cmd;
+	unsigned char n,cmd,tasterpegel=0;
 	signed char cal;
 	static __code signed char __at 0x1BFF trimsave;
-
-	__bit wduf;
+	unsigned char rm_count=0;
+	__bit wduf,tastergetoggelt=0;
 	wduf=WDCON&0x02;
 	restart_hw();							// Hardware zuruecksetzen
-// im folgendem wird der watchdof underflow abgefragt und mit gedrücktem Progtaster
+// im folgendem wird der watchdog underflow abgefragt und mit gedrücktem Progtaster
 // ein resetten der cal Variable veranlasst um wieder per rs232 trimmen zu können.	
 	TASTER=1;
 	if(!TASTER && wduf)cal=0;
@@ -148,12 +144,22 @@ void main(void)
 	watchdog_start();
 	restart_app();							// Anwendungsspezifische Einstellungen zuruecksetzen
 	if(!wduf)bus_return();							// Aktionen bei Busspannungswiederkehr
-	rs_init(6);
-	rs_send(0x55);
+
+	//...rs_init...(6);im folgenden direkt:
+	BRGCON&=0xFE;	// Baudrate Generator stoppen
+	P1M1&=0xFC;		// RX und TX auf bidirectional setzen
+	P1M2&=0xFC;
+	SCON=0x50;		// Mode 1, receive enable
+	SSTAT|=0xE0;	// TI wird am Ende des Stopbits gesetzt und Interrupt nur bei RX und double TX buffer an
+	BRGCON|=0x02;	// Baudrate Generator verwenden aber noch gestoppt
+	BRGR1=0x2F;		// Baudrate = cclk/((BRGR1,BRGR0)+16)
+	BRGR0=0xF0;		// für 115200 0030 nehmen, autocal: 600bd= 0x2FF0
+	BRGCON|=0x01;	// Baudrate Generator starten
+	SBUF=0x55;
 	do  {
 		watchdog_feed();
 
-		if(eeprom[RUNSTATE]==0xFF) {	// nur wenn run-mode gesetzt
+		if(APPLICATION_RUN) {	// nur wenn run-mode gesetzt
 
 			if(RTCCON>=0x80) delay_timer();	// Realtime clock Ueberlauf
 			if(TF0 && (TMOD & 0x0F)==0x01) {	// Vollstrom für Relais ausschalten und wieder PWM ein
@@ -176,28 +182,52 @@ void main(void)
 
 			if (portchanged)port_schalten();	// Ausgänge schalten
 
+			// Rückmeldungen senden
+			if(rm_send) {	// wenn nichts zu senden ist keine Zeit vertrödeln
+				if(rm_send & (1<<rm_count)) {
+					if(send_obj_value(rm_count + 12)) {	// falls erfolgreich, dann nächste
+						rm_send&=(0xFF-(1<<rm_count));
+						rm_count++;
+						rm_count&=0x07;
+					}
+				}
+				else {	// RM sollte nicht gesendet werden
+					rm_count++;
+					rm_count&=0x07;
+				}
+			}
+			else rm_count=0;	// Immer mal wieder auf Null setzen, damit Reihenfolge von 1 bis 8 geht
+
+
 			// portbuffer flashen, Abbruch durch ext-int wird akzeptiert und später neu probiert
 			// T1-int wird solange abgeschaltet, timeout_count wird ggf. um 4ms (flashzeit) reduziert
-			if (fb_state==0 && portbuffer!=eeprom[PORTSAVE]) {
-				ET1=0;
+			if (fb_state==0 && (TH1<0XC0) && (!wait_for_ack)&& portbuffer!=eeprom[PORTSAVE]) {
 				START_WRITECYCLE;
 				WRITE_BYTE(0x01,PORTSAVE,portbuffer);
 				STOP_WRITECYCLE;
-				if (timeout_count>120) timeout_count-=120; else timeout_count=0;
-				ET1=1;
 			}
-
-		}
+		}// end if(runstate...
+		
+		// Telegrammverarbeitung..
 		if (tel_arrived || tel_sent) {
 			tel_arrived=0;
 			tel_sent=0;
 			process_tel();
 		}
+		else {
+			for(n=0;n<100;n++);	// falls Hauptroutine keine Zeit verbraucht, der PROG LED etwas Zeit geben, damit sie auch leuchten kann
+		}
 
+
+		// Eingehendes Terminal Kommando verarbeiten...
 		if (RI){
 			RI=0;
 			cmd=SBUF;
-			if(cmd=='c')rs_send(0x55);
+			if(cmd=='c'){
+				while(!TI);
+				TI=0;
+				SBUF=0x55;
+			}
 			if(cmd=='+'){
 				TRIM--;
 				cal--;
@@ -216,57 +246,36 @@ void main(void)
 				EA=1;				//int wieder freigeben
 			}
 			if(cmd=='p')status60^=0x81;	// Prog-Bit und Parity-Bit im system_state toggeln
-			if(cmd=='v')rs_send(VERSION);
-			if(cmd=='t')rs_send(TYPE);
+			if(cmd=='v'){
+				while(!TI);
+				TI=0;
+				SBUF=VERSION;
+			}
+			if(cmd=='t'){
+				while(!TI);
+				TI=0;
+				SBUF=TYPE;
+			}
 			if(cmd >=49 && cmd <= 56){
 				portbuffer = portbuffer ^ (0x01<< (cmd-49));
 				port_schalten();
 			}
-		}
+		}//end if(RI...
 		
 		TASTER=1;				// Pin als Eingang schalten um Taster abzufragen
-		if(!TASTER) {				// Taster gedrückt
-			for(n=0;n<100;n++) {}	// Entprell-Zeit
-			n=0;
-			while(!TASTER)			// warten bis Taster losgelassen
-			 {
-				while (RTCCON<0x80);
-				if (n<=254)	n++;
-				RTCCON=0x60;	// Real Time Clock stoppen
-				RTCH=0x01;		// Real Time Clock auf 8ms laden (0,008s x 7372800 / 128)
-				RTCL=0xCD;		// (RTC ist ein down-counter mit 128 bit prescaler und osc-clock)
-				RTCCON=0x61;	// ... und starten
-			 }
-				if(n<125){
-					status60^=0x81;	// Prog-Bit und Parity-Bit im system_state toggeln
-				}
-				else
-				{					//länger als 1 Sekunde
-/*					if (n<250){
-						cal++;//kürzer als 2 sekunden
-						TRIM+=1;
-					}
-					else{
-						cal--;
-						TRIM-=1;
-					}
-					EA=0;
-					START_WRITECYCLE;	//cal an 0x1bff schreiben
-					FMADRH= 0x1B;		
-					FMADRL= 0xFF; 
-					FMDATA=	cal; 
-					STOP_WRITECYCLE;
-					EA=1;				//int wieder freigeben
-*/				}
-				RTCCON=0x60;	// Real Time Clock stoppen
-				RTCH=0x0E;		// Real Time Clock auf 65ms laden (0,065 x 7372800 / 128)
-				RTCL=0xA0;		// (RTC ist ein down-counter mit 128 bit prescaler und osc-clock)
-				RTCCON=0x61;	// ... und starten
-
-
+		if(!TASTER){ // Taster gedrückt
+			if(tasterpegel<255)	tasterpegel++;
+			else{
+				if(!tastergetoggelt)status60^=0x81;	// Prog-Bit und Parity-Bit im system_state toggeln
+				tastergetoggelt=1;
+			}
+		}
+		else {
+			if(tasterpegel>0) tasterpegel--;
+			else tastergetoggelt=0;
 		}
 		TASTER=!(status60 & 0x01);	// LED entsprechend Prog-Bit schalten (low=LED an)
-		for(n=0;n<100;n++) {}	// falls Hauptroutine keine Zeit verbraucht, der LED etwas Zeit geben, damit sie auch leuchten kann
+
   } while(1);
 }
 

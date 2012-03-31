@@ -17,7 +17,7 @@
 #define FB_APP_OUT
 
 #define GS2					// GS1 für alte Relais-Schaltung, GS2 für neue
-#define HAND				// Handsteuerung aktiv (auskommentieren wenn nicht gewünscht)
+//#define HAND				// Handsteuerung aktiv (auskommentieren wenn nicht gewünscht)
 #define MAX_PORTS_8			// Anzahl Ausgänge (nur 4 oder 8 erlaubt)
 //#define SPIBISTAB			// Serielle Ausgabe für bistabile relaise aktivieren
 // Parameter-Adressen im EEPROM
@@ -54,21 +54,22 @@
 
 extern 	bit portchanged;// globale variable, sie ist 1 wenn sich portbuffer geändert hat
 extern unsigned char portbuffer;
+extern unsigned char rm_send;		// die von der main zu sendenden Rückmeldungen
 
 
 void write_delay_record(unsigned char objno, unsigned char delay_status, long delay_target);	// Schreibt die Schalt-Verzoegerungswerte ins Flash
 void clear_delay_record(unsigned char objno); // Loescht den Delay Eintrag
-void write_value_req(void);		// Hauptroutine für Ausgänge schalten gemäß EIS 1 Protokoll (an/aus)
-void read_value_req(void);
+void write_value_req(void) ;		// Hauptroutine für Ausgänge schalten gemäß EIS 1 Protokoll (an/aus)
+void read_value_req(void) ;
 void delay_timer(void);		// zählt alle 130ms die Variable Timer hoch und prüft Queue
 void port_schalten(void);	// Ausgänge schalten
 void object_schalten(unsigned char objno, bit objstate);	// Objekt schalten
 void spi_2_out(unsigned int daten);
 unsigned int sort_output(unsigned char portbuffer);
 void bus_return(void);		// Aktionen bei Busspannungswiederkehr
-void restart_app(void);		// Alle Applikations-Parameter zurücksetzen
+void restart_app(void) ;		// Alle Applikations-Parameter zurücksetzen
 
-unsigned long read_obj_value(unsigned char objno);	// gibt den Wert eines Objektes zurueck
+unsigned long read_obj_value(unsigned char objno) ;	// gibt den Wert eines Objektes zurueck
 void write_obj_value(unsigned char objno,unsigned int objvalue);	// schreibt den aktuellen Wert eines Objektes ins 'USERRAM'
 
 
