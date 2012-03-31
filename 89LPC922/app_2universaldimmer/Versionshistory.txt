@@ -1,3 +1,17 @@
+Version 2.2
+-------------
+31.1.2012
+- Soft-Ein hinzugefügt
+- Soft-Aus hinzugefügt
+
+
+Version 2.1.1
+-------------
+Kopie von 2.1   7.1.2012
+auf rp_lpc922.lib bzw. rp_lpc936.lib umgestellt
+im GIT veröffentlicht am 18.1.2012 22:30
+
+
 Version 2.1
 -----------
 7.1.2012

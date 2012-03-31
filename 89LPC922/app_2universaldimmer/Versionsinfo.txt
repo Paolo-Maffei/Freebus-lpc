@@ -1,9 +1,7 @@
-Universaldimmer.hex   Version 2.1
---------------------------------
+Universaldimmer.hex   Version 2.2
+---------------------------------
 
 genaue Änderungen siehe Versionshistory.txt
-
-pasend zur Hardwareversion 2.2
 
 Achtung: Ab version 1.6.0 ist die Ansteuerung der FETs invertiert, d.h.
 passt nur noch zu Hardware ab V1.4
@@ -20,6 +18,8 @@ passt nur noch zu Hardware ab V1.4
     o Einschalthelligkeit
     o anspringen/andimmen
     o Dimmgeschwindigkeit
+    o Soft-Ein
+    o Soft-Aus
 - ABschnittsdimmer
 - ANschnittsdimmer funktionsfähig aber nicht getestet!!!
        siehe Versionshistory
