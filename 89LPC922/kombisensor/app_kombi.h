@@ -61,10 +61,12 @@
 
 
 
-extern unsigned int timer;			// Timer für Schaltverzögerungen, wird alle 130us hochgezählt
+extern unsigned int timer, app_timer;			// Timer für Schaltverzögerungen, wird alle 130us hochgezählt
 extern int temp,lasttemp;
 extern unsigned int lux,lastlux;
-extern unsigned char overrun, dimmwert, underrun, sequence, lockatt, resend;
+extern __idata unsigned char overrun, dimmwert, underrun, sequence, lockatt, resend;
+int global_object_value_0_to_1[2];
+__bit global_object_value_3_to_10;
 
 
 extern struct delayrecord {
