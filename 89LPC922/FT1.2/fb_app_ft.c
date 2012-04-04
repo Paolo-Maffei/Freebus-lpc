@@ -5,7 +5,7 @@
  *   / __/ / _, _/ /___/ /___/ /_/ / /_/ /___/ / 
  *  /_/   /_/ |_/_____/_____/_____/\____//____/  
  *                                      
- *  Copyright (c) 2008-2011 Andreas Krebs <kubi@krebsworld.de>
+ *  Copyright (c) 2008-2012 Andreas Krebs <kubi@krebsworld.de>
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License version 2 as
@@ -55,16 +55,16 @@ global variables now defined only once in fb_app_ft.h unsing switch FB_APP_FT_C.
 
 #else
 
-//Routine mit even parity
+
 #define FT_SEND_CHAR(sc) \
-	TB8=0; \
-	for (n=0;n<8;n++) { \
-		if (sc & (1<<n)) TB8=!TB8; \
-	} \
 	SBUF=sc; \
+	TB8=0; \
+	for(n=1;n!=0;n=n<<1) { \
+		if (sc & n) TB8=!TB8; \
+	} \
 	while(!TI); \
-	TI=0; \
-	for(n=0;n<10;n++) TI=0;
+	TI=0;
+	//for(n=0;n<10;n++) TI=0;
 
 #endif
 
@@ -90,12 +90,9 @@ void ft_process_var_frame(void)
 				telegramm[2]=eeprom[ADDRTAB+2];	// PA low	
 				FT_SEND_L_DATA_CONF				// send confirmation frame
 
-				while(timeout_count!=0);         // wait till bus free
+				while(TR1);         // wait till bus free
 				init_tx();
-				//send_telegramm();
 
-				//IE1=0;
-				//EX1=1;
 				break;
 				
 			case 0xA9:		// PEI_switch_request	
@@ -111,7 +108,11 @@ void ft_process_var_frame(void)
 						if (rsin[9]==0x56 && rsin[10]==0x78 && rsin[11]==0x0A) switch_mode=0x04; // link layer
 					}
 				}
-				if (rsin[6]==0x90 && rsin[7]==0x18 && rsin[8]==0x34 && rsin[9]==0x56 && rsin[10]==0x78 && rsin[11]==0x0A) switch_mode=0x05; // busmonitor
+				if (rsin[6]==0x90 && rsin[7]==0x18 && rsin[8]==0x34 && rsin[9]==0x56 && rsin[10]==0x78 && rsin[11]==0x0A) {
+					switch_mode=0x05; // busmonitor mode
+					auto_ack=0;
+				}
+				else auto_ack=1;
 				break;
 				
 			case 0x43:		// T_connect_request
@@ -156,8 +157,8 @@ void ft_process_var_frame(void)
 							rsin[15]=(0x21);
 							ft_send_frame();
 							break;
-						case 0xD5:
-							if (rsin[14]==0x01 && rsin[15]==0x05 && rsin[16]==0x10 && rsin[17]==0x01)	// Read_Property_Value_Req
+						case 0xD5:	// Read_Property_Value_Req
+							if (rsin[14]==0x01 && rsin[15]==0x05 && rsin[16]==0x10 && rsin[17]==0x01)
 							{
 								FT_SEND_T_DATACONNECTED_CONF
 								FT_SET_HEADER(0x0F,0x89)
@@ -167,8 +168,8 @@ void ft_process_var_frame(void)
 								ft_send_frame();
 							}
 							break;
-						case 0xD7:
-							if (rsin[14]==0x01 && rsin[15]==0x05 && rsin[16]==0x10 && rsin[17]==0x01)	// Write_Property_Value_Req
+						case 0xD7:	// Write_Property_Value_Req
+							if (rsin[14]==0x01 && rsin[15]==0x05 && rsin[16]==0x10 && rsin[17]==0x01)
 							{
 								FT_SEND_T_DATACONNECTED_CONF
 								if (rsin[18]==0x01) property_5=0x02; else property_5=0x01;
@@ -279,23 +280,24 @@ void ft_send_Read_Memory_Res(unsigned char bytecount, unsigned char adrh, unsign
 
 
 
-void process_telegram(void)		// EIB telegram received
+void ft_process_telegram(void)		// EIB telegram received
 {
-	unsigned char n;	
-	//bit ack;
+	unsigned char n;
+
+
 	tel_arrived=0;
+	tel_was_acked=0;
+
 	if (switch_mode==0x05)		// busmonitor
 	{
-		//ack=get_ack();
 		FT_SET_HEADER((telegramm[5]&0x0F)+13,0x2B)
 		rsin[6]=0x01;	// status
 		rsin[7]=0x22;	// timestamp
 		rsin[8]=0x33;	// timestamp
 		for (n=0;n<(rsin[1]-4);n++) rsin[n+9]=telegramm[n];	// -1
 		ft_send_frame();
-		//last_tel=0;
-		
-		if (ack) {
+
+		if (tel_was_acked) {
 			FT_SET_HEADER(0x06,0x2B)
 			rsin[6]=0x01;
 			rsin[7]=0x33;	// timestamp
@@ -303,29 +305,19 @@ void process_telegram(void)		// EIB telegram received
 			rsin[9]=0xCC;
 			ft_send_frame();
 		}
-		//ET1=1;					// Interrupt für Timer 1 freigeben
-		//IE1=0;					// Interrupt 0 request zurücksetzen
-		//EX1=1;					// Interrupt 0 wieder freigeben
 	}
 	else {
-		//EX1=0;
-		//send_ack();
-		
-		
 		FT_SET_HEADER((telegramm[5]&0x0F)+9,0x29)	// +9
 		for (n=0;n<(rsin[1]-1);n++) rsin[n+6]=telegramm[n];	// -1
 		ft_send_frame();
-		//last_tel=0;
-		
-		//IE1=0;
-		//EX1=1;
+
 	}
 }
 
 
 void ft_send_frame(void)	// send a frame with variable length that is stored in rsin
 {
-	unsigned char b,n,repeat;
+	unsigned char b,n,repeat, frame_length, send_char;
 	unsigned int timeout;
 	
 	repeat=4;
@@ -333,12 +325,22 @@ void ft_send_frame(void)	// send a frame with variable length that is stored in 
 		rsin[rsin[1]+4]=0;
 		for (n=4;n<(rsin[1]+4);n++) rsin[rsin[1]+4]+=rsin[n];	// checksum berechnen
 		rsin[rsin[1]+5]=0x16;
-//	ES=0;
-		for (b=0;b<(rsin[1]+6);b++) {
-			FT_SEND_CHAR(rsin[b])
+
+		frame_length=rsin[1]+6;
+		send_char=rsin[0];
+		for (b=0;b<frame_length;b++) {
+			SBUF=send_char; \
+			TB8=0;
+			for(n=1;n!=0;n=n<<1) {
+				if (rsin[b] & n) TB8=!TB8;
+			}
+			if(ack) tel_was_acked=1;	// fals während dem seriellen Senden ein ACK am bus kam
+			send_char=rsin[b+1];
+			while(!TI);
+			TI=0;
 			
 		}
-//	ES=1;
+
 		timeout=10000;
 		while (timeout--) {		// give enough time to receive an ack
 			if (ft_ack) {			
@@ -507,7 +509,7 @@ void restart_app(void)		// Alle Applikations-Parameter zurücksetzen
 	  property_5=0x01;
 	  transparency=1;	// auch fremde Gruppentelegramme werden verarbeitet
 	  
-	 // auto_ack=0;		// telegramme nicht per ACK bestätigen
+	 //auto_ack=0;		// telegramme nicht per ACK bestätigen
 	  
 	  
 }

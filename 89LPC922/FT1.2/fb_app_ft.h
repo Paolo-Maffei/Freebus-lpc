@@ -5,7 +5,7 @@
  *   / __/ / _, _/ /___/ /___/ /_/ / /_/ /___/ / 
  *  /_/   /_/ |_/_____/_____/_____/\____//____/  
  *                                      
- *  Copyright (c) 2008 Andreas Krebs <kubi@krebsworld.de>
+ *  Copyright (c) 2008-2012 Andreas Krebs <kubi@krebsworld.de>
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License version 2 as
@@ -42,14 +42,14 @@
 
 FB_APP_EXTERN unsigned char rsin[32];
 FB_APP_EXTERN unsigned char rsinpos, switch_mode, rsin_stat;
-FB_APP_EXTERN bit fcb;
+FB_APP_EXTERN __bit fcb, tel_was_acked;
 FB_APP_EXTERN unsigned char property_5;
-FB_APP_EXTERN bit ft_ack;
+FB_APP_EXTERN __bit ft_ack;
 
 
 void ft_process_var_frame();
 void ft_process_fix_frame();
-void process_telegram(void);
+void ft_process_telegram(void);
 void PEI_identify_req(void);
 void ft_send_T_DataConnected_conf();
 void ft_send_L_Data_conf();
