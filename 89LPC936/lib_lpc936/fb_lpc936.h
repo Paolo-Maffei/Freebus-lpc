@@ -27,6 +27,34 @@
 
 #define RECEIVE_INT_ENABLE	EX1		// Interrupt enable Flag fuer Empfang
 
+// Pseudo-Objekte für Unicast senden
+#define NCD_ACK						129
+#define READ_MASK_VERSION_RESPONSE	130
+#define READ_PHYSADDR_RESPONSE		131
+#define READ_MEMORY_RESPONSE		132
+#define T_DISCONNECT				133
+#define READ_ADC_RESPONSE			134
+
+// TPDU Befehlsgruppen
+#define GROUP_PDU					0x00
+#define BROADCAST_PDU_SET_PA_REQ	0x00
+#define BROADCAST_PDU_READ_PA		0x01
+#define DATA_PDU_MEMORY_OPERATIONS	0x42
+#define DATA_PDU_MISC_OPERATIONS	0x43
+#define CONNECT_PDU					0x80
+#define DISCONNECT_PDU				0x81
+#define NACK_PDU					0x83
+
+// APDU Befehle
+#define SET_PHYSADDR_REQUEST		0XC0
+#define READ_PHYSADDR_REQUEST		0X00
+#define WRITE_MEMORY_REQUEST		0x80
+#define READ_MEMORY_REQUEST			0x00
+#define RESTART_REQUEST				0x80
+#define READ_MASK_VERSION_REQUEST	0x00
+#define WRITE_GROUP					0x80
+#define READ_GROUP_REQUEST			0x00
+
 
 #define RUNSTATE		0x0D	// run-state (0x00=stop, 0xFF=run)
 #define ASSOCTABPTR 	0x11	// Adresse des Pointers auf die Assoziations-Tabelle
@@ -86,15 +114,15 @@
 // Globale Variablen
 extern volatile __xdata unsigned char telegramm[23];
 extern volatile __xdata unsigned char tx_buffer[8];
-extern volatile unsigned char telpos;			// Zeiger auf naechste Position im Array Telegramm
+extern volatile unsigned char telpos;	// Zeiger auf naechste Position im Array Telegramm
 extern volatile bit interrupted;		// wird durch interrupt-routine gesetzt. so kann eine andere routine pruefen, ob sie unterbrochen wurde
 extern volatile unsigned char fb_state;
 extern volatile bit connected;
-extern volatile bit ack, nack, tel_arrived, tel_sent, auto_ack;
+extern volatile bit ack, nack, tel_arrived, tel_sent, auto_ack, wait_for_ack;
 extern volatile bit send_ack, send_nack, transparency;
 extern volatile unsigned char timeout_count, tx_nextwrite, tx_nextsend;
 
-extern __xdata unsigned char userram[256];	// Bereich in xdata fuer User-RAM
+extern __xdata unsigned char userram[256];				// Bereich in xdata fuer User-RAM
 extern __code unsigned char __at 0x3700 eeprom[256];	// Bereich im Flash fuer EEPROM
 
 
@@ -106,15 +134,14 @@ void init_rx(void);
 void init_tx(void);
 void init_repeat_tx(void);
 unsigned char gapos_in_gat(unsigned char gah, unsigned char gal);
-bit build_tel(unsigned char objno);
+__bit build_tel(unsigned char objno);
 unsigned int find_ga(unsigned char objno);	// Gruppenadresse ueber Assoziationstabelle finden (erster Eintrag, falls mehrere)
-//unsigned char read_obj_type(unsigned char objno);	// gibt den Typ eines Objektes zurueck
-void send_obj_value(unsigned char objno);
+__bit send_obj_value(unsigned char objno);
 
 //void set_timer0(unsigned int deltime);
 void restart_hw(void);
 
-void process_tel(void);		// Interrupt von Timer 1, 370us keine Busaktivitaet seit letztem Byte,										//	 d.h. Telegramm wurde komplett uebertragen
+void process_tel(void);			// Interrupt von Timer 1, 370us keine Busaktivitaet seit letztem Byte,										//	 d.h. Telegramm wurde komplett uebertragen
 void write_memory(void);		// write_memory_request - empfangene Daten in Speicher schreiben
 void set_pa(void);				// neue phys. Adresse programmieren
 unsigned char read_objflags(unsigned char objno);	// Objektflags lesen
