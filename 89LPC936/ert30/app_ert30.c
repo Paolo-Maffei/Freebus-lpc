@@ -5,7 +5,7 @@
  *   / __/ / _, _/ /___/ /___/ /_/ / /_/ /___/ / 
  *  /_/   /_/ |_/_____/_____/_____/\____//____/  
  *                                      
- *  Copyright (c) 2008-2011 Andreas Krebs <kubi@krebsworld.de>
+ *  Copyright (c) 2008-2012 Andreas Krebs <kubi@krebsworld.de>
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License version 2 as
@@ -24,7 +24,8 @@
 
 //const __code unsigned char __at 0x3600 SOLLMANU=40;
 
-const int cycleval[] = {17490, 292, 875, 1458, 2915, 5830, 8745, 13117, 17490}; // Zykluszeit in 130ms abzüglich der Verzögerung durch ADC und temp in main
+//const int cycleval[] = {17490, 292, 875, 1458, 2915, 5830, 8745, 13117, 17490}; // Zykluszeit in 130ms abzüglich der Verzögerung durch ADC und temp in main
+const int cycleval[] = {26460, 441, 1323, 2205, 4410, 8820, 13230, 19845, 26460}; // Zykluszeit in 130ms abzüglich der Verzögerung durch ADC und temp in main
 const unsigned int luxtable[] = {2,2,2,3,3,4,4,5,5,6,7,8,9,10,11,12,14,16,18,20,23,26,30,35,40,45,50,55,60,70,80,90,100,110,125,140,160,180,200,230,260,300,350,400,450,500,550,600,700,800,900,1000,1100,1250,1400,1600,1800,2000,2300,2600,3000,3500,4000,4500,5000,5500,6000,7000,8000,9000,10000,11000,12500,14000,16000,18000,20000,23000,26000,30000,35000,40000,45000,50000,55000,60000,65535,65535,65535,65535};
 const unsigned char hystable[] = {1,2,10,5,3};	// divisor für Lux Hysterese (50%,10%,20%,30%)
 const unsigned int luxdelay[] = {0,10,25,49,73,97,146,219,292,438,583,875,1458,2915,4380,8745};
@@ -596,10 +597,10 @@ void sync(void)
 }
 
 
-void key (void) __interrupt (7) __using (1)
+void key (void) __interrupt (7)
 {
 	unsigned char n;
-	bit upkey, downkey;
+	__bit upkey, downkey;
 
 	EKBI=0;				// keyboard Interrupt sperren
 
@@ -610,6 +611,8 @@ void key (void) __interrupt (7) __using (1)
 	
 	if (!upkey) UP=0;
 	if (!downkey) DOWN=0;
+
+	WD_FEED;
 
 	if(!upkey || !downkey) {
 		for (n=0;n<200;n++) {
@@ -736,8 +739,7 @@ void restart_app(void)		// Alle Applikations-Parameter zurücksetzen
 
 
 	lastrly=0;							// Schaltausgang zunächst aus
-	write_obj_value(6,0);
-	send_obj_value(6);
+
 	
 	// Init DAC 0
 	PT0AD=0x24; 		// disable digital inputs P0_5 & P0_2
@@ -798,8 +800,11 @@ void restart_app(void)		// Alle Applikations-Parameter zurücksetzen
 		WRITE_DELAY_RECORD(0,1,1,timer+50)
 	}
 	if ((eeprom[0xD2]&0x0F)!=0) {
-		WRITE_DELAY_RECORD(1,1,1,timer+55)
+		WRITE_DELAY_RECORD(1,1,1,timer+60)
 	}
+
+	// Schaltausgang zunächst aus
+	WRITE_DELAY_RECORD(5,1,0,timer+70);
 
 	START_WRITECYCLE;			// Applikations-spezifische eeprom Eintraege schreiben
 	WRITE_EEPROM(0x03,0x00);	// Herstellercode: 0x0000 Freebus

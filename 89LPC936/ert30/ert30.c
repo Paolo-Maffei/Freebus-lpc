@@ -5,7 +5,7 @@
  *   / __/ / _, _/ /___/ /___/ /_/ / /_/ /___/ / 
  *  /_/   /_/ |_/_____/_____/_____/\____//____/  
  *                                      
- *  Copyright (c) 2008-2011 Andreas Krebs <kubi@krebsworld.de>
+ *  Copyright (c) 2008-2012 Andreas Krebs <kubi@krebsworld.de>
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License version 2 as
@@ -28,6 +28,8 @@
 * 		1.17	gemeinsamer Anschluss der Taster auf Spare1 gelegt, Repeat Funktion funktioniert jetzt
 * 		1.18	zyklisches Senden und Watchdog eingebaut
 * 		1.19	Kompilerfehler!!! Indexberechnungen in [ ] funktionieren nicht immer korrekt! Daher vorher berechnen!
+* 		1.20	mit lib 1.32 kompiliert
+* 		1.21	Temperaturwandeln auf 10 Sekunden gesetzt
 *
 * todo:	2-fach Tastendruck für neue Version
 */
@@ -50,6 +52,8 @@
 unsigned int timer;
 unsigned int lastlux;
 int lasttemp;
+unsigned char tasterpegel=0;
+__bit tastergetoggelt=0;
 
 const unsigned char logtable[] = {0,9,17,27,40,53,66,79,88,96,101,106,109,112,255};
 const unsigned char luxchange[] = {100,20,10,5,3};
@@ -96,14 +100,18 @@ void main(void)
 				ET1=0;									// statemachine stoppen
 				switch (sequence) {						// Temperatur messen
 				case 1:
-					interrupted=0;
-					start_tempconversion();				// Konvertierung starten
-					if (!interrupted) sequence=2;
+					if((timer&0x3F) == 0x30) {	// nur alle 10 Sekunden wandeln
+						interrupted=0;
+						start_tempconversion();				// Konvertierung starten
+						if (!interrupted) sequence=2;
+					}
 					ET1=1;								// statemachine starten
 					break;
 				case 2:
-					interrupted=0;
-					if (ow_read_bit() && !interrupted) sequence=3;		// Konvertierung abgeschlossen
+					if((timer&0x07) == 0x07) {	// nur ein mal pro Sekunde pollen
+						interrupted=0;
+						if (ow_read_bit() && !interrupted) sequence=3;		// Konvertierung abgeschlossen
+					}
 					ET1=1;												// statemachine starten
 					break;
 				case 3:
@@ -232,15 +240,15 @@ void main(void)
 #ifndef V24
 			if (RLY && !lastrly) {	// Schaltausgang ein
 				lastrly=1;
-				//write_obj_value(6,1);
-				//send_obj_value(6);
-				WRITE_DELAY_RECORD(5,3,1,timer+1);
+				delrec[5].delayactive=3;
+				delrec[5].delaystate=1;
+				if ((eeprom[0xEA] & 0x20)==0) delrec[5].delayvalue=timer+1;	// bei zyklisch NUR zyklisch, sonst sofort
 			}
 			if (!RLY && lastrly) {	// Schaltausgang aus
 				lastrly=0;
-				//write_obj_value(6,0);
-				//send_obj_value(6);
-				WRITE_DELAY_RECORD(5,1,0,timer+1);
+				delrec[5].delayactive=1;
+				delrec[5].delaystate=0;
+				if ((eeprom[0xEA] & 0x80)==0) delrec[5].delayvalue=timer+1;	// bei zyklisch NUR zyklisch, sonst sofort
 			}
 #endif
 			if (!editmode && solltemplcd != solltemplpc) sync();	// falls Solltemperatur im LPC verändert wurde -> LCD einstellen
@@ -260,14 +268,24 @@ void main(void)
 		
 		if(tel_arrived) process_tel();			// empfangenes Telegramm abarbeiten
 
+
 		// Programmiertaster abfragen
-		TASTER=1;					// Pin als Eingang schalten um Taster abzufragen
-		if(!TASTER) {				// Taster gedrückt
-			for(n=0;n<100;n++) {}	// Entprell-Zeit
-			while(!TASTER);			// warten bis Taster losgelassen
-			userram[0x60]^=0x81;	// Prog-Bit und Parity-Bit im system_state toggeln
+		TASTER=1;				// Pin als Eingang schalten um Taster abzufragen
+		if(!TASTER){ // Taster gedrückt
+			if(tasterpegel<255)	tasterpegel++;
+			else{
+				if(!tastergetoggelt) userram[0x60]^=0x81;	// Prog-Bit und Parity-Bit im system_state toggeln
+				tastergetoggelt=1;
+			}
+		}
+		else {
+			if(tasterpegel>0) tasterpegel--;
+			else tastergetoggelt=0;
 		}
 		TASTER=!(userram[0x60] & 0x01);	// LED entsprechend Prog-Bit schalten (low=LED an)
+		if (fb_state==0) for(n=0;n<100;n++) {}	// etwas zeit zum leuchten, wenn Hauptschleife nicht aktiv
+
+
 	} while(1);
 }
 

@@ -2,7 +2,7 @@
 #ifndef FB_APP_ERT
 #define FB_APP_ERT
 
-#define V24		// 24V Version, auskommentieren für 230V Version
+//#define V24		// 24V Version, auskommentieren für 230V Version
 
 #define	TEMPCORR			0xCA	// Abgleichwert für Temperaturanzeige (-127 bis 128)
 #define FUNKTION			0xCB	// schalten oder wert senden
@@ -71,10 +71,16 @@
 #define RESET		P2_5
 
 
-
-
-
 #define EDITTIMEOUT	37				// Zeit bis Editmode beendet wird
+
+
+#define WD_FEED \
+			EA=0; \
+			WFEED1=0xA5; \
+			WFEED2=0x5A; \
+			EA=1;
+
+
 
 
 extern unsigned int timer;			// Timer für Schaltverzögerungen, wird alle 130us hochgezählt
@@ -101,7 +107,6 @@ extern struct delayrecord delrec[10];
 	delrec[wdro].delayvalue=wdrt; 
 
 
-//void write_delay_record(unsigned char objno, unsigned char state, long deltime);
 
 void restart_app(void);					// Alle Applikations-Parameter zurücksetzen
 void schwelle(unsigned char objno);
