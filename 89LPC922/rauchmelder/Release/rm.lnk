@@ -1,0 +1,17 @@
+-myuxi
+-Y
+-b HOME = 0x0000
+-b ISEG = 0x0000
+-b BSEG = 0x0000
+-k D:\freebus\trunk\software\c51\89LPC922\lib_lpc922\Release
+-k C:\Program Files\SDCC\bin\..\lib\small-stack-auto
+-l fb_lpc922.lib
+-l mcs51
+-l libsdcc
+-l libint
+-l liblong
+-l libfloat
+./rauchmelder.rel
+./rm_app.rel
+
+-e
