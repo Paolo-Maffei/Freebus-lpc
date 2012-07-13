@@ -44,7 +44,7 @@ CABS                               0000   0000 =      0. bytes (ABS,CON,CODE)
   0C:0008    s_REG_BANK_1
   0C:000A    l_GSINIT2
   0C:0010    s_REG_BANK_2
-  0C:0015    l_BSEG
+  0C:0016    l_BSEG
   0C:0018    s_REG_BANK_3
   0C:0020    s_BSEG_BYTES
   0C:0020    s__CODE
@@ -67,9 +67,9 @@ CABS                               0000   0000 =      0. bytes (ABS,CON,CODE)
   0C:009F    s_CSEG
   0C:00AD    l_SSEG
   0C:0100    l_IRAM
-  0C:0BA5    l_CSEG
-  0C:0C44    s_CONST
-  0C:0C44    s_XINIT
+  0C:0BCB    l_CSEG
+  0C:0C6A    s_CONST
+  0C:0C6A    s_XINIT
 
 
 
@@ -230,7 +230,7 @@ Hexadecimal
 
 Area                               Addr   Size   Decimal Bits  (Attributes)
 --------------------------------   ----   ----   ------- ----- ------------
-BSEG                               0000   0015 =     21. bits  (REL,CON,BIT)
+BSEG                               0000   0016 =     22. bits  (REL,CON,BIT)
 
       Value  Global
    --------  --------------------------------
@@ -239,22 +239,23 @@ BSEG                               0000   0015 =     21. bits  (REL,CON,BIT)
   0B:0002    _stoerung
   0B:0003    _alarm_obj
   0B:0004    _stoerung_obj
-  0B:0005    _parity_ok
-  0B:0006    _interrupted
-  0B:0007    _fb_parity
-  0B:0008    _ack
-  0B:0009    _nack
-  0B:000A    _its_me
-  0B:000B    _tel_arrived
-  0B:000C    _tel_sent
-  0B:000D    _auto_ack
-  0B:000E    _fbtx_bit
-  0B:000F    _wait_for_ack
-  0B:0010    _send_ack
-  0B:0011    _send_nack
-  0B:0012    _transparency
-  0B:0013    _connected
-  0B:0014    _inc_pcount
+  0B:0005    _fernalarm
+  0B:0006    _parity_ok
+  0B:0007    _interrupted
+  0B:0008    _fb_parity
+  0B:0009    _ack
+  0B:000A    _nack
+  0B:000B    _its_me
+  0B:000C    _tel_arrived
+  0B:000D    _tel_sent
+  0B:000E    _auto_ack
+  0B:000F    _fbtx_bit
+  0B:0010    _wait_for_ack
+  0B:0011    _send_ack
+  0B:0012    _send_nack
+  0B:0013    _transparency
+  0B:0014    _connected
+  0B:0015    _inc_pcount
 
 
 Hexadecimal
@@ -354,32 +355,32 @@ Hexadecimal
 
 Area                               Addr   Size   Decimal Bytes (Attributes)
 --------------------------------   ----   ----   ------- ----- ------------
-CSEG                               009F   0BA5 =   2981. bytes (REL,CON,CODE)
+CSEG                               009F   0BCB =   3019. bytes (REL,CON,CODE)
 
       Value  Global
    --------  --------------------------------
   0C:009F    _main
-  0C:0129    _write_value_req
-  0C:012A    _read_value_req
-  0C:012B    _read_obj_value
-  0C:014F    _key
-  0C:0182    _delay_timer
-  0C:0223    _restart_app
-  0C:02BA    _X1_int
-  0C:02ED    _T1_int
-  0C:0629    _init_rx
-  0C:0655    _init_tx
-  0C:06A1    _gapos_in_gat
-  0C:06F4    _build_tel
-  0C:08F8    _send_obj_value
-  0C:092B    _process_tel
-  0C:0A29    _write_memory
-  0C:0B09    _set_pa
-  0C:0B24    _read_objflags
-  0C:0B3C    _find_first_objno
-  0C:0B95    _find_ga
-  0C:0BE1    _restart_hw
-  0C:0C40    __sdcc_external_startup
+  0C:012C    _write_value_req
+  0C:014A    _read_value_req
+  0C:014B    _read_obj_value
+  0C:016F    _key
+  0C:01A2    _delay_timer
+  0C:0243    _restart_app
+  0C:02E0    _X1_int
+  0C:0313    _T1_int
+  0C:064F    _init_rx
+  0C:067B    _init_tx
+  0C:06C7    _gapos_in_gat
+  0C:071A    _build_tel
+  0C:091E    _send_obj_value
+  0C:0951    _process_tel
+  0C:0A4F    _write_memory
+  0C:0B2F    _set_pa
+  0C:0B4A    _read_objflags
+  0C:0B62    _find_first_objno
+  0C:0BBB    _find_ga
+  0C:0C07    _restart_hw
+  0C:0C66    __sdcc_external_startup
 
 
 ASxxxx Linker V01.75 + NoICE + SDCC Feb 1999,  page 1.

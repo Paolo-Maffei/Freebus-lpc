@@ -1,7 +1,7 @@
                               1 ;--------------------------------------------------------
                               2 ; File Created by SDCC : free open source ANSI-C Compiler
                               3 ; Version 2.9.0 #5416 (Mar 22 2009) (MINGW32)
-                              4 ; This file was generated Mon Jun 25 19:44:12 2012
+                              4 ; This file was generated Thu Jun 28 18:23:15 2012
                               5 ;--------------------------------------------------------
                               6 	.module rm_app
                               7 	.optsdcc -mmcs51 --model-small
@@ -144,583 +144,614 @@
                             144 	.globl _P3
                             145 	.globl _P1
                             146 	.globl _P0
-                            147 	.globl _stoerung_obj
-                            148 	.globl _alarm_obj
-                            149 	.globl _stoerung
-                            150 	.globl _alarm
-                            151 	.globl _event
-                            152 	.globl _timer_stoerung
-                            153 	.globl _timer_alarm
-                            154 	.globl _timer
-                            155 	.globl _write_value_req
-                            156 	.globl _read_value_req
-                            157 	.globl _read_obj_value
-                            158 	.globl _key
-                            159 	.globl _delay_timer
-                            160 	.globl _restart_app
-                            161 ;--------------------------------------------------------
-                            162 ; special function registers
-                            163 ;--------------------------------------------------------
-                            164 	.area RSEG    (DATA)
-                    0080    165 _P0	=	0x0080
-                    0090    166 _P1	=	0x0090
-                    00B0    167 _P3	=	0x00b0
-                    00D0    168 _PSW	=	0x00d0
-                    00E0    169 _ACC	=	0x00e0
-                    00F0    170 _B	=	0x00f0
-                    0081    171 _SP	=	0x0081
-                    0082    172 _DPL	=	0x0082
-                    0083    173 _DPH	=	0x0083
-                    0087    174 _PCON	=	0x0087
-                    0088    175 _TCON	=	0x0088
-                    0089    176 _TMOD	=	0x0089
-                    008A    177 _TL0	=	0x008a
-                    008B    178 _TL1	=	0x008b
-                    008C    179 _TH0	=	0x008c
-                    008D    180 _TH1	=	0x008d
-                    00A8    181 _IEN0	=	0x00a8
-                    00B8    182 _IP0	=	0x00b8
-                    0098    183 _SCON	=	0x0098
-                    0099    184 _SBUF	=	0x0099
-                    00A2    185 _AUXR1	=	0x00a2
-                    00A9    186 _SADDR	=	0x00a9
-                    00B9    187 _SADEN	=	0x00b9
-                    00BE    188 _BRGR0	=	0x00be
-                    00BF    189 _BRGR1	=	0x00bf
-                    00BD    190 _BRGCON	=	0x00bd
-                    00AC    191 _CMP1	=	0x00ac
-                    00AD    192 _CMP2	=	0x00ad
-                    0095    193 _DIVM	=	0x0095
-                    00E7    194 _FMADRH	=	0x00e7
-                    00E6    195 _FMADRL	=	0x00e6
-                    00E4    196 _FMCON	=	0x00e4
-                    00E5    197 _FMDATA	=	0x00e5
-                    00DB    198 _I2ADR	=	0x00db
-                    00D8    199 _I2CON	=	0x00d8
-                    00DA    200 _I2DAT	=	0x00da
-                    00DD    201 _I2SCLH	=	0x00dd
-                    00DC    202 _I2SCLL	=	0x00dc
-                    00D9    203 _I2STAT	=	0x00d9
-                    00F8    204 _IP1	=	0x00f8
-                    00F7    205 _IP1H	=	0x00f7
-                    0094    206 _KBCON	=	0x0094
-                    0086    207 _KBMASK	=	0x0086
-                    0093    208 _KBPATN	=	0x0093
-                    0084    209 _P0M1	=	0x0084
-                    0085    210 _P0M2	=	0x0085
-                    0091    211 _P1M1	=	0x0091
-                    0092    212 _P1M2	=	0x0092
-                    00B1    213 _P3M1	=	0x00b1
-                    00B2    214 _P3M2	=	0x00b2
-                    00B5    215 _PCONA	=	0x00b5
-                    00F6    216 _PT0AD	=	0x00f6
-                    00DF    217 _RSTSRC	=	0x00df
-                    00D1    218 _RTCCON	=	0x00d1
-                    00D2    219 _RTCH	=	0x00d2
-                    00D3    220 _RTCL	=	0x00d3
-                    00BA    221 _SSTAT	=	0x00ba
-                    008F    222 _TAMOD	=	0x008f
-                    0096    223 _TRIM	=	0x0096
-                    00A7    224 _WDCON	=	0x00a7
-                    00C1    225 _WDL	=	0x00c1
-                    00C2    226 _WFEED1	=	0x00c2
-                    00C3    227 _WFEED2	=	0x00c3
-                    00B7    228 _IP0H	=	0x00b7
-                    00E8    229 _IEN1	=	0x00e8
-                            230 ;--------------------------------------------------------
-                            231 ; special function bits
-                            232 ;--------------------------------------------------------
-                            233 	.area RSEG    (DATA)
-                    00D0    234 _PSW_0	=	0x00d0
-                    00D1    235 _PSW_1	=	0x00d1
-                    00D2    236 _PSW_2	=	0x00d2
-                    00D3    237 _PSW_3	=	0x00d3
-                    00D4    238 _PSW_4	=	0x00d4
-                    00D5    239 _PSW_5	=	0x00d5
-                    00D6    240 _PSW_6	=	0x00d6
-                    00D7    241 _PSW_7	=	0x00d7
-                    008F    242 _TCON_7	=	0x008f
-                    008E    243 _TCON_6	=	0x008e
-                    008D    244 _TCON_5	=	0x008d
-                    008C    245 _TCON_4	=	0x008c
-                    008B    246 _TCON_3	=	0x008b
-                    008A    247 _TCON_2	=	0x008a
-                    0089    248 _TCON_1	=	0x0089
-                    0088    249 _TCON_0	=	0x0088
-                    00AF    250 _IEN0_7	=	0x00af
-                    00AE    251 _IEN0_6	=	0x00ae
-                    00AD    252 _IEN0_5	=	0x00ad
-                    00AC    253 _IEN0_4	=	0x00ac
-                    00AB    254 _IEN0_3	=	0x00ab
-                    00AA    255 _IEN0_2	=	0x00aa
-                    00A9    256 _IEN0_1	=	0x00a9
-                    00A8    257 _IEN0_0	=	0x00a8
-                    00EA    258 _IEN1_2	=	0x00ea
-                    00E9    259 _IEN1_1	=	0x00e9
-                    00E8    260 _IEN1_0	=	0x00e8
-                    00FE    261 _IP1_6	=	0x00fe
-                    00FA    262 _IP1_2	=	0x00fa
-                    00F9    263 _IP1_1	=	0x00f9
-                    00F8    264 _IP1_0	=	0x00f8
-                    00BE    265 _IP0_6	=	0x00be
-                    00BD    266 _IP0_5	=	0x00bd
-                    00BC    267 _IP0_4	=	0x00bc
-                    00BB    268 _IP0_3	=	0x00bb
-                    00BA    269 _IP0_2	=	0x00ba
-                    00B9    270 _IP0_1	=	0x00b9
-                    00B8    271 _IP0_0	=	0x00b8
-                    0098    272 _SCON_0	=	0x0098
-                    0099    273 _SCON_1	=	0x0099
-                    009A    274 _SCON_2	=	0x009a
-                    009B    275 _SCON_3	=	0x009b
-                    009C    276 _SCON_4	=	0x009c
-                    009D    277 _SCON_5	=	0x009d
-                    009E    278 _SCON_6	=	0x009e
-                    009F    279 _SCON_7	=	0x009f
-                    00DE    280 _I2CON_6	=	0x00de
-                    00DD    281 _I2CON_5	=	0x00dd
-                    00DC    282 _I2CON_4	=	0x00dc
-                    00DB    283 _I2CON_3	=	0x00db
-                    00DA    284 _I2CON_2	=	0x00da
-                    00D8    285 _I2CON_0	=	0x00d8
-                    0080    286 _P0_0	=	0x0080
-                    0081    287 _P0_1	=	0x0081
-                    0082    288 _P0_2	=	0x0082
-                    0083    289 _P0_3	=	0x0083
-                    0084    290 _P0_4	=	0x0084
-                    0085    291 _P0_5	=	0x0085
-                    0086    292 _P0_6	=	0x0086
-                    0087    293 _P0_7	=	0x0087
-                    0090    294 _P1_0	=	0x0090
-                    0091    295 _P1_1	=	0x0091
-                    0092    296 _P1_2	=	0x0092
-                    0093    297 _P1_3	=	0x0093
-                    0094    298 _P1_4	=	0x0094
-                    0095    299 _P1_5	=	0x0095
-                    0096    300 _P1_6	=	0x0096
-                    0097    301 _P1_7	=	0x0097
-                    00B0    302 _P3_0	=	0x00b0
-                    00B1    303 _P3_1	=	0x00b1
-                            304 ;--------------------------------------------------------
-                            305 ; overlayable register banks
-                            306 ;--------------------------------------------------------
-                            307 	.area REG_BANK_0	(REL,OVR,DATA)
-   0000                     308 	.ds 8
-                            309 ;--------------------------------------------------------
-                            310 ; internal ram data
-                            311 ;--------------------------------------------------------
-                            312 	.area DSEG    (DATA)
-   0000                     313 _timer::
-   0000                     314 	.ds 2
-   0002                     315 _timer_alarm::
-   0002                     316 	.ds 2
-   0004                     317 _timer_stoerung::
-   0004                     318 	.ds 2
-                            319 ;--------------------------------------------------------
-                            320 ; overlayable items in internal ram 
-                            321 ;--------------------------------------------------------
-                            322 	.area OSEG    (OVR,DATA)
-                            323 ;--------------------------------------------------------
-                            324 ; indirectly addressable internal ram data
-                            325 ;--------------------------------------------------------
-                            326 	.area ISEG    (DATA)
-                            327 ;--------------------------------------------------------
-                            328 ; absolute internal ram data
-                            329 ;--------------------------------------------------------
-                            330 	.area IABS    (ABS,DATA)
+                            147 	.globl _fernalarm
+                            148 	.globl _stoerung_obj
+                            149 	.globl _alarm_obj
+                            150 	.globl _stoerung
+                            151 	.globl _alarm
+                            152 	.globl _event
+                            153 	.globl _timer_stoerung
+                            154 	.globl _timer_alarm
+                            155 	.globl _timer
+                            156 	.globl _write_value_req
+                            157 	.globl _read_value_req
+                            158 	.globl _read_obj_value
+                            159 	.globl _key
+                            160 	.globl _delay_timer
+                            161 	.globl _restart_app
+                            162 ;--------------------------------------------------------
+                            163 ; special function registers
+                            164 ;--------------------------------------------------------
+                            165 	.area RSEG    (DATA)
+                    0080    166 _P0	=	0x0080
+                    0090    167 _P1	=	0x0090
+                    00B0    168 _P3	=	0x00b0
+                    00D0    169 _PSW	=	0x00d0
+                    00E0    170 _ACC	=	0x00e0
+                    00F0    171 _B	=	0x00f0
+                    0081    172 _SP	=	0x0081
+                    0082    173 _DPL	=	0x0082
+                    0083    174 _DPH	=	0x0083
+                    0087    175 _PCON	=	0x0087
+                    0088    176 _TCON	=	0x0088
+                    0089    177 _TMOD	=	0x0089
+                    008A    178 _TL0	=	0x008a
+                    008B    179 _TL1	=	0x008b
+                    008C    180 _TH0	=	0x008c
+                    008D    181 _TH1	=	0x008d
+                    00A8    182 _IEN0	=	0x00a8
+                    00B8    183 _IP0	=	0x00b8
+                    0098    184 _SCON	=	0x0098
+                    0099    185 _SBUF	=	0x0099
+                    00A2    186 _AUXR1	=	0x00a2
+                    00A9    187 _SADDR	=	0x00a9
+                    00B9    188 _SADEN	=	0x00b9
+                    00BE    189 _BRGR0	=	0x00be
+                    00BF    190 _BRGR1	=	0x00bf
+                    00BD    191 _BRGCON	=	0x00bd
+                    00AC    192 _CMP1	=	0x00ac
+                    00AD    193 _CMP2	=	0x00ad
+                    0095    194 _DIVM	=	0x0095
+                    00E7    195 _FMADRH	=	0x00e7
+                    00E6    196 _FMADRL	=	0x00e6
+                    00E4    197 _FMCON	=	0x00e4
+                    00E5    198 _FMDATA	=	0x00e5
+                    00DB    199 _I2ADR	=	0x00db
+                    00D8    200 _I2CON	=	0x00d8
+                    00DA    201 _I2DAT	=	0x00da
+                    00DD    202 _I2SCLH	=	0x00dd
+                    00DC    203 _I2SCLL	=	0x00dc
+                    00D9    204 _I2STAT	=	0x00d9
+                    00F8    205 _IP1	=	0x00f8
+                    00F7    206 _IP1H	=	0x00f7
+                    0094    207 _KBCON	=	0x0094
+                    0086    208 _KBMASK	=	0x0086
+                    0093    209 _KBPATN	=	0x0093
+                    0084    210 _P0M1	=	0x0084
+                    0085    211 _P0M2	=	0x0085
+                    0091    212 _P1M1	=	0x0091
+                    0092    213 _P1M2	=	0x0092
+                    00B1    214 _P3M1	=	0x00b1
+                    00B2    215 _P3M2	=	0x00b2
+                    00B5    216 _PCONA	=	0x00b5
+                    00F6    217 _PT0AD	=	0x00f6
+                    00DF    218 _RSTSRC	=	0x00df
+                    00D1    219 _RTCCON	=	0x00d1
+                    00D2    220 _RTCH	=	0x00d2
+                    00D3    221 _RTCL	=	0x00d3
+                    00BA    222 _SSTAT	=	0x00ba
+                    008F    223 _TAMOD	=	0x008f
+                    0096    224 _TRIM	=	0x0096
+                    00A7    225 _WDCON	=	0x00a7
+                    00C1    226 _WDL	=	0x00c1
+                    00C2    227 _WFEED1	=	0x00c2
+                    00C3    228 _WFEED2	=	0x00c3
+                    00B7    229 _IP0H	=	0x00b7
+                    00E8    230 _IEN1	=	0x00e8
+                            231 ;--------------------------------------------------------
+                            232 ; special function bits
+                            233 ;--------------------------------------------------------
+                            234 	.area RSEG    (DATA)
+                    00D0    235 _PSW_0	=	0x00d0
+                    00D1    236 _PSW_1	=	0x00d1
+                    00D2    237 _PSW_2	=	0x00d2
+                    00D3    238 _PSW_3	=	0x00d3
+                    00D4    239 _PSW_4	=	0x00d4
+                    00D5    240 _PSW_5	=	0x00d5
+                    00D6    241 _PSW_6	=	0x00d6
+                    00D7    242 _PSW_7	=	0x00d7
+                    008F    243 _TCON_7	=	0x008f
+                    008E    244 _TCON_6	=	0x008e
+                    008D    245 _TCON_5	=	0x008d
+                    008C    246 _TCON_4	=	0x008c
+                    008B    247 _TCON_3	=	0x008b
+                    008A    248 _TCON_2	=	0x008a
+                    0089    249 _TCON_1	=	0x0089
+                    0088    250 _TCON_0	=	0x0088
+                    00AF    251 _IEN0_7	=	0x00af
+                    00AE    252 _IEN0_6	=	0x00ae
+                    00AD    253 _IEN0_5	=	0x00ad
+                    00AC    254 _IEN0_4	=	0x00ac
+                    00AB    255 _IEN0_3	=	0x00ab
+                    00AA    256 _IEN0_2	=	0x00aa
+                    00A9    257 _IEN0_1	=	0x00a9
+                    00A8    258 _IEN0_0	=	0x00a8
+                    00EA    259 _IEN1_2	=	0x00ea
+                    00E9    260 _IEN1_1	=	0x00e9
+                    00E8    261 _IEN1_0	=	0x00e8
+                    00FE    262 _IP1_6	=	0x00fe
+                    00FA    263 _IP1_2	=	0x00fa
+                    00F9    264 _IP1_1	=	0x00f9
+                    00F8    265 _IP1_0	=	0x00f8
+                    00BE    266 _IP0_6	=	0x00be
+                    00BD    267 _IP0_5	=	0x00bd
+                    00BC    268 _IP0_4	=	0x00bc
+                    00BB    269 _IP0_3	=	0x00bb
+                    00BA    270 _IP0_2	=	0x00ba
+                    00B9    271 _IP0_1	=	0x00b9
+                    00B8    272 _IP0_0	=	0x00b8
+                    0098    273 _SCON_0	=	0x0098
+                    0099    274 _SCON_1	=	0x0099
+                    009A    275 _SCON_2	=	0x009a
+                    009B    276 _SCON_3	=	0x009b
+                    009C    277 _SCON_4	=	0x009c
+                    009D    278 _SCON_5	=	0x009d
+                    009E    279 _SCON_6	=	0x009e
+                    009F    280 _SCON_7	=	0x009f
+                    00DE    281 _I2CON_6	=	0x00de
+                    00DD    282 _I2CON_5	=	0x00dd
+                    00DC    283 _I2CON_4	=	0x00dc
+                    00DB    284 _I2CON_3	=	0x00db
+                    00DA    285 _I2CON_2	=	0x00da
+                    00D8    286 _I2CON_0	=	0x00d8
+                    0080    287 _P0_0	=	0x0080
+                    0081    288 _P0_1	=	0x0081
+                    0082    289 _P0_2	=	0x0082
+                    0083    290 _P0_3	=	0x0083
+                    0084    291 _P0_4	=	0x0084
+                    0085    292 _P0_5	=	0x0085
+                    0086    293 _P0_6	=	0x0086
+                    0087    294 _P0_7	=	0x0087
+                    0090    295 _P1_0	=	0x0090
+                    0091    296 _P1_1	=	0x0091
+                    0092    297 _P1_2	=	0x0092
+                    0093    298 _P1_3	=	0x0093
+                    0094    299 _P1_4	=	0x0094
+                    0095    300 _P1_5	=	0x0095
+                    0096    301 _P1_6	=	0x0096
+                    0097    302 _P1_7	=	0x0097
+                    00B0    303 _P3_0	=	0x00b0
+                    00B1    304 _P3_1	=	0x00b1
+                            305 ;--------------------------------------------------------
+                            306 ; overlayable register banks
+                            307 ;--------------------------------------------------------
+                            308 	.area REG_BANK_0	(REL,OVR,DATA)
+   0000                     309 	.ds 8
+                            310 ;--------------------------------------------------------
+                            311 ; internal ram data
+                            312 ;--------------------------------------------------------
+                            313 	.area DSEG    (DATA)
+   0000                     314 _timer::
+   0000                     315 	.ds 2
+   0002                     316 _timer_alarm::
+   0002                     317 	.ds 2
+   0004                     318 _timer_stoerung::
+   0004                     319 	.ds 2
+                            320 ;--------------------------------------------------------
+                            321 ; overlayable items in internal ram 
+                            322 ;--------------------------------------------------------
+                            323 	.area OSEG    (OVR,DATA)
+                            324 ;--------------------------------------------------------
+                            325 ; indirectly addressable internal ram data
+                            326 ;--------------------------------------------------------
+                            327 	.area ISEG    (DATA)
+                            328 ;--------------------------------------------------------
+                            329 ; absolute internal ram data
+                            330 ;--------------------------------------------------------
                             331 	.area IABS    (ABS,DATA)
-                            332 ;--------------------------------------------------------
-                            333 ; bit data
-                            334 ;--------------------------------------------------------
-                            335 	.area BSEG    (BIT)
-   0000                     336 _event::
-   0000                     337 	.ds 1
-   0001                     338 _alarm::
-   0001                     339 	.ds 1
-   0002                     340 _stoerung::
-   0002                     341 	.ds 1
-   0003                     342 _alarm_obj::
-   0003                     343 	.ds 1
-   0004                     344 _stoerung_obj::
-   0004                     345 	.ds 1
-                            346 ;--------------------------------------------------------
-                            347 ; paged external ram data
-                            348 ;--------------------------------------------------------
-                            349 	.area PSEG    (PAG,XDATA)
-                            350 ;--------------------------------------------------------
-                            351 ; external ram data
-                            352 ;--------------------------------------------------------
-                            353 	.area XSEG    (XDATA)
-                            354 ;--------------------------------------------------------
-                            355 ; absolute external ram data
-                            356 ;--------------------------------------------------------
-                            357 	.area XABS    (ABS,XDATA)
-                            358 ;--------------------------------------------------------
-                            359 ; external initialized ram data
-                            360 ;--------------------------------------------------------
-                            361 	.area XISEG   (XDATA)
-                            362 	.area HOME    (CODE)
-                            363 	.area GSINIT0 (CODE)
-                            364 	.area GSINIT1 (CODE)
-                            365 	.area GSINIT2 (CODE)
-                            366 	.area GSINIT3 (CODE)
-                            367 	.area GSINIT4 (CODE)
-                            368 	.area GSINIT5 (CODE)
-                            369 	.area GSINIT  (CODE)
-                            370 	.area GSFINAL (CODE)
-                            371 	.area CSEG    (CODE)
-                            372 ;--------------------------------------------------------
-                            373 ; global & static initialisations
-                            374 ;--------------------------------------------------------
-                            375 	.area HOME    (CODE)
-                            376 	.area GSINIT  (CODE)
-                            377 	.area GSFINAL (CODE)
-                            378 	.area GSINIT  (CODE)
-                            379 ;--------------------------------------------------------
-                            380 ; Home
-                            381 ;--------------------------------------------------------
-                            382 	.area HOME    (CODE)
-                            383 	.area HOME    (CODE)
+                            332 	.area IABS    (ABS,DATA)
+                            333 ;--------------------------------------------------------
+                            334 ; bit data
+                            335 ;--------------------------------------------------------
+                            336 	.area BSEG    (BIT)
+   0000                     337 _event::
+   0000                     338 	.ds 1
+   0001                     339 _alarm::
+   0001                     340 	.ds 1
+   0002                     341 _stoerung::
+   0002                     342 	.ds 1
+   0003                     343 _alarm_obj::
+   0003                     344 	.ds 1
+   0004                     345 _stoerung_obj::
+   0004                     346 	.ds 1
+   0005                     347 _fernalarm::
+   0005                     348 	.ds 1
+                            349 ;--------------------------------------------------------
+                            350 ; paged external ram data
+                            351 ;--------------------------------------------------------
+                            352 	.area PSEG    (PAG,XDATA)
+                            353 ;--------------------------------------------------------
+                            354 ; external ram data
+                            355 ;--------------------------------------------------------
+                            356 	.area XSEG    (XDATA)
+                            357 ;--------------------------------------------------------
+                            358 ; absolute external ram data
+                            359 ;--------------------------------------------------------
+                            360 	.area XABS    (ABS,XDATA)
+                            361 ;--------------------------------------------------------
+                            362 ; external initialized ram data
+                            363 ;--------------------------------------------------------
+                            364 	.area XISEG   (XDATA)
+                            365 	.area HOME    (CODE)
+                            366 	.area GSINIT0 (CODE)
+                            367 	.area GSINIT1 (CODE)
+                            368 	.area GSINIT2 (CODE)
+                            369 	.area GSINIT3 (CODE)
+                            370 	.area GSINIT4 (CODE)
+                            371 	.area GSINIT5 (CODE)
+                            372 	.area GSINIT  (CODE)
+                            373 	.area GSFINAL (CODE)
+                            374 	.area CSEG    (CODE)
+                            375 ;--------------------------------------------------------
+                            376 ; global & static initialisations
+                            377 ;--------------------------------------------------------
+                            378 	.area HOME    (CODE)
+                            379 	.area GSINIT  (CODE)
+                            380 	.area GSFINAL (CODE)
+                            381 	.area GSINIT  (CODE)
+                            382 ;--------------------------------------------------------
+                            383 ; Home
                             384 ;--------------------------------------------------------
-                            385 ; code
-                            386 ;--------------------------------------------------------
-                            387 	.area CSEG    (CODE)
-                            388 ;------------------------------------------------------------
-                            389 ;Allocation info for local variables in function 'write_value_req'
-                            390 ;------------------------------------------------------------
+                            385 	.area HOME    (CODE)
+                            386 	.area HOME    (CODE)
+                            387 ;--------------------------------------------------------
+                            388 ; code
+                            389 ;--------------------------------------------------------
+                            390 	.area CSEG    (CODE)
                             391 ;------------------------------------------------------------
-                            392 ;	../rm_app.c:27: void write_value_req(void)	// Empfangenes write_value_request Telegramm verarbeiten
-                            393 ;	-----------------------------------------
-                            394 ;	 function write_value_req
-                            395 ;	-----------------------------------------
-   0000                     396 _write_value_req:
-                    0002    397 	ar2 = 0x02
-                    0003    398 	ar3 = 0x03
-                    0004    399 	ar4 = 0x04
-                    0005    400 	ar5 = 0x05
-                    0006    401 	ar6 = 0x06
-                    0007    402 	ar7 = 0x07
-                    0000    403 	ar0 = 0x00
-                    0001    404 	ar1 = 0x01
-                            405 ;	../rm_app.c:32: }
-   0000 22                  406 	ret
-                            407 ;------------------------------------------------------------
-                            408 ;Allocation info for local variables in function 'read_value_req'
-                            409 ;------------------------------------------------------------
-                            410 ;------------------------------------------------------------
-                            411 ;	../rm_app.c:36: void read_value_req(void)	// Empfangenes read_value_request Telegramm verarbeiten
-                            412 ;	-----------------------------------------
-                            413 ;	 function read_value_req
-                            414 ;	-----------------------------------------
-   0001                     415 _read_value_req:
-                            416 ;	../rm_app.c:41: }
-   0001 22                  417 	ret
-                            418 ;------------------------------------------------------------
-                            419 ;Allocation info for local variables in function 'read_obj_value'
-                            420 ;------------------------------------------------------------
-                            421 ;objno                     Allocated to registers r2 
-                            422 ;return_value              Allocated to registers r3 
-                            423 ;------------------------------------------------------------
-                            424 ;	../rm_app.c:44: unsigned long read_obj_value(unsigned char objno)
-                            425 ;	-----------------------------------------
-                            426 ;	 function read_obj_value
-                            427 ;	-----------------------------------------
-   0002                     428 _read_obj_value:
-   0002 AA 82               429 	mov	r2,dpl
-                            430 ;	../rm_app.c:46: unsigned char return_value=0;
-   0004 7B 00               431 	mov	r3,#0x00
-                            432 ;	../rm_app.c:48: if(objno==0) return_value=alarm_obj;
-   0006 EA                  433 	mov	a,r2
-   0007 70 06               434 	jnz	00102$
-   0009 A2*03               435 	mov	c,_alarm_obj
-   000B E4                  436 	clr	a
-   000C 33                  437 	rlc	a
-   000D FC                  438 	mov	r4,a
-   000E FB                  439 	mov	r3,a
-   000F                     440 00102$:
-                            441 ;	../rm_app.c:49: if(objno==1) return_value=stoerung_obj;
-   000F BA 01 06            442 	cjne	r2,#0x01,00104$
-   0012 A2*04               443 	mov	c,_stoerung_obj
-   0014 E4                  444 	clr	a
-   0015 33                  445 	rlc	a
-   0016 FA                  446 	mov	r2,a
-   0017 FB                  447 	mov	r3,a
-   0018                     448 00104$:
-                            449 ;	../rm_app.c:51: return(return_value);
-   0018 7A 00               450 	mov	r2,#0x00
-   001A 7C 00               451 	mov	r4,#0x00
-   001C 7D 00               452 	mov	r5,#0x00
-   001E 8B 82               453 	mov	dpl,r3
-   0020 8A 83               454 	mov	dph,r2
-   0022 8C F0               455 	mov	b,r4
-   0024 ED                  456 	mov	a,r5
-   0025 22                  457 	ret
-                            458 ;------------------------------------------------------------
-                            459 ;Allocation info for local variables in function 'key'
-                            460 ;------------------------------------------------------------
-                            461 ;port                      Allocated to registers r2 
-                            462 ;------------------------------------------------------------
-                            463 ;	../rm_app.c:55: void key(void) __interrupt (7)
-                            464 ;	-----------------------------------------
-                            465 ;	 function key
-                            466 ;	-----------------------------------------
-   0026                     467 _key:
-   0026 C0 E0               468 	push	acc
-   0028 C0 02               469 	push	ar2
-   002A C0 D0               470 	push	psw
-   002C 75 D0 00            471 	mov	psw,#0x00
-                            472 ;	../rm_app.c:59: EKBI=0;				// keyboard Interrupt sperren
-   002F C2 E9               473 	clr	_IEN1_1
-                            474 ;	../rm_app.c:61: port=P0&0x03;
-   0031 74 03               475 	mov	a,#0x03
-   0033 55 80               476 	anl	a,_P0
-   0035 FA                  477 	mov	r2,a
-                            478 ;	../rm_app.c:62: if(port==2) alarm=1;
-   0036 BA 02 02            479 	cjne	r2,#0x02,00102$
-   0039 D2*01               480 	setb	_alarm
-   003B                     481 00102$:
-                            482 ;	../rm_app.c:63: if(port==1) stoerung=1;
-   003B BA 01 02            483 	cjne	r2,#0x01,00104$
-   003E D2*02               484 	setb	_stoerung
-   0040                     485 00104$:
-                            486 ;	../rm_app.c:64: if(port==0) {
-   0040 EA                  487 	mov	a,r2
-   0041 70 04               488 	jnz	00106$
-                            489 ;	../rm_app.c:65: alarm=0;
-   0043 C2*01               490 	clr	_alarm
-                            491 ;	../rm_app.c:66: stoerung=0;
-   0045 C2*02               492 	clr	_stoerung
-   0047                     493 00106$:
-                            494 ;	../rm_app.c:68: event=1;				// zeigt an, dass der Rauchmelder etwas gesendet hat
-   0047 D2*00               495 	setb	_event
-                            496 ;	../rm_app.c:69: interrupted=1;			// Flag setzen, dass unterbrochen wurde
-   0049 D2*00               497 	setb	_interrupted
-                            498 ;	../rm_app.c:71: KBCON=0;				// Interrupt-Flag löschen
-   004B 75 94 00            499 	mov	_KBCON,#0x00
-                            500 ;	../rm_app.c:72: KBPATN=port;
-   004E 8A 93               501 	mov	_KBPATN,r2
-                            502 ;	../rm_app.c:73: EKBI=1;					// Keyboard Interrupt wieder frei geben
-   0050 D2 E9               503 	setb	_IEN1_1
-   0052 D0 D0               504 	pop	psw
-   0054 D0 02               505 	pop	ar2
-   0056 D0 E0               506 	pop	acc
-   0058 32                  507 	reti
-                            508 ;	eliminated unneeded push/pop ar0
-                            509 ;	eliminated unneeded push/pop ar1
-                            510 ;	eliminated unneeded push/pop dpl
-                            511 ;	eliminated unneeded push/pop dph
-                            512 ;	eliminated unneeded push/pop b
-                            513 ;------------------------------------------------------------
-                            514 ;Allocation info for local variables in function 'delay_timer'
-                            515 ;------------------------------------------------------------
-                            516 ;------------------------------------------------------------
-                            517 ;	../rm_app.c:77: void delay_timer(void)	// zählt alle 65ms die Variable Timer hoch und prüft Queue
-                            518 ;	-----------------------------------------
-                            519 ;	 function delay_timer
-                            520 ;	-----------------------------------------
-   0059                     521 _delay_timer:
-                            522 ;	../rm_app.c:81: RTCCON=0x60;		// RTC anhalten und Flag löschen
-   0059 75 D1 60            523 	mov	_RTCCON,#0x60
-                            524 ;	../rm_app.c:82: RTCH=0xE1;			// reload Real Time Clock
-   005C 75 D2 E1            525 	mov	_RTCH,#0xE1
-                            526 ;	../rm_app.c:83: RTCL=0x00;
-   005F 75 D3 00            527 	mov	_RTCL,#0x00
-                            528 ;	../rm_app.c:85: timer++;
-   0062 05*00               529 	inc	_timer
-   0064 E4                  530 	clr	a
-   0065 B5*00 02            531 	cjne	a,_timer,00121$
-   0068 05*01               532 	inc	(_timer + 1)
-   006A                     533 00121$:
-                            534 ;	../rm_app.c:87: if (timer_alarm==timer && eeprom[A_ZYKLISCH]) {
-   006A E5*00               535 	mov	a,_timer
-   006C B5*02 41            536 	cjne	a,_timer_alarm,00105$
-   006F E5*01               537 	mov	a,(_timer + 1)
-   0071 B5*03 3C            538 	cjne	a,(_timer_alarm + 1),00105$
-   0074 90s00rF4            539 	mov	dptr,#(_eeprom + 0x00f4)
-   0077 E4                  540 	clr	a
-   0078 93                  541 	movc	a,@a+dptr
-   0079 60 35               542 	jz	00105$
-                            543 ;	../rm_app.c:88: send_obj_value(0);
-   007B 75 82 00            544 	mov	dpl,#0x00
-   007E 12s00r00            545 	lcall	_send_obj_value
-                            546 ;	../rm_app.c:89: if (eeprom[A_BASIS]) timer_alarm=timer+eeprom[A_FAKTOR]*60;
-   0081 90s00rF6            547 	mov	dptr,#(_eeprom + 0x00f6)
-   0084 E4                  548 	clr	a
-   0085 93                  549 	movc	a,@a+dptr
-   0086 60 16               550 	jz	00102$
-   0088 90s00rF5            551 	mov	dptr,#(_eeprom + 0x00f5)
-   008B E4                  552 	clr	a
-   008C 93                  553 	movc	a,@a+dptr
-   008D FA                  554 	mov	r2,a
-   008E 75 F0 3C            555 	mov	b,#0x3C
-   0091 A4                  556 	mul	ab
-   0092 25*00               557 	add	a,_timer
-   0094 F5*02               558 	mov	_timer_alarm,a
-   0096 E5*01               559 	mov	a,(_timer + 1)
-   0098 35 F0               560 	addc	a,b
-   009A F5*03               561 	mov	(_timer_alarm + 1),a
-   009C 80 12               562 	sjmp	00105$
-   009E                     563 00102$:
-                            564 ;	../rm_app.c:90: else timer_alarm=timer+eeprom[A_FAKTOR];
-   009E 90s00rF5            565 	mov	dptr,#(_eeprom + 0x00f5)
-   00A1 E4                  566 	clr	a
-   00A2 93                  567 	movc	a,@a+dptr
-   00A3 FA                  568 	mov	r2,a
-   00A4 7B 00               569 	mov	r3,#0x00
-   00A6 EA                  570 	mov	a,r2
-   00A7 25*00               571 	add	a,_timer
-   00A9 F5*02               572 	mov	_timer_alarm,a
-   00AB EB                  573 	mov	a,r3
-   00AC 35*01               574 	addc	a,(_timer + 1)
-   00AE F5*03               575 	mov	(_timer_alarm + 1),a
-   00B0                     576 00105$:
-                            577 ;	../rm_app.c:92: if (timer_stoerung==timer && eeprom[S_ZYKLISCH]) {
-   00B0 E5*00               578 	mov	a,_timer
-   00B2 B5*04 41            579 	cjne	a,_timer_stoerung,00111$
-   00B5 E5*01               580 	mov	a,(_timer + 1)
-   00B7 B5*05 3C            581 	cjne	a,(_timer_stoerung + 1),00111$
-   00BA 90s00rF7            582 	mov	dptr,#(_eeprom + 0x00f7)
-   00BD E4                  583 	clr	a
-   00BE 93                  584 	movc	a,@a+dptr
-   00BF 60 35               585 	jz	00111$
-                            586 ;	../rm_app.c:93: send_obj_value(1);
-   00C1 75 82 01            587 	mov	dpl,#0x01
-   00C4 12s00r00            588 	lcall	_send_obj_value
-                            589 ;	../rm_app.c:94: if (eeprom[S_BASIS]) timer_stoerung=timer+eeprom[S_FAKTOR]*60;
-   00C7 90s00rF9            590 	mov	dptr,#(_eeprom + 0x00f9)
-   00CA E4                  591 	clr	a
-   00CB 93                  592 	movc	a,@a+dptr
-   00CC 60 16               593 	jz	00108$
-   00CE 90s00rF8            594 	mov	dptr,#(_eeprom + 0x00f8)
-   00D1 E4                  595 	clr	a
-   00D2 93                  596 	movc	a,@a+dptr
-   00D3 FA                  597 	mov	r2,a
-   00D4 75 F0 3C            598 	mov	b,#0x3C
-   00D7 A4                  599 	mul	ab
-   00D8 25*00               600 	add	a,_timer
-   00DA F5*04               601 	mov	_timer_stoerung,a
-   00DC E5*01               602 	mov	a,(_timer + 1)
-   00DE 35 F0               603 	addc	a,b
-   00E0 F5*05               604 	mov	(_timer_stoerung + 1),a
-   00E2 80 12               605 	sjmp	00111$
-   00E4                     606 00108$:
-                            607 ;	../rm_app.c:95: else timer_stoerung=timer+eeprom[S_FAKTOR];
-   00E4 90s00rF8            608 	mov	dptr,#(_eeprom + 0x00f8)
-   00E7 E4                  609 	clr	a
-   00E8 93                  610 	movc	a,@a+dptr
-   00E9 FA                  611 	mov	r2,a
-   00EA 7B 00               612 	mov	r3,#0x00
-   00EC EA                  613 	mov	a,r2
-   00ED 25*00               614 	add	a,_timer
-   00EF F5*04               615 	mov	_timer_stoerung,a
-   00F1 EB                  616 	mov	a,r3
-   00F2 35*01               617 	addc	a,(_timer + 1)
-   00F4 F5*05               618 	mov	(_timer_stoerung + 1),a
-   00F6                     619 00111$:
-                            620 ;	../rm_app.c:98: RTCCON=0x61;		// RTC starten
-   00F6 75 D1 61            621 	mov	_RTCCON,#0x61
-   00F9 22                  622 	ret
-                            623 ;------------------------------------------------------------
-                            624 ;Allocation info for local variables in function 'restart_app'
-                            625 ;------------------------------------------------------------
-                            626 ;------------------------------------------------------------
-                            627 ;	../rm_app.c:102: void restart_app(void)		// Alle Applikations-Parameter zurücksetzen
-                            628 ;	-----------------------------------------
-                            629 ;	 function restart_app
-                            630 ;	-----------------------------------------
-   00FA                     631 _restart_app:
-                            632 ;	../rm_app.c:106: P0M1= 0x00;			// all bidirectional,
-   00FA 75 84 00            633 	mov	_P0M1,#0x00
-                            634 ;	../rm_app.c:107: P0M2= 0x00;
-   00FD 75 85 00            635 	mov	_P0M2,#0x00
-                            636 ;	../rm_app.c:108: P0= 0xFF;
-   0100 75 80 FF            637 	mov	_P0,#0xFF
-                            638 ;	../rm_app.c:110: alarm=0;
-   0103 C2*01               639 	clr	_alarm
-                            640 ;	../rm_app.c:111: stoerung=0;
-   0105 C2*02               641 	clr	_stoerung
-                            642 ;	../rm_app.c:112: alarm_obj=0;
-   0107 C2*03               643 	clr	_alarm_obj
-                            644 ;	../rm_app.c:113: stoerung_obj=0;
-   0109 C2*04               645 	clr	_stoerung_obj
-                            646 ;	../rm_app.c:116: KBMASK=0x03;		// P0.0 & P0.1 enabled for KB-Interrupt
-   010B 75 86 03            647 	mov	_KBMASK,#0x03
-                            648 ;	../rm_app.c:117: KBPATN=0x03;		// Pattern
-   010E 75 93 03            649 	mov	_KBPATN,#0x03
-                            650 ;	../rm_app.c:118: KBCON=0;			// Interrupt when port not equal to pattern
-   0111 75 94 00            651 	mov	_KBCON,#0x00
-                            652 ;	../rm_app.c:119: EKBI=1;
-   0114 D2 E9               653 	setb	_IEN1_1
-                            654 ;	../rm_app.c:121: RTCH=0xE1;		// Real Time Clock auf 1s laden
-   0116 75 D2 E1            655 	mov	_RTCH,#0xE1
-                            656 ;	../rm_app.c:122: RTCL=0x00;		// (RTC ist ein down-counter mit 128 bit prescaler und osc-clock)
-   0119 75 D3 00            657 	mov	_RTCL,#0x00
-                            658 ;	../rm_app.c:123: RTCCON=0x61;	// ... und starten
-   011C 75 D1 61            659 	mov	_RTCCON,#0x61
-                            660 ;	../rm_app.c:125: timer=0;
-   011F E4                  661 	clr	a
-   0120 F5*00               662 	mov	_timer,a
-   0122 F5*01               663 	mov	(_timer + 1),a
-                            664 ;	../rm_app.c:126: if (eeprom[A_ZYKLISCH]) timer_alarm=timer+2;
-   0124 90s00rF4            665 	mov	dptr,#(_eeprom + 0x00f4)
-   0127 E4                  666 	clr	a
-   0128 93                  667 	movc	a,@a+dptr
-   0129 60 06               668 	jz	00102$
-   012B 75*02 02            669 	mov	_timer_alarm,#0x02
-   012E E4                  670 	clr	a
-   012F F5*03               671 	mov	(_timer_alarm + 1),a
-   0131                     672 00102$:
-                            673 ;	../rm_app.c:127: if (eeprom[S_ZYKLISCH]) timer_stoerung=timer+4;
-   0131 90s00rF7            674 	mov	dptr,#(_eeprom + 0x00f7)
-   0134 E4                  675 	clr	a
-   0135 93                  676 	movc	a,@a+dptr
-   0136 60 06               677 	jz	00104$
-   0138 75*04 04            678 	mov	_timer_stoerung,#0x04
-   013B E4                  679 	clr	a
-   013C F5*05               680 	mov	(_timer_stoerung + 1),a
-   013E                     681 00104$:
-                            682 ;	../rm_app.c:130: EA=0;						// Interrupts sperren, damit flashen nicht unterbrochen wird
-   013E C2 AF               683 	clr	_IEN0_7
-                            684 ;	../rm_app.c:131: START_WRITECYCLE;
-   0140 75 E4 00            685 	mov	_FMCON,#0x00
-                            686 ;	../rm_app.c:132: WRITE_BYTE(0x01,0x03,0x00);	// Herstellercode 0x0000 = Freebus
-   0143 75 E7 1D            687 	mov	_FMADRH,#0x1D
-   0146 75 E6 03            688 	mov	_FMADRL,#0x03
-   0149 75 E5 00            689 	mov	_FMDATA,#0x00
-                            690 ;	../rm_app.c:133: WRITE_BYTE(0x01,0x04,0x00);
-   014C 75 E7 1D            691 	mov	_FMADRH,#0x1D
-   014F 75 E6 04            692 	mov	_FMADRL,#0x04
-   0152 75 E5 00            693 	mov	_FMDATA,#0x00
-                            694 ;	../rm_app.c:134: WRITE_BYTE(0x01,0x05,0x10);	// Devicetype 0x1003
-   0155 75 E7 1D            695 	mov	_FMADRH,#0x1D
-   0158 75 E6 05            696 	mov	_FMADRL,#0x05
-   015B 75 E5 10            697 	mov	_FMDATA,#0x10
-                            698 ;	../rm_app.c:135: WRITE_BYTE(0x01,0x06,0x03);
-   015E 75 E7 1D            699 	mov	_FMADRH,#0x1D
-   0161 75 E6 06            700 	mov	_FMADRL,#0x06
-   0164 75 E5 03            701 	mov	_FMDATA,#0x03
-                            702 ;	../rm_app.c:136: WRITE_BYTE(0x01,0x07,0x01);	// Versionnumber of application programm
-   0167 75 E7 1D            703 	mov	_FMADRH,#0x1D
-   016A 75 E6 07            704 	mov	_FMADRL,#0x07
-   016D 75 E5 01            705 	mov	_FMDATA,#0x01
-                            706 ;	../rm_app.c:137: WRITE_BYTE(0x01,0x0C,0x00);	// PORT A Direction Bit Setting
-   0170 75 E7 1D            707 	mov	_FMADRH,#0x1D
-   0173 75 E6 0C            708 	mov	_FMADRL,#0x0C
-   0176 75 E5 00            709 	mov	_FMDATA,#0x00
-                            710 ;	../rm_app.c:138: WRITE_BYTE(0x01,0x0D,0xFF);	// Run-Status (00=stop FF=run)
-   0179 75 E7 1D            711 	mov	_FMADRH,#0x1D
-   017C 75 E6 0D            712 	mov	_FMADRL,#0x0D
-   017F 75 E5 FF            713 	mov	_FMDATA,#0xFF
-                            714 ;	../rm_app.c:139: WRITE_BYTE(0x01,0x12,0xA0);	// COMMSTAB Pointer
-   0182 75 E7 1D            715 	mov	_FMADRH,#0x1D
-   0185 75 E6 12            716 	mov	_FMADRL,#0x12
-   0188 75 E5 A0            717 	mov	_FMDATA,#0xA0
-                            718 ;	../rm_app.c:140: STOP_WRITECYCLE;
-   018B 75 E4 68            719 	mov	_FMCON,#0x68
-                            720 ;	../rm_app.c:141: EA=1;						// Interrupts freigeben
-   018E D2 AF               721 	setb	_IEN0_7
-   0190 22                  722 	ret
-                            723 	.area CSEG    (CODE)
-                            724 	.area CONST   (CODE)
-                            725 	.area XINIT   (CODE)
-                            726 	.area CABS    (ABS,CODE)
+                            392 ;Allocation info for local variables in function 'write_value_req'
+                            393 ;------------------------------------------------------------
+                            394 ;objno                     Allocated to registers r2 
+                            395 ;------------------------------------------------------------
+                            396 ;	../rm_app.c:28: void write_value_req(void)	// Empfangenes write_value_request Telegramm verarbeiten
+                            397 ;	-----------------------------------------
+                            398 ;	 function write_value_req
+                            399 ;	-----------------------------------------
+   0000                     400 _write_value_req:
+                    0002    401 	ar2 = 0x02
+                    0003    402 	ar3 = 0x03
+                    0004    403 	ar4 = 0x04
+                    0005    404 	ar5 = 0x05
+                    0006    405 	ar6 = 0x06
+                    0007    406 	ar7 = 0x07
+                    0000    407 	ar0 = 0x00
+                    0001    408 	ar1 = 0x01
+                            409 ;	../rm_app.c:32: objno=find_first_objno(telegramm[3],telegramm[4]);
+   0000 85*03 82            410 	mov	dpl,(_telegramm + 0x0003)
+   0003 C0*04               411 	push	(_telegramm + 0x0004)
+   0005 12s00r00            412 	lcall	_find_first_objno
+   0008 AA 82               413 	mov	r2,dpl
+   000A 15 81               414 	dec	sp
+                            415 ;	../rm_app.c:34: if (objno==2) {	// nur das Objekt für Alarm Fernauslösung darf beschrieben werden
+   000C BA 02 0E            416 	cjne	r2,#0x02,00106$
+                            417 ;	../rm_app.c:35: if (telegramm[7]&0x01) {	// Alarm ein
+   000F E5*07               418 	mov	a,(_telegramm + 0x0007)
+   0011 30 E0 05            419 	jnb	acc.0,00102$
+                            420 ;	../rm_app.c:36: PIN_DATA = 0;
+   0014 C2 92               421 	clr	_P1_2
+                            422 ;	../rm_app.c:37: fernalarm=1;
+   0016 D2*05               423 	setb	_fernalarm
+   0018 22                  424 	ret
+   0019                     425 00102$:
+                            426 ;	../rm_app.c:40: PIN_DATA = 1;
+   0019 D2 92               427 	setb	_P1_2
+                            428 ;	../rm_app.c:41: fernalarm=0;
+   001B C2*05               429 	clr	_fernalarm
+   001D                     430 00106$:
+   001D 22                  431 	ret
+                            432 ;------------------------------------------------------------
+                            433 ;Allocation info for local variables in function 'read_value_req'
+                            434 ;------------------------------------------------------------
+                            435 ;------------------------------------------------------------
+                            436 ;	../rm_app.c:48: void read_value_req(void)	// Empfangenes read_value_request Telegramm verarbeiten
+                            437 ;	-----------------------------------------
+                            438 ;	 function read_value_req
+                            439 ;	-----------------------------------------
+   001E                     440 _read_value_req:
+                            441 ;	../rm_app.c:53: }
+   001E 22                  442 	ret
+                            443 ;------------------------------------------------------------
+                            444 ;Allocation info for local variables in function 'read_obj_value'
+                            445 ;------------------------------------------------------------
+                            446 ;objno                     Allocated to registers r2 
+                            447 ;return_value              Allocated to registers r3 
+                            448 ;------------------------------------------------------------
+                            449 ;	../rm_app.c:56: unsigned long read_obj_value(unsigned char objno)
+                            450 ;	-----------------------------------------
+                            451 ;	 function read_obj_value
+                            452 ;	-----------------------------------------
+   001F                     453 _read_obj_value:
+   001F AA 82               454 	mov	r2,dpl
+                            455 ;	../rm_app.c:58: unsigned char return_value=0;
+   0021 7B 00               456 	mov	r3,#0x00
+                            457 ;	../rm_app.c:60: if(objno==0) return_value=alarm_obj;
+   0023 EA                  458 	mov	a,r2
+   0024 70 06               459 	jnz	00102$
+   0026 A2*03               460 	mov	c,_alarm_obj
+   0028 E4                  461 	clr	a
+   0029 33                  462 	rlc	a
+   002A FC                  463 	mov	r4,a
+   002B FB                  464 	mov	r3,a
+   002C                     465 00102$:
+                            466 ;	../rm_app.c:61: if(objno==1) return_value=stoerung_obj;
+   002C BA 01 06            467 	cjne	r2,#0x01,00104$
+   002F A2*04               468 	mov	c,_stoerung_obj
+   0031 E4                  469 	clr	a
+   0032 33                  470 	rlc	a
+   0033 FA                  471 	mov	r2,a
+   0034 FB                  472 	mov	r3,a
+   0035                     473 00104$:
+                            474 ;	../rm_app.c:63: return(return_value);
+   0035 7A 00               475 	mov	r2,#0x00
+   0037 7C 00               476 	mov	r4,#0x00
+   0039 7D 00               477 	mov	r5,#0x00
+   003B 8B 82               478 	mov	dpl,r3
+   003D 8A 83               479 	mov	dph,r2
+   003F 8C F0               480 	mov	b,r4
+   0041 ED                  481 	mov	a,r5
+   0042 22                  482 	ret
+                            483 ;------------------------------------------------------------
+                            484 ;Allocation info for local variables in function 'key'
+                            485 ;------------------------------------------------------------
+                            486 ;port                      Allocated to registers r2 
+                            487 ;------------------------------------------------------------
+                            488 ;	../rm_app.c:67: void key(void) __interrupt (7)		// Abfrage der beiden Statusleitungen
+                            489 ;	-----------------------------------------
+                            490 ;	 function key
+                            491 ;	-----------------------------------------
+   0043                     492 _key:
+   0043 C0 E0               493 	push	acc
+   0045 C0 02               494 	push	ar2
+   0047 C0 D0               495 	push	psw
+   0049 75 D0 00            496 	mov	psw,#0x00
+                            497 ;	../rm_app.c:71: EKBI=0;				// keyboard Interrupt sperren
+   004C C2 E9               498 	clr	_IEN1_1
+                            499 ;	../rm_app.c:73: port=P0&0x03;
+   004E 74 03               500 	mov	a,#0x03
+   0050 55 80               501 	anl	a,_P0
+   0052 FA                  502 	mov	r2,a
+                            503 ;	../rm_app.c:74: if(port==2) alarm=1;		// Alarm wenn P0.0 low
+   0053 BA 02 02            504 	cjne	r2,#0x02,00102$
+   0056 D2*01               505 	setb	_alarm
+   0058                     506 00102$:
+                            507 ;	../rm_app.c:75: if(port==1) stoerung=1;		// Störung wenn P0.1 low
+   0058 BA 01 02            508 	cjne	r2,#0x01,00104$
+   005B D2*02               509 	setb	_stoerung
+   005D                     510 00104$:
+                            511 ;	../rm_app.c:76: if(port==0) {				// Aufhebung der Meldung wenn beide low
+   005D EA                  512 	mov	a,r2
+   005E 70 04               513 	jnz	00106$
+                            514 ;	../rm_app.c:77: alarm=0;
+   0060 C2*01               515 	clr	_alarm
+                            516 ;	../rm_app.c:78: stoerung=0;
+   0062 C2*02               517 	clr	_stoerung
+   0064                     518 00106$:
+                            519 ;	../rm_app.c:80: event=1;				// zeigt an, dass der Rauchmelder etwas gesendet hat
+   0064 D2*00               520 	setb	_event
+                            521 ;	../rm_app.c:81: interrupted=1;			// Flag setzen, dass unterbrochen wurde
+   0066 D2*00               522 	setb	_interrupted
+                            523 ;	../rm_app.c:82: KBCON=0;				// Interrupt-Flag löschen
+   0068 75 94 00            524 	mov	_KBCON,#0x00
+                            525 ;	../rm_app.c:83: KBPATN=port;			// aktuellen Portwert als neuen Ausgangspunkt für Änderung nehmen
+   006B 8A 93               526 	mov	_KBPATN,r2
+                            527 ;	../rm_app.c:84: EKBI=1;					// Keyboard Interrupt wieder frei geben
+   006D D2 E9               528 	setb	_IEN1_1
+   006F D0 D0               529 	pop	psw
+   0071 D0 02               530 	pop	ar2
+   0073 D0 E0               531 	pop	acc
+   0075 32                  532 	reti
+                            533 ;	eliminated unneeded push/pop ar0
+                            534 ;	eliminated unneeded push/pop ar1
+                            535 ;	eliminated unneeded push/pop dpl
+                            536 ;	eliminated unneeded push/pop dph
+                            537 ;	eliminated unneeded push/pop b
+                            538 ;------------------------------------------------------------
+                            539 ;Allocation info for local variables in function 'delay_timer'
+                            540 ;------------------------------------------------------------
+                            541 ;------------------------------------------------------------
+                            542 ;	../rm_app.c:88: void delay_timer(void)	// zählt jede Sekunde die Variable Timer hoch und prüft ob zyklisch gesendet werden soll
+                            543 ;	-----------------------------------------
+                            544 ;	 function delay_timer
+                            545 ;	-----------------------------------------
+   0076                     546 _delay_timer:
+                            547 ;	../rm_app.c:92: RTCCON=0x60;		// RTC anhalten und Flag löschen
+   0076 75 D1 60            548 	mov	_RTCCON,#0x60
+                            549 ;	../rm_app.c:93: RTCH=0xE1;			// reload Real Time Clock (1s=0xE100)
+   0079 75 D2 E1            550 	mov	_RTCH,#0xE1
+                            551 ;	../rm_app.c:94: RTCL=0x00;
+   007C 75 D3 00            552 	mov	_RTCL,#0x00
+                            553 ;	../rm_app.c:96: timer++;			// Zählervariable jede Sekunde hochzählen
+   007F 05*00               554 	inc	_timer
+   0081 E4                  555 	clr	a
+   0082 B5*00 02            556 	cjne	a,_timer,00121$
+   0085 05*01               557 	inc	(_timer + 1)
+   0087                     558 00121$:
+                            559 ;	../rm_app.c:98: if (timer_alarm==timer && eeprom[A_ZYKLISCH]) {		// wenn Alarm zyklisch gesendet werden soll
+   0087 E5*00               560 	mov	a,_timer
+   0089 B5*02 41            561 	cjne	a,_timer_alarm,00105$
+   008C E5*01               562 	mov	a,(_timer + 1)
+   008E B5*03 3C            563 	cjne	a,(_timer_alarm + 1),00105$
+   0091 90s00rF4            564 	mov	dptr,#(_eeprom + 0x00f4)
+   0094 E4                  565 	clr	a
+   0095 93                  566 	movc	a,@a+dptr
+   0096 60 35               567 	jz	00105$
+                            568 ;	../rm_app.c:99: send_obj_value(0);
+   0098 75 82 00            569 	mov	dpl,#0x00
+   009B 12s00r00            570 	lcall	_send_obj_value
+                            571 ;	../rm_app.c:100: if (eeprom[A_BASIS]) timer_alarm=timer+eeprom[A_FAKTOR]*60;	// Minuten
+   009E 90s00rF6            572 	mov	dptr,#(_eeprom + 0x00f6)
+   00A1 E4                  573 	clr	a
+   00A2 93                  574 	movc	a,@a+dptr
+   00A3 60 16               575 	jz	00102$
+   00A5 90s00rF5            576 	mov	dptr,#(_eeprom + 0x00f5)
+   00A8 E4                  577 	clr	a
+   00A9 93                  578 	movc	a,@a+dptr
+   00AA FA                  579 	mov	r2,a
+   00AB 75 F0 3C            580 	mov	b,#0x3C
+   00AE A4                  581 	mul	ab
+   00AF 25*00               582 	add	a,_timer
+   00B1 F5*02               583 	mov	_timer_alarm,a
+   00B3 E5*01               584 	mov	a,(_timer + 1)
+   00B5 35 F0               585 	addc	a,b
+   00B7 F5*03               586 	mov	(_timer_alarm + 1),a
+   00B9 80 12               587 	sjmp	00105$
+   00BB                     588 00102$:
+                            589 ;	../rm_app.c:101: else timer_alarm=timer+eeprom[A_FAKTOR];					// Sekunden
+   00BB 90s00rF5            590 	mov	dptr,#(_eeprom + 0x00f5)
+   00BE E4                  591 	clr	a
+   00BF 93                  592 	movc	a,@a+dptr
+   00C0 FA                  593 	mov	r2,a
+   00C1 7B 00               594 	mov	r3,#0x00
+   00C3 EA                  595 	mov	a,r2
+   00C4 25*00               596 	add	a,_timer
+   00C6 F5*02               597 	mov	_timer_alarm,a
+   00C8 EB                  598 	mov	a,r3
+   00C9 35*01               599 	addc	a,(_timer + 1)
+   00CB F5*03               600 	mov	(_timer_alarm + 1),a
+   00CD                     601 00105$:
+                            602 ;	../rm_app.c:103: if (timer_stoerung==timer && eeprom[S_ZYKLISCH]) {	// wenn Störung zyklisch gesendet werden soll
+   00CD E5*00               603 	mov	a,_timer
+   00CF B5*04 41            604 	cjne	a,_timer_stoerung,00111$
+   00D2 E5*01               605 	mov	a,(_timer + 1)
+   00D4 B5*05 3C            606 	cjne	a,(_timer_stoerung + 1),00111$
+   00D7 90s00rF7            607 	mov	dptr,#(_eeprom + 0x00f7)
+   00DA E4                  608 	clr	a
+   00DB 93                  609 	movc	a,@a+dptr
+   00DC 60 35               610 	jz	00111$
+                            611 ;	../rm_app.c:104: send_obj_value(1);
+   00DE 75 82 01            612 	mov	dpl,#0x01
+   00E1 12s00r00            613 	lcall	_send_obj_value
+                            614 ;	../rm_app.c:105: if (eeprom[S_BASIS]) timer_stoerung=timer+eeprom[S_FAKTOR]*60;	// Minuten
+   00E4 90s00rF9            615 	mov	dptr,#(_eeprom + 0x00f9)
+   00E7 E4                  616 	clr	a
+   00E8 93                  617 	movc	a,@a+dptr
+   00E9 60 16               618 	jz	00108$
+   00EB 90s00rF8            619 	mov	dptr,#(_eeprom + 0x00f8)
+   00EE E4                  620 	clr	a
+   00EF 93                  621 	movc	a,@a+dptr
+   00F0 FA                  622 	mov	r2,a
+   00F1 75 F0 3C            623 	mov	b,#0x3C
+   00F4 A4                  624 	mul	ab
+   00F5 25*00               625 	add	a,_timer
+   00F7 F5*04               626 	mov	_timer_stoerung,a
+   00F9 E5*01               627 	mov	a,(_timer + 1)
+   00FB 35 F0               628 	addc	a,b
+   00FD F5*05               629 	mov	(_timer_stoerung + 1),a
+   00FF 80 12               630 	sjmp	00111$
+   0101                     631 00108$:
+                            632 ;	../rm_app.c:106: else timer_stoerung=timer+eeprom[S_FAKTOR];						// Sekunden
+   0101 90s00rF8            633 	mov	dptr,#(_eeprom + 0x00f8)
+   0104 E4                  634 	clr	a
+   0105 93                  635 	movc	a,@a+dptr
+   0106 FA                  636 	mov	r2,a
+   0107 7B 00               637 	mov	r3,#0x00
+   0109 EA                  638 	mov	a,r2
+   010A 25*00               639 	add	a,_timer
+   010C F5*04               640 	mov	_timer_stoerung,a
+   010E EB                  641 	mov	a,r3
+   010F 35*01               642 	addc	a,(_timer + 1)
+   0111 F5*05               643 	mov	(_timer_stoerung + 1),a
+   0113                     644 00111$:
+                            645 ;	../rm_app.c:108: RTCCON=0x61;		// RTC starten
+   0113 75 D1 61            646 	mov	_RTCCON,#0x61
+   0116 22                  647 	ret
+                            648 ;------------------------------------------------------------
+                            649 ;Allocation info for local variables in function 'restart_app'
+                            650 ;------------------------------------------------------------
+                            651 ;------------------------------------------------------------
+                            652 ;	../rm_app.c:112: void restart_app(void)		// Alle Applikations-Parameter zurücksetzen
+                            653 ;	-----------------------------------------
+                            654 ;	 function restart_app
+                            655 ;	-----------------------------------------
+   0117                     656 _restart_app:
+                            657 ;	../rm_app.c:114: P0M1= 0x00;			// alle Pins von Port0 als bidirectional definieren,
+   0117 75 84 00            658 	mov	_P0M1,#0x00
+                            659 ;	../rm_app.c:115: P0M2= 0x00;
+   011A 75 85 00            660 	mov	_P0M2,#0x00
+                            661 ;	../rm_app.c:116: P0= 0xFF;
+   011D 75 80 FF            662 	mov	_P0,#0xFF
+                            663 ;	../rm_app.c:120: alarm=0;
+   0120 C2*01               664 	clr	_alarm
+                            665 ;	../rm_app.c:121: stoerung=0;
+   0122 C2*02               666 	clr	_stoerung
+                            667 ;	../rm_app.c:122: alarm_obj=0;
+   0124 C2*03               668 	clr	_alarm_obj
+                            669 ;	../rm_app.c:123: stoerung_obj=0;
+   0126 C2*04               670 	clr	_stoerung_obj
+                            671 ;	../rm_app.c:124: event=0;
+   0128 C2*00               672 	clr	_event
+                            673 ;	../rm_app.c:125: fernalarm=0;
+   012A C2*05               674 	clr	_fernalarm
+                            675 ;	../rm_app.c:126: PIN_DATA=1;		// Fernauslösung Alarm ausschalten
+   012C D2 92               676 	setb	_P1_2
+                            677 ;	../rm_app.c:129: KBMASK=0x03;	// P0.0 & P0.1 enabled for KB-Interrupt
+   012E 75 86 03            678 	mov	_KBMASK,#0x03
+                            679 ;	../rm_app.c:130: KBPATN=0x03;	// Pattern
+   0131 75 93 03            680 	mov	_KBPATN,#0x03
+                            681 ;	../rm_app.c:131: KBCON=0;		// Interrupt when port not equal to pattern
+   0134 75 94 00            682 	mov	_KBCON,#0x00
+                            683 ;	../rm_app.c:132: EKBI=1;
+   0137 D2 E9               684 	setb	_IEN1_1
+                            685 ;	../rm_app.c:134: RTCH=0xE1;		// Real Time Clock auf 1s laden
+   0139 75 D2 E1            686 	mov	_RTCH,#0xE1
+                            687 ;	../rm_app.c:135: RTCL=0x00;		// (RTC ist ein down-counter mit 128 bit prescaler und osc-clock)
+   013C 75 D3 00            688 	mov	_RTCL,#0x00
+                            689 ;	../rm_app.c:136: RTCCON=0x61;	// ... und starten
+   013F 75 D1 61            690 	mov	_RTCCON,#0x61
+                            691 ;	../rm_app.c:138: timer=0;
+   0142 E4                  692 	clr	a
+   0143 F5*00               693 	mov	_timer,a
+   0145 F5*01               694 	mov	(_timer + 1),a
+                            695 ;	../rm_app.c:139: if (eeprom[A_ZYKLISCH]) timer_alarm=timer+2;
+   0147 90s00rF4            696 	mov	dptr,#(_eeprom + 0x00f4)
+   014A E4                  697 	clr	a
+   014B 93                  698 	movc	a,@a+dptr
+   014C 60 06               699 	jz	00102$
+   014E 75*02 02            700 	mov	_timer_alarm,#0x02
+   0151 E4                  701 	clr	a
+   0152 F5*03               702 	mov	(_timer_alarm + 1),a
+   0154                     703 00102$:
+                            704 ;	../rm_app.c:140: if (eeprom[S_ZYKLISCH]) timer_stoerung=timer+4;
+   0154 90s00rF7            705 	mov	dptr,#(_eeprom + 0x00f7)
+   0157 E4                  706 	clr	a
+   0158 93                  707 	movc	a,@a+dptr
+   0159 60 06               708 	jz	00104$
+   015B 75*04 04            709 	mov	_timer_stoerung,#0x04
+   015E E4                  710 	clr	a
+   015F F5*05               711 	mov	(_timer_stoerung + 1),a
+   0161                     712 00104$:
+                            713 ;	../rm_app.c:143: EA=0;						// Interrupts sperren, damit flashen nicht unterbrochen wird
+   0161 C2 AF               714 	clr	_IEN0_7
+                            715 ;	../rm_app.c:144: START_WRITECYCLE;
+   0163 75 E4 00            716 	mov	_FMCON,#0x00
+                            717 ;	../rm_app.c:145: WRITE_BYTE(0x01,0x03,0x00);	// Herstellercode 0x0000 = Freebus
+   0166 75 E7 1D            718 	mov	_FMADRH,#0x1D
+   0169 75 E6 03            719 	mov	_FMADRL,#0x03
+   016C 75 E5 00            720 	mov	_FMDATA,#0x00
+                            721 ;	../rm_app.c:146: WRITE_BYTE(0x01,0x04,0x00);
+   016F 75 E7 1D            722 	mov	_FMADRH,#0x1D
+   0172 75 E6 04            723 	mov	_FMADRL,#0x04
+   0175 75 E5 00            724 	mov	_FMDATA,#0x00
+                            725 ;	../rm_app.c:147: WRITE_BYTE(0x01,0x05,0x10);	// Devicetype 0x1003
+   0178 75 E7 1D            726 	mov	_FMADRH,#0x1D
+   017B 75 E6 05            727 	mov	_FMADRL,#0x05
+   017E 75 E5 10            728 	mov	_FMDATA,#0x10
+                            729 ;	../rm_app.c:148: WRITE_BYTE(0x01,0x06,0x03);
+   0181 75 E7 1D            730 	mov	_FMADRH,#0x1D
+   0184 75 E6 06            731 	mov	_FMADRL,#0x06
+   0187 75 E5 03            732 	mov	_FMDATA,#0x03
+                            733 ;	../rm_app.c:149: WRITE_BYTE(0x01,0x07,0x01);	// Versionnumber of application programm
+   018A 75 E7 1D            734 	mov	_FMADRH,#0x1D
+   018D 75 E6 07            735 	mov	_FMADRL,#0x07
+   0190 75 E5 01            736 	mov	_FMDATA,#0x01
+                            737 ;	../rm_app.c:150: WRITE_BYTE(0x01,0x0C,0x00);	// PORT A Direction Bit Setting
+   0193 75 E7 1D            738 	mov	_FMADRH,#0x1D
+   0196 75 E6 0C            739 	mov	_FMADRL,#0x0C
+   0199 75 E5 00            740 	mov	_FMDATA,#0x00
+                            741 ;	../rm_app.c:151: WRITE_BYTE(0x01,0x0D,0xFF);	// Run-Status (00=stop FF=run)
+   019C 75 E7 1D            742 	mov	_FMADRH,#0x1D
+   019F 75 E6 0D            743 	mov	_FMADRL,#0x0D
+   01A2 75 E5 FF            744 	mov	_FMDATA,#0xFF
+                            745 ;	../rm_app.c:152: WRITE_BYTE(0x01,0x12,0xA0);	// COMMSTAB Pointer
+   01A5 75 E7 1D            746 	mov	_FMADRH,#0x1D
+   01A8 75 E6 12            747 	mov	_FMADRL,#0x12
+   01AB 75 E5 A0            748 	mov	_FMDATA,#0xA0
+                            749 ;	../rm_app.c:153: STOP_WRITECYCLE;
+   01AE 75 E4 68            750 	mov	_FMCON,#0x68
+                            751 ;	../rm_app.c:154: EA=1;						// Interrupts freigeben
+   01B1 D2 AF               752 	setb	_IEN0_7
+   01B3 22                  753 	ret
+                            754 	.area CSEG    (CODE)
+                            755 	.area CONST   (CODE)
+                            756 	.area XINIT   (CODE)
+                            757 	.area CABS    (ABS,CODE)

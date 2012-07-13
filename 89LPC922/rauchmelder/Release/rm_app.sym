@@ -307,17 +307,20 @@ Symbol Table
     _WFEED2                                                     =  00C3 G
   7 _alarm                                                         0001 GR
   7 _alarm_obj                                                     0003 GR
- 15 _delay_timer                                                   0059 GR
+ 15 _delay_timer                                                   0076 GR
     _eeprom                                                        **** GX
   7 _event                                                         0000 GR
+  7 _fernalarm                                                     0005 GR
+    _find_first_objno                                              **** GX
     _interrupted                                                   **** GX
- 15 _key                                                           0026 GR
- 15 _read_obj_value                                                0002 GR
- 15 _read_value_req                                                0001 GR
- 15 _restart_app                                                   00FA GR
+ 15 _key                                                           0043 GR
+ 15 _read_obj_value                                                001F GR
+ 15 _read_value_req                                                001E GR
+ 15 _restart_app                                                   0117 GR
     _send_obj_value                                                **** GX
   7 _stoerung                                                      0002 GR
   7 _stoerung_obj                                                  0004 GR
+    _telegramm                                                     **** GX
   3 _timer                                                         0000 GR
   3 _timer_alarm                                                   0002 GR
   3 _timer_stoerung                                                0004 GR
@@ -510,7 +513,7 @@ Area Table
    4 OSEG                                                                               size    0   flags 4
    5 ISEG                                                                               size    0   flags 0
    6 IABS                                                                               size    0   flags 8
-   7 BSEG                                                                               size    5   flags 80
+   7 BSEG                                                                               size    6   flags 80
    8 PSEG                                                                               size    0   flags 50
    9 XSEG                                                                               size    0   flags 40
    A XABS                                                                               size    0   flags 48
@@ -524,7 +527,7 @@ Area Table
   12 GSINIT5                                                                            size    0   flags 20
   13 GSINIT                                                                             size    0   flags 20
   14 GSFINAL                                                                            size    0   flags 20
-  15 CSEG                                                                               size  191   flags 20
+  15 CSEG                                                                               size  1B4   flags 20
   16 CONST                                                                              size    0   flags 20
   17 XINIT                                                                              size    0   flags 20
   18 CABS                                                                               size    0   flags 28

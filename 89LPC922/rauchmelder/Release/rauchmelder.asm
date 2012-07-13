@@ -1,7 +1,7 @@
 ;--------------------------------------------------------
 ; File Created by SDCC : free open source ANSI-C Compiler
 ; Version 2.9.0 #5416 (Mar 22 2009) (MINGW32)
-; This file was generated Mon Jun 25 19:33:49 2012
+; This file was generated Thu Jun 28 18:23:14 2012
 ;--------------------------------------------------------
 	.module rauchmelder
 	.optsdcc -mmcs51 --model-small
@@ -401,7 +401,7 @@ __sdcc_program_startup:
 ;------------------------------------------------------------
 ;n                         Allocated to registers r2 
 ;------------------------------------------------------------
-;	../rauchmelder.c:23: void main(void)
+;	../rauchmelder.c:27: void main(void)
 ;	-----------------------------------------
 ;	 function main
 ;	-----------------------------------------
@@ -414,116 +414,117 @@ _main:
 	ar7 = 0x07
 	ar0 = 0x00
 	ar1 = 0x01
-;	../rauchmelder.c:28: restart_hw();				// Hardware zuruecksetzen
+;	../rauchmelder.c:32: restart_hw();				// Hardware zuruecksetzen
 	lcall	_restart_hw
-;	../rauchmelder.c:30: for (n=0;n<50;n++) {		// Warten bis Bus stabil, nach Busspannungswiederkehr
+;	../rauchmelder.c:34: for (n=0;n<50;n++) {		// Warten bis Bus stabil, nach Busspannungswiederkehr
 	mov	r2,#0x00
-00125$:
-	cjne	r2,#0x32,00159$
-00159$:
-	jnc	00128$
-;	../rauchmelder.c:31: TR0=0;					// Timer 0 anhalten
+00126$:
+	cjne	r2,#0x32,00161$
+00161$:
+	jnc	00129$
+;	../rauchmelder.c:35: TR0=0;					// Timer 0 anhalten
 	clr	_TCON_4
-;	../rauchmelder.c:32: TH0=eeprom[ADDRTAB+1];	// Timer 0 setzen mit phys. Adr. damit Geräte unterschiedlich beginnen zu senden
+;	../rauchmelder.c:36: TH0=eeprom[ADDRTAB+1];	// Timer 0 setzen mit phys. Adr. damit Geräte unterschiedlich beginnen zu senden
 	mov	dptr,#(_eeprom + 0x0017)
 	clr	a
 	movc	a,@a+dptr
 	mov	_TH0,a
-;	../rauchmelder.c:33: TL0=eeprom[ADDRTAB+2];
+;	../rauchmelder.c:37: TL0=eeprom[ADDRTAB+2];
 	mov	dptr,#(_eeprom + 0x0018)
 	clr	a
 	movc	a,@a+dptr
 	mov	_TL0,a
-;	../rauchmelder.c:34: TF0=0;					// Überlauf-Flag zurücksetzen
+;	../rauchmelder.c:38: TF0=0;					// Überlauf-Flag zurücksetzen
 	clr	_TCON_5
-;	../rauchmelder.c:35: TR0=1;					// Timer 0 starten
+;	../rauchmelder.c:39: TR0=1;					// Timer 0 starten
 	setb	_TCON_4
-;	../rauchmelder.c:36: while(!TF0);
+;	../rauchmelder.c:40: while(!TF0);
 00101$:
 	jnb	_TCON_5,00101$
-;	../rauchmelder.c:30: for (n=0;n<50;n++) {		// Warten bis Bus stabil, nach Busspannungswiederkehr
+;	../rauchmelder.c:34: for (n=0;n<50;n++) {		// Warten bis Bus stabil, nach Busspannungswiederkehr
 	inc	r2
-	sjmp	00125$
-00128$:
-;	../rauchmelder.c:38: restart_app();				// Anwendungsspezifische Einstellungen zuruecksetzen
+	sjmp	00126$
+00129$:
+;	../rauchmelder.c:42: restart_app();				// Anwendungsspezifische Einstellungen zuruecksetzen
 	lcall	_restart_app
-;	../rauchmelder.c:41: do  {
-00122$:
-;	../rauchmelder.c:42: if(APPLICATION_RUN) {	// nur wenn run-mode gesetzt
+;	../rauchmelder.c:45: do  {
+00123$:
+;	../rauchmelder.c:46: if(APPLICATION_RUN) {	// nur wenn run-mode gesetzt
 	mov	dptr,#(_eeprom + 0x000d)
 	clr	a
 	movc	a,@a+dptr
 	mov	r2,a
-	cjne	r2,#0xFF,00111$
-	jb	_connected,00111$
-;	../rauchmelder.c:44: if (event) {				// wenn Rauchmelder etwas gesendet hat
-	jnb	_event,00111$
-;	../rauchmelder.c:45: if (alarm != alarm_obj) {
+	cjne	r2,#0xFF,00112$
+	jb	_connected,00112$
+;	../rauchmelder.c:48: if (event) {				// wenn Rauchmelder etwas gesendet hat
+	jnb	_event,00112$
+;	../rauchmelder.c:49: if (alarm != alarm_obj && !fernalarm) {	// wenn Alarm aber keine Fernauslösung vorliegt
 	mov	c,_alarm
-	jb	_alarm_obj,00166$
+	jb	_alarm_obj,00168$
 	cpl	c
-00166$:
+00168$:
 	jc	00105$
-;	../rauchmelder.c:46: send_obj_value(0);
+	jb	_fernalarm,00105$
+;	../rauchmelder.c:50: send_obj_value(0);					// Telegramm senden
 	mov	dpl,#0x00
 	lcall	_send_obj_value
-;	../rauchmelder.c:47: alarm_obj = alarm;
+;	../rauchmelder.c:51: alarm_obj = alarm;					// Objektwert setzen
 	mov	c,_alarm
 	mov	_alarm_obj,c
 00105$:
-;	../rauchmelder.c:49: if (stoerung != stoerung_obj) {
+;	../rauchmelder.c:53: if (stoerung != stoerung_obj) {			// bei Störung
 	mov	c,_stoerung
-	jb	_stoerung_obj,00168$
+	jb	_stoerung_obj,00171$
 	cpl	c
-00168$:
-	jc	00107$
-;	../rauchmelder.c:50: send_obj_value(1);
+00171$:
+	jc	00108$
+;	../rauchmelder.c:54: send_obj_value(1);					// Telegramm senden
 	mov	dpl,#0x01
 	lcall	_send_obj_value
-;	../rauchmelder.c:51: stoerung_obj = stoerung;
+;	../rauchmelder.c:55: stoerung_obj = stoerung;			// Objektwert setzen
 	mov	c,_stoerung
 	mov	_stoerung_obj,c
-00107$:
-;	../rauchmelder.c:53: event=0;
+00108$:
+;	../rauchmelder.c:57: event=0;	// Ereignismelder zurücksetzen
 	clr	_event
-00111$:
-;	../rauchmelder.c:57: if(tel_arrived) process_tel();		// empfangenes Telegramm abarbeiten
-	jnb	_tel_arrived,00114$
+00112$:
+;	../rauchmelder.c:61: if(tel_arrived) process_tel();		// empfangenes Telegramm abarbeiten
+	jnb	_tel_arrived,00115$
 	lcall	_process_tel
-00114$:
-;	../rauchmelder.c:59: if(RTCCON>=0x80) delay_timer();	// Realtime clock Ueberlauf
+00115$:
+;	../rauchmelder.c:63: if(RTCCON>=0x80) delay_timer();		// Realtime clock Ueberlauf
 	mov	a,#0x100 - 0x80
 	add	a,_RTCCON
-	jnc	00116$
+	jnc	00117$
 	lcall	_delay_timer
-00116$:
-;	../rauchmelder.c:63: TASTER=1;				// Pin als Eingang schalten um Taster abzufragen
-	setb	_P1_7
-;	../rauchmelder.c:64: if(!TASTER) {				// Taster gedrückt
-	jb	_P1_7,00121$
-;	../rauchmelder.c:65: for(n=0;n<100;n++) {}	// Entprell-Zeit
-	mov	r2,#0x64
-00131$:
-	djnz	r2,00131$
-;	../rauchmelder.c:66: while(!TASTER);			// warten bis Taster losgelassen
 00117$:
-	jnb	_P1_7,00117$
-;	../rauchmelder.c:67: status60^=0x81;	// Prog-Bit und Parity-Bit im system_state toggeln
+;	../rauchmelder.c:67: TASTER=1;					// Pin als Eingang schalten um Taster abzufragen
+	setb	_P1_7
+;	../rauchmelder.c:68: if(!TASTER) {				// Taster gedrückt
+	jb	_P1_7,00122$
+;	../rauchmelder.c:69: for(n=0;n<100;n++) {}	// Entprell-Zeit
+	mov	r2,#0x64
+00132$:
+	djnz	r2,00132$
+;	../rauchmelder.c:70: while(!TASTER);			// warten bis Taster losgelassen
+00118$:
+	jnb	_P1_7,00118$
+;	../rauchmelder.c:71: status60^=0x81;			// Prog-Bit und Parity-Bit im system_state toggeln
 	xrl	_status60,#0x81
-00121$:
-;	../rauchmelder.c:69: TASTER=!(status60 & 0x01);	// LED entsprechend Prog-Bit schalten (low=LED an)
+00122$:
+;	../rauchmelder.c:73: TASTER=!(status60 & 0x01);	// LED entsprechend Prog-Bit schalten (low=LED an)
 	mov	a,_status60
 	anl	a,#0x01
 	mov	r2,a
-	cjne	a,#0x01,00176$
-00176$:
+	cjne	a,#0x01,00179$
+00179$:
 	mov	_P1_7,c
-;	../rauchmelder.c:70: for(n=0;n<100;n++) {}	// falls Hauptroutine keine Zeit verbraucht, der LED etwas Zeit geben, damit sie auch leuchten kann
+;	../rauchmelder.c:74: for(n=0;n<100;n++) {}		// falls Hauptroutine keine Zeit verbraucht, der LED etwas Zeit geben, damit sie auch leuchten kann
 	mov	r2,#0x64
-00134$:
-	djnz	r2,00134$
-;	../rauchmelder.c:71: } while(1);
-	sjmp	00122$
+00135$:
+	djnz	r2,00135$
+;	../rauchmelder.c:75: } while(1);
+	sjmp	00123$
 	.area CSEG    (CODE)
 	.area CONST   (CODE)
 	.area XINIT   (CODE)

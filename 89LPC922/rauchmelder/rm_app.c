@@ -5,10 +5,11 @@
  *   / __/ / _, _/ /___/ /___/ /_/ / /_/ /___/ /
  *  /_/   /_/ |_/_____/_____/_____/\____//____/
  *
- *  Copyright (c) 2011 - 2012 Andreas Krebs <kubi@krebsworld.de>
+ *  Copyright (c) 2012 Andreas Krebs <kubi@krebsworld.de>
  *
- *  This program is not free software; you can use it and/or modify
- *  it for private use only.
+ *  This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License version 2 as
+ *  published by the Free Software Foundation.
  *
  *
  */
@@ -20,15 +21,26 @@
 #include "rm_app.h"
 
 
-__bit event, alarm, stoerung, alarm_obj, stoerung_obj;
+__bit event, alarm, stoerung, alarm_obj, stoerung_obj, fernalarm;
 unsigned int timer, timer_alarm, timer_stoerung;
 
 
 void write_value_req(void)	// Empfangenes write_value_request Telegramm verarbeiten
 {
-	/* Hier holt man sich die Bytes aus dem array telegramm[] und führt
-	 * die entsprechenden Aktionen aus, die das Gerät haben soll
-	 */
+	unsigned char objno;
+
+	objno=find_first_objno(telegramm[3],telegramm[4]);
+
+	if (objno==2) {	// nur das Objekt für Alarm Fernauslösung darf beschrieben werden
+		if (telegramm[7]&0x01) {	// Alarm ein
+			PIN_DATA = 0;
+			fernalarm=1;
+		}
+		else {						// Alarm aus
+			PIN_DATA = 1;
+			fernalarm=0;
+		}
+	}
 }
 
 
@@ -52,70 +64,71 @@ unsigned long read_obj_value(unsigned char objno)
 }
 
 
-void key(void) __interrupt (7)
+void key(void) __interrupt (7)		// Abfrage der beiden Statusleitungen
 {
 	unsigned char port;
 
 	EKBI=0;				// keyboard Interrupt sperren
 
 	port=P0&0x03;
-	if(port==2) alarm=1;
-	if(port==1) stoerung=1;
-	if(port==0) {
+	if(port==2) alarm=1;		// Alarm wenn P0.0 low
+	if(port==1) stoerung=1;		// Störung wenn P0.1 low
+	if(port==0) {				// Aufhebung der Meldung wenn beide low
 		alarm=0;
 		stoerung=0;
 	}
 	event=1;				// zeigt an, dass der Rauchmelder etwas gesendet hat
 	interrupted=1;			// Flag setzen, dass unterbrochen wurde
-	//while((P0 & 0x03)!= 0x03);
 	KBCON=0;				// Interrupt-Flag löschen
-	KBPATN=port;
+	KBPATN=port;			// aktuellen Portwert als neuen Ausgangspunkt für Änderung nehmen
 	EKBI=1;					// Keyboard Interrupt wieder frei geben
 }
 
 
-void delay_timer(void)	// zählt alle 65ms die Variable Timer hoch und prüft Queue
+void delay_timer(void)	// zählt jede Sekunde die Variable Timer hoch und prüft ob zyklisch gesendet werden soll
 {
 
 
 	RTCCON=0x60;		// RTC anhalten und Flag löschen
-	RTCH=0xE1;			// reload Real Time Clock
+	RTCH=0xE1;			// reload Real Time Clock (1s=0xE100)
 	RTCL=0x00;
 
-	timer++;
+	timer++;			// Zählervariable jede Sekunde hochzählen
 
-	if (timer_alarm==timer && eeprom[A_ZYKLISCH]) {
+	if (timer_alarm==timer && eeprom[A_ZYKLISCH]) {		// wenn Alarm zyklisch gesendet werden soll
 		send_obj_value(0);
-		if (eeprom[A_BASIS]) timer_alarm=timer+eeprom[A_FAKTOR]*60;
-		else timer_alarm=timer+eeprom[A_FAKTOR];
+		if (eeprom[A_BASIS]) timer_alarm=timer+eeprom[A_FAKTOR]*60;	// Minuten
+		else timer_alarm=timer+eeprom[A_FAKTOR];					// Sekunden
 	}
-	if (timer_stoerung==timer && eeprom[S_ZYKLISCH]) {
+	if (timer_stoerung==timer && eeprom[S_ZYKLISCH]) {	// wenn Störung zyklisch gesendet werden soll
 		send_obj_value(1);
-		if (eeprom[S_BASIS]) timer_stoerung=timer+eeprom[S_FAKTOR]*60;
-		else timer_stoerung=timer+eeprom[S_FAKTOR];
+		if (eeprom[S_BASIS]) timer_stoerung=timer+eeprom[S_FAKTOR]*60;	// Minuten
+		else timer_stoerung=timer+eeprom[S_FAKTOR];						// Sekunden
 	}
-
 	RTCCON=0x61;		// RTC starten
 }
 
 
 void restart_app(void)		// Alle Applikations-Parameter zurücksetzen
 {
-
-
-	P0M1= 0x00;			// all bidirectional,
+	P0M1= 0x00;			// alle Pins von Port0 als bidirectional definieren,
 	P0M2= 0x00;
 	P0= 0xFF;
 
+
+	// Statusbits initialisieren
 	alarm=0;
 	stoerung=0;
 	alarm_obj=0;
 	stoerung_obj=0;
+	event=0;
+	fernalarm=0;
+	PIN_DATA=1;		// Fernauslösung Alarm ausschalten
 
 	// Init Keyboard Interrupt
-	KBMASK=0x03;		// P0.0 & P0.1 enabled for KB-Interrupt
-	KBPATN=0x03;		// Pattern
-	KBCON=0;			// Interrupt when port not equal to pattern
+	KBMASK=0x03;	// P0.0 & P0.1 enabled for KB-Interrupt
+	KBPATN=0x03;	// Pattern
+	KBCON=0;		// Interrupt when port not equal to pattern
 	EKBI=1;
 
 	RTCH=0xE1;		// Real Time Clock auf 1s laden
