@@ -13,9 +13,6 @@
  *
  */
 /**
-* @file   kombi-hr.c
-* @author Andreas Krebs <kubi@krebsworld.de>, last change HoRa
-* @date   Tue Jan 01 17:44:47 2009, last change Feb 2012
 *
 * @brief  Kombisensor for temperature and lux
 *
@@ -49,6 +46,9 @@
 *               * end of for-loop in delay() aligned with number of delrec =9,  logic object9 was never sent
 *		2.07	Senden bei Änderung von Lux wieder hergestellt, alle 10 sec Wandeln wieder raus, das gab Probleme beim Programmieren
 *		2.08	mit lib 1.31, statt userram ummappen die Objektwerte in variablen gelegt
+*		2.09	alle 10 Sekunden Wandeln über RTC realisiert
+*		2.10	Verzögerung bei Verknüpfungsobjekten repariert
+*		2.11	bugfix Verknüpfung mit Verzögerung des Helligkeitsobjektes
 */
 
 
@@ -121,14 +121,18 @@ void main(void)
 			ET1=0;									// statemachine stoppen
 			switch (sequence) {
 			case 1:
-					interrupted=0;
-					start_tempconversion();				// Konvertierung starten
-					if (!interrupted) sequence=2;
+					if((timer&0x3F) == 0x30) {	// nur alle 10 Sekunden wandeln
+						interrupted=0;
+						start_tempconversion();				// Konvertierung starten
+						if (!interrupted) sequence=2;
+					}
 					ET1=1;						// statemachine starten
 					break;
 			case 2:
-					interrupted=0;
-					if (ow_read_bit() && !interrupted) sequence=3;	// Konvertierung abgeschlossen
+					if((timer&0x07) == 0x07) {	// nur ein mal pro Sekunde pollen
+						interrupted=0;
+						if (ow_read_bit() && !interrupted) sequence=3;	// Konvertierung abgeschlossen
+					}
 					ET1=1;						// statemachine starten
 					break;
 			case 3:

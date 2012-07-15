@@ -1,0 +1,2496 @@
+                              1 ;--------------------------------------------------------
+                              2 ; File Created by SDCC : free open source ANSI-C Compiler
+                              3 ; Version 2.9.0 #5416 (Mar 22 2009) (MINGW32)
+                              4 ; This file was generated Sun Jul 15 18:49:21 2012
+                              5 ;--------------------------------------------------------
+                              6 	.module app_kombi
+                              7 	.optsdcc -mmcs51 --model-small
+                              8 	
+                              9 ;--------------------------------------------------------
+                             10 ; Public variables in this module
+                             11 ;--------------------------------------------------------
+                             12 	.globl _ctrl_adr
+                             13 	.globl _luxdelay
+                             14 	.globl _hystable
+                             15 	.globl _luxtable
+                             16 	.globl _cycleval
+                             17 	.globl _P3_1
+                             18 	.globl _P3_0
+                             19 	.globl _P1_7
+                             20 	.globl _P1_6
+                             21 	.globl _P1_5
+                             22 	.globl _P1_4
+                             23 	.globl _P1_3
+                             24 	.globl _P1_2
+                             25 	.globl _P1_1
+                             26 	.globl _P1_0
+                             27 	.globl _P0_7
+                             28 	.globl _P0_6
+                             29 	.globl _P0_5
+                             30 	.globl _P0_4
+                             31 	.globl _P0_3
+                             32 	.globl _P0_2
+                             33 	.globl _P0_1
+                             34 	.globl _P0_0
+                             35 	.globl _I2CON_0
+                             36 	.globl _I2CON_2
+                             37 	.globl _I2CON_3
+                             38 	.globl _I2CON_4
+                             39 	.globl _I2CON_5
+                             40 	.globl _I2CON_6
+                             41 	.globl _SCON_7
+                             42 	.globl _SCON_6
+                             43 	.globl _SCON_5
+                             44 	.globl _SCON_4
+                             45 	.globl _SCON_3
+                             46 	.globl _SCON_2
+                             47 	.globl _SCON_1
+                             48 	.globl _SCON_0
+                             49 	.globl _IP0_0
+                             50 	.globl _IP0_1
+                             51 	.globl _IP0_2
+                             52 	.globl _IP0_3
+                             53 	.globl _IP0_4
+                             54 	.globl _IP0_5
+                             55 	.globl _IP0_6
+                             56 	.globl _IP1_0
+                             57 	.globl _IP1_1
+                             58 	.globl _IP1_2
+                             59 	.globl _IP1_6
+                             60 	.globl _IEN1_0
+                             61 	.globl _IEN1_1
+                             62 	.globl _IEN1_2
+                             63 	.globl _IEN0_0
+                             64 	.globl _IEN0_1
+                             65 	.globl _IEN0_2
+                             66 	.globl _IEN0_3
+                             67 	.globl _IEN0_4
+                             68 	.globl _IEN0_5
+                             69 	.globl _IEN0_6
+                             70 	.globl _IEN0_7
+                             71 	.globl _TCON_0
+                             72 	.globl _TCON_1
+                             73 	.globl _TCON_2
+                             74 	.globl _TCON_3
+                             75 	.globl _TCON_4
+                             76 	.globl _TCON_5
+                             77 	.globl _TCON_6
+                             78 	.globl _TCON_7
+                             79 	.globl _PSW_7
+                             80 	.globl _PSW_6
+                             81 	.globl _PSW_5
+                             82 	.globl _PSW_4
+                             83 	.globl _PSW_3
+                             84 	.globl _PSW_2
+                             85 	.globl _PSW_1
+                             86 	.globl _PSW_0
+                             87 	.globl _IEN1
+                             88 	.globl _IP0H
+                             89 	.globl _WFEED2
+                             90 	.globl _WFEED1
+                             91 	.globl _WDL
+                             92 	.globl _WDCON
+                             93 	.globl _TRIM
+                             94 	.globl _TAMOD
+                             95 	.globl _SSTAT
+                             96 	.globl _RTCL
+                             97 	.globl _RTCH
+                             98 	.globl _RTCCON
+                             99 	.globl _RSTSRC
+                            100 	.globl _PT0AD
+                            101 	.globl _PCONA
+                            102 	.globl _P3M2
+                            103 	.globl _P3M1
+                            104 	.globl _P1M2
+                            105 	.globl _P1M1
+                            106 	.globl _P0M2
+                            107 	.globl _P0M1
+                            108 	.globl _KBPATN
+                            109 	.globl _KBMASK
+                            110 	.globl _KBCON
+                            111 	.globl _IP1H
+                            112 	.globl _IP1
+                            113 	.globl _I2STAT
+                            114 	.globl _I2SCLL
+                            115 	.globl _I2SCLH
+                            116 	.globl _I2DAT
+                            117 	.globl _I2CON
+                            118 	.globl _I2ADR
+                            119 	.globl _FMDATA
+                            120 	.globl _FMCON
+                            121 	.globl _FMADRL
+                            122 	.globl _FMADRH
+                            123 	.globl _DIVM
+                            124 	.globl _CMP2
+                            125 	.globl _CMP1
+                            126 	.globl _BRGCON
+                            127 	.globl _BRGR1
+                            128 	.globl _BRGR0
+                            129 	.globl _SADEN
+                            130 	.globl _SADDR
+                            131 	.globl _AUXR1
+                            132 	.globl _SBUF
+                            133 	.globl _SCON
+                            134 	.globl _IP0
+                            135 	.globl _IEN0
+                            136 	.globl _TH1
+                            137 	.globl _TH0
+                            138 	.globl _TL1
+                            139 	.globl _TL0
+                            140 	.globl _TMOD
+                            141 	.globl _TCON
+                            142 	.globl _PCON
+                            143 	.globl _DPH
+                            144 	.globl _DPL
+                            145 	.globl _SP
+                            146 	.globl _B
+                            147 	.globl _ACC
+                            148 	.globl _PSW
+                            149 	.globl _P3
+                            150 	.globl _P1
+                            151 	.globl _P0
+                            152 	.globl _resend
+                            153 	.globl _lockatt
+                            154 	.globl _sequence
+                            155 	.globl _dimmwert
+                            156 	.globl _underrun
+                            157 	.globl _overrun
+                            158 	.globl _delrec
+                            159 	.globl _global_object_value_3_to_10
+                            160 	.globl _global_object_value_0_to_1
+                            161 	.globl _schwelle
+                            162 	.globl _read_obj_value
+                            163 	.globl _write_obj_value
+                            164 	.globl _read_value_req
+                            165 	.globl _write_value_req
+                            166 	.globl _delay_timer
+                            167 	.globl _restart_app
+                            168 ;--------------------------------------------------------
+                            169 ; special function registers
+                            170 ;--------------------------------------------------------
+                            171 	.area RSEG    (DATA)
+                    0080    172 _P0	=	0x0080
+                    0090    173 _P1	=	0x0090
+                    00B0    174 _P3	=	0x00b0
+                    00D0    175 _PSW	=	0x00d0
+                    00E0    176 _ACC	=	0x00e0
+                    00F0    177 _B	=	0x00f0
+                    0081    178 _SP	=	0x0081
+                    0082    179 _DPL	=	0x0082
+                    0083    180 _DPH	=	0x0083
+                    0087    181 _PCON	=	0x0087
+                    0088    182 _TCON	=	0x0088
+                    0089    183 _TMOD	=	0x0089
+                    008A    184 _TL0	=	0x008a
+                    008B    185 _TL1	=	0x008b
+                    008C    186 _TH0	=	0x008c
+                    008D    187 _TH1	=	0x008d
+                    00A8    188 _IEN0	=	0x00a8
+                    00B8    189 _IP0	=	0x00b8
+                    0098    190 _SCON	=	0x0098
+                    0099    191 _SBUF	=	0x0099
+                    00A2    192 _AUXR1	=	0x00a2
+                    00A9    193 _SADDR	=	0x00a9
+                    00B9    194 _SADEN	=	0x00b9
+                    00BE    195 _BRGR0	=	0x00be
+                    00BF    196 _BRGR1	=	0x00bf
+                    00BD    197 _BRGCON	=	0x00bd
+                    00AC    198 _CMP1	=	0x00ac
+                    00AD    199 _CMP2	=	0x00ad
+                    0095    200 _DIVM	=	0x0095
+                    00E7    201 _FMADRH	=	0x00e7
+                    00E6    202 _FMADRL	=	0x00e6
+                    00E4    203 _FMCON	=	0x00e4
+                    00E5    204 _FMDATA	=	0x00e5
+                    00DB    205 _I2ADR	=	0x00db
+                    00D8    206 _I2CON	=	0x00d8
+                    00DA    207 _I2DAT	=	0x00da
+                    00DD    208 _I2SCLH	=	0x00dd
+                    00DC    209 _I2SCLL	=	0x00dc
+                    00D9    210 _I2STAT	=	0x00d9
+                    00F8    211 _IP1	=	0x00f8
+                    00F7    212 _IP1H	=	0x00f7
+                    0094    213 _KBCON	=	0x0094
+                    0086    214 _KBMASK	=	0x0086
+                    0093    215 _KBPATN	=	0x0093
+                    0084    216 _P0M1	=	0x0084
+                    0085    217 _P0M2	=	0x0085
+                    0091    218 _P1M1	=	0x0091
+                    0092    219 _P1M2	=	0x0092
+                    00B1    220 _P3M1	=	0x00b1
+                    00B2    221 _P3M2	=	0x00b2
+                    00B5    222 _PCONA	=	0x00b5
+                    00F6    223 _PT0AD	=	0x00f6
+                    00DF    224 _RSTSRC	=	0x00df
+                    00D1    225 _RTCCON	=	0x00d1
+                    00D2    226 _RTCH	=	0x00d2
+                    00D3    227 _RTCL	=	0x00d3
+                    00BA    228 _SSTAT	=	0x00ba
+                    008F    229 _TAMOD	=	0x008f
+                    0096    230 _TRIM	=	0x0096
+                    00A7    231 _WDCON	=	0x00a7
+                    00C1    232 _WDL	=	0x00c1
+                    00C2    233 _WFEED1	=	0x00c2
+                    00C3    234 _WFEED2	=	0x00c3
+                    00B7    235 _IP0H	=	0x00b7
+                    00E8    236 _IEN1	=	0x00e8
+                            237 ;--------------------------------------------------------
+                            238 ; special function bits
+                            239 ;--------------------------------------------------------
+                            240 	.area RSEG    (DATA)
+                    00D0    241 _PSW_0	=	0x00d0
+                    00D1    242 _PSW_1	=	0x00d1
+                    00D2    243 _PSW_2	=	0x00d2
+                    00D3    244 _PSW_3	=	0x00d3
+                    00D4    245 _PSW_4	=	0x00d4
+                    00D5    246 _PSW_5	=	0x00d5
+                    00D6    247 _PSW_6	=	0x00d6
+                    00D7    248 _PSW_7	=	0x00d7
+                    008F    249 _TCON_7	=	0x008f
+                    008E    250 _TCON_6	=	0x008e
+                    008D    251 _TCON_5	=	0x008d
+                    008C    252 _TCON_4	=	0x008c
+                    008B    253 _TCON_3	=	0x008b
+                    008A    254 _TCON_2	=	0x008a
+                    0089    255 _TCON_1	=	0x0089
+                    0088    256 _TCON_0	=	0x0088
+                    00AF    257 _IEN0_7	=	0x00af
+                    00AE    258 _IEN0_6	=	0x00ae
+                    00AD    259 _IEN0_5	=	0x00ad
+                    00AC    260 _IEN0_4	=	0x00ac
+                    00AB    261 _IEN0_3	=	0x00ab
+                    00AA    262 _IEN0_2	=	0x00aa
+                    00A9    263 _IEN0_1	=	0x00a9
+                    00A8    264 _IEN0_0	=	0x00a8
+                    00EA    265 _IEN1_2	=	0x00ea
+                    00E9    266 _IEN1_1	=	0x00e9
+                    00E8    267 _IEN1_0	=	0x00e8
+                    00FE    268 _IP1_6	=	0x00fe
+                    00FA    269 _IP1_2	=	0x00fa
+                    00F9    270 _IP1_1	=	0x00f9
+                    00F8    271 _IP1_0	=	0x00f8
+                    00BE    272 _IP0_6	=	0x00be
+                    00BD    273 _IP0_5	=	0x00bd
+                    00BC    274 _IP0_4	=	0x00bc
+                    00BB    275 _IP0_3	=	0x00bb
+                    00BA    276 _IP0_2	=	0x00ba
+                    00B9    277 _IP0_1	=	0x00b9
+                    00B8    278 _IP0_0	=	0x00b8
+                    0098    279 _SCON_0	=	0x0098
+                    0099    280 _SCON_1	=	0x0099
+                    009A    281 _SCON_2	=	0x009a
+                    009B    282 _SCON_3	=	0x009b
+                    009C    283 _SCON_4	=	0x009c
+                    009D    284 _SCON_5	=	0x009d
+                    009E    285 _SCON_6	=	0x009e
+                    009F    286 _SCON_7	=	0x009f
+                    00DE    287 _I2CON_6	=	0x00de
+                    00DD    288 _I2CON_5	=	0x00dd
+                    00DC    289 _I2CON_4	=	0x00dc
+                    00DB    290 _I2CON_3	=	0x00db
+                    00DA    291 _I2CON_2	=	0x00da
+                    00D8    292 _I2CON_0	=	0x00d8
+                    0080    293 _P0_0	=	0x0080
+                    0081    294 _P0_1	=	0x0081
+                    0082    295 _P0_2	=	0x0082
+                    0083    296 _P0_3	=	0x0083
+                    0084    297 _P0_4	=	0x0084
+                    0085    298 _P0_5	=	0x0085
+                    0086    299 _P0_6	=	0x0086
+                    0087    300 _P0_7	=	0x0087
+                    0090    301 _P1_0	=	0x0090
+                    0091    302 _P1_1	=	0x0091
+                    0092    303 _P1_2	=	0x0092
+                    0093    304 _P1_3	=	0x0093
+                    0094    305 _P1_4	=	0x0094
+                    0095    306 _P1_5	=	0x0095
+                    0096    307 _P1_6	=	0x0096
+                    0097    308 _P1_7	=	0x0097
+                    00B0    309 _P3_0	=	0x00b0
+                    00B1    310 _P3_1	=	0x00b1
+                            311 ;--------------------------------------------------------
+                            312 ; overlayable register banks
+                            313 ;--------------------------------------------------------
+                            314 	.area REG_BANK_0	(REL,OVR,DATA)
+   0000                     315 	.ds 8
+                            316 ;--------------------------------------------------------
+                            317 ; overlayable bit register bank
+                            318 ;--------------------------------------------------------
+                            319 	.area BIT_BANK	(REL,OVR,DATA)
+   0000                     320 bits:
+   0000                     321 	.ds 1
+                    8000    322 	b0 = bits[0]
+                    8100    323 	b1 = bits[1]
+                    8200    324 	b2 = bits[2]
+                    8300    325 	b3 = bits[3]
+                    8400    326 	b4 = bits[4]
+                    8500    327 	b5 = bits[5]
+                    8600    328 	b6 = bits[6]
+                    8700    329 	b7 = bits[7]
+                            330 ;--------------------------------------------------------
+                            331 ; internal ram data
+                            332 ;--------------------------------------------------------
+                            333 	.area DSEG    (DATA)
+   0000                     334 _global_object_value_0_to_1::
+   0000                     335 	.ds 4
+   0004                     336 _global_object_value_3_to_10::
+   0004                     337 	.ds 1
+   0005                     338 _delrec::
+   0005                     339 	.ds 36
+                            340 ;--------------------------------------------------------
+                            341 ; overlayable items in internal ram 
+                            342 ;--------------------------------------------------------
+                            343 	.area OSEG    (OVR,DATA)
+                            344 ;--------------------------------------------------------
+                            345 ; indirectly addressable internal ram data
+                            346 ;--------------------------------------------------------
+                            347 	.area ISEG    (DATA)
+   0000                     348 _overrun::
+   0000                     349 	.ds 1
+   0001                     350 _underrun::
+   0001                     351 	.ds 1
+   0002                     352 _dimmwert::
+   0002                     353 	.ds 1
+   0003                     354 _sequence::
+   0003                     355 	.ds 1
+   0004                     356 _lockatt::
+   0004                     357 	.ds 1
+   0005                     358 _resend::
+   0005                     359 	.ds 1
+                            360 ;--------------------------------------------------------
+                            361 ; absolute internal ram data
+                            362 ;--------------------------------------------------------
+                            363 	.area IABS    (ABS,DATA)
+                            364 	.area IABS    (ABS,DATA)
+                            365 ;--------------------------------------------------------
+                            366 ; bit data
+                            367 ;--------------------------------------------------------
+                            368 	.area BSEG    (BIT)
+                            369 ;--------------------------------------------------------
+                            370 ; paged external ram data
+                            371 ;--------------------------------------------------------
+                            372 	.area PSEG    (PAG,XDATA)
+                            373 ;--------------------------------------------------------
+                            374 ; external ram data
+                            375 ;--------------------------------------------------------
+                            376 	.area XSEG    (XDATA)
+                            377 ;--------------------------------------------------------
+                            378 ; absolute external ram data
+                            379 ;--------------------------------------------------------
+                            380 	.area XABS    (ABS,XDATA)
+                            381 ;--------------------------------------------------------
+                            382 ; external initialized ram data
+                            383 ;--------------------------------------------------------
+                            384 	.area XISEG   (XDATA)
+                            385 	.area HOME    (CODE)
+                            386 	.area GSINIT0 (CODE)
+                            387 	.area GSINIT1 (CODE)
+                            388 	.area GSINIT2 (CODE)
+                            389 	.area GSINIT3 (CODE)
+                            390 	.area GSINIT4 (CODE)
+                            391 	.area GSINIT5 (CODE)
+                            392 	.area GSINIT  (CODE)
+                            393 	.area GSFINAL (CODE)
+                            394 	.area CSEG    (CODE)
+                            395 ;--------------------------------------------------------
+                            396 ; global & static initialisations
+                            397 ;--------------------------------------------------------
+                            398 	.area HOME    (CODE)
+                            399 	.area GSINIT  (CODE)
+                            400 	.area GSFINAL (CODE)
+                            401 	.area GSINIT  (CODE)
+                            402 ;--------------------------------------------------------
+                            403 ; Home
+                            404 ;--------------------------------------------------------
+                            405 	.area HOME    (CODE)
+                            406 	.area HOME    (CODE)
+                            407 ;--------------------------------------------------------
+                            408 ; code
+                            409 ;--------------------------------------------------------
+                            410 	.area CSEG    (CODE)
+                            411 ;------------------------------------------------------------
+                            412 ;Allocation info for local variables in function 'schwelle'
+                            413 ;------------------------------------------------------------
+                            414 ;objno                     Allocated to registers r2 
+                            415 ;ctrl                      Allocated to stack - offset 1
+                            416 ;bitmask                   Allocated to registers r5 
+                            417 ;temp_compare              Allocated to registers r7 
+                            418 ;lux_compare               Allocated to registers r6 
+                            419 ;lastdimm                  Allocated to registers r2 
+                            420 ;step                      Allocated to registers r3 
+                            421 ;value                     Allocated to registers r6 
+                            422 ;offset                    Allocated to registers r5 
+                            423 ;over                      Allocated to registers b0 
+                            424 ;under                     Allocated to registers b1 
+                            425 ;valid                     Allocated to registers b2 
+                            426 ;active                    Allocated to stack - offset 2
+                            427 ;schwellwert               Allocated to stack - offset 3
+                            428 ;schwellwert_temp          Allocated to registers r6 r7 
+                            429 ;hysterese                 Allocated to stack - offset 5
+                            430 ;delay                     Allocated to registers r3 r4 
+                            431 ;sloc0                     Allocated to stack - offset 22
+                            432 ;------------------------------------------------------------
+                            433 ;	../app_kombi.c:52: void schwelle(unsigned char objno)		// Luxschwelle prüfen und reagieren
+                            434 ;	-----------------------------------------
+                            435 ;	 function schwelle
+                            436 ;	-----------------------------------------
+   0000                     437 _schwelle:
+                    0002    438 	ar2 = 0x02
+                    0003    439 	ar3 = 0x03
+                    0004    440 	ar4 = 0x04
+                    0005    441 	ar5 = 0x05
+                    0006    442 	ar6 = 0x06
+                    0007    443 	ar7 = 0x07
+                    0000    444 	ar0 = 0x00
+                    0001    445 	ar1 = 0x01
+   0000 C0*00               446 	push	_bp
+   0002 E5 81               447 	mov	a,sp
+   0004 F5*00               448 	mov	_bp,a
+   0006 24 06               449 	add	a,#0x06
+   0008 F5 81               450 	mov	sp,a
+   000A AA 82               451 	mov	r2,dpl
+                            452 ;	../app_kombi.c:57: __bit over=0, under=0, valid;
+   000C C2*00               453 	clr	b0
+   000E C2*00               454 	clr	b1
+                            455 ;	../app_kombi.c:61: unsigned int hysterese=0, delay=0;
+                            456 ;	../app_kombi.c:64: offset=(objno-3)*5;
+   0010 E4                  457 	clr	a
+   0011 FB                  458 	mov	r3,a
+   0012 FC                  459 	mov	r4,a
+   0013 EA                  460 	mov	a,r2
+   0014 24 FD               461 	add	a,#0xfd
+   0016 75 F0 05            462 	mov	b,#0x05
+   0019 A4                  463 	mul	ab
+   001A FD                  464 	mov	r5,a
+                            465 ;	../app_kombi.c:65: if (objno==9) offset++;        // da Verssatz in der Reihenfolge der Parameter
+   001B BA 09 01            466 	cjne	r2,#0x09,00102$
+   001E 0D                  467 	inc	r5
+   001F                     468 00102$:
+                            469 ;	../app_kombi.c:67: ctrl=eeprom[LUXCTRL-offset];
+   001F 74 F9               470 	mov	a,#0xF9
+   0021 C3                  471 	clr	c
+   0022 9D                  472 	subb	a,r5
+   0023 90s00r00            473 	mov	dptr,#_eeprom
+   0026 93                  474 	movc	a,@a+dptr
+   0027 FE                  475 	mov	r6,a
+   0028 A8*00               476 	mov	r0,_bp
+   002A 08                  477 	inc	r0
+   002B A6 06               478 	mov	@r0,ar6
+                            479 ;	../app_kombi.c:69: if ((eeprom[LUXPARAM]&0x80) && objno==3) {	// Helligkeitsregelung (nur Objekt1)
+   002D 90s00rD3            480 	mov	dptr,#(_eeprom + 0x00d3)
+   0030 E4                  481 	clr	a
+   0031 93                  482 	movc	a,@a+dptr
+   0032 FF                  483 	mov	r7,a
+   0033 20 E7 03            484 	jb	acc.7,00271$
+   0036 02s01r94            485 	ljmp	00209$
+   0039                     486 00271$:
+   0039 BA 03 02            487 	cjne	r2,#0x03,00272$
+   003C 80 03               488 	sjmp	00273$
+   003E                     489 00272$:
+   003E 02s01r94            490 	ljmp	00209$
+   0041                     491 00273$:
+                            492 ;	../app_kombi.c:71: lastdimm=dimmwert;		// beim letzten Durchlauf errechneter Wert
+   0041 78r02               493 	mov	r0,#_dimmwert
+   0043 86 02               494 	mov	ar2,@r0
+                            495 ;	../app_kombi.c:72: schwellwert=eeprom[LUXSCHWELLWERT]*10;		// schwellwert ist hier der Sollwert
+   0045 90s00rFB            496 	mov	dptr,#(_eeprom + 0x00fb)
+   0048 E4                  497 	clr	a
+   0049 93                  498 	movc	a,@a+dptr
+   004A FF                  499 	mov	r7,a
+   004B A8*00               500 	mov	r0,_bp
+   004D 08                  501 	inc	r0
+   004E 08                  502 	inc	r0
+   004F 08                  503 	inc	r0
+   0050 EF                  504 	mov	a,r7
+   0051 75 F0 0A            505 	mov	b,#0x0A
+   0054 A4                  506 	mul	ab
+   0055 F6                  507 	mov	@r0,a
+   0056 08                  508 	inc	r0
+   0057 A6 F0               509 	mov	@r0,b
+                            510 ;	../app_kombi.c:74: hysterese=_divuint(schwellwert,hystable[ctrl&0x07]);
+   0059 A8*00               511 	mov	r0,_bp
+   005B 08                  512 	inc	r0
+   005C 74 07               513 	mov	a,#0x07
+   005E 56                  514 	anl	a,@r0
+   005F 90s00rC6            515 	mov	dptr,#_hystable
+   0062 93                  516 	movc	a,@a+dptr
+   0063 FE                  517 	mov	r6,a
+   0064 7F 00               518 	mov	r7,#0x00
+   0066 C0 02               519 	push	ar2
+   0068 C0 06               520 	push	ar6
+   006A C0 07               521 	push	ar7
+   006C A8*00               522 	mov	r0,_bp
+   006E 08                  523 	inc	r0
+   006F 08                  524 	inc	r0
+   0070 08                  525 	inc	r0
+   0071 86 82               526 	mov	dpl,@r0
+   0073 08                  527 	inc	r0
+   0074 86 83               528 	mov	dph,@r0
+   0076 12s00r00            529 	lcall	__divuint
+   0079 AE 82               530 	mov	r6,dpl
+   007B AF 83               531 	mov	r7,dph
+   007D 15 81               532 	dec	sp
+   007F 15 81               533 	dec	sp
+   0081 D0 02               534 	pop	ar2
+   0083 E5*00               535 	mov	a,_bp
+   0085 24 05               536 	add	a,#0x05
+   0087 F8                  537 	mov	r0,a
+   0088 A6 06               538 	mov	@r0,ar6
+   008A 08                  539 	inc	r0
+   008B A6 07               540 	mov	@r0,ar7
+                            541 ;	../app_kombi.c:75: if (hysterese==0) hysterese=1;	// mindestens jedoch 1 Lux
+   008D E5*00               542 	mov	a,_bp
+   008F 24 05               543 	add	a,#0x05
+   0091 F8                  544 	mov	r0,a
+   0092 E6                  545 	mov	a,@r0
+   0093 08                  546 	inc	r0
+   0094 46                  547 	orl	a,@r0
+   0095 70 0A               548 	jnz	00104$
+   0097 E5*00               549 	mov	a,_bp
+   0099 24 05               550 	add	a,#0x05
+   009B F8                  551 	mov	r0,a
+   009C 76 01               552 	mov	@r0,#0x01
+   009E E4                  553 	clr	a
+   009F 08                  554 	inc	r0
+   00A0 F6                  555 	mov	@r0,a
+   00A1                     556 00104$:
+                            557 ;	../app_kombi.c:76: step=(((ctrl & 0xF0) >> 4) + 1) * 16;
+   00A1 A8*00               558 	mov	r0,_bp
+   00A3 08                  559 	inc	r0
+   00A4 74 F0               560 	mov	a,#0xF0
+   00A6 56                  561 	anl	a,@r0
+   00A7 C4                  562 	swap	a
+   00A8 54 0F               563 	anl	a,#0x0f
+   00AA FE                  564 	mov	r6,a
+   00AB 0E                  565 	inc	r6
+   00AC EE                  566 	mov	a,r6
+   00AD C4                  567 	swap	a
+   00AE 54 F0               568 	anl	a,#0xf0
+   00B0 FB                  569 	mov	r3,a
+                            570 ;	../app_kombi.c:78: if (lux>schwellwert) {	// wenn überschritten
+   00B1 A8*00               571 	mov	r0,_bp
+   00B3 08                  572 	inc	r0
+   00B4 08                  573 	inc	r0
+   00B5 08                  574 	inc	r0
+   00B6 C3                  575 	clr	c
+   00B7 E6                  576 	mov	a,@r0
+   00B8 95*00               577 	subb	a,_lux
+   00BA 08                  578 	inc	r0
+   00BB E6                  579 	mov	a,@r0
+   00BC 95*01               580 	subb	a,(_lux + 1)
+   00BE 50 3A               581 	jnc	00113$
+                            582 ;	../app_kombi.c:79: if ((lux > (schwellwert*2)) && (dimmwert >= step)) dimmwert-=step;	// grosse Schritte wenn weit weg von Sollwert
+   00C0 A8*00               583 	mov	r0,_bp
+   00C2 08                  584 	inc	r0
+   00C3 08                  585 	inc	r0
+   00C4 08                  586 	inc	r0
+   00C5 86 06               587 	mov	ar6,@r0
+   00C7 08                  588 	inc	r0
+   00C8 E6                  589 	mov	a,@r0
+   00C9 CE                  590 	xch	a,r6
+   00CA 25 E0               591 	add	a,acc
+   00CC CE                  592 	xch	a,r6
+   00CD 33                  593 	rlc	a
+   00CE FF                  594 	mov	r7,a
+   00CF C3                  595 	clr	c
+   00D0 EE                  596 	mov	a,r6
+   00D1 95*00               597 	subb	a,_lux
+   00D3 EF                  598 	mov	a,r7
+   00D4 95*01               599 	subb	a,(_lux + 1)
+   00D6 50 0F               600 	jnc	00109$
+   00D8 78r02               601 	mov	r0,#_dimmwert
+   00DA C3                  602 	clr	c
+   00DB E6                  603 	mov	a,@r0
+   00DC 9B                  604 	subb	a,r3
+   00DD 40 08               605 	jc	00109$
+   00DF 78r02               606 	mov	r0,#_dimmwert
+   00E1 E6                  607 	mov	a,@r0
+   00E2 C3                  608 	clr	c
+   00E3 9B                  609 	subb	a,r3
+   00E4 F6                  610 	mov	@r0,a
+   00E5 80 13               611 	sjmp	00113$
+   00E7                     612 00109$:
+                            613 ;	../app_kombi.c:81: if (dimmwert>3) dimmwert-=4;		// kleine Schritte
+   00E7 78r02               614 	mov	r0,#_dimmwert
+   00E9 E6                  615 	mov	a,@r0
+   00EA 24 FC               616 	add	a,#0xff - 0x03
+   00EC 50 08               617 	jnc	00106$
+   00EE 78r02               618 	mov	r0,#_dimmwert
+   00F0 16                  619 	dec	@r0
+   00F1 16                  620 	dec	@r0
+   00F2 16                  621 	dec	@r0
+   00F3 16                  622 	dec	@r0
+   00F4 80 04               623 	sjmp	00113$
+   00F6                     624 00106$:
+                            625 ;	../app_kombi.c:82: else dimmwert=0;
+   00F6 78r02               626 	mov	r0,#_dimmwert
+   00F8 76 00               627 	mov	@r0,#0x00
+   00FA                     628 00113$:
+                            629 ;	../app_kombi.c:85: if (lux<(schwellwert-hysterese)) {		// wenn unterschritten
+   00FA A8*00               630 	mov	r0,_bp
+   00FC 08                  631 	inc	r0
+   00FD 08                  632 	inc	r0
+   00FE 08                  633 	inc	r0
+   00FF E5*00               634 	mov	a,_bp
+   0101 24 05               635 	add	a,#0x05
+   0103 F9                  636 	mov	r1,a
+   0104 E6                  637 	mov	a,@r0
+   0105 C3                  638 	clr	c
+   0106 97                  639 	subb	a,@r1
+   0107 FE                  640 	mov	r6,a
+   0108 08                  641 	inc	r0
+   0109 E6                  642 	mov	a,@r0
+   010A 09                  643 	inc	r1
+   010B 97                  644 	subb	a,@r1
+   010C FF                  645 	mov	r7,a
+   010D C3                  646 	clr	c
+   010E E5*00               647 	mov	a,_lux
+   0110 9E                  648 	subb	a,r6
+   0111 E5*01               649 	mov	a,(_lux + 1)
+   0113 9F                  650 	subb	a,r7
+   0114 50 5E               651 	jnc	00122$
+                            652 ;	../app_kombi.c:86: if (((lux*2) < (schwellwert-hysterese)) && (dimmwert <= (255 - step))) dimmwert+=step;	// grosse Schritte wenn weit weg von Sollwert
+   0116 E5*00               653 	mov	a,_lux
+   0118 25*00               654 	add	a,_lux
+   011A FC                  655 	mov	r4,a
+   011B E5*01               656 	mov	a,(_lux + 1)
+   011D 33                  657 	rlc	a
+   011E FD                  658 	mov	r5,a
+   011F A8*00               659 	mov	r0,_bp
+   0121 08                  660 	inc	r0
+   0122 08                  661 	inc	r0
+   0123 08                  662 	inc	r0
+   0124 E5*00               663 	mov	a,_bp
+   0126 24 05               664 	add	a,#0x05
+   0128 F9                  665 	mov	r1,a
+   0129 E6                  666 	mov	a,@r0
+   012A C3                  667 	clr	c
+   012B 97                  668 	subb	a,@r1
+   012C FE                  669 	mov	r6,a
+   012D 08                  670 	inc	r0
+   012E E6                  671 	mov	a,@r0
+   012F 09                  672 	inc	r1
+   0130 97                  673 	subb	a,@r1
+   0131 FF                  674 	mov	r7,a
+   0132 C3                  675 	clr	c
+   0133 EC                  676 	mov	a,r4
+   0134 9E                  677 	subb	a,r6
+   0135 ED                  678 	mov	a,r5
+   0136 9F                  679 	subb	a,r7
+   0137 50 28               680 	jnc	00118$
+   0139 8B 06               681 	mov	ar6,r3
+   013B 7F 00               682 	mov	r7,#0x00
+   013D 74 FF               683 	mov	a,#0xFF
+   013F C3                  684 	clr	c
+   0140 9E                  685 	subb	a,r6
+   0141 FC                  686 	mov	r4,a
+   0142 E4                  687 	clr	a
+   0143 9F                  688 	subb	a,r7
+   0144 FD                  689 	mov	r5,a
+   0145 78r02               690 	mov	r0,#_dimmwert
+   0147 86 06               691 	mov	ar6,@r0
+   0149 7F 00               692 	mov	r7,#0x00
+   014B C3                  693 	clr	c
+   014C EC                  694 	mov	a,r4
+   014D 9E                  695 	subb	a,r6
+   014E ED                  696 	mov	a,r5
+   014F 64 80               697 	xrl	a,#0x80
+   0151 8F F0               698 	mov	b,r7
+   0153 63 F0 80            699 	xrl	b,#0x80
+   0156 95 F0               700 	subb	a,b
+   0158 40 07               701 	jc	00118$
+   015A 78r02               702 	mov	r0,#_dimmwert
+   015C EB                  703 	mov	a,r3
+   015D 26                  704 	add	a,@r0
+   015E F6                  705 	mov	@r0,a
+   015F 80 13               706 	sjmp	00122$
+   0161                     707 00118$:
+                            708 ;	../app_kombi.c:88: if (dimmwert<252) dimmwert+=4;
+   0161 78r02               709 	mov	r0,#_dimmwert
+   0163 B6 FC 00            710 	cjne	@r0,#0xFC,00282$
+   0166                     711 00282$:
+   0166 50 08               712 	jnc	00115$
+   0168 78r02               713 	mov	r0,#_dimmwert
+   016A E6                  714 	mov	a,@r0
+   016B 24 04               715 	add	a,#0x04
+   016D F6                  716 	mov	@r0,a
+   016E 80 04               717 	sjmp	00122$
+   0170                     718 00115$:
+                            719 ;	../app_kombi.c:89: else dimmwert=255;
+   0170 78r02               720 	mov	r0,#_dimmwert
+   0172 76 FF               721 	mov	@r0,#0xFF
+   0174                     722 00122$:
+                            723 ;	../app_kombi.c:92: if (lastdimm != dimmwert) {
+   0174 78r02               724 	mov	r0,#_dimmwert
+   0176 E6                  725 	mov	a,@r0
+   0177 B5 02 03            726 	cjne	a,ar2,00284$
+   017A 02s06r0C            727 	ljmp	00212$
+   017D                     728 00284$:
+                            729 ;	../app_kombi.c:93: WRITE_DELAY_RECORD(2,1,dimmwert,timer+1)
+   017D 75*0D 01            730 	mov	(_delrec + 0x0008),#0x01
+   0180 78r02               731 	mov	r0,#_dimmwert
+   0182 86*0E               732 	mov	(_delrec + 0x0009),@r0
+   0184 74 01               733 	mov	a,#0x01
+   0186 25*00               734 	add	a,_timer
+   0188 FE                  735 	mov	r6,a
+   0189 E4                  736 	clr	a
+   018A 35*01               737 	addc	a,(_timer + 1)
+   018C FF                  738 	mov	r7,a
+   018D 8E*0F               739 	mov	(_delrec + 0x000a),r6
+   018F 8F*10               740 	mov	((_delrec + 0x000a) + 1),r7
+   0191 02s06r0C            741 	ljmp	00212$
+   0194                     742 00209$:
+                            743 ;	../app_kombi.c:99: if (objno<6) {	// Helligkeitsschwellen
+   0194 BA 06 00            744 	cjne	r2,#0x06,00285$
+   0197                     745 00285$:
+   0197 40 03               746 	jc	00286$
+   0199 02s02rE3            747 	ljmp	00181$
+   019C                     748 00286$:
+                            749 ;	../app_kombi.c:100: schwellwert=luxtable[eeprom[LUXSCHWELLWERT-offset]-7];	// -7, weil luxtable erst ab 7 beginnt
+   019C 74 FB               750 	mov	a,#0xFB
+   019E C3                  751 	clr	c
+   019F 9D                  752 	subb	a,r5
+   01A0 90s00r00            753 	mov	dptr,#_eeprom
+   01A3 93                  754 	movc	a,@a+dptr
+   01A4 24 F9               755 	add	a,#0xf9
+   01A6 25 E0               756 	add	a,acc
+   01A8 FE                  757 	mov	r6,a
+   01A9 90s00r12            758 	mov	dptr,#_luxtable
+   01AC 93                  759 	movc	a,@a+dptr
+   01AD CE                  760 	xch	a,r6
+   01AE A3                  761 	inc	dptr
+   01AF 93                  762 	movc	a,@a+dptr
+   01B0 FF                  763 	mov	r7,a
+   01B1 A8*00               764 	mov	r0,_bp
+   01B3 08                  765 	inc	r0
+   01B4 08                  766 	inc	r0
+   01B5 08                  767 	inc	r0
+   01B6 A6 06               768 	mov	@r0,ar6
+   01B8 08                  769 	inc	r0
+   01B9 A6 07               770 	mov	@r0,ar7
+                            771 ;	../app_kombi.c:102: hysterese=_divuint(schwellwert,hystable[ctrl&0x07]);
+   01BB A8*00               772 	mov	r0,_bp
+   01BD 08                  773 	inc	r0
+   01BE 74 07               774 	mov	a,#0x07
+   01C0 56                  775 	anl	a,@r0
+   01C1 90s00rC6            776 	mov	dptr,#_hystable
+   01C4 93                  777 	movc	a,@a+dptr
+   01C5 FE                  778 	mov	r6,a
+   01C6 7F 00               779 	mov	r7,#0x00
+   01C8 C0 02               780 	push	ar2
+   01CA C0 03               781 	push	ar3
+   01CC C0 04               782 	push	ar4
+   01CE C0 05               783 	push	ar5
+   01D0 C0*00               784 	push	bits
+   01D2 C0 06               785 	push	ar6
+   01D4 C0 07               786 	push	ar7
+   01D6 A8*00               787 	mov	r0,_bp
+   01D8 08                  788 	inc	r0
+   01D9 08                  789 	inc	r0
+   01DA 08                  790 	inc	r0
+   01DB 86 82               791 	mov	dpl,@r0
+   01DD 08                  792 	inc	r0
+   01DE 86 83               793 	mov	dph,@r0
+   01E0 12s00r00            794 	lcall	__divuint
+   01E3 AE 82               795 	mov	r6,dpl
+   01E5 AF 83               796 	mov	r7,dph
+   01E7 15 81               797 	dec	sp
+   01E9 15 81               798 	dec	sp
+   01EB D0*00               799 	pop	bits
+   01ED D0 05               800 	pop	ar5
+   01EF D0 04               801 	pop	ar4
+   01F1 D0 03               802 	pop	ar3
+   01F3 D0 02               803 	pop	ar2
+   01F5 E5*00               804 	mov	a,_bp
+   01F7 24 05               805 	add	a,#0x05
+   01F9 F8                  806 	mov	r0,a
+   01FA A6 06               807 	mov	@r0,ar6
+   01FC 08                  808 	inc	r0
+   01FD A6 07               809 	mov	@r0,ar7
+                            810 ;	../app_kombi.c:104: if (hysterese==0) hysterese=1;	// mindestens jedoch 1 Lux
+   01FF E5*00               811 	mov	a,_bp
+   0201 24 05               812 	add	a,#0x05
+   0203 F8                  813 	mov	r0,a
+   0204 E6                  814 	mov	a,@r0
+   0205 08                  815 	inc	r0
+   0206 46                  816 	orl	a,@r0
+   0207 70 0A               817 	jnz	00126$
+   0209 E5*00               818 	mov	a,_bp
+   020B 24 05               819 	add	a,#0x05
+   020D F8                  820 	mov	r0,a
+   020E 76 01               821 	mov	@r0,#0x01
+   0210 E4                  822 	clr	a
+   0211 08                  823 	inc	r0
+   0212 F6                  824 	mov	@r0,a
+   0213                     825 00126$:
+                            826 ;	../app_kombi.c:105: if (lux>schwellwert) {
+   0213 A8*00               827 	mov	r0,_bp
+   0215 08                  828 	inc	r0
+   0216 08                  829 	inc	r0
+   0217 08                  830 	inc	r0
+   0218 C3                  831 	clr	c
+   0219 E6                  832 	mov	a,@r0
+   021A 95*00               833 	subb	a,_lux
+   021C 08                  834 	inc	r0
+   021D E6                  835 	mov	a,@r0
+   021E 95*01               836 	subb	a,(_lux + 1)
+   0220 50 1E               837 	jnc	00128$
+                            838 ;	../app_kombi.c:106: over=1;
+   0222 D2*00               839 	setb	b0
+                            840 ;	../app_kombi.c:107: delay=luxdelay[(eeprom[LUXCYCLE1-offset] & 0xF0) >> 4];	// Verzögerung bei überschreiten
+   0224 74 FA               841 	mov	a,#0xFA
+   0226 C3                  842 	clr	c
+   0227 9D                  843 	subb	a,r5
+   0228 90s00r00            844 	mov	dptr,#_eeprom
+   022B 93                  845 	movc	a,@a+dptr
+   022C 54 F0               846 	anl	a,#0xF0
+   022E C4                  847 	swap	a
+   022F 54 0F               848 	anl	a,#0x0f
+   0231 25 E0               849 	add	a,acc
+   0233 FE                  850 	mov	r6,a
+   0234 90s00rCB            851 	mov	dptr,#_luxdelay
+   0237 93                  852 	movc	a,@a+dptr
+   0238 CE                  853 	xch	a,r6
+   0239 A3                  854 	inc	dptr
+   023A 93                  855 	movc	a,@a+dptr
+   023B FF                  856 	mov	r7,a
+   023C 8E 03               857 	mov	ar3,r6
+   023E 8F 04               858 	mov	ar4,r7
+   0240                     859 00128$:
+                            860 ;	../app_kombi.c:109: if (lux<(schwellwert-hysterese)) under=1;
+   0240 A8*00               861 	mov	r0,_bp
+   0242 08                  862 	inc	r0
+   0243 08                  863 	inc	r0
+   0244 08                  864 	inc	r0
+   0245 E5*00               865 	mov	a,_bp
+   0247 24 05               866 	add	a,#0x05
+   0249 F9                  867 	mov	r1,a
+   024A E6                  868 	mov	a,@r0
+   024B C3                  869 	clr	c
+   024C 97                  870 	subb	a,@r1
+   024D FE                  871 	mov	r6,a
+   024E 08                  872 	inc	r0
+   024F E6                  873 	mov	a,@r0
+   0250 09                  874 	inc	r1
+   0251 97                  875 	subb	a,@r1
+   0252 FF                  876 	mov	r7,a
+   0253 C3                  877 	clr	c
+   0254 E5*00               878 	mov	a,_lux
+   0256 9E                  879 	subb	a,r6
+   0257 E5*01               880 	mov	a,(_lux + 1)
+   0259 9F                  881 	subb	a,r7
+   025A 50 02               882 	jnc	00130$
+   025C D2*00               883 	setb	b1
+   025E                     884 00130$:
+                            885 ;	../app_kombi.c:110: switch (objno) {
+   025E BA 03 02            886 	cjne	r2,#0x03,00290$
+   0261 80 0D               887 	sjmp	00131$
+   0263                     888 00290$:
+   0263 BA 04 02            889 	cjne	r2,#0x04,00291$
+   0266 80 3A               890 	sjmp	00137$
+   0268                     891 00291$:
+   0268 BA 05 02            892 	cjne	r2,#0x05,00292$
+   026B 80 54               893 	sjmp	00140$
+   026D                     894 00292$:
+   026D 02s04rEC            895 	ljmp	00182$
+                            896 ;	../app_kombi.c:111: case 3:
+   0270                     897 00131$:
+                            898 ;	../app_kombi.c:112: if ((eeprom[LUXPARAM]&0x80) == 0) {
+   0270 90s00rD3            899 	mov	dptr,#(_eeprom + 0x00d3)
+   0273 E4                  900 	clr	a
+   0274 93                  901 	movc	a,@a+dptr
+   0275 FE                  902 	mov	r6,a
+   0276 20 E7 22            903 	jb	acc.7,00135$
+                            904 ;	../app_kombi.c:113: if (under) delay=luxdelay[(eeprom[0xCD] & 0xF0) >> 4];
+   0279 20*00 03            905 	jb	b1,00294$
+   027C 02s04rEC            906 	ljmp	00182$
+   027F                     907 00294$:
+   027F 90s00rCD            908 	mov	dptr,#(_eeprom + 0x00cd)
+   0282 E4                  909 	clr	a
+   0283 93                  910 	movc	a,@a+dptr
+   0284 54 F0               911 	anl	a,#0xF0
+   0286 C4                  912 	swap	a
+   0287 54 0F               913 	anl	a,#0x0f
+   0289 25 E0               914 	add	a,acc
+   028B FE                  915 	mov	r6,a
+   028C 90s00rCB            916 	mov	dptr,#_luxdelay
+   028F 93                  917 	movc	a,@a+dptr
+   0290 CE                  918 	xch	a,r6
+   0291 A3                  919 	inc	dptr
+   0292 93                  920 	movc	a,@a+dptr
+   0293 FF                  921 	mov	r7,a
+   0294 8E 03               922 	mov	ar3,r6
+   0296 8F 04               923 	mov	ar4,r7
+   0298 02s04rEC            924 	ljmp	00182$
+   029B                     925 00135$:
+                            926 ;	../app_kombi.c:115: else delay=0;	// bei Helligkeitsregelung keine Verzögerung
+   029B 7B 00               927 	mov	r3,#0x00
+   029D 7C 00               928 	mov	r4,#0x00
+                            929 ;	../app_kombi.c:116: break;
+   029F 02s04rEC            930 	ljmp	00182$
+                            931 ;	../app_kombi.c:117: case 4:
+   02A2                     932 00137$:
+                            933 ;	../app_kombi.c:118: if (under) delay=luxdelay[eeprom[0xCD] & 0x0F];
+   02A2 20*00 03            934 	jb	b1,00295$
+   02A5 02s04rEC            935 	ljmp	00182$
+   02A8                     936 00295$:
+   02A8 90s00rCD            937 	mov	dptr,#(_eeprom + 0x00cd)
+   02AB E4                  938 	clr	a
+   02AC 93                  939 	movc	a,@a+dptr
+   02AD 54 0F               940 	anl	a,#0x0F
+   02AF 25 E0               941 	add	a,acc
+   02B1 FE                  942 	mov	r6,a
+   02B2 90s00rCB            943 	mov	dptr,#_luxdelay
+   02B5 93                  944 	movc	a,@a+dptr
+   02B6 CE                  945 	xch	a,r6
+   02B7 A3                  946 	inc	dptr
+   02B8 93                  947 	movc	a,@a+dptr
+   02B9 FF                  948 	mov	r7,a
+   02BA 8E 03               949 	mov	ar3,r6
+   02BC 8F 04               950 	mov	ar4,r7
+                            951 ;	../app_kombi.c:119: break;
+   02BE 02s04rEC            952 	ljmp	00182$
+                            953 ;	../app_kombi.c:120: case 5:
+   02C1                     954 00140$:
+                            955 ;	../app_kombi.c:121: if (under) delay=luxdelay[(eeprom[0xCC] & 0xF0) >> 4];
+   02C1 20*00 03            956 	jb	b1,00296$
+   02C4 02s04rEC            957 	ljmp	00182$
+   02C7                     958 00296$:
+   02C7 90s00rCC            959 	mov	dptr,#(_eeprom + 0x00cc)
+   02CA E4                  960 	clr	a
+   02CB 93                  961 	movc	a,@a+dptr
+   02CC 54 F0               962 	anl	a,#0xF0
+   02CE C4                  963 	swap	a
+   02CF 54 0F               964 	anl	a,#0x0f
+   02D1 25 E0               965 	add	a,acc
+   02D3 FE                  966 	mov	r6,a
+   02D4 90s00rCB            967 	mov	dptr,#_luxdelay
+   02D7 93                  968 	movc	a,@a+dptr
+   02D8 CE                  969 	xch	a,r6
+   02D9 A3                  970 	inc	dptr
+   02DA 93                  971 	movc	a,@a+dptr
+   02DB FF                  972 	mov	r7,a
+   02DC 8E 03               973 	mov	ar3,r6
+   02DE 8F 04               974 	mov	ar4,r7
+                            975 ;	../app_kombi.c:123: }
+   02E0 02s04rEC            976 	ljmp	00182$
+   02E3                     977 00181$:
+                            978 ;	../app_kombi.c:127: if (objno<8) {	// Temperaturschwellen
+   02E3 BA 08 00            979 	cjne	r2,#0x08,00297$
+   02E6                     980 00297$:
+   02E6 40 03               981 	jc	00298$
+   02E8 02s03rAC            982 	ljmp	00178$
+   02EB                     983 00298$:
+                            984 ;	../app_kombi.c:128: schwellwert_temp=(signed char)eeprom[LUXSCHWELLWERT-offset];
+   02EB C0 03               985 	push	ar3
+   02ED C0 04               986 	push	ar4
+   02EF 74 FB               987 	mov	a,#0xFB
+   02F1 C3                  988 	clr	c
+   02F2 9D                  989 	subb	a,r5
+   02F3 90s00r00            990 	mov	dptr,#_eeprom
+   02F6 93                  991 	movc	a,@a+dptr
+   02F7 FE                  992 	mov	r6,a
+   02F8 33                  993 	rlc	a
+   02F9 95 E0               994 	subb	a,acc
+   02FB FF                  995 	mov	r7,a
+                            996 ;	../app_kombi.c:129: hysterese = ctrl & 0x07;
+   02FC A8*00               997 	mov	r0,_bp
+   02FE 08                  998 	inc	r0
+   02FF 74 07               999 	mov	a,#0x07
+   0301 56                 1000 	anl	a,@r0
+   0302 FB                 1001 	mov	r3,a
+   0303 E5*00              1002 	mov	a,_bp
+   0305 24 05              1003 	add	a,#0x05
+   0307 F8                 1004 	mov	r0,a
+   0308 A6 03              1005 	mov	@r0,ar3
+   030A 08                 1006 	inc	r0
+   030B 76 00              1007 	mov	@r0,#0x00
+                           1008 ;	../app_kombi.c:131: if (schwellwert_temp<51) {	//>51 : Temperaturschwelle inaktiv
+   030D C3                 1009 	clr	c
+   030E EE                 1010 	mov	a,r6
+   030F 94 33              1011 	subb	a,#0x33
+   0311 EF                 1012 	mov	a,r7
+   0312 64 80              1013 	xrl	a,#0x80
+   0314 94 80              1014 	subb	a,#0x80
+   0316 D0 04              1015 	pop	ar4
+   0318 D0 03              1016 	pop	ar3
+   031A 40 03              1017 	jc	00299$
+   031C 02s04rEC           1018 	ljmp	00182$
+   031F                    1019 00299$:
+                           1020 ;	../app_kombi.c:132: if (temp > (schwellwert_temp* (signed int)100)) over=1;
+   031F C0 06              1021 	push	ar6
+   0321 C0 07              1022 	push	ar7
+   0323 C0 02              1023 	push	ar2
+   0325 C0 03              1024 	push	ar3
+   0327 C0 04              1025 	push	ar4
+   0329 C0 05              1026 	push	ar5
+   032B C0*00              1027 	push	bits
+   032D C0 06              1028 	push	ar6
+   032F C0 07              1029 	push	ar7
+   0331 90 00 64           1030 	mov	dptr,#0x0064
+   0334 12s00r00           1031 	lcall	__mulint
+   0337 AE 82              1032 	mov	r6,dpl
+   0339 AF 83              1033 	mov	r7,dph
+   033B 15 81              1034 	dec	sp
+   033D 15 81              1035 	dec	sp
+   033F D0*00              1036 	pop	bits
+   0341 D0 05              1037 	pop	ar5
+   0343 D0 04              1038 	pop	ar4
+   0345 D0 03              1039 	pop	ar3
+   0347 D0 02              1040 	pop	ar2
+   0349 C3                 1041 	clr	c
+   034A EE                 1042 	mov	a,r6
+   034B 95*00              1043 	subb	a,_temp
+   034D EF                 1044 	mov	a,r7
+   034E 64 80              1045 	xrl	a,#0x80
+   0350 85*01 F0           1046 	mov	b,(_temp + 1)
+   0353 63 F0 80           1047 	xrl	b,#0x80
+   0356 95 F0              1048 	subb	a,b
+   0358 D0 07              1049 	pop	ar7
+   035A D0 06              1050 	pop	ar6
+   035C 50 02              1051 	jnc	00145$
+   035E D2*00              1052 	setb	b0
+   0360                    1053 00145$:
+                           1054 ;	../app_kombi.c:133: if (temp < ((schwellwert_temp - (signed int)hysterese)*(signed int)100)) under=1;
+   0360 E5*00              1055 	mov	a,_bp
+   0362 24 05              1056 	add	a,#0x05
+   0364 F8                 1057 	mov	r0,a
+   0365 EE                 1058 	mov	a,r6
+   0366 C3                 1059 	clr	c
+   0367 96                 1060 	subb	a,@r0
+   0368 FE                 1061 	mov	r6,a
+   0369 EF                 1062 	mov	a,r7
+   036A 08                 1063 	inc	r0
+   036B 96                 1064 	subb	a,@r0
+   036C FF                 1065 	mov	r7,a
+   036D C0 02              1066 	push	ar2
+   036F C0 03              1067 	push	ar3
+   0371 C0 04              1068 	push	ar4
+   0373 C0 05              1069 	push	ar5
+   0375 C0*00              1070 	push	bits
+   0377 C0 06              1071 	push	ar6
+   0379 C0 07              1072 	push	ar7
+   037B 90 00 64           1073 	mov	dptr,#0x0064
+   037E 12s00r00           1074 	lcall	__mulint
+   0381 AE 82              1075 	mov	r6,dpl
+   0383 AF 83              1076 	mov	r7,dph
+   0385 15 81              1077 	dec	sp
+   0387 15 81              1078 	dec	sp
+   0389 D0*00              1079 	pop	bits
+   038B D0 05              1080 	pop	ar5
+   038D D0 04              1081 	pop	ar4
+   038F D0 03              1082 	pop	ar3
+   0391 D0 02              1083 	pop	ar2
+   0393 C3                 1084 	clr	c
+   0394 E5*00              1085 	mov	a,_temp
+   0396 9E                 1086 	subb	a,r6
+   0397 E5*01              1087 	mov	a,(_temp + 1)
+   0399 64 80              1088 	xrl	a,#0x80
+   039B 8F F0              1089 	mov	b,r7
+   039D 63 F0 80           1090 	xrl	b,#0x80
+   03A0 95 F0              1091 	subb	a,b
+   03A2 40 03              1092 	jc	00301$
+   03A4 02s04rEC           1093 	ljmp	00182$
+   03A7                    1094 00301$:
+   03A7 D2*00              1095 	setb	b1
+   03A9 02s04rEC           1096 	ljmp	00182$
+   03AC                    1097 00178$:
+                           1098 ;	../app_kombi.c:138: lux_compare = eeprom[0xF8-offset] & 0xF0;
+   03AC 74 F8              1099 	mov	a,#0xF8
+   03AE C3                 1100 	clr	c
+   03AF 9D                 1101 	subb	a,r5
+   03B0 90s00r00           1102 	mov	dptr,#_eeprom
+   03B3 93                 1103 	movc	a,@a+dptr
+   03B4 FE                 1104 	mov	r6,a
+   03B5 53 06 F0           1105 	anl	ar6,#0xF0
+                           1106 ;	../app_kombi.c:139: temp_compare = eeprom[ctrl_adr[objno]+1] & 0x70;
+   03B8 EA                 1107 	mov	a,r2
+   03B9 90s00rEB           1108 	mov	dptr,#_ctrl_adr
+   03BC 93                 1109 	movc	a,@a+dptr
+   03BD 04                 1110 	inc	a
+   03BE 90s00r00           1111 	mov	dptr,#_eeprom
+   03C1 93                 1112 	movc	a,@a+dptr
+   03C2 FF                 1113 	mov	r7,a
+   03C3 53 07 70           1114 	anl	ar7,#0x70
+                           1115 ;	../app_kombi.c:142: over=1;
+   03C6 D2*00              1116 	setb	b0
+                           1117 ;	../app_kombi.c:143: switch (temp_compare) {
+   03C8 BF 10 02           1118 	cjne	r7,#0x10,00302$
+   03CB 80 0F              1119 	sjmp	00150$
+   03CD                    1120 00302$:
+   03CD BF 20 02           1121 	cjne	r7,#0x20,00303$
+   03D0 80 13              1122 	sjmp	00151$
+   03D2                    1123 00303$:
+   03D2 BF 30 02           1124 	cjne	r7,#0x30,00304$
+   03D5 80 17              1125 	sjmp	00152$
+   03D7                    1126 00304$:
+                           1127 ;	../app_kombi.c:144: case 0x10:		// 1 = größer als Temperaturschwelle 1
+   03D7 BF 40 24           1128 	cjne	r7,#0x40,00154$
+   03DA 80 1B              1129 	sjmp	00153$
+   03DC                    1130 00150$:
+                           1131 ;	../app_kombi.c:145: over = (overrun & 0x08);
+   03DC 78r00              1132 	mov	r0,#_overrun
+   03DE E6                 1133 	mov	a,@r0
+   03DF A2 E3              1134 	mov	c,acc[3]
+   03E1 92*00              1135 	mov	b0,c
+                           1136 ;	../app_kombi.c:146: break;
+                           1137 ;	../app_kombi.c:147: case 0x20:		// 2 = größer als Temperaturschwelle 2
+   03E3 80 19              1138 	sjmp	00154$
+   03E5                    1139 00151$:
+                           1140 ;	../app_kombi.c:148: over = (overrun & 0x10);
+   03E5 78r00              1141 	mov	r0,#_overrun
+   03E7 E6                 1142 	mov	a,@r0
+   03E8 A2 E4              1143 	mov	c,acc[4]
+   03EA 92*00              1144 	mov	b0,c
+                           1145 ;	../app_kombi.c:149: break;
+                           1146 ;	../app_kombi.c:150: case 0x30:		// 3 = kleiner als Temperaturschwelle 1
+   03EC 80 10              1147 	sjmp	00154$
+   03EE                    1148 00152$:
+                           1149 ;	../app_kombi.c:151: over = (underrun & 0x08);
+   03EE 78r01              1150 	mov	r0,#_underrun
+   03F0 E6                 1151 	mov	a,@r0
+   03F1 A2 E3              1152 	mov	c,acc[3]
+   03F3 92*00              1153 	mov	b0,c
+                           1154 ;	../app_kombi.c:152: break;
+                           1155 ;	../app_kombi.c:153: case 0x40:		// 4 = kleiner als Temperaturschwelle 2
+   03F5 80 07              1156 	sjmp	00154$
+   03F7                    1157 00153$:
+                           1158 ;	../app_kombi.c:154: over = (underrun & 0x10);
+   03F7 78r01              1159 	mov	r0,#_underrun
+   03F9 E6                 1160 	mov	a,@r0
+   03FA A2 E4              1161 	mov	c,acc[4]
+   03FC 92*00              1162 	mov	b0,c
+                           1163 ;	../app_kombi.c:156: }
+   03FE                    1164 00154$:
+                           1165 ;	../app_kombi.c:158: valid=1;
+   03FE D2*00              1166 	setb	b2
+                           1167 ;	../app_kombi.c:159: switch (lux_compare) {
+   0400 BE 10 02           1168 	cjne	r6,#0x10,00306$
+   0403 80 1E              1169 	sjmp	00155$
+   0405                    1170 00306$:
+   0405 BE 20 02           1171 	cjne	r6,#0x20,00307$
+   0408 80 38              1172 	sjmp	00158$
+   040A                    1173 00307$:
+   040A BE 30 02           1174 	cjne	r6,#0x30,00308$
+   040D 80 52              1175 	sjmp	00161$
+   040F                    1176 00308$:
+   040F BE 40 02           1177 	cjne	r6,#0x40,00309$
+   0412 80 6D              1178 	sjmp	00164$
+   0414                    1179 00309$:
+   0414 BE 50 03           1180 	cjne	r6,#0x50,00310$
+   0417 02s04r9F           1181 	ljmp	00167$
+   041A                    1182 00310$:
+   041A BE 60 03           1183 	cjne	r6,#0x60,00311$
+   041D 02s04rBE           1184 	ljmp	00170$
+   0420                    1185 00311$:
+   0420 02s04rDC           1186 	ljmp	00173$
+                           1187 ;	../app_kombi.c:160: case 0x10:		// 1 = größer als Helligkeitsschwelle 1
+   0423                    1188 00155$:
+                           1189 ;	../app_kombi.c:161: if(delrec[2].delayactive & 0x04) valid=0;	// wenn Verzögerung der Helligkeitsschwelle noch aktiv, dann noch nichts senden
+   0423 E5*0D              1190 	mov	a,(_delrec + 0x0008)
+   0425 30 E2 02           1191 	jnb	acc.2,00157$
+   0428 C2*00              1192 	clr	b2
+   042A                    1193 00157$:
+                           1194 ;	../app_kombi.c:162: over &= (overrun & 0x01);
+   042A 78r00              1195 	mov	r0,#_overrun
+   042C E6                 1196 	mov	a,@r0
+   042D 54 01              1197 	anl	a,#0x01
+   042F FE                 1198 	mov	r6,a
+   0430 A2*00              1199 	mov	c,b0
+   0432 E4                 1200 	clr	a
+   0433 33                 1201 	rlc	a
+   0434 FF                 1202 	mov	r7,a
+   0435 D3                 1203 	setb	c
+   0436 EE                 1204 	mov	a,r6
+   0437 5F                 1205 	anl	a,r7
+   0438 70 01              1206 	jnz	00313$
+   043A C3                 1207 	clr	c
+   043B                    1208 00313$:
+   043B 92*00              1209 	mov  b3,c
+   043D 92*00              1210 	mov	b0,c
+                           1211 ;	../app_kombi.c:163: break;
+   043F 02s04rDC           1212 	ljmp	00173$
+                           1213 ;	../app_kombi.c:164: case 0x20:		// 2 = größer als Helligkeitsschwelle 2
+   0442                    1214 00158$:
+                           1215 ;	../app_kombi.c:165: if(delrec[3].delayactive & 0x04) valid=0;
+   0442 E5*11              1216 	mov	a,(_delrec + 0x000c)
+   0444 30 E2 02           1217 	jnb	acc.2,00160$
+   0447 C2*00              1218 	clr	b2
+   0449                    1219 00160$:
+                           1220 ;	../app_kombi.c:166: over &= (overrun & 0x02);
+   0449 78r00              1221 	mov	r0,#_overrun
+   044B E6                 1222 	mov	a,@r0
+   044C 03                 1223 	rr	a
+   044D 54 01              1224 	anl	a,#0x01
+   044F FE                 1225 	mov	r6,a
+   0450 A2*00              1226 	mov	c,b0
+   0452 E4                 1227 	clr	a
+   0453 33                 1228 	rlc	a
+   0454 FF                 1229 	mov	r7,a
+   0455 D3                 1230 	setb	c
+   0456 EE                 1231 	mov	a,r6
+   0457 5F                 1232 	anl	a,r7
+   0458 70 01              1233 	jnz	00315$
+   045A C3                 1234 	clr	c
+   045B                    1235 00315$:
+   045B 92*00              1236 	mov  b3,c
+   045D 92*00              1237 	mov	b0,c
+                           1238 ;	../app_kombi.c:167: break;
+                           1239 ;	../app_kombi.c:168: case 0x30:		// 3 = größer als Helligkeitsschwelle 3
+   045F 80 7B              1240 	sjmp	00173$
+   0461                    1241 00161$:
+                           1242 ;	../app_kombi.c:169: if(delrec[4].delayactive & 0x04) valid=0;
+   0461 E5*15              1243 	mov	a,(_delrec + 0x0010)
+   0463 30 E2 02           1244 	jnb	acc.2,00163$
+   0466 C2*00              1245 	clr	b2
+   0468                    1246 00163$:
+                           1247 ;	../app_kombi.c:170: over &= (overrun & 0x04);
+   0468 78r00              1248 	mov	r0,#_overrun
+   046A E6                 1249 	mov	a,@r0
+   046B 03                 1250 	rr	a
+   046C 03                 1251 	rr	a
+   046D 54 01              1252 	anl	a,#0x01
+   046F FE                 1253 	mov	r6,a
+   0470 A2*00              1254 	mov	c,b0
+   0472 E4                 1255 	clr	a
+   0473 33                 1256 	rlc	a
+   0474 FF                 1257 	mov	r7,a
+   0475 D3                 1258 	setb	c
+   0476 EE                 1259 	mov	a,r6
+   0477 5F                 1260 	anl	a,r7
+   0478 70 01              1261 	jnz	00317$
+   047A C3                 1262 	clr	c
+   047B                    1263 00317$:
+   047B 92*00              1264 	mov  b3,c
+   047D 92*00              1265 	mov	b0,c
+                           1266 ;	../app_kombi.c:171: break;
+                           1267 ;	../app_kombi.c:172: case 0x40:		// 4 = kleiner als Helligkeitsschwelle 1
+   047F 80 5B              1268 	sjmp	00173$
+   0481                    1269 00164$:
+                           1270 ;	../app_kombi.c:173: if(delrec[2].delayactive & 0x04) valid=0;
+   0481 E5*0D              1271 	mov	a,(_delrec + 0x0008)
+   0483 30 E2 02           1272 	jnb	acc.2,00166$
+   0486 C2*00              1273 	clr	b2
+   0488                    1274 00166$:
+                           1275 ;	../app_kombi.c:174: over &= (underrun & 0x01);
+   0488 78r01              1276 	mov	r0,#_underrun
+   048A E6                 1277 	mov	a,@r0
+   048B 54 01              1278 	anl	a,#0x01
+   048D FE                 1279 	mov	r6,a
+   048E A2*00              1280 	mov	c,b0
+   0490 E4                 1281 	clr	a
+   0491 33                 1282 	rlc	a
+   0492 FF                 1283 	mov	r7,a
+   0493 D3                 1284 	setb	c
+   0494 EE                 1285 	mov	a,r6
+   0495 5F                 1286 	anl	a,r7
+   0496 70 01              1287 	jnz	00319$
+   0498 C3                 1288 	clr	c
+   0499                    1289 00319$:
+   0499 92*00              1290 	mov  b3,c
+   049B 92*00              1291 	mov	b0,c
+                           1292 ;	../app_kombi.c:175: break;
+                           1293 ;	../app_kombi.c:176: case 0x50:		// 5 = kleiner als Helligkeitsschwelle 2
+   049D 80 3D              1294 	sjmp	00173$
+   049F                    1295 00167$:
+                           1296 ;	../app_kombi.c:177: if(delrec[3].delayactive & 0x04) valid=0;
+   049F E5*11              1297 	mov	a,(_delrec + 0x000c)
+   04A1 30 E2 02           1298 	jnb	acc.2,00169$
+   04A4 C2*00              1299 	clr	b2
+   04A6                    1300 00169$:
+                           1301 ;	../app_kombi.c:178: over &= (underrun & 0x02);
+   04A6 78r01              1302 	mov	r0,#_underrun
+   04A8 E6                 1303 	mov	a,@r0
+   04A9 03                 1304 	rr	a
+   04AA 54 01              1305 	anl	a,#0x01
+   04AC FE                 1306 	mov	r6,a
+   04AD A2*00              1307 	mov	c,b0
+   04AF E4                 1308 	clr	a
+   04B0 33                 1309 	rlc	a
+   04B1 FF                 1310 	mov	r7,a
+   04B2 D3                 1311 	setb	c
+   04B3 EE                 1312 	mov	a,r6
+   04B4 5F                 1313 	anl	a,r7
+   04B5 70 01              1314 	jnz	00321$
+   04B7 C3                 1315 	clr	c
+   04B8                    1316 00321$:
+   04B8 92*00              1317 	mov  b3,c
+   04BA 92*00              1318 	mov	b0,c
+                           1319 ;	../app_kombi.c:179: break;
+                           1320 ;	../app_kombi.c:180: case 0x60:		// 6 = kleiner als Helligkeitsschwelle 3
+   04BC 80 1E              1321 	sjmp	00173$
+   04BE                    1322 00170$:
+                           1323 ;	../app_kombi.c:181: if(delrec[4].delayactive & 0x04) valid=0;
+   04BE E5*15              1324 	mov	a,(_delrec + 0x0010)
+   04C0 30 E2 02           1325 	jnb	acc.2,00172$
+   04C3 C2*00              1326 	clr	b2
+   04C5                    1327 00172$:
+                           1328 ;	../app_kombi.c:182: over &= (underrun & 0x04);
+   04C5 78r01              1329 	mov	r0,#_underrun
+   04C7 E6                 1330 	mov	a,@r0
+   04C8 03                 1331 	rr	a
+   04C9 03                 1332 	rr	a
+   04CA 54 01              1333 	anl	a,#0x01
+   04CC FE                 1334 	mov	r6,a
+   04CD A2*00              1335 	mov	c,b0
+   04CF E4                 1336 	clr	a
+   04D0 33                 1337 	rlc	a
+   04D1 FF                 1338 	mov	r7,a
+   04D2 D3                 1339 	setb	c
+   04D3 EE                 1340 	mov	a,r6
+   04D4 5F                 1341 	anl	a,r7
+   04D5 70 01              1342 	jnz	00323$
+   04D7 C3                 1343 	clr	c
+   04D8                    1344 00323$:
+   04D8 92*00              1345 	mov  b3,c
+   04DA 92*00              1346 	mov	b0,c
+                           1347 ;	../app_kombi.c:184: }
+   04DC                    1348 00173$:
+                           1349 ;	../app_kombi.c:185: if(valid) under = !over;
+   04DC 30*00 09           1350 	jnb	b2,00175$
+   04DF A2*00              1351 	mov	c,b0
+   04E1 B3                 1352 	cpl	c
+   04E2 92*00              1353 	mov  b2,c
+   04E4 92*00              1354 	mov	b1,c
+   04E6 80 04              1355 	sjmp	00182$
+   04E8                    1356 00175$:
+                           1357 ;	../app_kombi.c:187: over = 0;
+   04E8 C2*00              1358 	clr	b0
+                           1359 ;	../app_kombi.c:188: under = 0;
+   04EA C2*00              1360 	clr	b1
+   04EC                    1361 00182$:
+                           1362 ;	../app_kombi.c:194: if (objno>=8) offset++;				// da Verssatz in der Reihenfolge der Parameter
+   04EC BA 08 00           1363 	cjne	r2,#0x08,00325$
+   04EF                    1364 00325$:
+   04EF 40 01              1365 	jc	00184$
+   04F1 0D                 1366 	inc	r5
+   04F2                    1367 00184$:
+                           1368 ;	../app_kombi.c:195: if (over) value = eeprom[LUX_OVER-offset];		// zu sendender Wert bei überschreiten
+   04F2 30*00 0B           1369 	jnb	b0,00186$
+   04F5 74 F8              1370 	mov	a,#0xF8
+   04F7 C3                 1371 	clr	c
+   04F8 9D                 1372 	subb	a,r5
+   04F9 90s00r00           1373 	mov	dptr,#_eeprom
+   04FC 93                 1374 	movc	a,@a+dptr
+   04FD FE                 1375 	mov	r6,a
+   04FE 80 0A              1376 	sjmp	00187$
+   0500                    1377 00186$:
+                           1378 ;	../app_kombi.c:196: else value = eeprom[LUX_UNDER-offset];		// zu sendender Wert bei unterschreiten
+   0500 74 F7              1379 	mov	a,#0xF7
+   0502 C3                 1380 	clr	c
+   0503 9D                 1381 	subb	a,r5
+   0504 90s00r00           1382 	mov	dptr,#_eeprom
+   0507 93                 1383 	movc	a,@a+dptr
+   0508 FD                 1384 	mov	r5,a
+   0509 FE                 1385 	mov	r6,a
+   050A                    1386 00187$:
+                           1387 ;	../app_kombi.c:197: bitmask=1<<(objno-3);				// Bitmaske für underrun und overrun
+   050A EA                 1388 	mov	a,r2
+   050B 24 FD              1389 	add	a,#0xfd
+   050D FD                 1390 	mov	r5,a
+   050E 8D F0              1391 	mov	b,r5
+   0510 05 F0              1392 	inc	b
+   0512 74 01              1393 	mov	a,#0x01
+   0514 80 02              1394 	sjmp	00330$
+   0516                    1395 00328$:
+   0516 25 E0              1396 	add	a,acc
+   0518                    1397 00330$:
+   0518 D5 F0 FB           1398 	djnz	b,00328$
+   051B FD                 1399 	mov	r5,a
+                           1400 ;	../app_kombi.c:198: active=0;
+   051C A8*00              1401 	mov	r0,_bp
+   051E 08                 1402 	inc	r0
+   051F 08                 1403 	inc	r0
+   0520 76 00              1404 	mov	@r0,#0x00
+                           1405 ;	../app_kombi.c:200: if (over) {					// wenn überschritten
+   0522 30*00 76           1406 	jnb	b0,00197$
+                           1407 ;	../app_kombi.c:201: if (!(overrun&bitmask)) { 	// wenn neu überschritten
+   0525 78r00              1408 	mov	r0,#_overrun
+   0527 ED                 1409 	mov	a,r5
+   0528 56                 1410 	anl	a,@r0
+   0529 70 64              1411 	jnz	00195$
+                           1412 ;	../app_kombi.c:203: if (delay==0 || (resend&bitmask)) {		// // wenn keine Verzögerung oder Sperre aufgehoben wurde, sofort senden
+   052B EB                 1413 	mov	a,r3
+   052C 4C                 1414 	orl	a,r4
+   052D 60 06              1415 	jz	00190$
+   052F 78r05              1416 	mov	r0,#_resend
+   0531 ED                 1417 	mov	a,r5
+   0532 56                 1418 	anl	a,@r0
+   0533 60 12              1419 	jz	00191$
+   0535                    1420 00190$:
+                           1421 ;	../app_kombi.c:204: resend&=~bitmask;
+   0535 C0 06              1422 	push	ar6
+   0537 ED                 1423 	mov	a,r5
+   0538 F4                 1424 	cpl	a
+   0539 78r05              1425 	mov	r0,#_resend
+   053B 56                 1426 	anl	a,@r0
+   053C F6                 1427 	mov	@r0,a
+                           1428 ;	../app_kombi.c:205: active=3;	// Bit0=1=aktiv und Bit1=1=überschritten
+   053D A8*00              1429 	mov	r0,_bp
+   053F 08                 1430 	inc	r0
+   0540 08                 1431 	inc	r0
+   0541 76 03              1432 	mov	@r0,#0x03
+   0543 D0 06              1433 	pop	ar6
+   0545 80 16              1434 	sjmp	00192$
+   0547                    1435 00191$:
+                           1436 ;	../app_kombi.c:208: if(delrec[objno-1].delayactive!=5) {	// wenn bereits verzögertes unterschreiten läuft timer inaktiv setzen
+   0547 EA                 1437 	mov	a,r2
+   0548 14                 1438 	dec	a
+   0549 25 E0              1439 	add	a,acc
+   054B 25 E0              1440 	add	a,acc
+   054D 24r05              1441 	add	a,#_delrec
+   054F F8                 1442 	mov	r0,a
+   0550 86 07              1443 	mov	ar7,@r0
+   0552 BF 05 02           1444 	cjne	r7,#0x05,00335$
+   0555 80 06              1445 	sjmp	00192$
+   0557                    1446 00335$:
+                           1447 ;	../app_kombi.c:209: active=7;	// Bit0=1=aktiv und Bit1=1=überschritten und Bit2=1=verzögert senden
+   0557 A8*00              1448 	mov	r0,_bp
+   0559 08                 1449 	inc	r0
+   055A 08                 1450 	inc	r0
+   055B 76 07              1451 	mov	@r0,#0x07
+   055D                    1452 00192$:
+                           1453 ;	../app_kombi.c:212: WRITE_DELAY_RECORD(objno-1,active,value,timer+delay+1);
+   055D C0 05              1454 	push	ar5
+   055F EA                 1455 	mov	a,r2
+   0560 14                 1456 	dec	a
+   0561 25 E0              1457 	add	a,acc
+   0563 25 E0              1458 	add	a,acc
+   0565 FD                 1459 	mov	r5,a
+   0566 24r05              1460 	add	a,#_delrec
+   0568 F8                 1461 	mov	r0,a
+   0569 A9*00              1462 	mov	r1,_bp
+   056B 09                 1463 	inc	r1
+   056C 09                 1464 	inc	r1
+   056D E7                 1465 	mov	a,@r1
+   056E F6                 1466 	mov	@r0,a
+   056F ED                 1467 	mov	a,r5
+   0570 24r05              1468 	add	a,#_delrec
+   0572 FD                 1469 	mov	r5,a
+   0573 04                 1470 	inc	a
+   0574 F8                 1471 	mov	r0,a
+   0575 A6 06              1472 	mov	@r0,ar6
+   0577 74 02              1473 	mov	a,#0x02
+   0579 2D                 1474 	add	a,r5
+   057A F8                 1475 	mov	r0,a
+   057B EB                 1476 	mov	a,r3
+   057C 25*00              1477 	add	a,_timer
+   057E FD                 1478 	mov	r5,a
+   057F EC                 1479 	mov	a,r4
+   0580 35*01              1480 	addc	a,(_timer + 1)
+   0582 FF                 1481 	mov	r7,a
+   0583 0D                 1482 	inc	r5
+   0584 BD 00 01           1483 	cjne	r5,#0x00,00336$
+   0587 0F                 1484 	inc	r7
+   0588                    1485 00336$:
+   0588 A6 05              1486 	mov	@r0,ar5
+   058A 08                 1487 	inc	r0
+   058B A6 07              1488 	mov	@r0,ar7
+                           1489 ;	../app_kombi.c:233: overrun&=~bitmask;	// Überschritten Bit löschen
+   058D D0 05              1490 	pop	ar5
+                           1491 ;	../app_kombi.c:212: WRITE_DELAY_RECORD(objno-1,active,value,timer+delay+1);
+   058F                    1492 00195$:
+                           1493 ;	../app_kombi.c:214: overrun|=bitmask;		// Überschritten Bit setzen
+   058F 78r00              1494 	mov	r0,#_overrun
+   0591 ED                 1495 	mov	a,r5
+   0592 46                 1496 	orl	a,@r0
+   0593 F6                 1497 	mov	@r0,a
+                           1498 ;	../app_kombi.c:215: underrun&=~bitmask;		// Unterschritten Bit löschen
+   0594 ED                 1499 	mov	a,r5
+   0595 F4                 1500 	cpl	a
+   0596 FF                 1501 	mov	r7,a
+   0597 78r01              1502 	mov	r0,#_underrun
+   0599 56                 1503 	anl	a,@r0
+   059A F6                 1504 	mov	@r0,a
+   059B                    1505 00197$:
+                           1506 ;	../app_kombi.c:218: if (under) {										// wenn Wert unter Schwellwert
+   059B 30*00 6E           1507 	jnb	b1,00212$
+                           1508 ;	../app_kombi.c:219: if (!(underrun&bitmask)) { 						// wenn neu unterschritten
+   059E 78r01              1509 	mov	r0,#_underrun
+   05A0 ED                 1510 	mov	a,r5
+   05A1 56                 1511 	anl	a,@r0
+   05A2 70 5C              1512 	jnz	00205$
+                           1513 ;	../app_kombi.c:221: if (delay==0 || (resend&bitmask)) {	// wenn keine Verzögerung oder Sperre aufgehoben wurde, sofort senden
+   05A4 EB                 1514 	mov	a,r3
+   05A5 4C                 1515 	orl	a,r4
+   05A6 60 06              1516 	jz	00200$
+   05A8 78r05              1517 	mov	r0,#_resend
+   05AA ED                 1518 	mov	a,r5
+   05AB 56                 1519 	anl	a,@r0
+   05AC 60 0F              1520 	jz	00201$
+   05AE                    1521 00200$:
+                           1522 ;	../app_kombi.c:222: resend&=~bitmask;
+   05AE ED                 1523 	mov	a,r5
+   05AF F4                 1524 	cpl	a
+   05B0 FF                 1525 	mov	r7,a
+   05B1 78r05              1526 	mov	r0,#_resend
+   05B3 56                 1527 	anl	a,@r0
+   05B4 F6                 1528 	mov	@r0,a
+                           1529 ;	../app_kombi.c:223: active=1;						// Bit0=1=aktiv und Bit1=0=unterschritten
+   05B5 A8*00              1530 	mov	r0,_bp
+   05B7 08                 1531 	inc	r0
+   05B8 08                 1532 	inc	r0
+   05B9 76 01              1533 	mov	@r0,#0x01
+   05BB 80 16              1534 	sjmp	00202$
+   05BD                    1535 00201$:
+                           1536 ;	../app_kombi.c:226: if(delrec[objno-1].delayactive!=7) {	// falls verzögertes überschritten Senden noch läuft stoppen
+   05BD EA                 1537 	mov	a,r2
+   05BE 14                 1538 	dec	a
+   05BF 25 E0              1539 	add	a,acc
+   05C1 25 E0              1540 	add	a,acc
+   05C3 24r05              1541 	add	a,#_delrec
+   05C5 F8                 1542 	mov	r0,a
+   05C6 86 07              1543 	mov	ar7,@r0
+   05C8 BF 07 02           1544 	cjne	r7,#0x07,00341$
+   05CB 80 06              1545 	sjmp	00202$
+   05CD                    1546 00341$:
+                           1547 ;	../app_kombi.c:227: active=5;	// Bit0=1=aktiv und Bit1=0=unterschritten und Bit2=1=verzögert
+   05CD A8*00              1548 	mov	r0,_bp
+   05CF 08                 1549 	inc	r0
+   05D0 08                 1550 	inc	r0
+   05D1 76 05              1551 	mov	@r0,#0x05
+   05D3                    1552 00202$:
+                           1553 ;	../app_kombi.c:230: WRITE_DELAY_RECORD(objno-1,active,value,timer+delay+1);
+   05D3 1A                 1554 	dec	r2
+   05D4 EA                 1555 	mov	a,r2
+   05D5 2A                 1556 	add	a,r2
+   05D6 25 E0              1557 	add	a,acc
+   05D8 FA                 1558 	mov	r2,a
+   05D9 24r05              1559 	add	a,#_delrec
+   05DB F8                 1560 	mov	r0,a
+   05DC A9*00              1561 	mov	r1,_bp
+   05DE 09                 1562 	inc	r1
+   05DF 09                 1563 	inc	r1
+   05E0 E7                 1564 	mov	a,@r1
+   05E1 F6                 1565 	mov	@r0,a
+   05E2 EA                 1566 	mov	a,r2
+   05E3 24r05              1567 	add	a,#_delrec
+   05E5 FA                 1568 	mov	r2,a
+   05E6 04                 1569 	inc	a
+   05E7 F8                 1570 	mov	r0,a
+   05E8 A6 06              1571 	mov	@r0,ar6
+   05EA 74 02              1572 	mov	a,#0x02
+   05EC 2A                 1573 	add	a,r2
+   05ED F8                 1574 	mov	r0,a
+   05EE EB                 1575 	mov	a,r3
+   05EF 25*00              1576 	add	a,_timer
+   05F1 FB                 1577 	mov	r3,a
+   05F2 EC                 1578 	mov	a,r4
+   05F3 35*01              1579 	addc	a,(_timer + 1)
+   05F5 FC                 1580 	mov	r4,a
+   05F6 0B                 1581 	inc	r3
+   05F7 BB 00 01           1582 	cjne	r3,#0x00,00342$
+   05FA 0C                 1583 	inc	r4
+   05FB                    1584 00342$:
+   05FB A6 03              1585 	mov	@r0,ar3
+   05FD 08                 1586 	inc	r0
+   05FE A6 04              1587 	mov	@r0,ar4
+   0600                    1588 00205$:
+                           1589 ;	../app_kombi.c:232: underrun|=bitmask;	// Unterschritten Bit setzen
+   0600 78r01              1590 	mov	r0,#_underrun
+   0602 ED                 1591 	mov	a,r5
+   0603 46                 1592 	orl	a,@r0
+   0604 F6                 1593 	mov	@r0,a
+                           1594 ;	../app_kombi.c:233: overrun&=~bitmask;	// Überschritten Bit löschen
+   0605 ED                 1595 	mov	a,r5
+   0606 F4                 1596 	cpl	a
+   0607 FD                 1597 	mov	r5,a
+   0608 78r00              1598 	mov	r0,#_overrun
+   060A 56                 1599 	anl	a,@r0
+   060B F6                 1600 	mov	@r0,a
+   060C                    1601 00212$:
+   060C 85*00 81           1602 	mov	sp,_bp
+   060F D0*00              1603 	pop	_bp
+   0611 22                 1604 	ret
+                           1605 ;------------------------------------------------------------
+                           1606 ;Allocation info for local variables in function 'read_obj_value'
+                           1607 ;------------------------------------------------------------
+                           1608 ;objno                     Allocated to registers r2 
+                           1609 ;objvalue                  Allocated to registers r3 r4 
+                           1610 ;------------------------------------------------------------
+                           1611 ;	../app_kombi.c:241: unsigned long read_obj_value(unsigned char objno)
+                           1612 ;	-----------------------------------------
+                           1613 ;	 function read_obj_value
+                           1614 ;	-----------------------------------------
+   0612                    1615 _read_obj_value:
+   0612 AA 82              1616 	mov	r2,dpl
+                           1617 ;	../app_kombi.c:243: int objvalue=0;
+   0614 7B 00              1618 	mov	r3,#0x00
+   0616 7C 00              1619 	mov	r4,#0x00
+                           1620 ;	../app_kombi.c:245: if (objno <= 1) {
+   0618 EA                 1621 	mov	a,r2
+   0619 24 FE              1622 	add	a,#0xff - 0x01
+   061B 40 0E              1623 	jc	00102$
+                           1624 ;	../app_kombi.c:246: objvalue = global_object_value_0_to_1[objno];
+   061D EA                 1625 	mov	a,r2
+   061E 2A                 1626 	add	a,r2
+   061F 24r00              1627 	add	a,#_global_object_value_0_to_1
+   0621 F8                 1628 	mov	r0,a
+   0622 86 05              1629 	mov	ar5,@r0
+   0624 08                 1630 	inc	r0
+   0625 86 06              1631 	mov	ar6,@r0
+   0627 8D 03              1632 	mov	ar3,r5
+   0629 8E 04              1633 	mov	ar4,r6
+   062B                    1634 00102$:
+                           1635 ;	../app_kombi.c:248: if (objno >=3 && objno <= 10) {
+   062B BA 03 00           1636 	cjne	r2,#0x03,00116$
+   062E                    1637 00116$:
+   062E 40 39              1638 	jc	00107$
+   0630 EA                 1639 	mov	a,r2
+   0631 24 F5              1640 	add	a,#0xff - 0x0A
+   0633 40 34              1641 	jc	00107$
+                           1642 ;	../app_kombi.c:249: if (global_object_value_3_to_10 & (1<<(objno-3))) objvalue=1; else objvalue=0;
+   0635 7D 00              1643 	mov	r5,#0x00
+   0637 EA                 1644 	mov	a,r2
+   0638 24 FD              1645 	add	a,#0xfd
+   063A FA                 1646 	mov	r2,a
+   063B ED                 1647 	mov	a,r5
+   063C 34 FF              1648 	addc	a,#0xff
+   063E 8A F0              1649 	mov	b,r2
+   0640 05 F0              1650 	inc	b
+   0642 7A 01              1651 	mov	r2,#0x01
+   0644 7D 00              1652 	mov	r5,#0x00
+   0646 80 06              1653 	sjmp	00120$
+   0648                    1654 00119$:
+   0648 EA                 1655 	mov	a,r2
+   0649 2A                 1656 	add	a,r2
+   064A FA                 1657 	mov	r2,a
+   064B ED                 1658 	mov	a,r5
+   064C 33                 1659 	rlc	a
+   064D FD                 1660 	mov	r5,a
+   064E                    1661 00120$:
+   064E D5 F0 F7           1662 	djnz	b,00119$
+   0651 AE*04              1663 	mov	r6,_global_object_value_3_to_10
+   0653 7F 00              1664 	mov	r7,#0x00
+   0655 EE                 1665 	mov	a,r6
+   0656 52 02              1666 	anl	ar2,a
+   0658 EF                 1667 	mov	a,r7
+   0659 52 05              1668 	anl	ar5,a
+   065B EA                 1669 	mov	a,r2
+   065C 4D                 1670 	orl	a,r5
+   065D 60 06              1671 	jz	00104$
+   065F 7B 01              1672 	mov	r3,#0x01
+   0661 7C 00              1673 	mov	r4,#0x00
+   0663 80 04              1674 	sjmp	00107$
+   0665                    1675 00104$:
+   0665 7B 00              1676 	mov	r3,#0x00
+   0667 7C 00              1677 	mov	r4,#0x00
+   0669                    1678 00107$:
+                           1679 ;	../app_kombi.c:251: return(objvalue);
+   0669 EC                 1680 	mov	a,r4
+   066A 33                 1681 	rlc	a
+   066B 95 E0              1682 	subb	a,acc
+   066D FA                 1683 	mov	r2,a
+   066E 8B 82              1684 	mov	dpl,r3
+   0670 8C 83              1685 	mov	dph,r4
+   0672 8A F0              1686 	mov	b,r2
+   0674 22                 1687 	ret
+                           1688 ;------------------------------------------------------------
+                           1689 ;Allocation info for local variables in function 'write_obj_value'
+                           1690 ;------------------------------------------------------------
+                           1691 ;objvalue                  Allocated to stack - offset -4
+                           1692 ;objno                     Allocated to registers r2 
+                           1693 ;bitpattern                Allocated to registers r3 
+                           1694 ;------------------------------------------------------------
+                           1695 ;	../app_kombi.c:255: void write_obj_value(unsigned char objno,int objvalue)
+                           1696 ;	-----------------------------------------
+                           1697 ;	 function write_obj_value
+                           1698 ;	-----------------------------------------
+   0675                    1699 _write_obj_value:
+   0675 C0*00              1700 	push	_bp
+   0677 85 81*00           1701 	mov	_bp,sp
+                           1702 ;	../app_kombi.c:259: bitpattern = 1<<(objno-3);
+   067A E5 82              1703 	mov	a,dpl
+   067C FA                 1704 	mov	r2,a
+   067D 24 FD              1705 	add	a,#0xfd
+   067F FB                 1706 	mov	r3,a
+   0680 8B F0              1707 	mov	b,r3
+   0682 05 F0              1708 	inc	b
+   0684 74 01              1709 	mov	a,#0x01
+   0686 80 02              1710 	sjmp	00117$
+   0688                    1711 00115$:
+   0688 25 E0              1712 	add	a,acc
+   068A                    1713 00117$:
+   068A D5 F0 FB           1714 	djnz	b,00115$
+   068D FB                 1715 	mov	r3,a
+                           1716 ;	../app_kombi.c:260: if (objno <= 1) {
+   068E EA                 1717 	mov	a,r2
+   068F 24 FE              1718 	add	a,#0xff - 0x01
+   0691 40 11              1719 	jc	00102$
+                           1720 ;	../app_kombi.c:261: global_object_value_0_to_1[objno]=objvalue;
+   0693 EA                 1721 	mov	a,r2
+   0694 2A                 1722 	add	a,r2
+   0695 FC                 1723 	mov	r4,a
+   0696 24r00              1724 	add	a,#_global_object_value_0_to_1
+   0698 F8                 1725 	mov	r0,a
+   0699 E5*00              1726 	mov	a,_bp
+   069B 24 FC              1727 	add	a,#0xfc
+   069D F9                 1728 	mov	r1,a
+   069E E7                 1729 	mov	a,@r1
+   069F F6                 1730 	mov	@r0,a
+   06A0 08                 1731 	inc	r0
+   06A1 09                 1732 	inc	r1
+   06A2 E7                 1733 	mov	a,@r1
+   06A3 F6                 1734 	mov	@r0,a
+   06A4                    1735 00102$:
+                           1736 ;	../app_kombi.c:263: if (objno >=3 && objno <= 10) {
+   06A4 BA 03 00           1737 	cjne	r2,#0x03,00119$
+   06A7                    1738 00119$:
+   06A7 40 1A              1739 	jc	00109$
+   06A9 EA                 1740 	mov	a,r2
+   06AA 24 F5              1741 	add	a,#0xff - 0x0A
+   06AC 40 15              1742 	jc	00109$
+                           1743 ;	../app_kombi.c:264: if (objvalue) global_object_value_3_to_10 |= bitpattern;
+   06AE E5*00              1744 	mov	a,_bp
+   06B0 24 FC              1745 	add	a,#0xfc
+   06B2 F8                 1746 	mov	r0,a
+   06B3 E6                 1747 	mov	a,@r0
+   06B4 08                 1748 	inc	r0
+   06B5 46                 1749 	orl	a,@r0
+   06B6 60 05              1750 	jz	00104$
+   06B8 EB                 1751 	mov	a,r3
+   06B9 42*04              1752 	orl	_global_object_value_3_to_10,a
+   06BB 80 06              1753 	sjmp	00109$
+   06BD                    1754 00104$:
+                           1755 ;	../app_kombi.c:265: else global_object_value_3_to_10 &= (0xFF - bitpattern);
+   06BD 74 FF              1756 	mov	a,#0xFF
+   06BF C3                 1757 	clr	c
+   06C0 9B                 1758 	subb	a,r3
+   06C1 52*04              1759 	anl	_global_object_value_3_to_10,a
+   06C3                    1760 00109$:
+   06C3 D0*00              1761 	pop	_bp
+   06C5 22                 1762 	ret
+                           1763 ;------------------------------------------------------------
+                           1764 ;Allocation info for local variables in function 'read_value_req'
+                           1765 ;------------------------------------------------------------
+                           1766 ;objno                     Allocated to registers r2 
+                           1767 ;objflags                  Allocated to registers r3 
+                           1768 ;------------------------------------------------------------
+                           1769 ;	../app_kombi.c:272: void read_value_req(void)
+                           1770 ;	-----------------------------------------
+                           1771 ;	 function read_value_req
+                           1772 ;	-----------------------------------------
+   06C6                    1773 _read_value_req:
+                           1774 ;	../app_kombi.c:276: objno=find_first_objno(telegramm[3],telegramm[4]);	// erste Objektnummer zu empfangener GA finden
+   06C6 85*03 82           1775 	mov	dpl,(_telegramm + 0x0003)
+   06C9 C0*04              1776 	push	(_telegramm + 0x0004)
+   06CB 12s00r00           1777 	lcall	_find_first_objno
+   06CE AA 82              1778 	mov	r2,dpl
+   06D0 15 81              1779 	dec	sp
+                           1780 ;	../app_kombi.c:277: if(objno!=0xFF) {									// falls Gruppenadresse nicht gefunden
+   06D2 BA FF 01           1781 	cjne	r2,#0xFF,00109$
+   06D5 22                 1782 	ret
+   06D6                    1783 00109$:
+                           1784 ;	../app_kombi.c:278: objflags=read_objflags(objno);					// Objekt Flags lesen
+   06D6 8A 82              1785 	mov	dpl,r2
+   06D8 C0 02              1786 	push	ar2
+   06DA 12s00r00           1787 	lcall	_read_objflags
+   06DD AB 82              1788 	mov	r3,dpl
+   06DF D0 02              1789 	pop	ar2
+                           1790 ;	../app_kombi.c:280: if((objflags&0x0C)==0x0C) send_obj_value(objno+0x40);
+   06E1 53 03 0C           1791 	anl	ar3,#0x0C
+   06E4 BB 0C 08           1792 	cjne	r3,#0x0C,00105$
+   06E7 74 40              1793 	mov	a,#0x40
+   06E9 2A                 1794 	add	a,r2
+   06EA F5 82              1795 	mov	dpl,a
+   06EC 02s00r00           1796 	ljmp	_send_obj_value
+   06EF                    1797 00105$:
+   06EF 22                 1798 	ret
+                           1799 ;------------------------------------------------------------
+                           1800 ;Allocation info for local variables in function 'write_value_req'
+                           1801 ;------------------------------------------------------------
+                           1802 ;objno                     Allocated to registers r2 
+                           1803 ;------------------------------------------------------------
+                           1804 ;	../app_kombi.c:286: void write_value_req(void)
+                           1805 ;	-----------------------------------------
+                           1806 ;	 function write_value_req
+                           1807 ;	-----------------------------------------
+   06F0                    1808 _write_value_req:
+                           1809 ;	../app_kombi.c:290: objno=find_first_objno(telegramm[3],telegramm[4]);
+   06F0 85*03 82           1810 	mov	dpl,(_telegramm + 0x0003)
+   06F3 C0*04              1811 	push	(_telegramm + 0x0004)
+   06F5 12s00r00           1812 	lcall	_find_first_objno
+   06F8 AA 82              1813 	mov	r2,dpl
+   06FA 15 81              1814 	dec	sp
+                           1815 ;	../app_kombi.c:292: if (objno==10) {	// nur Sperrobjekt darf beschrieben werden
+   06FC BA 0A 28           1816 	cjne	r2,#0x0A,00108$
+                           1817 ;	../app_kombi.c:294: if(telegramm[7]&0x01) global_object_value_3_to_10 |= 0x80;
+   06FF E5*07              1818 	mov	a,(_telegramm + 0x0007)
+   0701 FA                 1819 	mov	r2,a
+   0702 30 E0 05           1820 	jnb	acc.0,00102$
+   0705 43r04 80           1821 	orl	_global_object_value_3_to_10,#0x80
+   0708 80 03              1822 	sjmp	00103$
+   070A                    1823 00102$:
+                           1824 ;	../app_kombi.c:295: else global_object_value_3_to_10 &= 0x7F;
+   070A 53r04 7F           1825 	anl	_global_object_value_3_to_10,#0x7F
+   070D                    1826 00103$:
+                           1827 ;	../app_kombi.c:298: if((telegramm[7]&0x01)==0) {
+   070D EA                 1828 	mov	a,r2
+   070E 20 E0 16           1829 	jb	acc.0,00108$
+                           1830 ;	../app_kombi.c:299: overrun&=~lockatt;
+   0711 78r04              1831 	mov	r0,#_lockatt
+   0713 E6                 1832 	mov	a,@r0
+   0714 F4                 1833 	cpl	a
+   0715 FA                 1834 	mov	r2,a
+   0716 78r00              1835 	mov	r0,#_overrun
+   0718 56                 1836 	anl	a,@r0
+   0719 F6                 1837 	mov	@r0,a
+                           1838 ;	../app_kombi.c:300: underrun&=~lockatt;
+   071A 78r01              1839 	mov	r0,#_underrun
+   071C EA                 1840 	mov	a,r2
+   071D 56                 1841 	anl	a,@r0
+   071E F6                 1842 	mov	@r0,a
+                           1843 ;	../app_kombi.c:301: resend=lockatt;
+   071F 78r04              1844 	mov	r0,#_lockatt
+   0721 86 02              1845 	mov	ar2,@r0
+   0723 78r05              1846 	mov	r0,#_resend
+   0725 A6 02              1847 	mov	@r0,ar2
+   0727                    1848 00108$:
+   0727 22                 1849 	ret
+                           1850 ;------------------------------------------------------------
+                           1851 ;Allocation info for local variables in function 'delay_timer'
+                           1852 ;------------------------------------------------------------
+                           1853 ;delrecno                  Allocated to registers 
+                           1854 ;objno                     Allocated to stack - offset 1
+                           1855 ;delay_state               Allocated to registers r6 
+                           1856 ;cycle_param               Allocated to registers r3 
+                           1857 ;ctrl                      Allocated to stack - offset 2
+                           1858 ;sperre                    Allocated to registers r7 
+                           1859 ;send                      Allocated to registers b0 
+                           1860 ;cyclic                    Allocated to registers b1 
+                           1861 ;over                      Allocated to registers b2 
+                           1862 ;------------------------------------------------------------
+                           1863 ;	../app_kombi.c:308: void delay_timer(void)	// zählt alle 130ms die Variable Timer hoch und prüft Einträge
+                           1864 ;	-----------------------------------------
+                           1865 ;	 function delay_timer
+                           1866 ;	-----------------------------------------
+   0728                    1867 _delay_timer:
+   0728 C0*00              1868 	push	_bp
+   072A 85 81*00           1869 	mov	_bp,sp
+   072D 05 81              1870 	inc	sp
+   072F 05 81              1871 	inc	sp
+                           1872 ;	../app_kombi.c:313: RTCCON=0x60;	// Real Time Clock stoppen
+   0731 75 D1 60           1873 	mov	_RTCCON,#0x60
+                           1874 ;	../app_kombi.c:315: timer++;
+   0734 05*00              1875 	inc	_timer
+   0736 E4                 1876 	clr	a
+   0737 B5*00 02           1877 	cjne	a,_timer,00168$
+   073A 05*01              1878 	inc	(_timer + 1)
+   073C                    1879 00168$:
+                           1880 ;	../app_kombi.c:317: RTCH=0x1D;		// Real Time Clock auf 130ms laden (0,13s x 7372800 / 128)
+   073C 75 D2 1D           1881 	mov	_RTCH,#0x1D
+                           1882 ;	../app_kombi.c:318: RTCL=0x40;		// (RTC ist ein down-counter mit 128 bit prescaler und osc-clock)
+   073F 75 D3 40           1883 	mov	_RTCL,#0x40
+                           1884 ;	../app_kombi.c:319: RTCCON=0x61;	// ... und starten
+   0742 75 D1 61           1885 	mov	_RTCCON,#0x61
+                           1886 ;	../app_kombi.c:321: for(delrecno=0;delrecno<DELREC_CNT;delrecno++) {
+   0745 A8*00              1887 	mov	r0,_bp
+   0747 08                 1888 	inc	r0
+   0748 76 00              1889 	mov	@r0,#0x00
+   074A                    1890 00141$:
+   074A A8*00              1891 	mov	r0,_bp
+   074C 08                 1892 	inc	r0
+   074D B6 09 00           1893 	cjne	@r0,#0x09,00169$
+   0750                    1894 00169$:
+   0750 40 03              1895 	jc	00170$
+   0752 02s08rDA           1896 	ljmp	00145$
+   0755                    1897 00170$:
+                           1898 ;	../app_kombi.c:322: objno=delrecno;
+   0755 A8*00              1899 	mov	r0,_bp
+   0757 08                 1900 	inc	r0
+   0758 86 03              1901 	mov	ar3,@r0
+                           1902 ;	../app_kombi.c:323: if (delrecno>1) objno++;	// da objno 2 im delay nicht benutzt wird
+   075A A8*00              1903 	mov	r0,_bp
+   075C 08                 1904 	inc	r0
+   075D E6                 1905 	mov	a,@r0
+   075E 24 FE              1906 	add	a,#0xff - 0x01
+   0760 50 06              1907 	jnc	00102$
+   0762 A8*00              1908 	mov	r0,_bp
+   0764 08                 1909 	inc	r0
+   0765 E6                 1910 	mov	a,@r0
+   0766 04                 1911 	inc	a
+   0767 FB                 1912 	mov	r3,a
+   0768                    1913 00102$:
+                           1914 ;	../app_kombi.c:325: delay_state=delrec[delrecno].delaystate;
+   0768 A8*00              1915 	mov	r0,_bp
+   076A 08                 1916 	inc	r0
+   076B E6                 1917 	mov	a,@r0
+   076C 25 E0              1918 	add	a,acc
+   076E 25 E0              1919 	add	a,acc
+   0770 FC                 1920 	mov	r4,a
+   0771 24r05              1921 	add	a,#_delrec
+   0773 FD                 1922 	mov	r5,a
+   0774 04                 1923 	inc	a
+   0775 F8                 1924 	mov	r0,a
+   0776 86 06              1925 	mov	ar6,@r0
+                           1926 ;	../app_kombi.c:326: if (delrec[delrecno].delayvalue==timer && delrec[delrecno].delayactive) {
+   0778 74 02              1927 	mov	a,#0x02
+   077A 2D                 1928 	add	a,r5
+   077B F8                 1929 	mov	r0,a
+   077C 86 05              1930 	mov	ar5,@r0
+   077E 08                 1931 	inc	r0
+   077F 86 07              1932 	mov	ar7,@r0
+   0781 18                 1933 	dec	r0
+   0782 ED                 1934 	mov	a,r5
+   0783 B5*00 06           1935 	cjne	a,_timer,00172$
+   0786 EF                 1936 	mov	a,r7
+   0787 B5*01 02           1937 	cjne	a,(_timer + 1),00172$
+   078A 80 03              1938 	sjmp	00173$
+   078C                    1939 00172$:
+   078C 02s08rD3           1940 	ljmp	00143$
+   078F                    1941 00173$:
+   078F EC                 1942 	mov	a,r4
+   0790 24r05              1943 	add	a,#_delrec
+   0792 F8                 1944 	mov	r0,a
+   0793 E6                 1945 	mov	a,@r0
+   0794 70 03              1946 	jnz	00174$
+   0796 02s08rD3           1947 	ljmp	00143$
+   0799                    1948 00174$:
+                           1949 ;	../app_kombi.c:328: send=0;
+   0799 C0 06              1950 	push	ar6
+   079B C2*00              1951 	clr	b0
+                           1952 ;	../app_kombi.c:329: cyclic=0;
+   079D C2*00              1953 	clr	b1
+                           1954 ;	../app_kombi.c:330: ctrl=eeprom[ctrl_adr[objno]];		// Control Parameter
+   079F EB                 1955 	mov	a,r3
+   07A0 90s00rEB           1956 	mov	dptr,#_ctrl_adr
+   07A3 93                 1957 	movc	a,@a+dptr
+   07A4 F5 82              1958 	mov	dpl,a
+   07A6 75 83s00           1959 	mov	dph,#(_eeprom >> 8)
+   07A9 E4                 1960 	clr	a
+   07AA 93                 1961 	movc	a,@a+dptr
+   07AB FD                 1962 	mov	r5,a
+   07AC A8*00              1963 	mov	r0,_bp
+   07AE 08                 1964 	inc	r0
+   07AF 08                 1965 	inc	r0
+   07B0 A6 05              1966 	mov	@r0,ar5
+                           1967 ;	../app_kombi.c:331: sperre=read_obj_value(10);
+   07B2 75 82 0A           1968 	mov	dpl,#0x0A
+   07B5 C0 03              1969 	push	ar3
+   07B7 C0 04              1970 	push	ar4
+   07B9 C0*00              1971 	push	bits
+   07BB 12s06r12           1972 	lcall	_read_obj_value
+   07BE AF 82              1973 	mov	r7,dpl
+   07C0 AE 83              1974 	mov	r6,dph
+   07C2 AD F0              1975 	mov	r5,b
+   07C4 FA                 1976 	mov	r2,a
+   07C5 D0*00              1977 	pop	bits
+   07C7 D0 04              1978 	pop	ar4
+   07C9 D0 03              1979 	pop	ar3
+                           1980 ;	../app_kombi.c:333: if (delrecno<2) {	//Helligkeits- und Temperaturwert
+   07CB A8*00              1981 	mov	r0,_bp
+   07CD 08                 1982 	inc	r0
+   07CE B6 02 00           1983 	cjne	@r0,#0x02,00175$
+   07D1                    1984 00175$:
+   07D1 D0 06              1985 	pop	ar6
+   07D3 50 2C              1986 	jnc	00129$
+                           1987 ;	../app_kombi.c:335: if ((eeprom[0xD3-delrecno])!=0)send=1;		// ohne Prüfung auf Sperre etc. immer senden wenn mindset hysterese<>0 oder zykl.
+   07D5 A8*00              1988 	mov	r0,_bp
+   07D7 08                 1989 	inc	r0
+   07D8 74 D3              1990 	mov	a,#0xD3
+   07DA C3                 1991 	clr	c
+   07DB 96                 1992 	subb	a,@r0
+   07DC 24r00              1993 	add	a,#_eeprom
+   07DE FA                 1994 	mov	r2,a
+   07DF E4                 1995 	clr	a
+   07E0 34s00              1996 	addc	a,#(_eeprom >> 8)
+   07E2 FD                 1997 	mov	r5,a
+   07E3 8A 82              1998 	mov	dpl,r2
+   07E5 8D 83              1999 	mov	dph,r5
+   07E7 E4                 2000 	clr	a
+   07E8 93                 2001 	movc	a,@a+dptr
+   07E9 60 02              2002 	jz	00104$
+   07EB D2*00              2003 	setb	b0
+   07ED                    2004 00104$:
+                           2005 ;	../app_kombi.c:337: if ((eeprom[0xD3-delrecno]&0x0F)!=0) cyclic=1;	// falls zyklisches Senden
+   07ED A8*00              2006 	mov	r0,_bp
+   07EF 08                 2007 	inc	r0
+   07F0 74 D3              2008 	mov	a,#0xD3
+   07F2 C3                 2009 	clr	c
+   07F3 96                 2010 	subb	a,@r0
+   07F4 90s00r00           2011 	mov	dptr,#_eeprom
+   07F7 93                 2012 	movc	a,@a+dptr
+   07F8 FA                 2013 	mov	r2,a
+   07F9 54 0F              2014 	anl	a,#0x0F
+   07FB 60 66              2015 	jz	00130$
+   07FD D2*00              2016 	setb	b1
+   07FF 80 62              2017 	sjmp	00130$
+   0801                    2018 00129$:
+                           2019 ;	../app_kombi.c:341: over=delrec[delrecno].delayactive & 0x02;	// überschritten
+   0801 EC                 2020 	mov	a,r4
+   0802 24r05              2021 	add	a,#_delrec
+   0804 F8                 2022 	mov	r0,a
+   0805 E6                 2023 	mov	a,@r0
+   0806 FA                 2024 	mov	r2,a
+   0807 A2 E1              2025 	mov	c,acc[1]
+                           2026 ;	../app_kombi.c:342: if (over) {	// wenn überschritten
+   0809 92*00              2027 	mov	b2,c
+   080B 50 0C              2028 	jnc	00112$
+                           2029 ;	../app_kombi.c:343: if(ctrl & 0x20) cyclic=1;	// wenn überschritten und es soll zyklisch gesendet werden...
+   080D A8*00              2030 	mov	r0,_bp
+   080F 08                 2031 	inc	r0
+   0810 08                 2032 	inc	r0
+   0811 E6                 2033 	mov	a,@r0
+   0812 30 E5 0E           2034 	jnb	acc.5,00113$
+   0815 D2*00              2035 	setb	b1
+   0817 80 0A              2036 	sjmp	00113$
+   0819                    2037 00112$:
+                           2038 ;	../app_kombi.c:346: if(ctrl & 0x80) cyclic=1;	// ...oder wenn unterschritten und es soll zyklisch gesendet werden...
+   0819 A8*00              2039 	mov	r0,_bp
+   081B 08                 2040 	inc	r0
+   081C 08                 2041 	inc	r0
+   081D E6                 2042 	mov	a,@r0
+   081E 30 E7 02           2043 	jnb	acc.7,00113$
+   0821 D2*00              2044 	setb	b1
+   0823                    2045 00113$:
+                           2046 ;	../app_kombi.c:349: if ((over && (ctrl&0x30)) || (!over && (ctrl&0xC0))) {	// Senden bei über- oder unterschreiten...
+   0823 30*00 09           2047 	jnb	b2,00121$
+   0826 A8*00              2048 	mov	r0,_bp
+   0828 08                 2049 	inc	r0
+   0829 08                 2050 	inc	r0
+   082A E6                 2051 	mov	a,@r0
+   082B 54 30              2052 	anl	a,#0x30
+   082D 70 0C              2053 	jnz	00117$
+   082F                    2054 00121$:
+   082F 20*00 16           2055 	jb	b2,00118$
+   0832 A8*00              2056 	mov	r0,_bp
+   0834 08                 2057 	inc	r0
+   0835 08                 2058 	inc	r0
+   0836 E6                 2059 	mov	a,@r0
+   0837 54 C0              2060 	anl	a,#0xC0
+   0839 60 0D              2061 	jz	00118$
+   083B                    2062 00117$:
+                           2063 ;	../app_kombi.c:350: if ((ctrl & 0x08)==0 || sperre==0) {	// ... nur wenn Sperre ignorieren oder Sperre=0
+   083B A8*00              2064 	mov	r0,_bp
+   083D 08                 2065 	inc	r0
+   083E 08                 2066 	inc	r0
+   083F E6                 2067 	mov	a,@r0
+   0840 30 E3 03           2068 	jnb	acc.3,00114$
+   0843 EF                 2069 	mov	a,r7
+   0844 70 02              2070 	jnz	00118$
+   0846                    2071 00114$:
+                           2072 ;	../app_kombi.c:351: send=1;
+   0846 D2*00              2073 	setb	b0
+   0848                    2074 00118$:
+                           2075 ;	../app_kombi.c:355: if ((eeprom[LUXPARAM]&0x80) && (objno==3)) {	// bei Helligkeitsregelung immer zyklisch und immer senden
+   0848 90s00rD3           2076 	mov	dptr,#(_eeprom + 0x00d3)
+   084B E4                 2077 	clr	a
+   084C 93                 2078 	movc	a,@a+dptr
+   084D FA                 2079 	mov	r2,a
+   084E 30 E7 12           2080 	jnb	acc.7,00130$
+   0851 BB 03 0F           2081 	cjne	r3,#0x03,00130$
+                           2082 ;	../app_kombi.c:356: if ((ctrl & 0x08)==0 || sperre==0) {	// ... nur wenn Sperre ignorieren oder Sperre=0
+   0854 A8*00              2083 	mov	r0,_bp
+   0856 08                 2084 	inc	r0
+   0857 08                 2085 	inc	r0
+   0858 E6                 2086 	mov	a,@r0
+   0859 30 E3 03           2087 	jnb	acc.3,00122$
+   085C EF                 2088 	mov	a,r7
+   085D 70 04              2089 	jnz	00130$
+   085F                    2090 00122$:
+                           2091 ;	../app_kombi.c:357: send=1;
+   085F D2*00              2092 	setb	b0
+                           2093 ;	../app_kombi.c:358: cyclic=1;
+   0861 D2*00              2094 	setb	b1
+   0863                    2095 00130$:
+                           2096 ;	../app_kombi.c:363: if (send) {
+   0863 30*00 29           2097 	jnb	b0,00134$
+                           2098 ;	../app_kombi.c:364: if (objno>1) write_obj_value(objno,delay_state);		// Wert ins userram schreiben
+   0866 EB                 2099 	mov	a,r3
+   0867 24 FE              2100 	add	a,#0xff - 0x01
+   0869 50 17              2101 	jnc	00132$
+   086B 7A 00              2102 	mov	r2,#0x00
+   086D C0 03              2103 	push	ar3
+   086F C0*00              2104 	push	bits
+   0871 C0 06              2105 	push	ar6
+   0873 C0 02              2106 	push	ar2
+   0875 8B 82              2107 	mov	dpl,r3
+   0877 12s06r75           2108 	lcall	_write_obj_value
+   087A 15 81              2109 	dec	sp
+   087C 15 81              2110 	dec	sp
+   087E D0*00              2111 	pop	bits
+   0880 D0 03              2112 	pop	ar3
+   0882                    2113 00132$:
+                           2114 ;	../app_kombi.c:365: send_obj_value(objno);			// Telegramm senden
+   0882 8B 82              2115 	mov	dpl,r3
+   0884 C0 03              2116 	push	ar3
+   0886 C0*00              2117 	push	bits
+   0888 12s00r00           2118 	lcall	_send_obj_value
+   088B D0*00              2119 	pop	bits
+   088D D0 03              2120 	pop	ar3
+   088F                    2121 00134$:
+                           2122 ;	../app_kombi.c:371: delrec[delrecno].delayactive &= 0xFB;
+   088F A8*00              2123 	mov	r0,_bp
+   0891 08                 2124 	inc	r0
+   0892 E6                 2125 	mov	a,@r0
+   0893 25 E0              2126 	add	a,acc
+   0895 25 E0              2127 	add	a,acc
+   0897 FA                 2128 	mov	r2,a
+   0898 24r05              2129 	add	a,#_delrec
+   089A F8                 2130 	mov	r0,a
+   089B 86 04              2131 	mov	ar4,@r0
+   089D 74 FB              2132 	mov	a,#0xFB
+   089F 5C                 2133 	anl	a,r4
+   08A0 F6                 2134 	mov	@r0,a
+                           2135 ;	../app_kombi.c:373: if (cyclic) {
+   08A1 30*00 2D           2136 	jnb	b1,00136$
+                           2137 ;	../app_kombi.c:374: cycle_param=eeprom[ctrl_adr[objno]+1]&0x0F;	// Zyklus-Adresse jeweils ein Byte über ctrl_adr
+   08A4 EB                 2138 	mov	a,r3
+   08A5 90s00rEB           2139 	mov	dptr,#_ctrl_adr
+   08A8 93                 2140 	movc	a,@a+dptr
+   08A9 04                 2141 	inc	a
+   08AA 90s00r00           2142 	mov	dptr,#_eeprom
+   08AD 93                 2143 	movc	a,@a+dptr
+   08AE FB                 2144 	mov	r3,a
+   08AF 53 03 0F           2145 	anl	ar3,#0x0F
+                           2146 ;	../app_kombi.c:375: delrec[delrecno].delayvalue=timer+cycleval[cycle_param];
+   08B2 EA                 2147 	mov	a,r2
+   08B3 24r07              2148 	add	a,#_delrec+0x02
+   08B5 F9                 2149 	mov	r1,a
+   08B6 EB                 2150 	mov	a,r3
+   08B7 2B                 2151 	add	a,r3
+   08B8 FA                 2152 	mov	r2,a
+   08B9 90s00r00           2153 	mov	dptr,#_cycleval
+   08BC 93                 2154 	movc	a,@a+dptr
+   08BD CA                 2155 	xch	a,r2
+   08BE A3                 2156 	inc	dptr
+   08BF 93                 2157 	movc	a,@a+dptr
+   08C0 FB                 2158 	mov	r3,a
+   08C1 EA                 2159 	mov	a,r2
+   08C2 25*00              2160 	add	a,_timer
+   08C4 FA                 2161 	mov	r2,a
+   08C5 EB                 2162 	mov	a,r3
+   08C6 35*01              2163 	addc	a,(_timer + 1)
+   08C8 FB                 2164 	mov	r3,a
+   08C9 A7 02              2165 	mov	@r1,ar2
+   08CB 09                 2166 	inc	r1
+   08CC A7 03              2167 	mov	@r1,ar3
+   08CE 19                 2168 	dec	r1
+   08CF 80 02              2169 	sjmp	00143$
+   08D1                    2170 00136$:
+                           2171 ;	../app_kombi.c:378: else delrec[delrecno].delayactive=0;
+   08D1 76 00              2172 	mov	@r0,#0x00
+   08D3                    2173 00143$:
+                           2174 ;	../app_kombi.c:321: for(delrecno=0;delrecno<DELREC_CNT;delrecno++) {
+   08D3 A8*00              2175 	mov	r0,_bp
+   08D5 08                 2176 	inc	r0
+   08D6 06                 2177 	inc	@r0
+   08D7 02s07r4A           2178 	ljmp	00141$
+   08DA                    2179 00145$:
+   08DA 85*00 81           2180 	mov	sp,_bp
+   08DD D0*00              2181 	pop	_bp
+   08DF 22                 2182 	ret
+                           2183 ;------------------------------------------------------------
+                           2184 ;Allocation info for local variables in function 'restart_app'
+                           2185 ;------------------------------------------------------------
+                           2186 ;objno                     Allocated to registers r2 
+                           2187 ;bitmask                   Allocated to registers r2 
+                           2188 ;ctrl                      Allocated to registers r4 
+                           2189 ;------------------------------------------------------------
+                           2190 ;	../app_kombi.c:385: void restart_app(void)		// Alle Applikations-Parameter zurücksetzen
+                           2191 ;	-----------------------------------------
+                           2192 ;	 function restart_app
+                           2193 ;	-----------------------------------------
+   08E0                    2194 _restart_app:
+                           2195 ;	../app_kombi.c:390: PT0AD=0xF0; 		// disable digital inputs P0.1 ... P0.5
+   08E0 75 F6 F0           2196 	mov	_PT0AD,#0xF0
+                           2197 ;	../app_kombi.c:391: P0= 0xBF;			// P0.0 push-pull for charging the capacitor, P0.6 push-pull status-LED
+   08E3 75 80 BF           2198 	mov	_P0,#0xBF
+                           2199 ;	../app_kombi.c:392: P0M1= 0x22;			// others bidirectional,
+   08E6 75 84 22           2200 	mov	_P0M1,#0x22
+                           2201 ;	../app_kombi.c:393: P0M2= 0x41;			// P0_5 & P0_1 high impedance for adc inputs
+   08E9 75 85 41           2202 	mov	_P0M2,#0x41
+                           2203 ;	../app_kombi.c:395: lux=65535;
+   08EC 75*00 FF           2204 	mov	_lux,#0xFF
+   08EF 75*01 FF           2205 	mov	(_lux + 1),#0xFF
+                           2206 ;	../app_kombi.c:396: temp=-1000;
+   08F2 75*00 18           2207 	mov	_temp,#0x18
+   08F5 75*01 FC           2208 	mov	(_temp + 1),#0xFC
+                           2209 ;	../app_kombi.c:397: lastlux=lux;
+   08F8 75*00 FF           2210 	mov	_lastlux,#0xFF
+   08FB 75*01 FF           2211 	mov	(_lastlux + 1),#0xFF
+                           2212 ;	../app_kombi.c:398: lasttemp=temp;
+   08FE 75*00 18           2213 	mov	_lasttemp,#0x18
+   0901 75*01 FC           2214 	mov	(_lasttemp + 1),#0xFC
+                           2215 ;	../app_kombi.c:400: overrun=0;
+   0904 78r00              2216 	mov	r0,#_overrun
+   0906 76 00              2217 	mov	@r0,#0x00
+                           2218 ;	../app_kombi.c:401: underrun=0;
+   0908 78r01              2219 	mov	r0,#_underrun
+                           2220 ;	../app_kombi.c:403: timer=0;
+   090A E4                 2221 	clr	a
+   090B F6                 2222 	mov	@r0,a
+   090C F5*00              2223 	mov	_timer,a
+   090E F5*01              2224 	mov	(_timer + 1),a
+                           2225 ;	../app_kombi.c:404: sequence=1;
+   0910 78r03              2226 	mov	r0,#_sequence
+   0912 76 01              2227 	mov	@r0,#0x01
+                           2228 ;	../app_kombi.c:408: lockatt=0;
+   0914 78r04              2229 	mov	r0,#_lockatt
+   0916 76 00              2230 	mov	@r0,#0x00
+                           2231 ;	../app_kombi.c:409: bitmask=1;
+   0918 7A 01              2232 	mov	r2,#0x01
+                           2233 ;	../app_kombi.c:410: for (objno=3; objno<=9; objno++) {
+   091A 7B 03              2234 	mov	r3,#0x03
+   091C                    2235 00107$:
+   091C EB                 2236 	mov	a,r3
+   091D 24 F6              2237 	add	a,#0xff - 0x09
+   091F 40 1B              2238 	jc	00110$
+                           2239 ;	../app_kombi.c:411: ctrl=eeprom[ctrl_adr[objno]];
+   0921 EB                 2240 	mov	a,r3
+   0922 90s00rEB           2241 	mov	dptr,#_ctrl_adr
+   0925 93                 2242 	movc	a,@a+dptr
+   0926 F5 82              2243 	mov	dpl,a
+   0928 75 83s00           2244 	mov	dph,#(_eeprom >> 8)
+   092B E4                 2245 	clr	a
+   092C 93                 2246 	movc	a,@a+dptr
+                           2247 ;	../app_kombi.c:412: if (ctrl & 0x08) lockatt|=bitmask;
+   092D FC                 2248 	mov	r4,a
+   092E 30 E3 05           2249 	jnb	acc.3,00102$
+   0931 78r04              2250 	mov	r0,#_lockatt
+   0933 EA                 2251 	mov	a,r2
+   0934 46                 2252 	orl	a,@r0
+   0935 F6                 2253 	mov	@r0,a
+   0936                    2254 00102$:
+                           2255 ;	../app_kombi.c:413: bitmask=bitmask<<1;
+   0936 EA                 2256 	mov	a,r2
+   0937 2A                 2257 	add	a,r2
+   0938 FA                 2258 	mov	r2,a
+                           2259 ;	../app_kombi.c:410: for (objno=3; objno<=9; objno++) {
+   0939 0B                 2260 	inc	r3
+   093A 80 E0              2261 	sjmp	00107$
+   093C                    2262 00110$:
+                           2263 ;	../app_kombi.c:417: global_object_value_3_to_10 &= 0x7F;
+   093C 53r04 7F           2264 	anl	_global_object_value_3_to_10,#0x7F
+                           2265 ;	../app_kombi.c:419: for (objno=2;objno<9;objno++) WRITE_DELAY_RECORD(objno,0,0,0)			// erstmal alle delay-records auf inaktiv setzen
+   093F 7A 07              2266 	mov	r2,#0x07
+   0941                    2267 00113$:
+   0941 EA                 2268 	mov	a,r2
+   0942 14                 2269 	dec	a
+   0943 FB                 2270 	mov	r3,a
+   0944 25 E0              2271 	add	a,acc
+   0946 25 E0              2272 	add	a,acc
+   0948 FC                 2273 	mov	r4,a
+   0949 24r05              2274 	add	a,#_delrec
+   094B F8                 2275 	mov	r0,a
+   094C 76 00              2276 	mov	@r0,#0x00
+   094E 8B 02              2277 	mov	ar2,r3
+   0950 EA                 2278 	mov	a,r2
+   0951 70 EE              2279 	jnz	00113$
+   0953 F5*2A              2280 	mov	(_delrec + 0x0025),a
+   0955 F5*2B              2281 	mov	(_delrec + 0x0026),a
+   0957 F5*2C              2282 	mov	((_delrec + 0x0026) + 1),a
+                           2283 ;	../app_kombi.c:420: if ((eeprom[0xD3]&0x0F)!=0) {
+   0959 90s00rD3           2284 	mov	dptr,#(_eeprom + 0x00d3)
+   095C E4                 2285 	clr	a
+   095D 93                 2286 	movc	a,@a+dptr
+   095E FA                 2287 	mov	r2,a
+   095F 54 0F              2288 	anl	a,#0x0F
+   0961 60 0C              2289 	jz	00104$
+                           2290 ;	../app_kombi.c:421: WRITE_DELAY_RECORD(0,1,1,timer+50)
+   0963 75*05 01           2291 	mov	_delrec,#0x01
+   0966 75*06 01           2292 	mov	(_delrec + 0x0001),#0x01
+   0969 75*07 32           2293 	mov	(_delrec + 0x0002),#0x32
+   096C 75*08 00           2294 	mov	((_delrec + 0x0002) + 1),#0x00
+   096F                    2295 00104$:
+                           2296 ;	../app_kombi.c:423: if ((eeprom[0xD2]&0x0F)!=0) {
+   096F 90s00rD2           2297 	mov	dptr,#(_eeprom + 0x00d2)
+   0972 E4                 2298 	clr	a
+   0973 93                 2299 	movc	a,@a+dptr
+   0974 FA                 2300 	mov	r2,a
+   0975 54 0F              2301 	anl	a,#0x0F
+   0977 60 0C              2302 	jz	00106$
+                           2303 ;	../app_kombi.c:424: WRITE_DELAY_RECORD(1,1,1,timer+55)
+   0979 75*09 01           2304 	mov	(_delrec + 0x0004),#0x01
+   097C 75*0A 01           2305 	mov	(_delrec + 0x0005),#0x01
+   097F 75*0B 37           2306 	mov	(_delrec + 0x0006),#0x37
+   0982 75*0C 00           2307 	mov	((_delrec + 0x0006) + 1),#0x00
+   0985                    2308 00106$:
+                           2309 ;	../app_kombi.c:427: EA=0;
+   0985 C2 AF              2310 	clr	_IEN0_7
+                           2311 ;	../app_kombi.c:428: START_WRITECYCLE			// Applikations-spezifische eeprom Eintraege schreiben
+   0987 75 E4 00           2312 	mov	_FMCON,#0x00
+                           2313 ;	../app_kombi.c:429: WRITE_BYTE(0x01,0x03,0x00)	// Herstellercode: 0x0001 Siemens
+   098A 75 E7 1D           2314 	mov	_FMADRH,#0x1D
+   098D 75 E6 03           2315 	mov	_FMADRL,#0x03
+   0990 75 E5 00           2316 	mov	_FMDATA,#0x00
+                           2317 ;	../app_kombi.c:430: WRITE_BYTE(0x01,0x04,0x01)
+   0993 75 E7 1D           2318 	mov	_FMADRH,#0x1D
+   0996 75 E6 04           2319 	mov	_FMADRL,#0x04
+   0999 75 E5 01           2320 	mov	_FMDATA,#0x01
+                           2321 ;	../app_kombi.c:431: WRITE_BYTE(0x01,0x05,0x22)	// Gerätetyp: 0x221C AP254
+   099C 75 E7 1D           2322 	mov	_FMADRH,#0x1D
+   099F 75 E6 05           2323 	mov	_FMADRL,#0x05
+   09A2 75 E5 22           2324 	mov	_FMDATA,#0x22
+                           2325 ;	../app_kombi.c:432: WRITE_BYTE(0x01,0x06,0x1C)
+   09A5 75 E7 1D           2326 	mov	_FMADRH,#0x1D
+   09A8 75 E6 06           2327 	mov	_FMADRL,#0x06
+   09AB 75 E5 1C           2328 	mov	_FMDATA,#0x1C
+                           2329 ;	../app_kombi.c:433: WRITE_BYTE(0x01,0x07,0x01)	// Software-Versionsnummer
+   09AE 75 E7 1D           2330 	mov	_FMADRH,#0x1D
+   09B1 75 E6 07           2331 	mov	_FMADRL,#0x07
+   09B4 75 E5 01           2332 	mov	_FMDATA,#0x01
+                           2333 ;	../app_kombi.c:434: WRITE_BYTE(0x01,0x0C,0x00)	// PORT A Direction Bit Setting
+   09B7 75 E7 1D           2334 	mov	_FMADRH,#0x1D
+   09BA 75 E6 0C           2335 	mov	_FMADRL,#0x0C
+   09BD 75 E5 00           2336 	mov	_FMDATA,#0x00
+                           2337 ;	../app_kombi.c:435: WRITE_BYTE(0x01,0x0D,0xFF)	// Run-Status (00=stop FF=run)
+   09C0 75 E7 1D           2338 	mov	_FMADRH,#0x1D
+   09C3 75 E6 0D           2339 	mov	_FMADRL,#0x0D
+   09C6 75 E5 FF           2340 	mov	_FMDATA,#0xFF
+                           2341 ;	../app_kombi.c:436: WRITE_BYTE(0x01,0x12,0x56)	// COMMSTAB Pointer
+   09C9 75 E7 1D           2342 	mov	_FMADRH,#0x1D
+   09CC 75 E6 12           2343 	mov	_FMADRL,#0x12
+   09CF 75 E5 56           2344 	mov	_FMDATA,#0x56
+                           2345 ;	../app_kombi.c:437: STOP_WRITECYCLE
+   09D2 75 E4 68           2346 	mov	_FMCON,#0x68
+                           2347 ;	../app_kombi.c:438: START_WRITECYCLE;
+   09D5 75 E4 00           2348 	mov	_FMCON,#0x00
+                           2349 ;	../app_kombi.c:439: WRITE_BYTE(0x00,0x60,0x2E);	// system state: all layers active (run), not in prog mode
+   09D8 75 E7 1C           2350 	mov	_FMADRH,#0x1C
+   09DB 75 E6 60           2351 	mov	_FMADRL,#0x60
+   09DE 75 E5 2E           2352 	mov	_FMDATA,#0x2E
+                           2353 ;	../app_kombi.c:440: STOP_WRITECYCLE;
+   09E1 75 E4 68           2354 	mov	_FMCON,#0x68
+                           2355 ;	../app_kombi.c:441: EA=1;
+   09E4 D2 AF              2356 	setb	_IEN0_7
+   09E6 22                 2357 	ret
+                           2358 	.area CSEG    (CODE)
+                           2359 	.area CONST   (CODE)
+   0000                    2360 _cycleval:
+   0000 5C 67              2361 	.byte #0x5C,#0x67
+   0002 B9 01              2362 	.byte #0xB9,#0x01
+   0004 2B 05              2363 	.byte #0x2B,#0x05
+   0006 9D 08              2364 	.byte #0x9D,#0x08
+   0008 3A 11              2365 	.byte #0x3A,#0x11
+   000A 74 22              2366 	.byte #0x74,#0x22
+   000C AE 33              2367 	.byte #0xAE,#0x33
+   000E 85 4D              2368 	.byte #0x85,#0x4D
+   0010 5C 67              2369 	.byte #0x5C,#0x67
+   0012                    2370 _luxtable:
+   0012 02 00              2371 	.byte #0x02,#0x00
+   0014 02 00              2372 	.byte #0x02,#0x00
+   0016 02 00              2373 	.byte #0x02,#0x00
+   0018 03 00              2374 	.byte #0x03,#0x00
+   001A 03 00              2375 	.byte #0x03,#0x00
+   001C 04 00              2376 	.byte #0x04,#0x00
+   001E 04 00              2377 	.byte #0x04,#0x00
+   0020 05 00              2378 	.byte #0x05,#0x00
+   0022 05 00              2379 	.byte #0x05,#0x00
+   0024 06 00              2380 	.byte #0x06,#0x00
+   0026 07 00              2381 	.byte #0x07,#0x00
+   0028 08 00              2382 	.byte #0x08,#0x00
+   002A 09 00              2383 	.byte #0x09,#0x00
+   002C 0A 00              2384 	.byte #0x0A,#0x00
+   002E 0B 00              2385 	.byte #0x0B,#0x00
+   0030 0C 00              2386 	.byte #0x0C,#0x00
+   0032 0E 00              2387 	.byte #0x0E,#0x00
+   0034 10 00              2388 	.byte #0x10,#0x00
+   0036 12 00              2389 	.byte #0x12,#0x00
+   0038 14 00              2390 	.byte #0x14,#0x00
+   003A 17 00              2391 	.byte #0x17,#0x00
+   003C 1A 00              2392 	.byte #0x1A,#0x00
+   003E 1E 00              2393 	.byte #0x1E,#0x00
+   0040 23 00              2394 	.byte #0x23,#0x00
+   0042 28 00              2395 	.byte #0x28,#0x00
+   0044 2D 00              2396 	.byte #0x2D,#0x00
+   0046 32 00              2397 	.byte #0x32,#0x00
+   0048 37 00              2398 	.byte #0x37,#0x00
+   004A 3C 00              2399 	.byte #0x3C,#0x00
+   004C 46 00              2400 	.byte #0x46,#0x00
+   004E 50 00              2401 	.byte #0x50,#0x00
+   0050 5A 00              2402 	.byte #0x5A,#0x00
+   0052 64 00              2403 	.byte #0x64,#0x00
+   0054 6E 00              2404 	.byte #0x6E,#0x00
+   0056 7D 00              2405 	.byte #0x7D,#0x00
+   0058 8C 00              2406 	.byte #0x8C,#0x00
+   005A A0 00              2407 	.byte #0xA0,#0x00
+   005C B4 00              2408 	.byte #0xB4,#0x00
+   005E C8 00              2409 	.byte #0xC8,#0x00
+   0060 E6 00              2410 	.byte #0xE6,#0x00
+   0062 04 01              2411 	.byte #0x04,#0x01
+   0064 2C 01              2412 	.byte #0x2C,#0x01
+   0066 5E 01              2413 	.byte #0x5E,#0x01
+   0068 90 01              2414 	.byte #0x90,#0x01
+   006A C2 01              2415 	.byte #0xC2,#0x01
+   006C F4 01              2416 	.byte #0xF4,#0x01
+   006E 26 02              2417 	.byte #0x26,#0x02
+   0070 58 02              2418 	.byte #0x58,#0x02
+   0072 BC 02              2419 	.byte #0xBC,#0x02
+   0074 20 03              2420 	.byte #0x20,#0x03
+   0076 84 03              2421 	.byte #0x84,#0x03
+   0078 E8 03              2422 	.byte #0xE8,#0x03
+   007A 4C 04              2423 	.byte #0x4C,#0x04
+   007C E2 04              2424 	.byte #0xE2,#0x04
+   007E 78 05              2425 	.byte #0x78,#0x05
+   0080 40 06              2426 	.byte #0x40,#0x06
+   0082 08 07              2427 	.byte #0x08,#0x07
+   0084 D0 07              2428 	.byte #0xD0,#0x07
+   0086 FC 08              2429 	.byte #0xFC,#0x08
+   0088 28 0A              2430 	.byte #0x28,#0x0A
+   008A B8 0B              2431 	.byte #0xB8,#0x0B
+   008C AC 0D              2432 	.byte #0xAC,#0x0D
+   008E A0 0F              2433 	.byte #0xA0,#0x0F
+   0090 94 11              2434 	.byte #0x94,#0x11
+   0092 88 13              2435 	.byte #0x88,#0x13
+   0094 7C 15              2436 	.byte #0x7C,#0x15
+   0096 70 17              2437 	.byte #0x70,#0x17
+   0098 58 1B              2438 	.byte #0x58,#0x1B
+   009A 40 1F              2439 	.byte #0x40,#0x1F
+   009C 28 23              2440 	.byte #0x28,#0x23
+   009E 10 27              2441 	.byte #0x10,#0x27
+   00A0 F8 2A              2442 	.byte #0xF8,#0x2A
+   00A2 D4 30              2443 	.byte #0xD4,#0x30
+   00A4 B0 36              2444 	.byte #0xB0,#0x36
+   00A6 80 3E              2445 	.byte #0x80,#0x3E
+   00A8 50 46              2446 	.byte #0x50,#0x46
+   00AA 20 4E              2447 	.byte #0x20,#0x4E
+   00AC D8 59              2448 	.byte #0xD8,#0x59
+   00AE 90 65              2449 	.byte #0x90,#0x65
+   00B0 30 75              2450 	.byte #0x30,#0x75
+   00B2 B8 88              2451 	.byte #0xB8,#0x88
+   00B4 40 9C              2452 	.byte #0x40,#0x9C
+   00B6 C8 AF              2453 	.byte #0xC8,#0xAF
+   00B8 50 C3              2454 	.byte #0x50,#0xC3
+   00BA D8 D6              2455 	.byte #0xD8,#0xD6
+   00BC 60 EA              2456 	.byte #0x60,#0xEA
+   00BE FF FF              2457 	.byte #0xFF,#0xFF
+   00C0 FF FF              2458 	.byte #0xFF,#0xFF
+   00C2 FF FF              2459 	.byte #0xFF,#0xFF
+   00C4 FF FF              2460 	.byte #0xFF,#0xFF
+   00C6                    2461 _hystable:
+   00C6 01                 2462 	.db #0x01
+   00C7 02                 2463 	.db #0x02
+   00C8 0A                 2464 	.db #0x0A
+   00C9 05                 2465 	.db #0x05
+   00CA 03                 2466 	.db #0x03
+   00CB                    2467 _luxdelay:
+   00CB 00 00              2468 	.byte #0x00,#0x00
+   00CD 0F 00              2469 	.byte #0x0F,#0x00
+   00CF 26 00              2470 	.byte #0x26,#0x00
+   00D1 4B 00              2471 	.byte #0x4B,#0x00
+   00D3 70 00              2472 	.byte #0x70,#0x00
+   00D5 95 00              2473 	.byte #0x95,#0x00
+   00D7 E1 00              2474 	.byte #0xE1,#0x00
+   00D9 51 01              2475 	.byte #0x51,#0x01
+   00DB C1 01              2476 	.byte #0xC1,#0x01
+   00DD A2 02              2477 	.byte #0xA2,#0x02
+   00DF 81 03              2478 	.byte #0x81,#0x03
+   00E1 42 05              2479 	.byte #0x42,#0x05
+   00E3 C3 08              2480 	.byte #0xC3,#0x08
+   00E5 85 11              2481 	.byte #0x85,#0x11
+   00E7 52 1A              2482 	.byte #0x52,#0x1A
+   00E9 8E 34              2483 	.byte #0x8E,#0x34
+   00EB                    2484 _ctrl_adr:
+   00EB D2                 2485 	.db #0xD2
+   00EC D1                 2486 	.db #0xD1
+   00ED 00                 2487 	.db #0x00
+   00EE F9                 2488 	.db #0xF9
+   00EF F4                 2489 	.db #0xF4
+   00F0 EF                 2490 	.db #0xEF
+   00F1 EA                 2491 	.db #0xEA
+   00F2 E5                 2492 	.db #0xE5
+   00F3 E0                 2493 	.db #0xE0
+   00F4 DA                 2494 	.db #0xDA
+                           2495 	.area XINIT   (CODE)
+                           2496 	.area CABS    (ABS,CODE)
